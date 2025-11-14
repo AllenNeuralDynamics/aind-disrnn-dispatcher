@@ -1,7 +1,19 @@
+job_id: 0
+
 defaults:
   - data: mice
   - model: disrnn
-  - _self_
 
 seed: 42
+
+# Hydra output directories
+hydra:
+  run:
+    # Directory for single runs, where user generates the job id
+    dir: /root/capsule/results/jobs/${job_id}
+  sweep:
+    # Directory for multirun sweeps
+    dir: /root/capsule/results/jobs
+    # Let Hydra create the job id
+    subdir: ${hydra.job.num}_${hydra.job.id}
 
