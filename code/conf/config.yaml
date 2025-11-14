@@ -3,6 +3,7 @@ job_id: 0
 defaults:
   - data: mice
   - model: disrnn
+  - _self_
 
 seed: 42
 

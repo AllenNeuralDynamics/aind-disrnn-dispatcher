@@ -9,6 +9,6 @@ agent_kwargs:
   action_selection: "softmax"
 
 fit_kwargs:
-	DE_kwargs:
+  DE_kwargs:
     polish: true
     seed: 42
