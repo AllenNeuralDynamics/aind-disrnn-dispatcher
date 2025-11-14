@@ -1,6 +1,7 @@
 # See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
-agent_class: "ForagerQLearning"
+model_type: baseline_rl
 
+agent_class: "ForagerQLearning"
 agent_kwargs:
   number_of_learning_rate: 2
   number_of_forget_rate: 1

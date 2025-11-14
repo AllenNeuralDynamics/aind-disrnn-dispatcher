@@ -1,0 +1,32 @@
+data:
+  data_source: mice
+  subject_ids:
+  - 774212
+  multisubject: false
+  ignore_policy: exclude
+  features:
+    animal_response: prev choice
+    rewarded: prev reward
+model:
+  model_type: disrnn
+  architecture:
+    latent_size: 5
+    update_net_n_units_per_layer: 16
+    update_net_n_layers: 8
+    choice_net_n_units_per_layer: 4
+    choice_net_n_layers: 1
+    activation: leaky_relu
+  penalties:
+    beta: 0.01
+    latent_penalty: ${.beta}
+    choice_net_latent_penalty: ${.beta}
+    update_net_obs_penalty: ${.beta}
+    update_net_latent_penalty: ${.beta}
+  training:
+    n_steps: 3000
+    n_warmup_steps: 1000
+    lr: 0.001
+    eval_every_n: 100
+    loss: penalized_categorical
+    loss_param: 1.0
+seed: 42

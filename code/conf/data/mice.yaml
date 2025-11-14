@@ -1,4 +1,4 @@
-source: mice
+data_source: mice
 
 subject_ids: [774212]
 multisubject: false
