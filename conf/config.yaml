@@ -1,0 +1,7 @@
+defaults:
+  - data: mice
+  - model: disrnn
+  - _self_
+
+seed: 42
+

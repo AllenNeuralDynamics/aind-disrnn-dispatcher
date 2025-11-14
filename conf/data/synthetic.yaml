@@ -1,0 +1,5 @@
+defaults:
+  - task: uncoupled_block_task
+  - agent: rl
+
+num_trials: 1000
