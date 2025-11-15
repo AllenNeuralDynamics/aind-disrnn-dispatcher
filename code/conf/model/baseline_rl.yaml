@@ -1,5 +1,5 @@
 # See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
-model_type: baseline_rl
+type: baseline_rl
 
 agent_class: "ForagerQLearning"
 agent_kwargs:

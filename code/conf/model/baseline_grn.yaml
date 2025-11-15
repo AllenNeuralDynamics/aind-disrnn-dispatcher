@@ -1,2 +1,2 @@
 # Placeholder for baseline GRN model
-model_type: baseline_grn
+type: baseline_grn
