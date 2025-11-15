@@ -6,6 +6,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG GIT_ASKPASS
 COPY git-askpass /
 
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    hydra-core>=1.3.0 \
+    omegaconf>=2.3.0 \
+    pydantic>=2.0.0
+
 COPY postInstall /
 RUN --mount=type=secret,id=secrets . /run/secrets/secrets \
     && /postInstall

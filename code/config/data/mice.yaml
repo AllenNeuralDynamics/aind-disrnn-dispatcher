@@ -1,0 +1,10 @@
+source: mice
+
+subject_ids: [774212]
+multisubject: false
+
+ignore_policy: exclude
+
+features:
+  animal_response: prev choice
+  rewarded: prev reward
