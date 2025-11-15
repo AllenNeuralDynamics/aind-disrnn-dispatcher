@@ -13,7 +13,7 @@ from config_helpers import dictconfig_to_json
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="conf", config_name="config")
+@hydra.main(version_base=None, config_path="config", config_name="config")
 def generate_jobs(cfg: DictConfig) -> None:
     """Main run function that loads Hydra config and saves to results/jobs"""
     
@@ -31,12 +31,9 @@ def generate_jobs(cfg: DictConfig) -> None:
     # Convert config to JSON-serializable dict
     config_dict = dictconfig_to_json(cfg)
     
-    # Create results/jobs directory if it doesn't exist
-    jobs_dir = Path("/root/capsule/results/jobs")
-    jobs_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save config as JSON
-    config_path = jobs_dir / "config.json"
+    # Save config as JSON inside the hydra run directory
+    run_dir = Path.cwd()
+    config_path = run_dir / ".hydra/config.json"
     with open(config_path, "w") as f:
         json.dump(config_dict, f, indent=2)
     
@@ -49,6 +46,8 @@ def generate_jobs_with_args(override_list: list[str]):
     generate_jobs()
 
 if __name__ == "__main__":
-    #generate_jobs()
+    # Controled by input args
+    generate_jobs()
     
-    generate_jobs_with_args(["data=mice", "model=disrnn"])
+    # Overwrite by python code
+    #generate_jobs_with_args(["data=mice", "model=disrnn"])

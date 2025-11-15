@@ -1,4 +1,4 @@
-data_source: synthetic
+source: synthetic
 
 defaults:
   - synthetic/task: uncoupled_block

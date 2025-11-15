@@ -7,12 +7,19 @@ defaults:
 
 seed: 42
 
-# Hydra output directories
+# W&B logging
+wandb:
+  entity: AIND-disRNN
+  # TODO: sweep controled by w&b
+
+# Hydra output directories to be distributed to the wrapper capsule
 hydra:
+  job:
+    chdir: true
   run:
     # Directory for single runs, where the user provides the job id
-    dir: /root/capsule/results/jobs/${job_id}
+    dir: /root/capsule/results/${job_id}
   sweep:
     # Directory for multirun sweeps, where Hydra manages job ids
-    dir: /root/capsule/results/jobs
+    dir: /root/capsule/results/
 
