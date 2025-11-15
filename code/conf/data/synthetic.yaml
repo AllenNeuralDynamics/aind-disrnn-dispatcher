@@ -1,7 +1,7 @@
 data_source: synthetic
 
 defaults:
-  - task: uncoupled_block_task
-  - agent: rl
+  - synthetic/task: uncoupled_block
+  - synthetic/agent: rl
 
 num_trials: 1000
