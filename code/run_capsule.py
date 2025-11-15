@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
-def run(cfg: DictConfig) -> None:
+def generate_jobs(cfg: DictConfig) -> None:
     """Main run function that loads Hydra config and saves to results/jobs"""
     
     # Set up logging
@@ -43,5 +43,12 @@ def run(cfg: DictConfig) -> None:
     logger.info(f"Saved configuration to {config_path}")
 
 
+def generate_jobs_with_args(override_list: list[str]):
+    """Programmatic entry point."""
+    sys.argv = ["run_capsule.py"] + override_list
+    generate_jobs()
+
 if __name__ == "__main__":
-    run()
+    #generate_jobs()
+    
+    generate_jobs_with_args(["data=mice", "model=disrnn"])
