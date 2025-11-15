@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -ex
 
-# This is the master script for the capsule. When you click "Reproducible Run", the code in this file will execute.
-python -u run_capsule.py "$@"
+HYDRA_OVERRIDES="$1"
+
+echo "[dispatcher] hydra overrides: ${HYDRA_OVERRIDES}"
+
+# IMPORTANT: no quotes here, so the shell re-splits into args
+python -u run_capsule.py ${HYDRA_OVERRIDES}
