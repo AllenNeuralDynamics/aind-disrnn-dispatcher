@@ -10,11 +10,9 @@ seed: 42
 # Hydra output directories
 hydra:
   run:
-    # Directory for single runs, where user generates the job id
+    # Directory for single runs, where the user provides the job id
     dir: /root/capsule/results/jobs/${job_id}
   sweep:
-    # Directory for multirun sweeps
+    # Directory for multirun sweeps, where Hydra manages job ids
     dir: /root/capsule/results/jobs
-    # Let Hydra create the job id
-    subdir: ${hydra.job.num}_${hydra.job.id}
 
