@@ -8,7 +8,7 @@ from pathlib import Path
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
-from config_helpers import dictconfig_to_json
+from util import dictconfig_to_json
 
 logger = logging.getLogger(__name__)
 
