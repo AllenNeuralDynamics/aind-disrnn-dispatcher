@@ -11,8 +11,7 @@ This capsule uses Hydra to compose configurations from the files under
 `code/config/`. You can invoke it directly with Python or via the CO's input arguments
 (which passes the arguments via the "run" file).
 
-Examples (direct Python invocation)
-----------------------------------
+## Examples (direct Python invocation)
 1. Default single run with the default parameters (data=mice, model=disrnn)
     Uses the defaults declared in `config/config.yaml`:
     ```bash
@@ -87,11 +86,19 @@ Examples (direct Python invocation)
     Results will be placed under `results/` using Hydra-generated job IDs.
 
 
-Additional notes
-----------------
+## Additional notes
+
 * All composed configurations are serialized to JSON at `.hydra/config.json` inside the run directory.
 * To call programmatically from Python:
   ```python
   from run_capsule import generate_jobs_with_args
   generate_jobs_with_args(["data=mice", "model=disrnn", "job_id=42"])
   ```
+
+# Usage in Code Ocean
+- Enter the whole override string in the app panel and hit "Run"<br>
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/92ee7654-802b-49f4-8ed8-9e87bc879cd8" />
+- You'll see all generated jobs like this<br>
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/15627c06-784a-4cb7-a4b2-903a2fdec52b" />
+
+      
