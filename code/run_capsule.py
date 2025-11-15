@@ -75,7 +75,7 @@ def generate_jobs(cfg: DictConfig) -> None:
     run_dir = Path.cwd()
     config_path = run_dir / ".hydra/config.json"
     with open(config_path, "w") as f:
-        json.dump(config_dict, f, indent=2)
+        json.dump(config_dict, f, indent=4)
     
     logger.info(f"Saved configuration to {config_path}")
 
