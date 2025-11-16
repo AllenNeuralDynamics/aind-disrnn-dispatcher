@@ -19,6 +19,5 @@ training:
   n_steps: 3000
   n_warmup_steps: 1000
   lr: 0.001
-  eval_every_n: 100
   loss: penalized_categorical
   loss_param: 1.0

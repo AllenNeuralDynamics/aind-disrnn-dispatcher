@@ -1,3 +1,6 @@
+defaults:
+  - base@_here_  # All shared data config
+
 source: mice
 
 subject_ids: [774212]
