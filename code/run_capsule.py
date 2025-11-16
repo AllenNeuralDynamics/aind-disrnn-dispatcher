@@ -71,11 +71,19 @@ def generate_jobs(cfg: DictConfig) -> None:
     # Convert config to JSON-serializable dict
     config_dict = dictconfig_to_json(cfg)
     
-    # Save config as JSON inside the hydra run directory
+    # Save config as JSON inside the hydra run directory for readability
     run_dir = Path.cwd()
     config_path = run_dir / ".hydra/config.json"
     with open(config_path, "w") as f:
         json.dump(config_dict, f, indent=4)
+        
+    # If /results/multirun.yaml exists, copy it to the run directory
+    multirun_src = Path("/results") / "multirun.yaml"
+    if multirun_src.exists():
+        multirun_dst = run_dir / "multirun.yaml"
+        with open(multirun_src, "r") as f_src, open(multirun_dst, "w") as f_dst:
+            f_dst.write(f_src.read())
+        logger.info(f"Copied multirun.yaml to {multirun_dst}")
     
     logger.info(f"Saved configuration to {config_path}")
 
@@ -91,3 +99,10 @@ if __name__ == "__main__":
     
     # Overwrite by python code
     #generate_jobs_with_args(["data=mice", "model=disrnn"])
+    
+    # Remove multirun.yaml under /results if exists
+    # Otherwise, there will be an additional wrapper capsule be triggered
+    multirun_path = Path("/results") / "multirun.yaml"
+    if multirun_path.exists():
+        multirun_path.unlink()
+        logger.info(f"Removed {multirun_path}")

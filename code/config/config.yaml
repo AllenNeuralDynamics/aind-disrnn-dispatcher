@@ -22,4 +22,3 @@ hydra:
   sweep:
     # Directory for multirun sweeps, where Hydra manages job ids
     dir: /results/
-
