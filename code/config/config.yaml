@@ -1,0 +1,24 @@
+job_id: 0
+
+defaults:
+  - data: mice
+  - model: disrnn
+  - _self_
+
+seed: 42
+
+# W&B logging
+wandb:
+  entity: AIND-disRNN
+  # TODO: sweep controled by w&b
+
+# Hydra output directories to be distributed to the wrapper capsule
+hydra:
+  job:
+    chdir: true
+  run:
+    # Directory for single runs, where the user provides the job id
+    dir: /results/${job_id}/
+  sweep:
+    # Directory for multirun sweeps, where Hydra manages job ids
+    dir: /results/

@@ -1,0 +1,8 @@
+defaults:
+  - base@_here_  # All shared data config
+  - synthetic/task: uncoupled_block
+  - synthetic/agent: rl
+
+source: synthetic
+
+num_trials: 1000
