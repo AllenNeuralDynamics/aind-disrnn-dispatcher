@@ -1,12 +1,12 @@
 defaults:
   - base@_here_  # All shared data config
 
-source: mice
+_target_: data_loaders.mice.MiceDatasetLoader
 
 subject_ids: [774212]
 multisubject: false
-
 ignore_policy: exclude
+source: mice
 
 features:
   animal_response: prev choice

@@ -3,6 +3,8 @@ defaults:
   - synthetic/task: uncoupled_block
   - synthetic/agent: rl
 
+_target_: data_loaders.synthetic.SyntheticDatasetLoader
+
 source: synthetic
 
 num_trials: 1000
