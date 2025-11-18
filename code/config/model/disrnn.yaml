@@ -22,8 +22,3 @@ training:
   lr: 0.001
   loss: penalized_categorical
   loss_param: 1.0
-
-wandb:
-  entity: ${oc.select:wandb.entity,null}
-  project: ${oc.select:wandb.project,han-test}
-  dir: /results
