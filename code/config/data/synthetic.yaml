@@ -1,9 +1,10 @@
-source: synthetic
+type: synthetic
 
 defaults:
-  - base@_here_  # All shared data config
+  - _self_
   - synthetic/task: uncoupled_block
   - synthetic/agent: rl
+  - base@_here_  # All shared data config
 
 _target_: data_loaders.synthetic.SyntheticDatasetLoader
 

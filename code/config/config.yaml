@@ -1,7 +1,5 @@
-job_id: 0
-
 defaults:
-  - data: mice
+  - data: synthetic
   - model: disrnn
   - _self_
 
@@ -17,6 +15,7 @@ wandb:
 
 
 # Hydra output directories to be distributed to the wrapper capsule
+job_id: 0
 hydra:
   job:
     chdir: true

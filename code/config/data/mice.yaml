@@ -1,6 +1,7 @@
-source: mice
+type: mice
 
 defaults:
+  - _self_
   - base@_here_  # All shared data config
 
 # Data loader class
