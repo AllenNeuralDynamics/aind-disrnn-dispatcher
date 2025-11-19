@@ -1,4 +1,4 @@
-type: random_walk_task
+type: random_walk
 reward_baiting: false
 
 p_min: [0.0, 0.0]

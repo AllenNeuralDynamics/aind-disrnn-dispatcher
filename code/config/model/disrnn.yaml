@@ -1,5 +1,8 @@
 # Use conventions here https://github.com/AllenNeuralDynamics/aind_disrnn_utils/blob/main/src/aind_disrnn_utils/data_models.py
 type: disrnn
+
+_target_: model_trainers.disrnn_trainer.DisrnnTrainer
+
 architecture:
   latent_size: 5
   update_net_n_units_per_layer: 16
@@ -10,6 +13,9 @@ architecture:
 
 penalties:
   beta: 0.01
+
+  # By default, set all penalties to the same value
+  # You can override them individually if desired
   latent_penalty: ${.beta}
   choice_net_latent_penalty: ${.beta}
   update_net_obs_penalty: ${.beta}
@@ -21,3 +27,8 @@ training:
   lr: 0.001
   loss: penalized_categorical
   loss_param: 1.0
+
+seed: ${seed}  # Seed for model trainer
+
+# Your template for the model part of the run name
+run_name_component: disrnn_beta${.penalties.beta}_lr${.training.lr}

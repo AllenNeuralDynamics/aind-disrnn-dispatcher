@@ -14,3 +14,5 @@ agent_params:
   forget_rate_unchosen: 0.2
   softmax_inverse_temperature: 10.0
   biasL: 0.0
+
+seed: ${seed}
