@@ -3,5 +3,8 @@ type: baseline_grn
 
 _target_: null
 
+
+seed: ${seed}
+
 # Your template for the model part of the run name
 run_name_component: null

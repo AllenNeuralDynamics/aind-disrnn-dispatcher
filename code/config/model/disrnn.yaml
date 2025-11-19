@@ -28,5 +28,7 @@ training:
   loss: penalized_categorical
   loss_param: 1.0
 
+seed: ${seed}  # Seed for model trainer
+
 # Your template for the model part of the run name
 run_name_component: disrnn_beta${.penalties.beta}_lr${.training.lr}

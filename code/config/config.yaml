@@ -3,7 +3,7 @@ defaults:
   - model: disrnn
   - _self_
 
-# Global random seed
+# Global random seed by default; individual seeds for data and model can be overridden
 seed: 42
 
 # W&B logging
