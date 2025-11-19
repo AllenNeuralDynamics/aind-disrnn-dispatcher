@@ -1,2 +1,7 @@
 # Placeholder for baseline GRN model
 type: baseline_grn
+
+_target_: null
+
+# Your template for the model part of the run name
+run_name_component: null

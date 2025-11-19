@@ -1,13 +1,17 @@
+source: mice
+
 defaults:
   - base@_here_  # All shared data config
 
+# Data loader class
 _target_: data_loaders.mice.MiceDatasetLoader
-
 subject_ids: [774212]
 multisubject: false
 ignore_policy: exclude
-source: mice
 
 features:
   animal_response: prev choice
   rewarded: prev reward
+
+# Your template for the data part of the W&B run name
+run_name_component: mice_${subject_ids}

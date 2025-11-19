@@ -1,3 +1,5 @@
+source: synthetic
+
 defaults:
   - base@_here_  # All shared data config
   - synthetic/task: uncoupled_block
@@ -5,6 +7,7 @@ defaults:
 
 _target_: data_loaders.synthetic.SyntheticDatasetLoader
 
-source: synthetic
-
 num_trials: 1000
+
+# Your template for the data part of the run name
+run_name_component: synthetic_${synthetic.agent}_${synthetic.task}
