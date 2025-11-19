@@ -14,4 +14,4 @@ features:
   rewarded: prev reward
 
 # Your template for the data part of the W&B run name
-run_name_component: mice_${subject_ids}
+run_name_component: mice_${.subject_ids}

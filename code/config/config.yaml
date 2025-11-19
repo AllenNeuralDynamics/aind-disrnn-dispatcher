@@ -5,6 +5,7 @@ defaults:
   - model: disrnn
   - _self_
 
+# Global random seed
 seed: 42
 
 # W&B logging
@@ -12,7 +13,7 @@ wandb:
   entity: AIND-disRNN  # W&B entity/team name (don't overwrite)
   dir: /results  # Directory to store wandb files locally in the capsule (don't overwrite)
   project: test  # Please set your own project name here!
-  name: ${data.run_name_component}_${model.run_name_component}
+  name: ${data.run_name_component}_${model.run_name_component}  # Consist of data and model parts
 
 
 # Hydra output directories to be distributed to the wrapper capsule

@@ -10,4 +10,4 @@ _target_: data_loaders.synthetic.SyntheticDatasetLoader
 num_trials: 1000
 
 # Your template for the data part of the run name
-run_name_component: synthetic_${synthetic.agent}_${synthetic.task}
+run_name_component: synthetic_${.synthetic.agent.type}_${.synthetic.task.type}

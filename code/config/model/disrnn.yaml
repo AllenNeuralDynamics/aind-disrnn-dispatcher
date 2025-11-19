@@ -29,4 +29,4 @@ training:
   loss_param: 1.0
 
 # Your template for the model part of the run name
-run_name_component: disrnn_beta${penalties.beta}_lr${training.lr}
+run_name_component: disrnn_beta${.penalties.beta}_lr${.training.lr}
