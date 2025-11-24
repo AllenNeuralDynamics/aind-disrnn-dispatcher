@@ -12,9 +12,9 @@ agent_kwargs:
 
 agent_params:
   learn_rate: 0.5
-  learn_rate_rew: 0.5
-  learn_rate_unrew: 0.1
-  forget_rate_unchosen: 0.2
+  # learn_rate_rew: 0.5
+  # learn_rate_unrew: 0.1
+  # forget_rate_unchosen: 0.2
   softmax_inverse_temperature: 10.0
   biasL: 0.0
 
