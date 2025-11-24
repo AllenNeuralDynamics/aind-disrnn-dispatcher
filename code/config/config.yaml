@@ -1,5 +1,5 @@
 defaults:
-  - data: mice
+  - data: synthetic
   - model: disrnn
   - _self_
 

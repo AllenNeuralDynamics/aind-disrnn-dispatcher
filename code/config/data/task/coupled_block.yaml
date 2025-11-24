@@ -10,5 +10,5 @@ p_reward_pairs:
   - [0.064285714, 0.385714286]  # 1:6
   - [0.05, 0.40]   # 1:8
 
-num_trials: ${...num_trials}
+num_trials: ${..num_trials}
 seed: ${seed}

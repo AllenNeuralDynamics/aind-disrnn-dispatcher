@@ -2,13 +2,15 @@ type: synthetic
 
 defaults:
   - _self_
-  - synthetic/task: uncoupled_block
-  - synthetic/agent: rl
+  - task: uncoupled_block
+  - agent: rl
   - base@_here_  # All shared data config
 
-_target_: data_loaders.synthetic.SyntheticDatasetLoader
+# Data loader class
+_target_: ${.agent.loader_target}
 
-num_trials: 1000
+num_trials: 500
+num_sessions: 30
 
 # Your template for the data part of the run name
-run_name_component: synthetic_${.synthetic.agent.type}_${.synthetic.task.type}
+run_name_component: synthetic_${.agent.type}_${.task.type}
