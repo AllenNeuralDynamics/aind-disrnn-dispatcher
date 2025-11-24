@@ -1,5 +1,5 @@
 # See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
-type: rl
+type: ${.agent_class}
 
 loader_target: data_loaders.synthetic.SyntheticCognitiveAgents
 
