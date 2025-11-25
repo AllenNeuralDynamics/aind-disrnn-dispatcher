@@ -1,0 +1,18 @@
+type: synthetic_task_trained_rnn
+
+defaults:
+  - _self_
+  - base@_here_  # All shared data config
+
+# Data loader class
+_target_: data_loaders.synthetic.TaskTrainedRNNDatasetLoader
+subject_ids: ['BlockBandit2ArmCoupledEasy-v1-noisy_rl2_10__16:07_13:48:09']
+multisubject: false
+ignore_policy: exclude
+
+features:
+  animal_response: prev choice
+  rewarded: prev reward
+
+# Your template for the data part of the W&B run name
+run_name_component: synthetic_task_trained_rnn_${.subject_ids}
