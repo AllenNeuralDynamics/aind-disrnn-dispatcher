@@ -1,5 +1,5 @@
 defaults:
-  - data: mice
+  - data: synthetic_task_trained_rnn
   - model: disrnn
   - _self_
 
