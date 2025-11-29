@@ -27,6 +27,7 @@ training:
   lr: 0.001
   loss: penalized_categorical
   loss_param: 1.0
+  max_grad_norm: 1e10  # no gradient clipping by default
 
 seed: ${seed}  # Seed for model trainer
 
