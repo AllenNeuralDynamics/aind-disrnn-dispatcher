@@ -5,10 +5,10 @@ _target_: model_trainers.disrnn_trainer.DisrnnTrainer
 
 architecture:
   latent_size: 5
-  update_net_n_units_per_layer: 16
-  update_net_n_layers: 8
-  choice_net_n_units_per_layer: 4
-  choice_net_n_layers: 1
+  update_net_n_units_per_layer: 5
+  update_net_n_layers: 3
+  choice_net_n_units_per_layer: 2
+  choice_net_n_layers: 2
   activation: leaky_relu
 
 penalties:
