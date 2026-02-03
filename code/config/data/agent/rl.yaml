@@ -16,6 +16,18 @@ agent_kwargs:
 agent_params:
   learn_rate: 0.5
   softmax_inverse_temperature: 10.0
-  biasL: 0.0
+  # biasL: 0.0
+
+# Session-varying parameters
+agent_params_session_var:
+  biasL:
+    type: "uniform"
+    min: -0.5
+    max: 0.5
+  # learn_rate:
+  #   type: "gaussian"
+  #   mean: 0.5
+  #   std: 0.5
+    
 
 seed: ${seed}
