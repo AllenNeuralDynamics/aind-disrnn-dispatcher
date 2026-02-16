@@ -10,9 +10,9 @@ agent_kwargs:
   choice_kernel: "none"
   action_selection: "softmax"
 
-fit_kwargs:
-  DE_kwargs:
-    polish: true
+DE_kwargs:
+  polish: true
+  workers: 1
 
 seed: ${seed}
 
