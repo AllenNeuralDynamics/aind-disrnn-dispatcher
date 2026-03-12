@@ -5,14 +5,17 @@ _target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
 
 agent_class: "ForagerQLearning"
 agent_kwargs:
-  number_of_learning_rate: 1
-  number_of_forget_rate: 0
+  number_of_learning_rate: 2
+  number_of_forget_rate: 1
   choice_kernel: "none"
   action_selection: "softmax"
 
-fit_kwargs:
-  DE_kwargs:
-    polish: true
+fit_bounds_override: {}
+clamp_params: {}
+
+DE_kwargs:
+  workers: 1
+  polish: true
 
 seed: ${seed}
 

@@ -1,0 +1,39 @@
+type: mice_snapshot
+
+defaults:
+  - _self_
+  - base@_here_  # All shared data config (eval_every_n, seed)
+
+# Data loader class
+_target_: data_loaders.mice.MiceSnapshotDatasetLoader
+
+# ── Subject-selection parameters ──────────────────────────────────────────
+# Option 1 – explicit list (overrides the slice params below when non-null):
+subject_ids: null             # e.g. [111, 222, 333]
+# Option 2 – rank-based slice [subject_start, subject_end) per curriculum:
+subject_start: 0              # inclusive, 0-based rank index (null = from beginning)
+subject_end: null             # exclusive rank index (null = go to end of ranked list)
+
+# true  → rank and restrict to STAGE_FINAL / GRADUATED sessions
+# false → use all sessions for ranking and data inclusion
+mature_only: true
+
+# ── Curricula to include ──────────────────────────────────────────────────
+# Set to null to use the three default foraging curricula.
+curricula:
+  - Uncoupled Without Baiting
+  - Uncoupled Baiting
+  - Coupled Baiting
+
+# ── Columns to keep in the returned DataFrames ────────────────────────────
+# null → use the default column set defined inside the loader utility.
+cols_to_retain: null
+
+# ── disRNN dataset parameters ─────────────────────────────────────────────
+ignore_policy: exclude        # "include" or "exclude"
+features: null                # null → use library defaults (prev choice + prev reward)
+batch_size: null
+batch_mode: random
+
+# ── W&B run-name component ────────────────────────────────────────────────
+run_name_component: mice_snapshot
