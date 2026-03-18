@@ -13,6 +13,18 @@ subject_ids: null             # e.g. [111, 222, 333]
 # Option 2 – rank-based slice [subject_start, subject_end) per curriculum:
 subject_start: 0              # inclusive, 0-based rank index (null = from beginning)
 subject_end: null             # exclusive rank index (null = go to end of ranked list)
+# ── Held-out test subject selection ─────────────────────────────────────
+# Leave all null to disable post-training held-out test-subject evaluation.
+# Selection follows the same rules as train subjects:
+#   1) direct list via test_subject_ids, or
+#   2) rank-based slice [test_subject_start, test_subject_end) per curriculum.
+test_subject_ids: null        # e.g. [444, 555, 666]
+test_subject_start: 2      # inclusive, 0-based rank index
+test_subject_end: 3        # exclusive rank index
+heldout_example_sessions_per_subject: 1  # >=0; 0 skips held-out example plotting
+train_example_sessions_per_subject: 1    # >=0; 0 skips training example plotting
+eval_example_sessions_per_subject: 1     # >=0; 0 skips eval example plotting
+example_max_subjects: 6                  # >=0; cap subjects used for train/eval/held-out examples
 
 # true  → rank and restrict to STAGE_FINAL / GRADUATED sessions
 # false → use all sessions for ranking and data inclusion
