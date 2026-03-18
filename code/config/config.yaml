@@ -1,5 +1,5 @@
 defaults:
-  - data: mice
+  - data: mice_snapshot
   - model: disrnn
   - _self_
 
