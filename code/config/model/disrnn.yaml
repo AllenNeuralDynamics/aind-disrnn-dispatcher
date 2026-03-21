@@ -10,6 +10,7 @@ architecture:
   choice_net_n_units_per_layer: 4
   choice_net_n_layers: 1
   activation: leaky_relu
+  multisubject: false
   subject_embedding_size: 3
 
 penalties:
