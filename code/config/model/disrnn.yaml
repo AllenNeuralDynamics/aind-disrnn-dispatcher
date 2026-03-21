@@ -10,6 +10,7 @@ architecture:
   choice_net_n_units_per_layer: 4
   choice_net_n_layers: 1
   activation: leaky_relu
+  subject_embedding_size: 3
 
 penalties:
   beta: 0.01
@@ -19,6 +20,9 @@ penalties:
   choice_net_latent_penalty: ${.beta}
   update_net_obs_penalty: ${.beta}
   update_net_latent_penalty: ${.beta}
+  subject_penalty: ${.beta}
+  update_net_subject_penalty: ${.beta}
+  choice_net_subject_penalty: ${.beta}
 
 training:
   n_steps: 3000
@@ -43,6 +47,7 @@ training:
   plot_update_rules: false
   checkpoint_plot_choice_rule: false
   checkpoint_plot_update_rules: false
+  plot_subject_index: 0   # which subject’s embedding is used for rule plots
   save_output_df: false
 
 seed: ${seed}  # Seed for model trainer

@@ -43,6 +43,7 @@ cols_to_retain: null
 mature_only: true
 # true  → rank and restrict to STAGE_FINAL / GRADUATED sessions
 # false → use all sessions for ranking and data inclusion
+multisubject: false
 ignore_policy: exclude        # "include" or "exclude"
 features: null                # null → use library defaults (prev choice + prev reward)
 eval_every_n: 2
