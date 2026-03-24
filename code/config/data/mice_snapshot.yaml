@@ -27,7 +27,6 @@ eval_example_sessions_per_subject: 1     # >=0; 0 skips eval example plotting
 heldout_example_sessions_per_subject: 1  # >=0; 0 skips held-out example plotting
 example_max_subjects: 6                  # >=0; cap subjects used for train/eval/held-out examples
 
-
 # ── Curricula to include ──────────────────────────────────────────────────
 # Set to null to use the three default foraging curricula.
 curricula:
@@ -39,13 +38,17 @@ curricula:
 # null → use the default column set defined inside the loader utility.
 cols_to_retain: null
 
-# ── disRNN dataset parameters ─────────────────────────────────────────────
-mature_only: true
+# ── Dataset parameters ─────────────────────────────────────────────
 # true  → rank and restrict to STAGE_FINAL / GRADUATED sessions
 # false → use all sessions for ranking and data inclusion
+mature_only: true
+
+# construct multi-subject or not
 multisubject: false
+
 ignore_policy: exclude        # "include" or "exclude"
 features: null                # null → use library defaults (prev choice + prev reward)
+
 eval_every_n: 2
 batch_size: null
 batch_mode: random
