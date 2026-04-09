@@ -24,6 +24,7 @@ penalties:
   choice_net_latent_penalty: ${.beta}
   update_net_obs_penalty: ${.beta}
   update_net_latent_penalty: ${.beta}
+  update_net_latent_penalty_multiplier: 1.0
 
   subject_penalty: ${.beta}
   update_net_subject_penalty: ${.beta}
