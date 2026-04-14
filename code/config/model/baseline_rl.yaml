@@ -3,12 +3,20 @@ type: baseline_rl
 
 _target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
 
+architecture:
+  multisubject: true
+multisubject_subject_workers: 6  # Number of subjects to fit concurrently in multisubject mode
+  # multisubject fitting only goes through the process pool when multisubject_subject_workers > 1
+  # Agent class from aind_dynamic_foraging_models.generative_model
+  # Options: ForagerQLearning, ForagerLossCounting, ForagerCompareThreshold
+
 agent_class: "ForagerQLearning"
+
 agent_kwargs:
   number_of_learning_rate: 2
   number_of_forget_rate: 1
-  choice_kernel: "none"
-  action_selection: "softmax"
+  choice_kernel: none
+  action_selection: softmax
 
 fit_bounds_override: {}
 clamp_params: {}
