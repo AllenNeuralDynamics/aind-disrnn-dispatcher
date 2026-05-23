@@ -9,7 +9,7 @@ seed: 42
 # W&B logging
 wandb:
   entity: AIND-disRNN  # W&B entity/team name (don't overwrite)
-  dir: /results  # Directory to store wandb files locally in the capsule (don't overwrite)
+  dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # CO default /results; HPC overrides via env var
   project: test  # Please set your own project name here!
   name: ${data.run_name_component}_${model.run_name_component}  # Consist of data and model parts
   tags: []  # Custom tags
@@ -22,7 +22,7 @@ hydra:
     chdir: true
   run:
     # Directory for single runs, where the user provides the job id
-    dir: /results/${job_id}/
+    dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}/${job_id}/
   sweep:
     # Directory for multirun sweeps, where Hydra manages job ids
-    dir: /results/
+    dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}/
