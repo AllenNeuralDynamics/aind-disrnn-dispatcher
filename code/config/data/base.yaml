@@ -2,5 +2,9 @@
 
 eval_every_n: 2  # Fold number for cross-validation
 seed: ${seed}  # Seed for data loader
-batch_size: null
+
+# Number of sessions sampled per training step. Must be set when batch_mode is
+# 'random' or 'rolling' (DatasetRNN asserts otherwise), so give it a concrete
+# default — matches the value used by the HPC sweep scripts.
+batch_size: 512
 batch_mode: random
