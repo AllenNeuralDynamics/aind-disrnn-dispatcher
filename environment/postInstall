@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
-# install updated version of code-server
-VERSION=4.105.1
-mkdir /.code-server
-cd /.code-server
-curl -fL "https://github.com/coder/code-server/releases/download/v$VERSION/code-server-$VERSION-linux-amd64.tar.gz" \
-  | tar -xz
-ln -s /.code-server/code-server-$VERSION-linux-amd64/bin/code-server  /usr/bin/code-server
-cd -
+# ------------------------------
+# Beaker CLI (AI Hub / Beaker control plane)
+# Official installer (docs: AllenOCTO/aihub getting-started/beaker-access.md);
+# drops the binary in $HOME/.local/bin (added to PATH here and, for login shells,
+# in the Claude Code .bashrc block below).
+# Auth is non-interactive via the BEAKER_TOKEN env var (no `beaker account login`).
+# ------------------------------
+echo "Installing Beaker CLI..."
+curl -fsSL https://beaker.org/install | sh || true
+export PATH="$HOME/.local/bin:$PATH"
+beaker --version || echo "beaker install failed (non-fatal)"
 
+
+# -------------------------------
+# Useful CO extensions
+# -------------------------------
 # Check if code-server is installed, then install extensions into specified directory
 if code-server --disable-telemetry --version; then
     EXT_DIR="/.vscode/extensions"
@@ -52,3 +59,59 @@ if code-server --disable-telemetry --version; then
 else
     echo "code-server not found"
 fi
+
+# ------------------------------
+# Claude Code CLI
+# ------------------------------
+HOME_DIR="${HOME:-/root}"
+BASHRC="${HOME_DIR}/.bashrc"
+
+echo "Installing Claude Code..."
+curl -fsSL https://claude.ai/install.sh | bash || true
+export PATH="$HOME/.local/bin:$PATH"
+
+# Add to bashrc. Single quoted heredoc: nothing here is expanded at write
+# time, so $HOME/$SCRATCH/etc. are evaluated at login, when the shell runs.
+cat >> "$BASHRC" <<'EOF'
+
+# Claude Code setup
+export PATH="$HOME/.local/bin:$PATH"
+
+# ------------------------------
+# Persist Claude Code history to /scratch (runs EVERY login, no guard file:
+# /root is ephemeral on Code Ocean, /scratch persists, so the symlinks must be
+# re-established each session BEFORE claude is launched).
+# ------------------------------
+# Link durable Claude Code state into persistent /scratch (idempotent)
+claude_link_scratch() {
+    local SCRATCH=/scratch/.claude
+    local LOCAL="$HOME/.claude"
+    [ -d /scratch ] || return 0
+    mkdir -p "$SCRATCH" "$LOCAL"
+    local item src dst
+    for item in projects todos plans history.jsonl; do
+        src="$LOCAL/$item"
+        dst="$SCRATCH/$item"
+        # First run on a fresh /scratch: seed the target.
+        if [ ! -e "$dst" ]; then
+            if [ -e "$src" ] && [ ! -L "$src" ]; then
+                cp -a "$src" "$dst"            # migrate pre-existing local data
+            elif [ "$item" = "history.jsonl" ]; then
+                : > "$dst"                     # empty file
+            else
+                mkdir -p "$dst"                # empty dir
+            fi
+        fi
+        # Ensure $src is a symlink pointing at $dst (idempotent).
+        if [ -L "$src" ]; then
+            [ "$(readlink "$src")" = "$dst" ] || { rm -f "$src"; ln -s "$dst" "$src"; }
+        else
+            [ -e "$src" ] && mv "$src" "$src.pre-link.$(date +%s)"   # stash stray real data
+            ln -s "$dst" "$src"
+        fi
+    done
+}
+claude_link_scratch
+EOF
+
+echo "Claude /scratch persistence added to .bashrc"
