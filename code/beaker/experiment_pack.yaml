@@ -5,8 +5,8 @@
 ## submit time — the packing driver (see code/beaker/README.md) loops M=1,4,8,
 ## creating a fresh sweep each time.
 ##
-## cpuCount is left at the cluster default; the host/eval-bound workload makes CPU
-## the likely limiter, so watch whether throughput plateaus (then bump cpuCount).
+## cpuCount is left at the cluster default; the host/eval-bound workload makes
+## CPU the likely limiter, so watch whether throughput plateaus (then bump it).
 
 version: v2
 description: disRNN GPU packing — M wandb agents time-sliced on one GPU
@@ -14,8 +14,14 @@ tasks:
   - name: disrnn-pack
     image:
       beaker: han-hou/disrnn-wrapper
-    # entrypoint pulls code, then pack_gpu.sh launches <PACK_M> agents on this GPU.
-    command: [bash, /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh, bash, /workspace/aind-disrnn-wrapper/beaker/pack_gpu.sh, "<SWEEP_ID>", "<PACK_M>"]
+    # entrypoint pulls code, then pack_gpu.sh launches <PACK_M> agents here.
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/pack_gpu.sh
+      - "<SWEEP_ID>"
+      - "<PACK_M>"
     context:
       priority: low
       preemptible: true

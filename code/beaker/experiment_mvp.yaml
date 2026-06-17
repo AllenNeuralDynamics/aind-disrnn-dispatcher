@@ -1,25 +1,35 @@
 ## Beaker experiment spec — disRNN MVP (one W&B sweep agent on one GPU).
 ##
-## Dispatcher control-plane artifact: the Beaker job the dispatcher launches. The
-## image is built/maintained in the wrapper repo (aind-disrnn-wrapper/beaker) and
-## clones both repos at runtime, so this spec never needs the image rebuilt for
-## code changes.
+## Dispatcher control-plane artifact: the Beaker job the dispatcher launches.
+## The image is built/maintained in the wrapper repo
+## (aind-disrnn-wrapper/beaker) and clones both repos at runtime, so this spec
+## never needs the image rebuilt for code changes.
 ##
 ## Fill before submitting:
-##   <SWEEP_ID>   e.g. AIND-disRNN/beaker_mvp/abc123  (from `wandb sweep code/beaker/sweep_mvp.yaml`)
+##   <SWEEP_ID>   e.g. AIND-disRNN/ai_hub_test/abc123
+##                (from `wandb sweep code/beaker/sweep_mvp.yaml`)
 ##
 ## Submit:
-##   beaker experiment create -w ai1/aind-dynamic-foraging-foundation-model code/beaker/experiment_mvp.yaml
+##   beaker experiment create \
+##     -w ai1/aind-dynamic-foraging-foundation-model \
+##     code/beaker/experiment_mvp.yaml
 
 version: v2
-description: disRNN MVP — synthetic-RL -> disRNN (default), one W&B sweep agent
+description: disRNN MVP — synthetic-RL -> disRNN, one W&B sweep agent
 tasks:
   - name: disrnn-mvp
     image:
-      beaker: han-hou/disrnn-wrapper        # from `beaker image get disrnn-wrapper`
-    # entrypoint.sh pulls the latest code from GitHub at container startup, THEN
-    # runs `wandb agent`. Control the code version via WRAPPER_REF/DISPATCHER_REF.
-    command: [bash, /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh, wandb, agent, --count, "1", "<SWEEP_ID>"]
+      beaker: han-hou/disrnn-wrapper   # from `beaker image get disrnn-wrapper`
+    # entrypoint.sh pulls the latest code at container startup, then runs
+    # `wandb agent`. Control the code version via WRAPPER_REF/DISPATCHER_REF.
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+      - --count
+      - "1"
+      - "<SWEEP_ID>"
     replicas: 1
     context:
       priority: low
@@ -31,10 +41,11 @@ tasks:
       gpuCount: 1
     envVars:
       - name: WANDB_API_KEY
-        secret: han-wandb-api-key      # Beaker secret holding your W&B key
+        secret: han-wandb-api-key     # Beaker secret holding your W&B key
       - name: DISRNN_OUTPUT_DIR
         value: /results
-      - name: WRAPPER_REF              # branch/tag/SHA to run; SHA pins for reproducibility
+      # branch/tag/SHA to run; a SHA pins for reproducibility
+      - name: WRAPPER_REF
         value: ai_hub
       - name: DISPATCHER_REF
         value: ai_hub

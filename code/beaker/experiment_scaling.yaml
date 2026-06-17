@@ -1,10 +1,10 @@
 ## Beaker experiment spec — disRNN scaling test (array of W&B sweep agents).
 ##
-## N replicas, each on its own GPU, all draining the SAME sweep queue — this is
-## the "across many GPUs" parallelism. The W&B sweep shards naturally: each agent
+## N replicas, each on its own GPU, all draining the SAME sweep queue — the
+## "across many GPUs" parallelism. The W&B sweep shards naturally: each agent
 ## pulls combos until the grid is exhausted, then exits.
 ##
-## Fill <SWEEP_ID> (the launcher does this), then submit:
+## Launch (the launcher renders <SWEEP_ID>):
 ##   python code/launch_beaker.py \
 ##     --sweep code/beaker/sweep_scaling.yaml \
 ##     --experiment code/beaker/experiment_scaling.yaml
@@ -15,10 +15,15 @@ tasks:
   - name: disrnn-scaling
     image:
       beaker: han-hou/disrnn-wrapper
-    # No --count: each agent drains the sweep queue until the grid is exhausted,
-    # then exits. With replicas=4 and 8 combos that's ~2 runs per GPU.
-    command: [bash, /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh, wandb, agent, "<SWEEP_ID>"]
-    replicas: 4                    # 4 agents across 4 L40s GPUs (cluster has 8 free slots)
+    # No --count: each agent drains the sweep queue until the grid is
+    # exhausted, then exits. With replicas=4 and 8 combos that's ~2 runs/GPU.
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+      - "<SWEEP_ID>"
+    replicas: 4                    # 4 agents across 4 L40s GPUs
     context:
       priority: low
       preemptible: true

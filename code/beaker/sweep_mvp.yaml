@@ -1,10 +1,11 @@
 # MVP W&B sweep: simulate an RL agent, then fit a disRNN with DEFAULT settings.
 #
-# Dispatcher control-plane artifact: defines WHAT to sweep. The dispatcher creates
-# the sweep from this file, then passes the SWEEP_ID to experiment_mvp.yaml.
-# Wrapped as a (trivial, 1-point) sweep so the Beaker mechanism is sweep-based from
-# day one. Each Beaker task runs `wandb agent <SWEEP_ID>`, which invokes the command
-# below (inside the wrapper image) with swept params appended as Hydra overrides.
+# Dispatcher control-plane artifact: defines WHAT to sweep. The dispatcher
+# creates the sweep from this file, then passes the SWEEP_ID to
+# experiment_mvp.yaml. Wrapped as a (trivial, 1-point) sweep so the Beaker
+# mechanism is sweep-based from day one. Each Beaker task runs
+# `wandb agent <SWEEP_ID>`, which invokes the command below (inside the wrapper
+# image) with swept params appended as Hydra overrides.
 #
 #   data=synthetic   -> synthetic.yaml defaults to agent=rl, task=random_walk
 #   model=disrnn     -> disRNN with the default architecture/penalties/training

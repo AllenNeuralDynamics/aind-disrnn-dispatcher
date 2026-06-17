@@ -2,8 +2,9 @@
 #
 # Same timing-relevant config as the CO T4 benchmark (batch_size=512,
 # num_sessions=100, eval_every_n=2) so per-step time matches, but SHORT
-# (n_steps=300, n_warmup=50) to keep the throughput/power test cheap — per-step
-# time (the throughput driver) is unchanged, so steps/sec + power are representative.
+# (n_steps=300, n_warmup=50) to keep the throughput/power test cheap. Per-step
+# time (the throughput driver) is unchanged, so steps/sec + power are
+# representative.
 #
 # 16 seed combos so even M=8 packing has a full queue to drain.
 #

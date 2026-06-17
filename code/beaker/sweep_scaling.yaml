@@ -1,6 +1,6 @@
 # Scaling sweep — 8 combos (seeds) to test parallelism across Beaker replicas.
 #
-# Same pipeline as sweep_mvp.yaml (synthetic-RL -> disRNN, default settings), but
+# Same pipeline as sweep_mvp.yaml (synthetic-RL -> disRNN, defaults), but
 # with 8 grid points so multiple `wandb agent` replicas have real work to shard.
 # Runs are short (n_steps=200) to keep the parallelism test fast and cheap.
 #

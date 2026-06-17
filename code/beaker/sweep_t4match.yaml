@@ -2,7 +2,7 @@
 # (AIND-disRNN/han_cpu_gpu_test/g9jibgqd): a single full-length run so per-run
 # wall-clock and s/step are directly comparable to the T4 number (~0.46 s/step).
 #
-# 1 combo (seed=0) so it's one run; launch on one L40s GPU via experiment_mvp.yaml:
+# 1 combo (seed=0) so it's one run; launch via experiment_mvp.yaml:
 #   python code/launch_beaker.py \
 #     --sweep code/beaker/sweep_t4match.yaml \
 #     --experiment code/beaker/experiment_mvp.yaml
