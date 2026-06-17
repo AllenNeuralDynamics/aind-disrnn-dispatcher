@@ -10,7 +10,7 @@
 #     --experiment code/beaker/experiment_scaling.yaml
 
 entity: AIND-disRNN
-project: beaker_mvp
+project: ai_hub_test
 name: scaling-seeds-disrnn
 
 method: grid

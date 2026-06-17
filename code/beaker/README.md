@@ -28,14 +28,14 @@ WS=ai1/aind-dynamic-foraging-foundation-model
 # 0. once per workspace: store the W&B key as a Beaker secret
 beaker secret write han-wandb-api-key -w "$WS" "$WANDB_API_KEY"
 
-# 1. create the sweep -> SWEEP_ID (e.g. AIND-disRNN/beaker_mvp/abc123)
+# 1. create the sweep -> SWEEP_ID (e.g. AIND-disRNN/ai_hub_test/abc123)
 wandb sweep code/beaker/sweep_mvp.yaml
 
 # 2. put SWEEP_ID into experiment_mvp.yaml, then launch the Beaker job(s)
 beaker experiment create -w "$WS" code/beaker/experiment_mvp.yaml
 ```
 
-Monitor at `https://beaker.org/ex/<id>`; runs also appear in W&B `AIND-disRNN/beaker_mvp`.
+Monitor at `https://beaker.org/ex/<id>`; runs also appear in W&B `AIND-disRNN/ai_hub_test`.
 
 ## Image & code version
 

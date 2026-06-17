@@ -8,7 +8,7 @@
 #     --experiment code/beaker/experiment_mvp.yaml
 
 entity: AIND-disRNN
-project: l40_vs_t4
+project: ai_hub_test
 name: t4match-bs512-wu500-5000
 
 method: grid

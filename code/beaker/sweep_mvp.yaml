@@ -15,7 +15,7 @@
 # For a fast smoke test, append e.g. model.training.n_steps=200 to `command`.
 
 entity: AIND-disRNN
-project: beaker_mvp
+project: ai_hub_test
 name: mvp-synthetic-rl-disrnn
 
 method: grid

@@ -11,7 +11,7 @@
 # the README), then packs M `wandb agent`s onto one GPU via beaker/pack_gpu.sh.
 
 entity: AIND-disRNN
-project: beaker_pack
+project: ai_hub_test
 name: pack-bench-disrnn
 
 method: grid
