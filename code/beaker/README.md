@@ -17,6 +17,8 @@ compute runs the **wrapper** image, built and maintained in
 - `experiment_mvp.yaml` — single-GPU Beaker job spec.
 - `sweep_scaling.yaml` — 8-combo (seed) sweep for testing parallelism.
 - `experiment_scaling.yaml` — `replicas: 4`, the "array of jobs" across 4 GPUs.
+- `sweep_pack.yaml` / `experiment_pack.yaml` — GPU time-slicing benchmark (pack M
+  agents on one GPU via the wrapper's `pack_gpu.sh`).
 
 ## Flow (dispatcher → wrapper hand-off)
 
@@ -51,9 +53,29 @@ Two ways to parallelize (both portable to HPC):
   combos. One-line spec change — see `experiment_scaling.yaml` (`replicas: 4`).
   Run it: `python code/launch_beaker.py --sweep code/beaker/sweep_scaling.yaml
   --experiment code/beaker/experiment_scaling.yaml`.
-- **Time-slicing (many agents per GPU)** — launch M `wandb agent` processes in one
-  task with `XLA_PYTHON_CLIENT_MEM_FRACTION≈1/M` (a `pack_gpu.sh`, not yet added).
-  Layered on top of replicas to fill each big GPU with our tiny disRNN runs.
+- **Time-slicing (many agents per GPU)** — the wrapper's `pack_gpu.sh` launches M
+  `wandb agent` processes in one task with `XLA_PYTHON_CLIENT_MEM_FRACTION≈0.9/M`.
+  Fills the headroom left by our host/eval-bound runs (100% util / ~30% power on L40s).
+  Driven by `sweep_pack.yaml` + `experiment_pack.yaml`.
 
-A meaningful sweep needs >1 combo, or extra agents have nothing to pull — hence
-`sweep_scaling.yaml`'s 8 grid points.
+A meaningful sweep needs >1 combo, or extra agents have nothing to pull — hence the
+multi-seed `sweep_scaling.yaml` / `sweep_pack.yaml`.
+
+### Packing benchmark driver (M = 1, 4, 8)
+
+`experiment_pack.yaml` has `<SWEEP_ID>` + `<PACK_M>` placeholders; loop over M,
+creating a fresh sweep each time so each pack run gets a full queue:
+
+```bash
+WS=ai1/aind-dynamic-foraging-foundation-model
+for M in 1 4 8; do
+  SWEEP=$(wandb sweep code/beaker/sweep_pack.yaml 2>&1 | sed -n 's/.*wandb agent //p')
+  tmp=$(mktemp)
+  sed -e "s|<SWEEP_ID>|$SWEEP|" -e "s|<PACK_M>|$M|" code/beaker/experiment_pack.yaml > "$tmp"
+  beaker experiment create -w "$WS" --name "disrnn-pack-m$M" "$tmp"
+  rm -f "$tmp"
+done
+```
+
+Compare **runs/GPU-hour + GPU power** across M; throughput should rise until GPU
+compute or CPU (the host-bound limiter — bump `cpuCount` if so) saturates.
