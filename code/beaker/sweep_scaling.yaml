@@ -1,0 +1,33 @@
+# Scaling sweep — 8 combos (seeds) to test parallelism across Beaker replicas.
+#
+# Same pipeline as sweep_mvp.yaml (synthetic-RL -> disRNN, default settings), but
+# with 8 grid points so multiple `wandb agent` replicas have real work to shard.
+# Runs are short (n_steps=200) to keep the parallelism test fast and cheap.
+#
+# Launch (creates sweep + submits the replicas spec):
+#   python code/launch_beaker.py \
+#     --sweep code/beaker/sweep_scaling.yaml \
+#     --experiment code/beaker/experiment_scaling.yaml
+
+entity: AIND-disRNN
+project: beaker_mvp
+name: scaling-seeds-disrnn
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic
+  - model=disrnn
+  - model.training.n_steps=200
+  - "wandb.tags=[beaker,scaling]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [0, 1, 2, 3, 4, 5, 6, 7]
