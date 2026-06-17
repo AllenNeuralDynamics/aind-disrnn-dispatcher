@@ -37,6 +37,33 @@ beaker experiment create -w "$WS" code/beaker/experiment_mvp.yaml
 
 Monitor at `https://beaker.org/ex/<id>`; runs also appear in W&B `AIND-disRNN/ai_hub_test`.
 
+## Clusters
+
+**Rule: only use AI Hub _hub_ clusters** — those with `hub` in the name. The
+non-hub clusters belong to other science units (our budget is
+`ai1/aind-dynamic-foraging-foundation-model`); don't schedule on them. (Admin
+guidance, 2026-06-17. Names are being renamed to a clearer convention ~mid-2026,
+so re-check with `beaker cluster list ai1` or https://beaker.org/.)
+
+Hub clusters — use these:
+
+| Cluster | GPU | Notes |
+|---|---|---|
+| `ai1/octo-hub-aws-l40s` | L40s | our default — small models / debugging |
+| `ai1/octo-hub-aws-l40s-dev` | L40s | dev |
+| `ai1/octo-hub-aws-h200` | H200 | large training (AWS) |
+| `ai1/octo-hub-onprem-h200` | H200 | on-prem |
+| `ai1/octo.hub-gcp-h200` | H200 | GCP |
+| `ai1/octo-hub-gcp-h100` | H100 | GCP |
+| `ai1/aihub-dev-aws` | — | AI Hub dev |
+
+Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200`,
+`ai1/octo.ai-aws-p5en`, `ai1/octo.ai-aws-g6e`.
+
+Pick one with free slots (`beaker cluster list ai1`); a job queues if none are
+free. Slot caps (Allocated = non-preemptible, Unallocated = preemptible) are in
+the AI Hub `getting-started/budgets.md`.
+
 ## Image & code version
 
 The image is built on a Mac and pushed to Beaker — see the wrapper's

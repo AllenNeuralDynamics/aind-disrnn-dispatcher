@@ -22,8 +22,8 @@ tasks:
       - "1"
       - "<SWEEP_ID>"
     context:
-      priority: low
-      preemptible: true
+      priority: normal      # non-preemptible -> holds its slot (Allocated cap)
+      preemptible: false
     constraints:
       cluster:
         - ai1/octo-hub-aws-h200
