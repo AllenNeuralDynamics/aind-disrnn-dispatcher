@@ -5,6 +5,15 @@ Code Ocean. It defines the W&B sweep and submits the Beaker experiment; the GPU
 compute runs the **wrapper** image, built and maintained in
 [`aind-disrnn-wrapper/beaker`](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/tree/ai_hub/beaker).
 
+> **Two-repo layout.** This README is the **control plane** (sweeps, experiment
+> specs, clusters, submission). The **compute / image plane** — building the image,
+> the runtime code-pull, and how the job runs — lives in the wrapper:
+> [`aind-disrnn-wrapper/beaker/README.md`](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md).
+> Migration progress & benchmark results live there too:
+> [Migration status](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#migration-status)
+> · [Benchmark figure](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#benchmark-figure)
+> · [Performance notes](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#performance-notes-gpu-efficiency).
+
 | | CO today | Beaker |
 |---|---|---|
 | Dispatcher (control) | composes Hydra config → job artifact | `wandb sweep` → **SWEEP_ID** → submit experiment |
@@ -106,3 +115,9 @@ done
 
 Compare **runs/GPU-hour + GPU power** across M; throughput should rise until GPU
 compute or CPU (the host-bound limiter — bump `cpuCount` if so) saturates.
+
+> **Result:** packing this workload plateaus at ~1.15× (no-MPS time-slicing
+> serializes the low-occupancy kernels) — batch size is the real lever. Full
+> findings in the wrapper's
+> [Performance notes](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#performance-notes-gpu-efficiency)
+> and [benchmark figure](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#benchmark-figure).
