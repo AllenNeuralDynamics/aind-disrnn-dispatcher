@@ -1,0 +1,46 @@
+# Multisubject GRU on the mice snapshot — small-pool experiment (AI Hub / Beaker).
+#
+# Reproduces the GRU + mice_snapshot config: tiny training pool (subject_ratio 1%),
+# scalar session conditioning, lr 1e-4, 200 steps, then auto held-out-subject
+# fine-tuning + eval (per the gru config). Each Beaker task runs
+# `wandb agent <SWEEP_ID>`, which invokes the command below as
+# `python -m run_hpc <overrides>` (configs come from the dispatcher's code/config
+# via run_hpc.py's relative-path contract).
+#
+# Data values (subject_ratio etc.) live in data/mice_snapshot_smallpool.yaml
+# because Hydra cannot CLI-override dict keys with spaces (curriculum names).
+# Model/training experiment values are the Hydra overrides below.
+#
+# Create the sweep, then put the returned SWEEP_ID in an experiment_*.yaml:
+#   wandb sweep code/beaker/sweep_gru_smallpool.yaml
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: mice-smallpool-gru-session-scalar
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_smallpool
+  - model=gru
+  - model.architecture.session_encoding_type=scalar
+  - model.training.lr=1e-4
+  - model.training.n_steps=200
+  - model.training.checkpoint_every_n_steps=50
+  - model.training.checkpoint_plot_split_examples_every_n=50
+  - model.training.checkpoint_keep_media_files=false
+  - model.training.session_context_plot_max_subjects=1
+  - model.training.auto_heldout_finetune.checkpoint_every_n_steps=25
+  - model.training.auto_heldout_finetune.example_max_subjects=1
+  - "wandb.tags=[beaker,mice,gru,smallpool]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [71]
