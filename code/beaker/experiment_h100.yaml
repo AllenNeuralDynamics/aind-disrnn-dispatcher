@@ -1,0 +1,42 @@
+## Beaker spec — disRNN on one H100 (GCP), same config as the T4/L40s/H200
+## benchmark, for the hardware run-time / util / power comparison.
+## The launcher renders <SWEEP_ID> at submit.
+##
+## Launch (bs=512 via sweep_t4match, bs=2048 via sweep_bs2048):
+##   python code/launch_beaker.py \
+##     --sweep code/beaker/sweep_t4match.yaml \
+##     --experiment code/beaker/experiment_h100.yaml
+
+version: v2
+description: disRNN benchmark on one H100 (GCP)
+tasks:
+  - name: disrnn-h100
+    image:
+      beaker: han-hou/disrnn-wrapper
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+      - --count
+      - "1"
+      - "<SWEEP_ID>"
+    context:
+      priority: normal      # non-preemptible -> holds its slot (Allocated cap)
+      preemptible: false
+    constraints:
+      cluster:
+        - ai1/octo-hub-gcp-h100
+    resources:
+      gpuCount: 1
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: DISRNN_OUTPUT_DIR
+        value: /results
+      - name: WRAPPER_REF
+        value: ai_hub
+      - name: DISPATCHER_REF
+        value: ai_hub
+    result:
+      path: /results
