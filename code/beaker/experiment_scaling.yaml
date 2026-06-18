@@ -38,8 +38,8 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: ai_hub
+        value: ai_hub_pck_integration
       - name: DISPATCHER_REF
-        value: ai_hub
+        value: ai_hub_pck_integration
     result:
       path: /results

@@ -46,8 +46,8 @@ tasks:
         value: /results
       # branch/tag/SHA to run; a SHA pins for reproducibility
       - name: WRAPPER_REF
-        value: ai_hub
+        value: ai_hub_pck_integration
       - name: DISPATCHER_REF
-        value: ai_hub
+        value: ai_hub_pck_integration
     result:
       path: /results

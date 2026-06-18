@@ -1,0 +1,40 @@
+# Mice-snapshot multisubject disRNN sweep (AI Hub / Beaker).
+#
+# Trains a multisubject disRNN on the database-backed mice snapshot, then (per the
+# disrnn config) auto-runs held-out-subject fine-tuning + evaluation. Each Beaker
+# task runs `wandb agent <SWEEP_ID>`, which invokes the command below inside the
+# wrapper image as `python -m run_hpc <overrides>` (configs come from the
+# dispatcher's code/config via run_hpc.py's relative-path contract).
+#
+#   data=mice_snapshot -> MiceSnapshotDatasetLoader (public DuckDB/parquet DB)
+#   model=disrnn       -> multisubject disRNN (architecture.multisubject: true)
+#
+# n_steps/n_warmup_steps override the config's smoke-test defaults (20/10) with a
+# production starting point — tune per experiment.
+#
+# Create the sweep, then put the returned SWEEP_ID in an experiment_*.yaml:
+#   wandb sweep code/beaker/sweep_mice_disrnn.yaml
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: mice-multisubject-disrnn
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot
+  - model=disrnn
+  - model.training.n_steps=3000
+  - model.training.n_warmup_steps=1000
+  - "wandb.tags=[beaker,mice,disrnn]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]
