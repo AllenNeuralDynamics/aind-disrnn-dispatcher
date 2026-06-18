@@ -1,33 +1,97 @@
-# Use conventions here https://github.com/AllenNeuralDynamics/aind_disrnn_utils/blob/main/src/aind_disrnn_utils/data_models.py
+# disRNN model config. Values mirror the wrapper pck_dev source of truth
+# (aind-disrnn-wrapper@a790cc0 code/configs/config_disrnn.yaml, "disrnn, multi-subject").
+# Conventions: https://github.com/AllenNeuralDynamics/aind_disrnn_utils/blob/main/src/aind_disrnn_utils/data_models.py
 type: disrnn
 
 _target_: model_trainers.disrnn_trainer.DisrnnTrainer
 
 architecture:
+  multisubject: true
   latent_size: 5
-  update_net_n_units_per_layer: 5
-  update_net_n_layers: 3
-  choice_net_n_units_per_layer: 2
-  choice_net_n_layers: 2
+  update_net_n_units_per_layer: 16
+  update_net_n_layers: 5
+  choice_net_n_units_per_layer: 4
+  choice_net_n_layers: 0
   activation: leaky_relu
+  subject_embedding_size: 4
+  subject_embedding_init: zeros   # zeros | small_random | subject_count_scaled_random
+  use_global_subject_bottleneck: true
+  session_encoding_type: none      # none | scalar | fourier
+  session_integration_type: direct # direct | pre_mlp
+  session_fourier_k: 4             # used only for fourier
+  session_delta_n_layers: 3
+  session_delta_hidden_size: 16
+  session_n_pretrain_steps: null   # null => resolve to ~30% of warmup + train steps
+  session_n_warmup_steps: null     # null => resolve to ~20% of warmup + train steps
 
 penalties:
-  beta: 0.01
-
-  # By default, set all penalties to the same value
-  # You can override them individually if desired
+  beta: 0.001
   latent_penalty: ${.beta}
   choice_net_latent_penalty: ${.beta}
   update_net_obs_penalty: ${.beta}
+  update_net_latent_penalty_multiplier: 1.0
   update_net_latent_penalty: ${.beta}
+  subject_penalty: ${.beta}
+  update_net_subject_penalty: ${.beta}
+  choice_net_subject_penalty: ${.beta}
+
+distillation:
+  enabled: false
+  teacher_model_dirs: []
+  temperature: 2.0
+  aggregation: mean_probs
+  loss: kl
+  use_hard_labels: false
+  evaluate_against_hard_labels: true
+  save_manifest: true
 
 training:
-  n_steps: 3000
-  n_warmup_steps: 1000
+  n_steps: 20
+  n_warmup_steps: 10
   lr: 0.001
   loss: penalized_categorical
   loss_param: 1.0
-  max_grad_norm: 1e10  # no gradient clipping by default
+  max_grad_norm: 1.0
+  lambda_reg_session: 0.0   # 0 disables zero-mean session-delta regularization; try 1.0
+  checkpoint_every_n_steps: 10
+  checkpoint_eval_on_eval_split: true
+  checkpoint_eval_on_train_split: true
+  checkpoint_log_eval_to_wandb: true
+  checkpoint_log_train_to_wandb: true
+  checkpoint_plot_split_examples_every_n: 10
+  checkpoint_save_output_df_every_n: 0
+  checkpoint_log_split_examples_to_wandb: true
+  checkpoint_keep_media_files: false
+  checkpoint_plot_choice_rule: false
+  checkpoint_plot_update_rules: false
+  checkpoint_run_heldout_eval: true
+  checkpoint_include_final_in_heldout: true
+  initialization_eval_before_warmup: true
+  initialization_eval_after_warmup: true
+  plot_choice_rule: false
+  plot_update_rules: false
+  plot_subject_index: 0   # which subject's embedding is used for rule plots
+  session_conditioning_verbose_logging: true
+  plot_session_context_state_space: true
+  session_context_plot_max_subjects: 3
+  session_context_plot_subject_indices: null
+  save_output_df: false
+  auto_heldout_finetune:    # auto-run held-out-subject finetuning after training
+    enabled: true
+    checkpoint_policy: final
+    n_steps: 50
+    lr: 0.01
+    checkpoint_every_n_steps: 10
+    checkpoint_plot_split_examples_every_n: 10
+    checkpoint_save_output_df_every_n: 0
+    batch_size: null
+    batch_mode: single
+    keep_media_files: true
+    train_example_sessions_per_subject: 1
+    eval_example_sessions_per_subject: 1
+    example_max_subjects: 6
+    output_root: /results/heldout_subject_finetuning
+    run_name_suffix: null
 
 seed: ${seed}  # Seed for model trainer
 

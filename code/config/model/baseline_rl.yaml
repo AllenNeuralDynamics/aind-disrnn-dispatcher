@@ -1,21 +1,40 @@
+# Baseline RL model config. Values mirror the wrapper pck_dev source of truth
+# (aind-disrnn-wrapper@a790cc0 code/configs/config_baseline_rl.yaml, "baseline_rl, multi-subject").
 # See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
 type: baseline_rl
 
 _target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
 
-agent_class: "ForagerQLearning"
+architecture:
+  multisubject: true
+multisubject_subject_workers: 6  # Number of subjects to fit concurrently in multisubject mode
+# multisubject fitting only goes through the process pool when multisubject_subject_workers > 1
+# Agent class from aind_dynamic_foraging_models.generative_model
+# Options: ForagerQLearning, ForagerLossCounting, ForagerCompareThreshold
+agent_class: ForagerQLearning
+# Agent hyperparameters that define the model structure
+# For ForagerQLearning:
+#   - number_of_learning_rate: 1 or 2 (1=single rate, 2=separate for rewarded/unrewarded)
+#   - number_of_forget_rate: 0 or 1 (0=no forgetting, 1=forget unchosen)
+#   - choice_kernel: "none", "one_step", or "full"
+#   - action_selection: "softmax" or "epsilon-greedy"
 agent_kwargs:
   number_of_learning_rate: 1
-  number_of_forget_rate: 0
-  choice_kernel: "none"
-  action_selection: "softmax"
-
+  number_of_forget_rate: 1
+  choice_kernel: one_step
+  action_selection: softmax
+# Override default parameter bounds for fitting (optional)
+fit_bounds_override: {}
+# Fix certain parameters to specific values during fitting (optional)
+clamp_params: {}
+# Differential evolution optimizer settings
 DE_kwargs:
   polish: true
-  workers: 1
+# Auto-refit on held-out subjects after the main fit
+heldout_refit:
+  enabled: true
 
 seed: ${seed}
 
 # Your template for the model part of the run name
-run_name_component: >
-  rl_${.agent_class}_L${.agent_kwargs.number_of_learning_rate}F${.agent_kwargs.number_of_forget_rate}CK${.agent_kwargs.choice_kernel}
+run_name_component: baseline_rl_${.agent_class}_L${.agent_kwargs.number_of_learning_rate}F${.agent_kwargs.number_of_forget_rate}
