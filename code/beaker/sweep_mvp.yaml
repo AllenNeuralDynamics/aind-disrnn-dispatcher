@@ -1,0 +1,38 @@
+# MVP W&B sweep: simulate an RL agent, then fit a disRNN with DEFAULT settings.
+#
+# Dispatcher control-plane artifact: defines WHAT to sweep. The dispatcher
+# creates the sweep from this file, then passes the SWEEP_ID to
+# experiment_mvp.yaml. Wrapped as a (trivial, 1-point) sweep so the Beaker
+# mechanism is sweep-based from day one. Each Beaker task runs
+# `wandb agent <SWEEP_ID>`, which invokes the command below (inside the wrapper
+# image) with swept params appended as Hydra overrides.
+#
+#   data=synthetic   -> synthetic.yaml defaults to agent=rl, task=random_walk
+#   model=disrnn     -> disRNN with the default architecture/penalties/training
+#
+# Create the sweep (returns a SWEEP_ID), then put it in experiment_mvp.yaml:
+#   wandb sweep code/beaker/sweep_mvp.yaml
+#
+# For a fast smoke test, append e.g. model.training.n_steps=200 to `command`.
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: mvp-synthetic-rl-disrnn
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic
+  - model=disrnn
+  - "wandb.tags=[beaker,mvp]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]

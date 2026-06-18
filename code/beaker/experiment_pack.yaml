@@ -1,0 +1,43 @@
+## Beaker experiment spec — GPU packing (time-slicing) benchmark.
+##
+## Packs M `wandb agent`s onto ONE GPU via beaker/pack_gpu.sh, to measure
+## throughput (runs/GPU-hour) + power vs M. Renders <SWEEP_ID> and <PACK_M> at
+## submit time — the packing driver (see code/beaker/README.md) loops M=1,4,8,
+## creating a fresh sweep each time.
+##
+## cpuCount is left at the cluster default; the host/eval-bound workload makes
+## CPU the likely limiter, so watch whether throughput plateaus (then bump it).
+
+version: v2
+description: disRNN GPU packing — M wandb agents time-sliced on one GPU
+tasks:
+  - name: disrnn-pack
+    image:
+      beaker: han-hou/disrnn-wrapper
+    # entrypoint pulls code, then pack_gpu.sh launches <PACK_M> agents here.
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/pack_gpu.sh
+      - "<SWEEP_ID>"
+      - "<PACK_M>"
+    context:
+      priority: low
+      preemptible: true
+    constraints:
+      cluster:
+        - ai1/octo-hub-aws-l40s
+    resources:
+      gpuCount: 1
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: DISRNN_OUTPUT_DIR
+        value: /results
+      - name: WRAPPER_REF
+        value: ai_hub
+      - name: DISPATCHER_REF
+        value: ai_hub
+    result:
+      path: /results

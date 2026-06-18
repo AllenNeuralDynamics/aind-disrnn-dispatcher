@@ -1,0 +1,45 @@
+## Beaker experiment spec — disRNN scaling test (array of W&B sweep agents).
+##
+## N replicas, each on its own GPU, all draining the SAME sweep queue — the
+## "across many GPUs" parallelism. The W&B sweep shards naturally: each agent
+## pulls combos until the grid is exhausted, then exits.
+##
+## Launch (the launcher renders <SWEEP_ID>):
+##   python code/launch_beaker.py \
+##     --sweep code/beaker/sweep_scaling.yaml \
+##     --experiment code/beaker/experiment_scaling.yaml
+
+version: v2
+description: disRNN scaling — N wandb-agent replicas sharing one sweep
+tasks:
+  - name: disrnn-scaling
+    image:
+      beaker: han-hou/disrnn-wrapper
+    # No --count: each agent drains the sweep queue until the grid is
+    # exhausted, then exits. With replicas=4 and 8 combos that's ~2 runs/GPU.
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+      - "<SWEEP_ID>"
+    replicas: 4                    # 4 agents across 4 L40s GPUs
+    context:
+      priority: low
+      preemptible: true
+    constraints:
+      cluster:
+        - ai1/octo-hub-aws-l40s
+    resources:
+      gpuCount: 1                  # per replica
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: DISRNN_OUTPUT_DIR
+        value: /results
+      - name: WRAPPER_REF
+        value: ai_hub
+      - name: DISPATCHER_REF
+        value: ai_hub
+    result:
+      path: /results

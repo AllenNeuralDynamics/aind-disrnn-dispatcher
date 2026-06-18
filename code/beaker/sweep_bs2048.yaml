@@ -1,0 +1,42 @@
+# Batch-size sweep point bs=2048 — same config as sweep_t4match.yaml but with
+# data.batch_size=2048, so L40s/H200 are directly comparable to the prior T4 and
+# CO-CPU bs=2048 runs (num_sessions=100, n_steps=5000, warmup=500, seed=0):
+#   T4  AIND-disRNN/han_cpu_gpu_test/biflbgn5  -> 0.652 s/step
+#   CPU AIND-disRNN/han_cpu_gpu_test/2bvl403t  -> 5.045 s/step
+#
+# 1 combo (seed=0); launch once per GPU (own sweep each):
+#   python code/launch_beaker.py \
+#     --sweep code/beaker/sweep_bs2048.yaml \
+#     --experiment code/beaker/experiment_mvp.yaml      # L40s
+#   python code/launch_beaker.py \
+#     --sweep code/beaker/sweep_bs2048.yaml \
+#     --experiment code/beaker/experiment_h200.yaml     # H200
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: bs2048-wu500-5000
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic
+  - model=disrnn
+  - data.batch_size=2048
+  - data.num_sessions=100
+  - data.eval_every_n=2
+  - model.training.n_steps=5000
+  - model.training.n_warmup_steps=500
+  - model.training.lr=0.005
+  - model.penalties.beta=0.001
+  - "wandb.tags=[beaker,bs2048]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [0]

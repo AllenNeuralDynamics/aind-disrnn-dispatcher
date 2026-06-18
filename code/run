@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -ex
 
-HYDRA_OVERRIDES="$1"
+# CO reproducible-run entry for the AI Hub / Beaker control plane:
+# create a W&B sweep and submit the Beaker experiment (see code/launch_beaker.py).
+# The historical CO compute path (compose Hydra config) lives in
+# code/launch_CO_wrapper.py.
 
-echo "[dispatcher] hydra overrides: ${HYDRA_OVERRIDES}"
+LAUNCHER_ARGS="$1"
+
+echo "[dispatcher] beaker launcher args: ${LAUNCHER_ARGS}"
+
+# beaker CLI is installed to ~/.local/bin by environment/postInstall.
+export PATH="$HOME/.local/bin:$PATH"
 
 # IMPORTANT: no quotes here, so the shell re-splits into args
-python -u run_capsule.py ${HYDRA_OVERRIDES}
+python -u launch_beaker.py ${LAUNCHER_ARGS}
