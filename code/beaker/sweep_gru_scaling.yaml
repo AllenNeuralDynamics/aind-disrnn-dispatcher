@@ -1,0 +1,42 @@
+# Multisubject GRU scaling sweep (AI Hub / Beaker), W&B project: mice_scaling.
+#
+# Modular layout — edit configs, not this file, for fixed values:
+#   * data values   -> code/config/data/mice_snapshot_scaling.yaml
+#   * model/training -> code/config/model/gru_scaling.yaml
+# This sweep only selects those configs and declares the grid dimensions below.
+# Grid = hidden_size {128,256} x session_encoding_type {none,scalar} x lr {1e-5,5e-6}
+# = 8 runs.
+#
+# Each Beaker task runs `wandb agent <SWEEP_ID>`, which invokes the command below
+# as `python -m run_hpc <fixed args> <swept params as key=value>` (configs come
+# from the dispatcher's code/config via run_hpc.py's relative-path contract).
+#
+# Create the sweep, then put the returned SWEEP_ID in an experiment_*.yaml:
+#   wandb sweep code/beaker/sweep_gru_scaling.yaml
+
+entity: AIND-disRNN
+project: mice_scaling
+name: mice-scaling-gru
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - seed=71
+  - wandb.project=mice_scaling
+  - ${args_no_hyphens}
+
+parameters:
+  model.architecture.hidden_size:
+    values: [128, 256]
+  model.architecture.session_encoding_type:
+    values: ["none", "scalar"]
+  model.training.lr:
+    values: [1.0e-5, 5.0e-6]
