@@ -19,7 +19,7 @@ description: disRNN MVP — synthetic-RL -> disRNN, one W&B sweep agent
 tasks:
   - name: disrnn-mvp
     image:
-      beaker: han-hou/disrnn-wrapper   # from `beaker image get disrnn-wrapper`
+      beaker: han-hou/disrnn-wrapper-pck-integration   # from `beaker image get disrnn-wrapper`
     # entrypoint.sh pulls the latest code at container startup, then runs
     # `wandb agent`. Control the code version via WRAPPER_REF/DISPATCHER_REF.
     command:
