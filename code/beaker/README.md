@@ -28,6 +28,9 @@ compute runs the **wrapper** image, built and maintained in
 - `experiment_scaling.yaml` — `replicas: 4`, the "array of jobs" across 4 GPUs.
 - `sweep_pack.yaml` / `experiment_pack.yaml` — GPU time-slicing benchmark (pack M
   agents on one GPU via the wrapper's `pack_gpu.sh`).
+- `launch_beaker_resumable.py` *(in `code/`)* — Option-1 **resumable** launcher:
+  expands a `method: grid` sweep into one autoResume Beaker task per grid point
+  (see "Resumable runs" below).
 
 ## Flow (dispatcher → wrapper hand-off)
 
@@ -165,3 +168,46 @@ compute or CPU (the host-bound limiter — bump `cpuCount` if so) saturates.
 > findings in the wrapper's
 > [Performance notes](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#performance-notes-gpu-efficiency)
 > and [benchmark figure](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/blob/ai_hub/beaker/README.md#benchmark-figure).
+
+## Resumable runs (preemption recovery)
+
+Packed `wandb agent` sweeps (above) are *not* preemption-resilient: when a
+preemptible agent is killed mid-trial, Beaker restarts the container, the new
+agent pulls a **fresh** sweep trial, and the interrupted trial's partial
+progress is thrown away (grid coverage is preserved — wandb re-dispatches the
+cell — but the half-trained model is lost). For long runs (wide hidden sizes,
+high step counts) that wasted compute is the cost worth eliminating.
+
+`launch_beaker_resumable.py` runs a grid the resumable way instead:
+
+```bash
+WS=ai1/aind-dynamic-foraging-foundation-model
+python code/launch_beaker_resumable.py \
+  --sweep code/beaker/sweep_gru_scaling.yaml \
+  --experiment code/beaker/experiment_scaling.yaml \
+  --workspace "$WS"
+# add --no-submit to render + inspect the spec without launching
+```
+
+It expands the grid into one **self-contained Beaker task per grid point**
+(running `run_hpc` with that point's Hydra overrides baked in — no sweep
+controller), each `preemptible: true` / `priority: low`. Three things make a
+preempted task resume from its last checkpoint instead of restarting:
+
+1. **Beaker autoResume** — applied automatically to preemptible/low-priority
+   tasks (confirm with `beaker experiment spec <id>`). The restart re-runs the
+   *same* command and re-attaches the *same* `/results` dataset.
+2. **Stable output dir** — each task sets `DISRNN_RESUMABLE_OUTPUT_DIR=/results/run`
+   so `run_hpc` anchors outputs at a fixed path (not the per-run W&B dir), so the
+   restart re-finds `checkpoints/step_<N>/train_state.pkl`.
+3. **Full-state checkpoints** — the trainer writes params + optimizer + PRNG key
+   + step each checkpoint and, on startup, resumes from the highest one (the
+   wrapper's `model_trainers/checkpoint_resume.py`; gated by
+   `training.auto_resume`, default true). Requires `training.checkpoint_every_n_steps > 0`.
+
+W&B continuity across the restart is preserved by a deterministic, per-grid-point
+`WANDB_RUN_ID` + `WANDB_RESUME=allow`, with all points grouped under
+`WANDB_RUN_GROUP`.
+
+Only `method: grid` sweeps are supported — the trial set must be enumerable up
+front, since there is no sweep controller to ask for the next point.
