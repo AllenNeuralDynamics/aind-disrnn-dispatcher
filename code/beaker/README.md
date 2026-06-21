@@ -194,9 +194,15 @@ It expands the grid into one **self-contained Beaker task per grid point**
 controller), each `preemptible: true` / `priority: low`. Three things make a
 preempted task resume from its last checkpoint instead of restarting:
 
-1. **Beaker autoResume** — applied automatically to preemptible/low-priority
-   tasks (confirm with `beaker experiment spec <id>`). The restart re-runs the
-   *same* command and re-attaches the *same* `/results` dataset.
+1. **Beaker autoResume** — set `preemptible: true` (with `priority: low`) and the
+   server applies `autoResume: true` automatically (confirm with
+   `beaker experiment spec <id>`). Do **not** set `autoResume` explicitly in the
+   spec: the v2 schema rejects `preemptible` and `autoResume` together
+   (`Error: preemptible cannot be set with min_runtime or auto_resume`). The
+   restart re-runs the *same* command and re-attaches the *same* `/results`
+   dataset — verified live: a `beaker job preempt`ed run resumed from
+   `/results/run/outputs/checkpoints/step_300/train_state.pkl`, skipped warmup,
+   and continued with stable likelihood.
 2. **Stable output dir** — each task sets `DISRNN_RESUMABLE_OUTPUT_DIR=/results/run`
    so `run_hpc` anchors outputs at a fixed path (not the per-run W&B dir), so the
    restart re-finds `checkpoints/step_<N>/train_state.pkl`.
