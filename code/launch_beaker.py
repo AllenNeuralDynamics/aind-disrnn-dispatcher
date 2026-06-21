@@ -18,6 +18,7 @@ Usage:
   python code/launch_beaker.py
   python code/launch_beaker.py --no-submit          # create the sweep + record only
   python code/launch_beaker.py --sweep <file> --experiment <file> --workspace <ws>
+  python code/launch_beaker.py --output-dir ./out   # run outside Code Ocean (no /results)
 """
 
 import argparse
@@ -66,10 +67,12 @@ def create_sweep(sweep_file: str) -> str:
     return m.group(1)
 
 
-def submit_experiment(experiment_file: str, sweep_id: str, workspace: str) -> str | None:
+def submit_experiment(
+    experiment_file: str, sweep_id: str, workspace: str, output_dir: Path = RESULTS
+) -> str | None:
     """Render <SWEEP_ID> into the experiment spec and `beaker experiment create`."""
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    rendered = RESULTS / "experiment_submitted.yaml"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    rendered = output_dir / "experiment_submitted.yaml"
     rendered.write_text(Path(experiment_file).read_text().replace("<SWEEP_ID>", sweep_id))
     print(f"[launch_beaker] submitting {rendered.name} to {workspace}")
     out = subprocess.run(
@@ -83,10 +86,12 @@ def submit_experiment(experiment_file: str, sweep_id: str, workspace: str) -> st
     return m.group(1) if m else None
 
 
-def save_record(sweep_file: str, sweep_id: str, experiment_id: str | None) -> None:
-    """Persist the sweep YAML + IDs + commit to /results for reproducibility."""
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(sweep_file, RESULTS / Path(sweep_file).name)
+def save_record(
+    sweep_file: str, sweep_id: str, experiment_id: str | None, output_dir: Path = RESULTS
+) -> None:
+    """Persist the sweep YAML + IDs + commit to output_dir for reproducibility."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sweep_file, output_dir / Path(sweep_file).name)
     entity_project, _, sweep_short = sweep_id.rpartition("/")
     record = {
         "sweep_id": sweep_id,
@@ -99,7 +104,7 @@ def save_record(sweep_file: str, sweep_id: str, experiment_id: str | None) -> No
         "sweep_file": str(sweep_file),
         "created_utc": datetime.now(timezone.utc).isoformat(),
     }
-    (RESULTS / "beaker_sweep.json").write_text(json.dumps(record, indent=2))
+    (output_dir / "beaker_sweep.json").write_text(json.dumps(record, indent=2))
     print(f"[launch_beaker] saved reproducibility record:\n{json.dumps(record, indent=2)}")
 
 
@@ -110,7 +115,12 @@ def main() -> None:
     p.add_argument("--workspace", default="ai1/aind-dynamic-foraging-foundation-model")
     p.add_argument("--no-submit", action="store_true",
                    help="create the sweep + reproducibility record only; don't submit to Beaker")
+    p.add_argument("--output-dir", default=str(RESULTS),
+                   help="directory for the rendered spec + reproducibility record "
+                        "(default: /results, the Code Ocean mount). Set this to run outside CO.")
     args = p.parse_args()
+
+    output_dir = Path(args.output_dir)
 
     sweep_id = create_sweep(args.sweep)
     print(f"[launch_beaker] SWEEP_ID = {sweep_id}")
@@ -119,9 +129,9 @@ def main() -> None:
     if args.no_submit:
         print("[launch_beaker] --no-submit set; skipping `beaker experiment create`")
     else:
-        experiment_id = submit_experiment(args.experiment, sweep_id, args.workspace)
+        experiment_id = submit_experiment(args.experiment, sweep_id, args.workspace, output_dir)
 
-    save_record(args.sweep, sweep_id, experiment_id)
+    save_record(args.sweep, sweep_id, experiment_id, output_dir)
     print("[launch_beaker] done")
 
 
