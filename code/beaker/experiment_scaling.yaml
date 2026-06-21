@@ -32,6 +32,8 @@ tasks:
         - ai1/octo-hub-aws-l40s
     resources:
       gpuCount: 1                  # per replica
+      memory: 180GiB               # node is ~373GiB/4 GPUs shared; cap co-location
+                                   # to ~2 replicas so evals don't co-OOM the node
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
@@ -39,8 +41,9 @@ tasks:
         value: /results
       - name: WRAPPER_REF
         # full SHA required: entrypoint does `git fetch origin <ref>`, which
-        # rejects short SHAs. aaf5ed7 = session-reg fix + gru-eval defragmentation.
-        value: aaf5ed79f79455ff50ac3387fc0b27bff976168c
+        # rejects short SHAs. 677df86 = session-reg fix + gru-eval defrag +
+        # per-subject split-example build (no whole-cohort eval frame).
+        value: 677df8693181439411c3aea0b2a39266a10aa672
       - name: DISPATCHER_REF
         value: ai_hub_pck_integration
     result:
