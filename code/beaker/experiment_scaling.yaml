@@ -38,7 +38,9 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: 5ccb44125daa6059ec4013c1e0a8bcd31f33646b  # fix: session-reg auto-disable
+        # full SHA required: entrypoint does `git fetch origin <ref>`, which
+        # rejects short SHAs. aaf5ed7 = session-reg fix + gru-eval defragmentation.
+        value: aaf5ed79f79455ff50ac3387fc0b27bff976168c
       - name: DISPATCHER_REF
         value: ai_hub_pck_integration
     result:
