@@ -100,11 +100,17 @@ wrapper (branch `ai_hub_pck_integration`); notes here so they don't resurface.
    build the per-trial frame only for the subjects actually plotted; training
    metrics (likelihood) read the `yhat` tensors directly and never need it.
 
-3. **GPU OOM at eval.** `eval_network` JIT-runs the model over *all* sessions at
-   once; for hidden_size=256 that allocated ~39.5 GB and OOM'd the 48 GB L40s GPU
-   (`RESOURCE_EXHAUSTED`). Fixed: chunk the forward pass over the session axis
-   (`GruTrainer._eval_max_episodes`). hidden_size=128 fits an L40s as-is; 256 fits
-   with chunking, or run on an H200 (141 GB).
+3. **GPU OOM (hidden_size=256).** The model runs a forward over *all* ~18k
+   sessions at once; for hidden_size=256 that allocates ~37-40 GB on the GPU and
+   `RESOURCE_EXHAUSTED`s anything smaller. The binding site is **training**
+   (`gru_trainer.fit` -> `train_network_with_session_regularization`), confirmed
+   on both an unpacked 48 GB L40s and a 4-way-packed share. The **eval** forward
+   has the same full-cohort shape and is chunked over the session axis
+   (`GruTrainer._eval_max_episodes`) — a real memory win, but it does NOT remove
+   the training allocation. So: **hidden_size=256 needs a big GPU (H200, 141 GB)**;
+   it does not fit a 48 GB L40s or a packed M=4 share. hidden_size=128 (~half)
+   fits an L40s and packs fine. Chunking the *training* forward would be a further
+   change (not done).
 
 Operational guardrail: the L40s node is **one machine, 4 GPUs, ~373 GiB shared**.
 Cap co-location with `resources.memory` + `replicas` so concurrent runs don't
