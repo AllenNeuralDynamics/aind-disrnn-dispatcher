@@ -23,7 +23,7 @@ tasks:
       - wandb
       - agent
       - "<SWEEP_ID>"
-    replicas: 4                    # 4 agents across 4 L40s GPUs
+    replicas: 2                    # memory cap fits ~2/node (373GiB); 2 agents drain the grid
     context:
       priority: high
       preemptible: false
