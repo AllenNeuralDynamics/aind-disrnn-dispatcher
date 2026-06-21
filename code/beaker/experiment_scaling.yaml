@@ -25,8 +25,8 @@ tasks:
       - "<SWEEP_ID>"
     replicas: 4                    # 4 agents across 4 L40s GPUs
     context:
-      priority: low
-      preemptible: true
+      priority: high
+      preemptible: false
     constraints:
       cluster:
         - ai1/octo-hub-aws-l40s
@@ -38,7 +38,7 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: ai_hub_pck_integration
+        value: 5ccb44125daa6059ec4013c1e0a8bcd31f33646b  # fix: session-reg auto-disable
       - name: DISPATCHER_REF
         value: ai_hub_pck_integration
     result:
