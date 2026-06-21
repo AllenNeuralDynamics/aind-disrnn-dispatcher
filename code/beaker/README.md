@@ -54,17 +54,24 @@ non-hub clusters belong to other science units (our budget is
 guidance, 2026-06-17. Names are being renamed to a clearer convention ~mid-2026,
 so re-check with `beaker cluster list ai1` or https://beaker.org/.)
 
-Hub clusters — use these:
+Hub clusters — use these (resources measured 2026-06-21; re-check with
+`beaker cluster list ai1` / `beaker node get <id> --format json`):
 
-| Cluster | GPU | Notes |
-|---|---|---|
-| `ai1/octo-hub-aws-l40s` | L40s | our default — small models / debugging |
-| `ai1/octo-hub-aws-l40s-dev` | L40s | dev |
-| `ai1/octo-hub-aws-h200` | H200 | large training (AWS) |
-| `ai1/octo-hub-onprem-h200` | H200 | on-prem |
-| `ai1/octo.hub-gcp-h200` | H200 | GCP |
-| `ai1/octo-hub-gcp-h100` | H100 | GCP |
-| `ai1/aihub-dev-aws` | — | AI Hub dev |
+| Cluster | GPU (mem) | Host RAM/node | Reaches DB? | Notes |
+|---|---|---|---|---|
+| `ai1/octo-hub-aws-l40s` | L40s (48 GB) | ~373 GiB (1 node, 4 slots) | ✅ AWS | default; fine for H128. 48 GB GPU OOMs a *wide* (hidden_size=256) full-cohort eval unless chunked |
+| `ai1/octo-hub-aws-h200` | H200 (141 GB) | large | ✅ AWS | large training; often full (32/32) |
+| `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem | large training; usually has free slots — best for wide H256 |
+| `ai1/octo-hub-gcp-h100` | H100 (80 GB) | ~1.83 TiB | ❌ **cannot reach AWS S3 DB** | lots of free CPU/RAM, but DB reads fail (DNS / SSL-cert errors) — only for compute that doesn't touch the DB |
+| `ai1/octo.hub-gcp-h200` | H200 (141 GB) | large | ❌ GCP (S3 unreliable) | |
+| `ai1/octo-hub-aws-l40s-dev` | L40s (48 GB) | — | ✅ AWS | dev |
+| `ai1/aihub-dev-aws` | T4 (16 GB) | 16 GiB | ✅ AWS | dev / tiny |
+
+**DB-backed runs must use an AWS or on-prem cluster.** The trial/session
+database is public AWS S3 (`s3://aind-scratch-data/aind-dynamic-foraging-cache`,
+us-west-2); **GCP clusters cannot reliably read it** (intermittent
+`Could not resolve hostname` / `SSL CA cert` `IOException`s mid-fetch). The DB
+fetch itself is fast on AWS (~5 s for all ~12.5M trials; scales with CPU count).
 
 Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200`,
 `ai1/octo.ai-aws-p5en`, `ai1/octo.ai-aws-g6e`.
@@ -72,6 +79,37 @@ Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200`,
 Pick one with free slots (`beaker cluster list ai1`); a job queues if none are
 free. Slot caps (Allocated = non-preemptible, Unallocated = preemptible) are in
 the AI Hub `getting-started/budgets.md`.
+
+## Memory pitfalls (multisubject cohorts)
+
+Large multisubject mice cohorts (`mice_snapshot_scaling`: ~600 subjects, ~18k
+sessions, ~9.7M trials) hit three distinct memory walls. All are fixed in the
+wrapper (branch `ai_hub_pck_integration`); notes here so they don't resurface.
+
+1. **Slow load (host CPU), ~6–7 min.** `_build_multisubject_bundle` filtered
+   `df[df["subject_id"] == sid]` once per subject over an object-dtype column —
+   an O(subjects × trials) Python scan. Replaced with one `groupby("subject_id")`
+   pass (and `create_disrnn_dataset` per-session `df.query()` → `groupby`, PR'd to
+   `aind_disrnn_utils`). Load dropped to ~2 min. The DB fetch was never the
+   bottleneck (~5 s); it's post-fetch dataset construction.
+
+2. **Host-RAM OOM at eval.** The whole-cohort per-trial frame (`latent_*` ×
+   hidden_size + logits/probs, millions of rows) was built unconditionally just
+   to plot a few subjects → 100–300 GB RSS, OOM-killed (SIGKILL, no traceback) on
+   the 373 GiB L40s node — worse with several `replicas` sharing one node. Fixed:
+   build the per-trial frame only for the subjects actually plotted; training
+   metrics (likelihood) read the `yhat` tensors directly and never need it.
+
+3. **GPU OOM at eval.** `eval_network` JIT-runs the model over *all* sessions at
+   once; for hidden_size=256 that allocated ~39.5 GB and OOM'd the 48 GB L40s GPU
+   (`RESOURCE_EXHAUSTED`). Fixed: chunk the forward pass over the session axis
+   (`GruTrainer._eval_max_episodes`). hidden_size=128 fits an L40s as-is; 256 fits
+   with chunking, or run on an H200 (141 GB).
+
+Operational guardrail: the L40s node is **one machine, 4 GPUs, ~373 GiB shared**.
+Cap co-location with `resources.memory` + `replicas` so concurrent runs don't
+exceed node RAM (≈ `373 GiB / replicas`). Wide (H256) runs: prefer an H200, or
+L40s with the eval chunking above and `replicas`≤2.
 
 ## Image & code version
 
