@@ -64,6 +64,23 @@ likelihood (`heldout/eval_likelihood` / `heldout/test_likelihood`, from each run
 `auto_heldout_finetune`) vs actual #training mice (`len(resolved_subject_ids)`), mean over
 seeds, power-law fit `L = E + (Dc/D)^α`.
 
+### Syncing the offline W&B runs (this study runs `WANDB_MODE=offline`)
+
+The runs log offline to `/results/wandb/offline-run-*`, and `/results` is **each Beaker
+task's result dataset — persisted to Beaker/S3, not a local path**. So to get the runs
+into W&B (for `analyze_scaling.py`, which reads the W&B API) you must first **fetch the
+result datasets from Beaker**, then `wandb sync`:
+```bash
+# pull all task result folders from S3 (one folder per task)
+beaker experiment results 01KVQ7EJ3C5YJ8FJVNJB8C8N36 -o /tmp/dsl_results
+# sync each task's offline run into W&B (login node reaches W&B fine)
+for d in /tmp/dsl_results/*/wandb/offline-run-*; do wandb sync "$d"; done
+```
+(Per-task result-dataset id is also at `jobs[].result.beaker` in
+`beaker experiment get <exp> --format json`; fetch one with `beaker dataset fetch <id>`.)
+Authoritative metrics also live in each dataset's `/results/run/outputs`
+(`output_summary.json`, checkpoint metrics) independent of W&B.
+
 ### Optional: re-run held-out offline
 
 The same fine-tune+test can be re-run from a saved checkpoint without retraining (e.g. to
@@ -168,5 +185,6 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   + ratio 0.489 seed 0) to **allocated/non-preemptible** (uses the 4 allocated
   slots; no autoResume, but protected — relaunch-to-resume if one dies).
   **Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36`** (15 tasks, ~12–14 concurrent). Offline
-  runs live in `/results/wandb` for later `wandb sync`; track health via Beaker
-  logs / `/results`, not the live W&B project.
+  runs are persisted to each task's **Beaker result dataset (S3)**, not a local path
+  — `beaker experiment results <exp>` to fetch, then `wandb sync` (see "Syncing the
+  offline W&B runs"). Track health via Beaker logs, not the live W&B project.
