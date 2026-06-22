@@ -31,13 +31,30 @@ training mice (D)**.
 Each run/condition of this study lives in `variants/<name>/` (its own `sweep.yaml`,
 `experiment.yaml`, `notes.md`, launch record). Shared tooling stays at the study root
 (`analyze_scaling.py`, `heldout_offline.yaml`, base configs in `code/config`). All
-variants log to **one** W&B project (`AIND-disRNN/mice_data_scaling`) under a **distinct
-group** (set via the sweep's `name:`) so they're directly comparable side-by-side.
+variants log to **one** W&B project (`AIND-disRNN/mice_data_scaling`) so they compare
+side-by-side; each launch is its own group (see Provenance below).
 
-| variant | what differs | status | W&B group | Beaker exp |
+| variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `mice-data-scaling-gru` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
-| [`v2-postwarmup`](variants/v2-postwarmup/notes.md) | train through warm-up (≥150k) so session conditioning engages | 📝 draft | `mice-data-scaling-v2-postwarmup` | — |
+| [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
+| [`v2-postwarmup`](variants/v2-postwarmup/notes.md) | train through warm-up (≥150k) so session conditioning engages | 📝 draft | `v2-postwarmup@<launch_id>` (at launch) | — |
+
+## Provenance & tracking (one launch = one "pseudo-sweep")
+
+Every launch is uniquely + readably identifiable, with platform-native ids saved alongside.
+Both launchers (`launch_beaker_resumable.py` and the native-sweep `launch_beaker.py`) stamp it
+identically; see `AGENTS.md` §8.
+
+- **W&B group = `<variant>@<launch_id>`** (`launch_id` = Seattle timestamp). Distinguishes
+  repeats of a variant; `launch_id` is also folded into run ids (unique per launch).
+- **`meta.{study,variant,launch_id,label,config_hash}`** in run config — portable across
+  CO/Beaker/HPC (set via `DISRNN_META_*` env; `--label` adds a human tag).
+- **Platform-native cross-refs** next to `CO_COMPUTATION_ID`: `BEAKER_EXPERIMENT_ID`,
+  `BEAKER_JOB_ID`, `wrapper_commit`, `dispatcher_commit` (+ the native W&B `sweep_id` on the
+  agent route).
+
+So post-hoc: filter `meta.study`/`meta.variant` to aggregate, `group`/`meta.launch_id` to pin
+the exact launch, and the Beaker ids to jump to the run on the cluster.
 
 ## Launch (resumable, one autoResume task per grid point)
 
@@ -74,12 +91,15 @@ small curriculum; raise the smallest ratio if so).
 ## Analyze
 
 ```bash
-.venv/bin/python studies/data-scaling-law/analyze_scaling.py
+.venv/bin/python studies/data-scaling-law/analyze_scaling.py            # all variants
+.venv/bin/python studies/data-scaling-law/analyze_scaling.py --variant v2-postwarmup
 ```
 Writes `scaling_results.csv` (+ `scaling_curve.png` if matplotlib present): held-out
 likelihood (`heldout/eval_likelihood` / `heldout/test_likelihood`, from each run's final
 `auto_heldout_finetune`) vs actual #training mice (`len(resolved_subject_ids)`), mean over
-seeds, power-law fit `L = E + (Dc/D)^α`.
+seeds, power-law fit `L = E + (Dc/D)^α`. **Grouped by `meta.variant`** — every variant gets
+its own curve/fit and they overlay on the plot (v1 vs v2 …); CSV columns include
+`variant`/`launch_id`/`group`. `--variant <name>` restricts to one.
 
 ### Syncing the offline W&B runs (this study runs `WANDB_MODE=offline`)
 
