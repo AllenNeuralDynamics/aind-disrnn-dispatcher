@@ -99,6 +99,14 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   overfit_guard:0.01}` checked in the gru/disrnn checkpoint loop (track best, break on
   no-improvement for `patience` checkpoints; `best_eval` already saved). Default off
   (no behavior change). Removes manual babysitting for future multi-run sweeps.
+- **Length-bucketed batching (or session-length cap).** The GRU pads every session to the
+  global max session length to batch the unroll, but the trials-per-session distribution is
+  heavily right-skewed: across 23,584 sessions median = 521 trials vs T_max = 2207 (p90 = 733,
+  p95 = 846, p99 = 1083), so **~76%** of per-step unroll compute is spent on padding. Bucketing
+  sessions by length (pad only within a bucket) or capping session length would cut this:
+  capping at p95 (846) drops waste to ~38% for a **~2.6x** per-step speedup with negligible data
+  loss (only 5% of sessions truncated); capping at p90 gives ~3.0x. This is a data-loader/batching
+  change and is **secondary to early stopping** above, which already cuts total steps ~10x.
 
 ## Status log
 
