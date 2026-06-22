@@ -114,3 +114,10 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   tiny D≈30 probe). Launched the 15-run sweep (scalar, lr=1e-5, 300k, lean) as
   experiment `01KVPPMQ38NNT00870Q1QAT0XF` on onprem-H200 (preemptible/autoResume).
   Watching large-D `train_likelihood` to validate lr=1e-5 convergence.
+- 2026-06-22: cancelled `01KVPPMQ38…` to fold in PR #41 (early stopping +
+  length-bucketing). Padding bench (`bench_padding` W&B project, D≈614, identical
+  except `length_bucketing`) confirmed **~2.2x speedup** (steady-state 0.72 →
+  0.33 s/step) with an **identical loss curve at matched steps** (±0.0015, noise).
+  Enabled `length_bucketing=true` + `early_stopping.enabled=true` in the sweep
+  (`1265b07`) and **relaunched as experiment `01KVQ3EXZ6PNVQETACT42TGB58`** (15
+  autoResume tasks, onprem-H200). 3-h status cron repointed to the new experiment.
