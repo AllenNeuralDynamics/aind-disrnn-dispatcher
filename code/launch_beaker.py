@@ -22,6 +22,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -30,6 +31,13 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+import yaml
+
+# Reuse the SAME provenance helpers as the resumable launcher so the two routes can't
+# drift (group naming, study/variant derivation, launch id). Safe to import: the sibling
+# module guards execution behind `if __name__ == "__main__"`.
+from launch_beaker_resumable import _seattle_launch_id, _study_variant
 
 REPO_ROOT = Path(__file__).resolve().parent.parent  # the dispatcher capsule root (a git repo)
 RESULTS = Path("/results")
@@ -67,13 +75,34 @@ def create_sweep(sweep_file: str) -> str:
     return m.group(1)
 
 
+def _render_experiment(experiment_file: str, sweep_id: str, group: str, meta_env: list) -> dict:
+    """Render <SWEEP_ID> into the experiment spec and inject provenance env.
+
+    Injects WANDB_RUN_GROUP (= <variant>@<launch_id>, consistent with the resumable
+    route) + DISRNN_META_* into every task, so the wrapper's start_wandb_run stamps the
+    portable meta.* alongside the native sweep + Beaker/CO ids. Pure (no I/O / network)
+    so it's unit-testable.
+    """
+    spec = yaml.safe_load(Path(experiment_file).read_text().replace("<SWEEP_ID>", sweep_id))
+    managed = {
+        "WANDB_RUN_GROUP", "DISRNN_META_STUDY", "DISRNN_META_VARIANT",
+        "DISRNN_META_LAUNCH_ID", "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL",
+    }
+    for task in spec.get("tasks", []):
+        env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
+        env.extend([{"name": "WANDB_RUN_GROUP", "value": group}, *meta_env])
+        task["envVars"] = env
+    return spec
+
+
 def submit_experiment(
-    experiment_file: str, sweep_id: str, workspace: str, output_dir: Path = RESULTS
+    experiment_file: str, sweep_id: str, workspace: str,
+    group: str, meta_env: list, output_dir: Path = RESULTS,
 ) -> str | None:
-    """Render <SWEEP_ID> into the experiment spec and `beaker experiment create`."""
+    """Render <SWEEP_ID> + provenance into the experiment spec and `beaker experiment create`."""
     output_dir.mkdir(parents=True, exist_ok=True)
     rendered = output_dir / "experiment_submitted.yaml"
-    rendered.write_text(Path(experiment_file).read_text().replace("<SWEEP_ID>", sweep_id))
+    rendered.write_text(yaml.safe_dump(_render_experiment(experiment_file, sweep_id, group, meta_env), sort_keys=False))
     print(f"[launch_beaker] submitting {rendered.name} to {workspace}")
     out = subprocess.run(
         [BEAKER, "experiment", "create", "-w", workspace, str(rendered)],
@@ -118,18 +147,41 @@ def main() -> None:
     p.add_argument("--output-dir", default=str(RESULTS),
                    help="directory for the rendered spec + reproducibility record "
                         "(default: /results, the Code Ocean mount). Set this to run outside CO.")
+    p.add_argument("--label", default=None,
+                   help="optional human label for this launch (stamped to W&B meta.label)")
     args = p.parse_args()
 
     output_dir = Path(args.output_dir)
+
+    # Provenance (consistent with the resumable route — see AGENTS §8): one launch ==
+    # one pseudo-sweep. Here the native W&B sweep is the platform-native launch id; we
+    # still stamp the portable group + meta.* so both routes look identical in W&B.
+    study, variant = _study_variant(Path(args.sweep))
+    launch_id = _seattle_launch_id()
+    config_hash = hashlib.sha1(Path(args.sweep).read_bytes()).hexdigest()[:8]
+    group = f"{variant}@{launch_id}"
+    meta_env = [
+        {"name": "DISRNN_META_STUDY", "value": study},
+        {"name": "DISRNN_META_VARIANT", "value": variant},
+        {"name": "DISRNN_META_LAUNCH_ID", "value": launch_id},
+        {"name": "DISRNN_META_CONFIG_HASH", "value": config_hash},
+    ]
+    if args.label:
+        meta_env.append({"name": "DISRNN_META_LABEL", "value": args.label})
+    print(f"[launch_beaker] study={study} variant={variant} launch_id={launch_id} "
+          f"group={group} config_hash={config_hash}")
 
     sweep_id = create_sweep(args.sweep)
     print(f"[launch_beaker] SWEEP_ID = {sweep_id}")
 
     experiment_id = None
     if args.no_submit:
-        print("[launch_beaker] --no-submit set; skipping `beaker experiment create`")
+        rendered = output_dir / "experiment_submitted.yaml"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        rendered.write_text(yaml.safe_dump(_render_experiment(args.experiment, sweep_id, group, meta_env), sort_keys=False))
+        print(f"[launch_beaker] --no-submit set; wrote {rendered} (not submitted)")
     else:
-        experiment_id = submit_experiment(args.experiment, sweep_id, args.workspace, output_dir)
+        experiment_id = submit_experiment(args.experiment, sweep_id, args.workspace, group, meta_env, output_dir)
 
     save_record(args.sweep, sweep_id, experiment_id, output_dir)
     print("[launch_beaker] done")

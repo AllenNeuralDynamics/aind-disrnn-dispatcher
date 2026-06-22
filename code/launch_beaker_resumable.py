@@ -40,6 +40,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import yaml
 
@@ -106,7 +107,27 @@ def _slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def build_spec(sweep_file: str, experiment_file: str) -> dict:
+def _seattle_launch_id() -> str:
+    """Readable, unique-per-launch id = Seattle local timestamp (see AGENTS §7/§8)."""
+    return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y%m%d-%H%M%S")
+
+
+def _study_variant(sweep_path: Path) -> tuple[str, str]:
+    """Derive (study, variant) from a studies/<study>/variants/<variant>/sweep.yaml path.
+
+    Falls back to the file stem when the path isn't under that layout, so the launcher
+    still works for ad-hoc sweeps.
+    """
+    parts = sweep_path.resolve().parts
+    study = variant = None
+    if "studies" in parts and parts.index("studies") + 1 < len(parts):
+        study = parts[parts.index("studies") + 1]
+    if "variants" in parts and parts.index("variants") + 1 < len(parts):
+        variant = parts[parts.index("variants") + 1]
+    return study or "adhoc", variant or _slug(sweep_path.stem)
+
+
+def build_spec(sweep_file: str, experiment_file: str, label: str | None = None) -> dict:
     """Expand a grid sweep + experiment template into a multi-task Beaker spec."""
     sweep = yaml.safe_load(Path(sweep_file).read_text())
     if sweep.get("method") != "grid":
@@ -125,7 +146,31 @@ def build_spec(sweep_file: str, experiment_file: str) -> dict:
     template_task = spec["tasks"][0]
     # The bash + entrypoint.sh prefix from the template (drop its wandb-agent tail).
     entry_prefix = list(template_task["command"][:2])
-    group = _slug(sweep.get("name", Path(sweep_file).stem))
+
+    # Provenance / tracking (see AGENTS §8): one launch == one pseudo-sweep.
+    #  - W&B group = "<variant>@<launch_id>" uniquely names THIS launch (distinguishes
+    #    repeats; readable: variant -> study folder, launch_id -> Seattle time).
+    #  - meta.* (study/variant/launch_id/label/config_hash) injected via DISRNN_META_*
+    #    env; the wrapper stamps them into the run config alongside the platform-native
+    #    BEAKER_EXPERIMENT_ID / BEAKER_JOB_ID / CO_COMPUTATION_ID.
+    #  - launch_id is also folded into the run id, so every launch gets unique ids
+    #    (distinguishes repeats AND avoids the deleted-id resync problem).
+    sweep_path = Path(sweep_file)
+    study, variant = _study_variant(sweep_path)
+    launch_id = _seattle_launch_id()
+    config_hash = hashlib.sha1(sweep_path.read_bytes()).hexdigest()[:8]
+    group = f"{variant}@{launch_id}"            # W&B group = this launch (pseudo-sweep)
+    id_base = _slug(f"{variant}-{launch_id}")    # slug-safe base for task names + run ids
+    meta_env = [
+        {"name": "DISRNN_META_STUDY", "value": study},
+        {"name": "DISRNN_META_VARIANT", "value": variant},
+        {"name": "DISRNN_META_LAUNCH_ID", "value": launch_id},
+        {"name": "DISRNN_META_CONFIG_HASH", "value": config_hash},
+    ]
+    if label:
+        meta_env.append({"name": "DISRNN_META_LABEL", "value": label})
+    print(f"[resumable] study={study} variant={variant} launch_id={launch_id} "
+          f"group={group} config_hash={config_hash}")
 
     tasks = []
     for index, point in enumerate(grid):
@@ -140,20 +185,24 @@ def build_spec(sweep_file: str, experiment_file: str) -> dict:
 
         task = copy.deepcopy(template_task)
         task.pop("replicas", None)
-        task["name"] = f"{group}-{index:03d}"
+        task["name"] = f"{id_base}-{index:03d}"
         task["command"] = entry_prefix + run_cmd
         # Preemptible + low priority => Beaker applies autoResume (verified via
         # `beaker experiment spec`); the restart re-uses this task's /results.
         task["context"] = {"priority": "low", "preemptible": True}
 
-        env = [e for e in task.get("envVars", []) if e.get("name") not in {
+        managed = {
             "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
-        }]
+            "DISRNN_META_STUDY", "DISRNN_META_VARIANT", "DISRNN_META_LAUNCH_ID",
+            "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL",
+        }
+        env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
         env.extend([
             {"name": "DISRNN_RESUMABLE_OUTPUT_DIR", "value": RESUMABLE_OUTPUT_DIR},
-            {"name": "WANDB_RUN_ID", "value": _run_id(group, overrides)},
+            {"name": "WANDB_RUN_ID", "value": _run_id(id_base, overrides)},
             {"name": "WANDB_RESUME", "value": "allow"},
             {"name": "WANDB_RUN_GROUP", "value": group},
+            *meta_env,
         ])
         task["envVars"] = env
         tasks.append(task)
@@ -206,10 +255,12 @@ def main() -> None:
     p.add_argument("--no-submit", action="store_true",
                    help="render the spec + record only; don't submit to Beaker")
     p.add_argument("--output-dir", default=str(RESULTS))
+    p.add_argument("--label", default=None,
+                   help="optional human label for this launch (stamped to W&B meta.label)")
     args = p.parse_args()
 
     output_dir = Path(args.output_dir)
-    spec = build_spec(args.sweep, args.experiment)
+    spec = build_spec(args.sweep, args.experiment, label=args.label)
     n_tasks = len(spec["tasks"])
     print(f"[resumable] expanded grid into {n_tasks} tasks")
 
