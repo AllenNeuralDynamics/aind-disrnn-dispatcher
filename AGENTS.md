@@ -159,3 +159,38 @@ and *readably* identifiable, with platform-native ids saved alongside for cross-
 `gh pr merge <n> --merge`) so the branch's individual commits — and their per-commit
 history/provenance — are preserved on the target branch. Squashing collapses that history
 and is not allowed.
+
+## 10. Beaker / AI Hub Launch & Scheduling
+
+Hard-won lessons (verified on onprem-H200 + aws-L40s, 2026-06-22):
+
+- **Priority for preemptible fan-outs: use `low`.** Low-priority preemptible jobs burst
+  onto spare idle GPUs *beyond* the workspace's unallocated-slot budget (measured ~14
+  concurrent on H200), whereas `normal`-priority preemptible jobs are **capped at the
+  unallocated budget** (8) — free physical slots will sit idle while tasks pend. Use
+  `normal` only for a single job you need to resist eviction. `autoResume` is **auto-applied**
+  to preemptible jobs — do not set it explicitly (Beaker rejects `preemptible` + `autoResume`).
+- **Guaranteed slots:** `{priority: normal, preemptible: false}` draws on the non-preemptible
+  (allocated) budget — protected indefinitely, never evicted.
+- **GPUs are bundled with host CPU/RAM.** A `memory` or `cpuCount` request exceeding **one**
+  GPU's bundle makes Beaker assign **multiple GPUs** to a `gpuCount: 1` job (L40s bundle
+  ≈ 93 GiB + 12 CPU/GPU, so `memory: 256GiB` → **3 GPUs**, starving other allocated tasks).
+  Size `memory`/`cpuCount` to one bundle on the target cluster; big-memory only where the
+  workload needs it. Check `BEAKER_ASSIGNED_GPU_COUNT` / `beaker job get` GPUS column.
+- **Budget caps ≠ physical capacity.** Tasks pending while physical slots are free ⇒ a
+  budget cap (or GPU over-assignment) is binding, not capacity.
+- **Per-task cluster/resource splits** aren't in `launch_beaker_resumable.py` (single cluster,
+  uniform resources). Render with `--no-submit`, edit `context`/`constraints.cluster`/
+  `resources` per task, then `beaker experiment create`.
+- **Validate one unit before the full fan-out.** Check the assigned GPUs/resources on the
+  *first scheduled job* before trusting a 15-task launch — catches over-assignment in one
+  step instead of repeated relaunches.
+
+## 11. Verify Mechanisms With Data Before Asserting
+
+When explaining *why* infra/scheduling/quota behaves a certain way, **pull the actual data
+first** (`beaker experiment/job get --format json`, `cluster get`, the W&B API) and cite the
+field. Distinguish observed fact from inference — label "verified: …" vs "likely, unconfirmed:
+…". Don't present a plausible hypothesis as a conclusion, and when two variables changed at
+once, isolate them before attributing cause. (Born from this turn: several confident-but-wrong
+explanations had to be retracted — see §10.)
