@@ -42,6 +42,18 @@ training:
   # ── Checkpoint cadence ──────────────────────────────────────────────────
   checkpoint_every_n_steps: 10000
 
+  # ── Early stopping (opt-in; evaluated at each checkpoint) ────────────────
+  # When enabled, stop once `metric` hasn't improved by > min_delta for
+  # `patience` checkpoints (or drops > overfit_guard below the best). On stop
+  # the run still finalizes (writes config/index + runs held-out fine-tune),
+  # and best_eval is used downstream. Default off → train to n_steps.
+  early_stopping:
+    enabled: false
+    metric: eval_likelihood     # eval_likelihood | train_likelihood
+    min_delta: 0.003
+    patience: 2                 # checkpoints with no new best
+    overfit_guard: 0.01         # stop if metric falls this far below best
+
   # ── Per-checkpoint likelihood eval + W&B logging ────────────────────────
   checkpoint_eval_on_train_split: true
   checkpoint_eval_on_eval_split: true
