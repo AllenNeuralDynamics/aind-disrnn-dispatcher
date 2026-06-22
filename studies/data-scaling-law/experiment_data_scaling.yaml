@@ -28,5 +28,10 @@ tasks:
         value: ef862fd51da602a4384afe9c0540422ea5309e3a
       - name: DISPATCHER_REF
         value: study/data-scaling-law
+      # Spread the 15 simultaneous wandb.init calls over ~3 min so they don't
+      # overwhelm the onprem cluster's shared egress to W&B (a 20s window left them
+      # bursting + timing out together). The ~6 min mouse-DB load dominates anyway.
+      - name: WANDB_INIT_STAGGER
+        value: "180"
     result:
       path: /results
