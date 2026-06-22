@@ -224,3 +224,12 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   caretaker relaunch of a dead allocated task) behave identically. **Future launches**
   can bump `WRAPPER_REF=6ede321` and drop `WANDB_MODE=offline` from the template to get
   adaptive online-with-offline-fallback automatically.
+- 2026-06-22 (SETTLED): all 15 runs completed & synced; results above. **wandb root
+  cause definitively resolved** — after the cluster freed up, **14 truly-simultaneous
+  online `wandb.init`s on onprem-H200 all succeeded** (14/14, started within 1s of each
+  other, ~1.3s each). So it was **NOT concurrency** (the earlier 8-vs-14 framing was
+  wrong) — it was a **transient degradation of the cluster→W&B run-creation path during
+  ~07:49–08:30 UTC** that happened to coincide with our 14-task launches and has since
+  cleared. Offline mode was the right mitigation regardless; the `6ede321`
+  retry→offline-fallback safeguard handles any recurrence. Concurrency is not a real
+  constraint for these launches.
