@@ -16,15 +16,15 @@ tasks:
       - agent
     constraints:
       cluster:
-        # AWS L40s — onprem-H200 couldn't reach W&B's run-creation path (every
-        # wandb.init timed out, even isolated; W&B + AWS clusters were fine). L40s
-        # 48GB fits H128 and reaches the AWS DB. Node = 1 machine, 4 GPUs,
-        # ~373 GiB shared; memory below caps co-location at ~4 (4 x 90 < 373).
-        - ai1/octo-hub-aws-l40s
+        # onprem-H200: many slots (uses the full 8 preemptible + 4 allocated quota),
+        # 141 GB GPU, ~3.25 TiB node RAM. Its W&B path had a transient blip
+        # (07:49-08:00) but recovered (probes WANDB_OK ~1.5s); L40s was the cluster
+        # that couldn't reach W&B (and only has 4 physical slots).
+        - ai1/octo-hub-onprem-h200
     resources:
       gpuCount: 1
-      cpuCount: 8
-      memory: 90GiB
+      cpuCount: 16
+      memory: 256GiB
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
@@ -32,11 +32,5 @@ tasks:
         value: bdb326d5f0132f7a9c5ab5bd108634ce5d3b6d17
       - name: DISPATCHER_REF
         value: study/data-scaling-law
-      # Both Beaker clusters (onprem-H200 + AWS-L40s) can't reach W&B's run-creation
-      # path (every wandb.init times out), though W&B + my local machine work fine.
-      # Run offline so training doesn't hang on init: runs are written under
-      # /results/wandb and `wandb sync`'d later from a machine that can reach W&B.
-      - name: WANDB_MODE
-        value: offline
     result:
       path: /results
