@@ -32,5 +32,11 @@ tasks:
         value: bdb326d5f0132f7a9c5ab5bd108634ce5d3b6d17
       - name: DISPATCHER_REF
         value: study/data-scaling-law
+      # Both Beaker clusters (onprem-H200 + AWS-L40s) can't reach W&B's run-creation
+      # path (every wandb.init times out), though W&B + my local machine work fine.
+      # Run offline so training doesn't hang on init: runs are written under
+      # /results/wandb and `wandb sync`'d later from a machine that can reach W&B.
+      - name: WANDB_MODE
+        value: offline
     result:
       path: /results
