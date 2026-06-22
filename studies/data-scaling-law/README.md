@@ -98,7 +98,11 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   eval-LL plateau and `break`s so finalization + held-out still run, `best_eval` used) and
   **length-bucketed batching** (`training.length_bucketing` + `length_bucket_grid` — draws each
   batch from one grid-rounded session-length bucket and trims the unroll). Padding context:
-  sessions median 521 vs T_max 2207 (p95 846), so ~50–75% of unroll compute was padding ⇒ ~2.6x.
+  sessions median 521 vs T_max 2207 (p95 846), so ~50–75% of unroll compute was padding ⇒ ~2.6x
+  predicted. **Measured** (two identical D≈614/H128 runs, W&B `bench_padding`, only `length_bucketing`
+  differing): steady-state **0.72 → 0.33 s/step ≈ 2.2x speedup** with an **identical loss curve at
+  matched steps** (±0.0015 noise) — slightly under prediction due to grid=128 rounding + fixed
+  per-step overhead. Both enablers are on for the 15-run sweep.
 - **TODO — port both to disRNN** (needed once disRNN runs are wanted). Early stopping: add the
   same checkpoint-loop hook to `disrnn_trainer`. Length bucketing: the batch sampler
   `session_regularized_training._sample_batch` is **shared**, so it likely "just works" once
