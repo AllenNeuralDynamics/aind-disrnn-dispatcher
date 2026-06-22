@@ -26,7 +26,7 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: 6ede321d5cedf944ea2b1233d89c2d0f95c3459a   # retry→offline-fallback safeguard
+        value: cd72d1e473efe877d50dd51f8f7292132862417c   # merged ai_hub_pck_integration tip (retry→offline + provenance)
       - name: DISPATCHER_REF
         value: study/data-scaling-law
       # (online by default; safeguard auto-falls-back to offline on a flaky init)
