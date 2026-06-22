@@ -31,7 +31,7 @@ command:
   - model=gru_scaling
   - wandb.project=mice_data_scaling
   - model.architecture.hidden_size=128
-  - model.architecture.session_encoding_type=none
+  - model.architecture.session_encoding_type=scalar   # session conditioning ON (gru_scaling default)
   - model.training.n_steps=300000
   - model.training.lr=1e-5
   - ${args_no_hyphens}

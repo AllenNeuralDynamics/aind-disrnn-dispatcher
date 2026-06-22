@@ -8,7 +8,7 @@ foundation-model metric is **held-out-mouse generalization vs the number of
 training mice (D)**.
 
 **Design (minimal; Kaplan/Chinchilla practice — fix N & HPs, vary one axis).**
-- Fixed: GRU `hidden_size=128`, `session_encoding_type=none`, `n_steps=300000`
+- Fixed: GRU `hidden_size=128`, `session_encoding_type=scalar` (session conditioning ON), `n_steps=300000`
   (train to convergence — the 100k run was undertrained), `lr=1e-5`, `batch_size=2048`.
 - Swept (science axis): `data.subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}`
   → D ≈ {10, 30, 100, 300, ~614} training mice (scalar ratio ⇒ natural curriculum
