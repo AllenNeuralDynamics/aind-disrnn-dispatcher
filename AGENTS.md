@@ -100,3 +100,15 @@ Rules:
 - Use `<scope>` for the affected area when helpful (e.g. `feat(launcher): ...`, `docs(readme): ...`).
 - Mark breaking changes with `!` after the type/scope (e.g. `feat(api)!: ...`) and a `BREAKING CHANGE:` footer.
 - Body explains the motivation and any non-obvious consequences; don't restate the diff.
+
+## 7. Human-Facing Logs & Reporting
+
+When logging progress or writing anything for a human to read (status updates, README
+status logs, run reports, PR/commit notes), make it directly readable for the user:
+
+- **Use Seattle time** (`America/Los_Angeles`), not UTC. Stamp times like `10:48 PT`
+  (`TZ=America/Los_Angeles date`). Avoid forcing the reader to convert from UTC.
+- **Link the W&B sweep/run.** When reporting a metric or run, include its W&B link so the
+  reader can click through (e.g. the project `https://wandb.ai/<entity>/<project>` or the
+  specific run URL). Beaker experiments aren't W&B sweeps — link the W&B project/run, and
+  the Beaker experiment id/link when relevant.
