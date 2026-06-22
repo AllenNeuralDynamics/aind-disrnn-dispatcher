@@ -93,22 +93,17 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   fixed large D and compare **held-out** generalization (not within-subject LL). Keep H128 as
   the default for the main D-sweep.
 - N (model-size) × IsoFLOP scaling only if the D-curve shows real headroom.
-- **Native early stopping (wrapper feature).** Currently manual (monitor eval_LL +
-  `beaker job cancel`). Make it config-driven: `training.early_stopping
-  {enabled:false, metric:eval_likelihood, min_delta:0.003, patience:2,
-  overfit_guard:0.01}` checked in the gru/disrnn checkpoint loop (track best, break on
-  no-improvement for `patience` checkpoints; `best_eval` already saved). Default off
-  (no behavior change). Removes manual babysitting for future multi-run sweeps.
-- **Length-bucketed batching (or session-length cap).** The GRU pads every session to the
-  global max session length to batch the unroll, but the trials-per-session distribution is
-  heavily right-skewed: across 23,584 sessions median = 521 trials vs T_max = 2207 (p90 = 733,
-  p95 = 846, p99 = 1083), so **~76%** of per-step unroll compute is spent on padding. Bucketing
-  sessions by length (pad only within a bucket) or capping session length would cut this:
-  capping at p95 (846) drops waste to ~38% for a **~2.6x** per-step speedup with negligible data
-  loss (only 5% of sessions truncated); capping at p90 gives ~3.0x. Make it config-driven and
-  **optional / default off** (e.g. `data.session_length_cap: null` plus a `length_bucketing`
-  toggle) so existing runs are unaffected. This is a data-loader/batching change and is
-  **secondary to early stopping** above, which already cuts total steps ~10x.
+- **DONE for GRU (PR #41, opt-in / default-off):** native **early stopping**
+  (`training.early_stopping {enabled,metric,min_delta,patience,overfit_guard}` — stops at the
+  eval-LL plateau and `break`s so finalization + held-out still run, `best_eval` used) and
+  **length-bucketed batching** (`training.length_bucketing` + `length_bucket_grid` — draws each
+  batch from one grid-rounded session-length bucket and trims the unroll). Padding context:
+  sessions median 521 vs T_max 2207 (p95 846), so ~50–75% of unroll compute was padding ⇒ ~2.6x.
+- **TODO — port both to disRNN** (needed once disRNN runs are wanted). Early stopping: add the
+  same checkpoint-loop hook to `disrnn_trainer`. Length bucketing: the batch sampler
+  `session_regularized_training._sample_batch` is **shared**, so it likely "just works" once
+  `disrnn_trainer` sets `dataset_train.length_bucketing` on its train set — verify against
+  disRNN's warmup/pretrain + session-reg schedule. Defer for now.
 
 ## Status log
 

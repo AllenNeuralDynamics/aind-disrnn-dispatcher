@@ -25,7 +25,7 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: ebb026d5e293e3f832961ec884e904681ec58f9e
+        value: 55e4bc554959167b7ba1be7e93e74126c5616f18
       - name: DISPATCHER_REF
         value: study/data-scaling-law
     result:
