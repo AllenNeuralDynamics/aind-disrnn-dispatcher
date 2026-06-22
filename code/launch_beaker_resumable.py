@@ -127,7 +127,8 @@ def _study_variant(sweep_path: Path) -> tuple[str, str]:
     return study or "adhoc", variant or _slug(sweep_path.stem)
 
 
-def build_spec(sweep_file: str, experiment_file: str, label: str | None = None) -> dict:
+def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
+               note: str | None = None) -> dict:
     """Expand a grid sweep + experiment template into a multi-task Beaker spec."""
     sweep = yaml.safe_load(Path(sweep_file).read_text())
     if sweep.get("method") != "grid":
@@ -150,9 +151,10 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None) 
     # Provenance / tracking (see AGENTS §8): one launch == one pseudo-sweep.
     #  - W&B group = "<variant>@<launch_id>" uniquely names THIS launch (distinguishes
     #    repeats; readable: variant -> study folder, launch_id -> Seattle time).
-    #  - meta.* (study/variant/launch_id/label/config_hash) injected via DISRNN_META_*
+    #  - meta.* (study/variant/launch_id/label/note/config_hash) injected via DISRNN_META_*
     #    env; the wrapper stamps them into the run config alongside the platform-native
-    #    BEAKER_EXPERIMENT_ID / BEAKER_JOB_ID / CO_COMPUTATION_ID.
+    #    BEAKER_EXPERIMENT_ID / BEAKER_JOB_ID / CO_COMPUTATION_ID. `note` = free-text
+    #    "why this run + what we want to learn", readable straight from the run record.
     #  - launch_id is also folded into the run id, so every launch gets unique ids
     #    (distinguishes repeats AND avoids the deleted-id resync problem).
     sweep_path = Path(sweep_file)
@@ -169,6 +171,8 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None) 
     ]
     if label:
         meta_env.append({"name": "DISRNN_META_LABEL", "value": label})
+    if note:
+        meta_env.append({"name": "DISRNN_META_NOTE", "value": note})
     print(f"[resumable] study={study} variant={variant} launch_id={launch_id} "
           f"group={group} config_hash={config_hash}")
 
@@ -194,7 +198,7 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None) 
         managed = {
             "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
             "DISRNN_META_STUDY", "DISRNN_META_VARIANT", "DISRNN_META_LAUNCH_ID",
-            "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL",
+            "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL", "DISRNN_META_NOTE",
         }
         env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
         env.extend([
@@ -257,10 +261,12 @@ def main() -> None:
     p.add_argument("--output-dir", default=str(RESULTS))
     p.add_argument("--label", default=None,
                    help="optional human label for this launch (stamped to W&B meta.label)")
+    p.add_argument("--note", default=None,
+                   help="free-text background + what we want to learn (stamped to W&B meta.note)")
     args = p.parse_args()
 
     output_dir = Path(args.output_dir)
-    spec = build_spec(args.sweep, args.experiment, label=args.label)
+    spec = build_spec(args.sweep, args.experiment, label=args.label, note=args.note)
     n_tasks = len(spec["tasks"])
     print(f"[resumable] expanded grid into {n_tasks} tasks")
 
