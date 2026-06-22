@@ -90,6 +90,33 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
    source_run.run_dir=<mounted /results/run> source_run.checkpoint_policy=best_eval
 ```
 
+## Results — first run (2026-06-22)
+
+Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36` (onprem-H200, offline W&B; 15 runs all completed,
+synced to W&B `AIND-disRNN/mice_data_scaling` as `mice-data-scaling-gru-*-r1`).
+
+Held-out-mouse generalization vs # training mice D (`heldout/eval_likelihood`, mean over 3 seeds):
+
+| D (train mice) | mean held-out LL | per-seed |
+|---|---|---|
+| ~10  | 0.7219 | 0.7202, 0.7216, 0.7238 |
+| ~30  | 0.7250 | 0.7248, 0.7250, 0.7252 |
+| ~100 | 0.7262 | 0.7260, 0.7264, 0.7264 |
+| ~300 | 0.7267 | 0.7265, 0.7267, 0.7268 |
+| ~614 | 0.7268 | 0.7266, 0.7268, 0.7268 |
+
+**Finding: held-out generalization saturates.** It rises ~0.722 → 0.727 from D≈10→100, then is
+**flat from D≈100 to 614** — only ~+0.005 total over a 60× increase in training mice. Diminishing
+returns set in by ~100 mice; a 614-mouse model generalizes no better than a ~100-mouse one.
+
+**⚠️ Major caveat — this is the pretrain-phase / no-session-conditioning regime.** Early stopping
+(min_delta 0.003, patience 2) fired at **step ~40k for every run**, which is deep inside *pretrain*
+(pretrain=90k; session-conditioning warm-up only spans 90k→150k). So session conditioning **never
+engaged** — this curve is effectively "more mice, no session conditioning," exactly where saturation
+is most expected. **The question of whether more mice help *with* session conditioning active is
+still open.** To answer it, re-run with early stopping gated to start after warm-up (≥150k) or
+disabled, so runs train through the session-conditioning schedule.
+
 ## Early stopping (manual, consistent across D)
 
 Constant lr=1e-5, **no LR scheduler** (training is stable; scheduler = marginal gain + extra
