@@ -1,9 +1,10 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 15,
-  "experiment_id": "01KVRGFG2BQ1NMYDXWEX14E7AJ",
-  "experiment_url": "https://beaker.org/ex/01KVRGFG2BQ1NMYDXWEX14E7AJ",
+  "experiment_id": "01KVRHZ5QVZYVQA156XM5BM3EJ",
+  "experiment_url": "https://beaker.org/ex/01KVRHZ5QVZYVQA156XM5BM3EJ",
   "dispatcher_commit": "77df2a185fbcf73ccd48c6ee890cd9d3d3b3a93c",
   "sweep_file": "studies/data-scaling-law/variants/v2-sc-active/sweep.yaml",
-  "created_utc": "2026-06-22T20:31:19.480605+00:00"
+  "created_utc": "2026-06-22T20:31:19.480605+00:00",
+  "note": "rebalanced after launch: H200 was physically full (16/16); split across clusters \u2014 tasks 000-005 (D=10,D=30) on L40s (000-003 allocated/non-preemptible, 004-005 preemptible), 006-014 (D=100/300/614) on H200 preemptible. All priority=normal (autoResume auto-applied to preemptible). Superseded exp 01KVRGFG2BQ1NMYDXWEX14E7AJ."
 }

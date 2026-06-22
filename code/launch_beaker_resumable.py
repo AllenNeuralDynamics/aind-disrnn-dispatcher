@@ -191,9 +191,11 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
         task.pop("replicas", None)
         task["name"] = f"{id_base}-{index:03d}"
         task["command"] = entry_prefix + run_cmd
-        # Preemptible + low priority => Beaker applies autoResume (verified via
-        # `beaker experiment spec`); the restart re-uses this task's /results.
-        task["context"] = {"priority": "low", "preemptible": True}
+        # Preemptible => Beaker auto-applies autoResume (verified via `beaker experiment
+        # spec`; setting autoResume explicitly alongside preemptible is rejected), and the
+        # restart re-uses this task's /results. Priority `normal` (not `low`) so the job
+        # schedules ahead of background low-priority work while still being preemptible.
+        task["context"] = {"priority": "normal", "preemptible": True}
 
         managed = {
             "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",

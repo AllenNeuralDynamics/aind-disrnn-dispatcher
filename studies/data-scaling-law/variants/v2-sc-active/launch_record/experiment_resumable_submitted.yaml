@@ -27,7 +27,7 @@ tasks:
   - seed=0
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -67,8 +67,8 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
-    preemptible: true
+    priority: normal
+    preemptible: false
 - name: v2-sc-active-20260622-133117-001
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
@@ -95,7 +95,7 @@ tasks:
   - seed=1
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -123,8 +123,8 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
-    preemptible: true
+    priority: normal
+    preemptible: false
 - name: v2-sc-active-20260622-133117-002
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
@@ -151,7 +151,7 @@ tasks:
   - seed=2
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -179,8 +179,8 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
-    preemptible: true
+    priority: normal
+    preemptible: false
 - name: v2-sc-active-20260622-133117-003
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
@@ -207,7 +207,7 @@ tasks:
   - seed=0
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -235,8 +235,8 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
-    preemptible: true
+    priority: normal
+    preemptible: false
 - name: v2-sc-active-20260622-133117-004
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
@@ -263,7 +263,7 @@ tasks:
   - seed=1
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -291,7 +291,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-005
   image:
@@ -319,7 +319,7 @@ tasks:
   - seed=2
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
+    - ai1/octo-hub-aws-l40s
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -347,7 +347,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-006
   image:
@@ -403,7 +403,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-007
   image:
@@ -459,7 +459,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-008
   image:
@@ -515,7 +515,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-009
   image:
@@ -571,7 +571,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-010
   image:
@@ -627,7 +627,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-011
   image:
@@ -683,7 +683,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-012
   image:
@@ -739,7 +739,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-013
   image:
@@ -795,7 +795,7 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
 - name: v2-sc-active-20260622-133117-014
   image:
@@ -851,5 +851,5 @@ tasks:
   result:
     path: /results
   context:
-    priority: low
+    priority: normal
     preemptible: true
