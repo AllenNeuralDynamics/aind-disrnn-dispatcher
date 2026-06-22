@@ -16,22 +16,21 @@ tasks:
       - agent
     constraints:
       cluster:
-        - ai1/octo-hub-onprem-h200
+        # AWS L40s — onprem-H200 couldn't reach W&B's run-creation path (every
+        # wandb.init timed out, even isolated; W&B + AWS clusters were fine). L40s
+        # 48GB fits H128 and reaches the AWS DB. Node = 1 machine, 4 GPUs,
+        # ~373 GiB shared; memory below caps co-location at ~4 (4 x 90 < 373).
+        - ai1/octo-hub-aws-l40s
     resources:
       gpuCount: 1
-      cpuCount: 16
-      memory: 256GiB
+      cpuCount: 8
+      memory: 90GiB
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: ef862fd51da602a4384afe9c0540422ea5309e3a
+        value: bdb326d5f0132f7a9c5ab5bd108634ce5d3b6d17
       - name: DISPATCHER_REF
         value: study/data-scaling-law
-      # Spread the 15 simultaneous wandb.init calls over ~3 min so they don't
-      # overwhelm the onprem cluster's shared egress to W&B (a 20s window left them
-      # bursting + timing out together). The ~6 min mouse-DB load dominates anyway.
-      - name: WANDB_INIT_STAGGER
-        value: "180"
     result:
       path: /results
