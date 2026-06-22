@@ -140,8 +140,17 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   retried in sync (0/15 runs came up). W&B itself was healthy (status page green,
   direct API reads <1s) — the bottleneck is the onprem cluster's shared egress
   under a 15-way simultaneous init burst (single/few runs connect fine).
-- 2026-06-22: set `WANDB_INIT_STAGGER=180` in the experiment template (env, no
-  code change) to spread the 15 inits over ~3 min (≈singles/pairs, which connect
-  fine); the ~6 min mouse-DB load hides the added latency. Cancelled the stuck
-  sweep and **relaunched as experiment `01KVQ5BH567MF1FEG8YS7Y5M9N`** (15
-  autoResume tasks, onprem-H200, `WRAPPER_REF=ef862fd`). 3-h cron repointed.
+- 2026-06-22: the 180s stagger relaunch (`01KVQ5BH567MF1FEG8YS7Y5M9N`) **refuted
+  the concurrency hypothesis** — inits spread over 146s, yet even near-solo inits
+  (40s isolation) still timed out at 300s. Real root cause: the **onprem-H200
+  cluster's network path to W&B run-creation degraded ~07:49** (W&B status green,
+  my-machine API reads <1s, bench connected fine at 07:08). Not W&B, not
+  concurrency, not code (auth succeeds; the run-*create* call hangs).
+- 2026-06-22: reverted the speculative stagger/timeout/retry (wrapper `bdb326d`;
+  kept `allow_val_change` — a real fix). **Moved the sweep to AWS L40s**
+  (`octo-hub-aws-l40s`): H128 fits 48GB, reaches the AWS DB, and AWS→W&B works.
+  Node = 1 machine / 4 GPU slots / ~373 GiB → `memory=90GiB`, `cpuCount=8` packs
+  4 concurrent (rest queue + drain via autoResume). **Relaunched as experiment
+  `01KVQ682F0XPAH4QD58SAKQ4R7`** (`WRAPPER_REF=bdb326d`). 3-h cron repointed.
+  Throughput note: only ~4 run at once on the single L40s node, so 15 drain in
+  waves (early stopping shortens each).
