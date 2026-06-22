@@ -38,6 +38,12 @@ command:
   # but keep ONE final held-out fine-tune+test at the end (auto_heldout_finetune,
   # default enabled) -> the y-axis. Can also be re-run offline from the checkpoint.
   - model.training.checkpoint_run_heldout_eval=false
+  # Compute-savers validated on the padding bench (PR #41): length-bucketed batching
+  # (~2.2x faster, identical loss curve) + native early stopping (stops at the eval-LL
+  # plateau, still finalizes + runs the held-out fine-tune on best_eval). Applied
+  # identically to every D so the D-comparison stays fair.
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
   - ${args_no_hyphens}
 
 parameters:
