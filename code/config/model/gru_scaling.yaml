@@ -39,6 +39,14 @@ training:
   # ── Session-delta regularization ──────────────────────────────────────────
   lambda_reg_session: 1.0   # 0 disables zero-mean session-delta regularization
 
+  # ── Length-bucketed batching (opt-in; cuts session-padding compute) ──────
+  # Sessions are heavily right-skewed (median ~520 vs T_max ~1200+ trials), so
+  # padding every batch to the global max wastes ~50-75% of unroll compute.
+  # When enabled, each batch is drawn from one length bucket and the unroll is
+  # trimmed to that bucket's (grid-rounded) length — no data loss. Default off.
+  length_bucketing: false
+  length_bucket_grid: 128       # round session lengths up to this multiple
+
   # ── Checkpoint cadence ──────────────────────────────────────────────────
   checkpoint_every_n_steps: 10000
 
