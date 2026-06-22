@@ -34,10 +34,10 @@ command:
   - model.architecture.session_encoding_type=scalar   # session conditioning ON (gru_scaling default)
   - model.training.n_steps=300000
   - model.training.lr=1e-5
-  # Held-out generalization is done OFFLINE (post-hoc) from saved checkpoints via
-  # run_heldout_subject_finetuning, NOT during training: keep training lean.
+  # Minimal eval DURING training: no per-checkpoint held-out passes (expensive),
+  # but keep ONE final held-out fine-tune+test at the end (auto_heldout_finetune,
+  # default enabled) -> the y-axis. Can also be re-run offline from the checkpoint.
   - model.training.checkpoint_run_heldout_eval=false
-  - model.training.auto_heldout_finetune.enabled=false
   - ${args_no_hyphens}
 
 parameters:

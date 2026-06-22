@@ -17,11 +17,12 @@ training mice (D)**.
   sampling: D=10 ⊂ D=30 ⊂ … for a fixed seed).
 - Held-out cohort is **fixed** (`heldout_every_n=5`, every 5th ranked subject per
   curriculum) and constant across all D and seeds — mice never in any training set.
-- y-axis: held-out-mouse likelihood, computed **OFFLINE** (post-hoc) from each run's
-  saved checkpoint — fine-tune only the subject embedding on a held-out mouse's
-  sessions, then predict its other sessions. Training itself is kept lean:
-  `checkpoint_run_heldout_eval=false` and `auto_heldout_finetune.enabled=false`
-  (no per-checkpoint or end-of-training held-out passes).
+- y-axis: held-out-mouse likelihood from a **single final** held-out fine-tune+test
+  at the end of each run (`auto_heldout_finetune`, enabled) — fine-tune only the
+  subject embedding on a held-out mouse's sessions, then predict its other sessions.
+  Per-checkpoint held-out passes are OFF (`checkpoint_run_heldout_eval=false`) to keep
+  eval-during-training minimal. The same fine-tune+test can be re-run offline from the
+  saved checkpoint if we change the protocol.
 
 15 runs total (5 D × 3 seeds).
 
@@ -53,31 +54,24 @@ still climbing, raise `lr`/`n_steps`. Also confirm the smallest D (ratio 0.016) 
 spans all three curricula in the loader's `[select 6/6]` log (rounding can drop a
 small curriculum; raise the smallest ratio if so).
 
-## Offline held-out evaluation (the y-axis)
-
-After the 15 training runs finish, for each run mount its `/results` dataset and run
-the held-out fine-tune+test from its best checkpoint (same function the in-training
-`auto_heldout_finetune` used, just driven standalone):
-
-```bash
-python code/run_heldout_subject_finetuning.py --config configs/config_heldout_subject_finetuning.yaml \
-   source_run.run_dir=<mounted /results/run> source_run.checkpoint_policy=best_eval
-# (or: python run_analysis.py finetune --config ...)
-```
-
-This is a separate Beaker job per run (reuses the resume remount pattern). It fine-tunes
-only the held-out subjects' embeddings and reports their likelihood — re-runnable if we
-change the protocol, without retraining.
-
 ## Analyze
 
 ```bash
 .venv/bin/python studies/data-scaling-law/analyze_scaling.py
 ```
 Writes `scaling_results.csv` (+ `scaling_curve.png` if matplotlib present): held-out
-likelihood vs actual #training mice (`len(resolved_subject_ids)`), mean over seeds,
-power-law fit `L = E + (Dc/D)^α`. Sources the held-out number from the offline
-fine-tune outputs (JSON / its W&B run), keyed back to each (D, seed) training run.
+likelihood (`heldout/eval_likelihood` / `heldout/test_likelihood`, from each run's final
+`auto_heldout_finetune`) vs actual #training mice (`len(resolved_subject_ids)`), mean over
+seeds, power-law fit `L = E + (Dc/D)^α`.
+
+### Optional: re-run held-out offline
+
+The same fine-tune+test can be re-run from a saved checkpoint without retraining (e.g. to
+change the protocol) — mount the run's `/results` and:
+```bash
+python code/run_heldout_subject_finetuning.py --config configs/config_heldout_subject_finetuning.yaml \
+   source_run.run_dir=<mounted /results/run> source_run.checkpoint_policy=best_eval
+```
 
 ## Status log
 
