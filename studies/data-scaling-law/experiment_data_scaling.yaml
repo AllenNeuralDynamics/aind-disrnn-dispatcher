@@ -1,0 +1,32 @@
+# Task TEMPLATE for the data-scaling study, consumed by launch_beaker_resumable.py.
+# The launcher keeps command[:2] (bash + entrypoint.sh), drops the wandb-agent tail,
+# appends the per-grid-point `run_hpc` command, forces context to
+# {priority: low, preemptible: true} (so Beaker applies autoResume), and injects
+# DISRNN_RESUMABLE_OUTPUT_DIR / WANDB_RUN_ID / WANDB_RESUME / WANDB_RUN_GROUP.
+version: v2
+description: data-scaling study template (expanded into one autoResume task per grid point)
+tasks:
+  - name: data-scaling-template
+    image:
+      beaker: han-hou/disrnn-wrapper-pck-integration
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb            # dropped by the resumable launcher (command[:2] kept)
+      - agent
+    constraints:
+      cluster:
+        - ai1/octo-hub-onprem-h200
+    resources:
+      gpuCount: 1
+      cpuCount: 16
+      memory: 256GiB
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: WRAPPER_REF
+        value: 41efc09c672a4b997b0fd8a843f622b4b3546d08
+      - name: DISPATCHER_REF
+        value: study/data-scaling-law
+    result:
+      path: /results
