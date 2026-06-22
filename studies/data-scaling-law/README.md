@@ -93,6 +93,12 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   fixed large D and compare **held-out** generalization (not within-subject LL). Keep H128 as
   the default for the main D-sweep.
 - N (model-size) × IsoFLOP scaling only if the D-curve shows real headroom.
+- **Native early stopping (wrapper feature).** Currently manual (monitor eval_LL +
+  `beaker job cancel`). Make it config-driven: `training.early_stopping
+  {enabled:false, metric:eval_likelihood, min_delta:0.003, patience:2,
+  overfit_guard:0.01}` checked in the gru/disrnn checkpoint loop (track best, break on
+  no-improvement for `patience` checkpoints; `best_eval` already saved). Default off
+  (no behavior change). Removes manual babysitting for future multi-run sweeps.
 
 ## Status log
 
