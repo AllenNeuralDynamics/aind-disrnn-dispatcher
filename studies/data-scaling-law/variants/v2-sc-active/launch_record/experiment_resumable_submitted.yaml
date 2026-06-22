@@ -1,7 +1,7 @@
 version: v2
-description: "v2-sc-active@20260622-133117 \u2014 15 resumable grid tasks (autoResume)"
+description: "v2-sc-active@20260622-143008 \u2014 15 resumable grid tasks (autoResume)"
 tasks:
-- name: v2-sc-active-20260622-133117-000
+- name: v2-sc-active-20260622-143008-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -42,11 +42,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-d24a1de6
+    value: v2-sc-active-20260622-143008-5e47adef
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - &id001
     name: DISRNN_META_STUDY
     value: data-scaling-law
@@ -55,21 +55,21 @@ tasks:
     value: v2-sc-active
   - &id003
     name: DISRNN_META_LAUNCH_ID
-    value: 20260622-133117
+    value: 20260622-143008
   - &id004
     name: DISRNN_META_CONFIG_HASH
     value: c679b699
   - &id005
     name: DISRNN_META_NOTE
-    value: 'v2-sc-active: does more training data help held-out-mouse generalization
-      with session conditioning ACTIVE (lambda fwd: full SC @50k) + gated early-stop
-      @70k? v1 saturated ~0.727 but SC never engaged.'
+    value: 'v2-sc-active (4 on L40s allocated/guaranteed + 11 on H200 low-priority
+      burst): more training data vs held-out-mouse generalization, SC ACTIVE (lambda
+      fwd full SC @50k) + gated early-stop @70k.'
   result:
     path: /results
   context:
     priority: normal
     preemptible: false
-- name: v2-sc-active-20260622-133117-001
+- name: v2-sc-active-20260622-143008-001
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -110,11 +110,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-8c6a7790
+    value: v2-sc-active-20260622-143008-fc9562a1
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -125,7 +125,7 @@ tasks:
   context:
     priority: normal
     preemptible: false
-- name: v2-sc-active-20260622-133117-002
+- name: v2-sc-active-20260622-143008-002
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -166,11 +166,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-570a9046
+    value: v2-sc-active-20260622-143008-2d3d39e1
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -181,7 +181,7 @@ tasks:
   context:
     priority: normal
     preemptible: false
-- name: v2-sc-active-20260622-133117-003
+- name: v2-sc-active-20260622-143008-003
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -222,11 +222,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-483b289c
+    value: v2-sc-active-20260622-143008-359cac40
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -237,7 +237,7 @@ tasks:
   context:
     priority: normal
     preemptible: false
-- name: v2-sc-active-20260622-133117-004
+- name: v2-sc-active-20260622-143008-004
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -263,7 +263,7 @@ tasks:
   - seed=1
   constraints:
     cluster:
-    - ai1/octo-hub-aws-l40s
+    - ai1/octo-hub-onprem-h200
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -278,11 +278,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-5c369716
+    value: v2-sc-active-20260622-143008-14a8867d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -291,9 +291,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-005
+- name: v2-sc-active-20260622-143008-005
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -319,7 +319,7 @@ tasks:
   - seed=2
   constraints:
     cluster:
-    - ai1/octo-hub-aws-l40s
+    - ai1/octo-hub-onprem-h200
   resources:
     gpuCount: 1
     cpuCount: 16
@@ -334,11 +334,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-54863f56
+    value: v2-sc-active-20260622-143008-263c2e9f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -347,9 +347,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-006
+- name: v2-sc-active-20260622-143008-006
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -390,11 +390,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-7bc66d6e
+    value: v2-sc-active-20260622-143008-5e89d5f8
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -403,9 +403,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-007
+- name: v2-sc-active-20260622-143008-007
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -446,11 +446,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-cdcbfbd7
+    value: v2-sc-active-20260622-143008-04afc352
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -459,9 +459,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-008
+- name: v2-sc-active-20260622-143008-008
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -502,11 +502,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-0d4c5930
+    value: v2-sc-active-20260622-143008-c41cc91a
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -515,9 +515,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-009
+- name: v2-sc-active-20260622-143008-009
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -558,11 +558,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-cbba8b7e
+    value: v2-sc-active-20260622-143008-b92310c6
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -571,9 +571,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-010
+- name: v2-sc-active-20260622-143008-010
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -614,11 +614,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-578824dd
+    value: v2-sc-active-20260622-143008-1ba8a662
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -627,9 +627,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-011
+- name: v2-sc-active-20260622-143008-011
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -670,11 +670,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-22586e9b
+    value: v2-sc-active-20260622-143008-eb1d44f3
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -683,9 +683,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-012
+- name: v2-sc-active-20260622-143008-012
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -726,11 +726,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-86e9fdde
+    value: v2-sc-active-20260622-143008-e023b5cc
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -739,9 +739,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-013
+- name: v2-sc-active-20260622-143008-013
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -782,11 +782,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-05e6bd17
+    value: v2-sc-active-20260622-143008-029b5a42
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -795,9 +795,9 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true
-- name: v2-sc-active-20260622-133117-014
+- name: v2-sc-active-20260622-143008-014
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -838,11 +838,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: v2-sc-active-20260622-133117-1ed2cf02
+    value: v2-sc-active-20260622-143008-6c2ad256
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: v2-sc-active@20260622-133117
+    value: v2-sc-active@20260622-143008
   - *id001
   - *id002
   - *id003
@@ -851,5 +851,5 @@ tasks:
   result:
     path: /results
   context:
-    priority: normal
+    priority: low
     preemptible: true

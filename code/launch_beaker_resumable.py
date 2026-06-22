@@ -193,9 +193,12 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
         task["command"] = entry_prefix + run_cmd
         # Preemptible => Beaker auto-applies autoResume (verified via `beaker experiment
         # spec`; setting autoResume explicitly alongside preemptible is rejected), and the
-        # restart re-uses this task's /results. Priority `normal` (not `low`) so the job
-        # schedules ahead of background low-priority work while still being preemptible.
-        task["context"] = {"priority": "normal", "preemptible": True}
+        # restart re-uses this task's /results. Priority `low`: low-priority preemptible
+        # jobs burst onto spare idle GPUs BEYOND the workspace's unallocated-slot budget
+        # (measured: ~14 concurrent on H200 vs a normal-priority cap of 8), at the cost of
+        # being evicted first — which autoResume recovers. So `low` maximizes fan-out
+        # throughput. Use `normal` only for a single job you need to resist eviction.
+        task["context"] = {"priority": "low", "preemptible": True}
 
         managed = {
             "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
