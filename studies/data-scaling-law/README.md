@@ -134,7 +134,14 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   overwhelming the backend → 90s init timeout (only 1/15 runs came up).
 - 2026-06-22: hardened `start_wandb_run` (wrapper `ef862fd`): per-run staggered
   init, `init_timeout=300`, retry+backoff, and `allow_val_change=True` on the
-  SHA stamp (knobs `WANDB_INIT_TIMEOUT`/`WANDB_INIT_STAGGER`). Cancelled the
-  broken experiments, deleted partial W&B runs, and **relaunched clean on
-  `WRAPPER_REF=ef862fd` as experiment `01KVQ4VSN5HXB91YH0MF7EZ5K0`** (15
-  autoResume tasks, onprem-H200). 3-h status cron repointed to it.
+  SHA stamp (knobs `WANDB_INIT_TIMEOUT`/`WANDB_INIT_STAGGER`). Relaunched as
+  `01KVQ4VSN5HXB91YH0MF7EZ5K0` — `allow_val_change` killed the ConfigError, but
+  all 13 still hit `wandb.init` within a 20s window, hung the full 300s, and
+  retried in sync (0/15 runs came up). W&B itself was healthy (status page green,
+  direct API reads <1s) — the bottleneck is the onprem cluster's shared egress
+  under a 15-way simultaneous init burst (single/few runs connect fine).
+- 2026-06-22: set `WANDB_INIT_STAGGER=180` in the experiment template (env, no
+  code change) to spread the 15 inits over ~3 min (≈singles/pairs, which connect
+  fine); the ~6 min mouse-DB load hides the added latency. Cancelled the stuck
+  sweep and **relaunched as experiment `01KVQ5BH567MF1FEG8YS7Y5M9N`** (15
+  autoResume tasks, onprem-H200, `WRAPPER_REF=ef862fd`). 3-h cron repointed.
