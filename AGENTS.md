@@ -150,3 +150,10 @@ and *readably* identifiable, with platform-native ids saved alongside for cross-
   and `launch_beaker.py` (native `wandb agent` sweep) share the helpers and both inject
   `WANDB_RUN_GROUP` + `DISRNN_META_*`. The native route additionally has a real W&B sweep
   as its platform-native launch id; the wrapper stamps Beaker/CO ids for both routes.
+
+## 9. Merging Pull Requests
+
+**Never squash-merge a PR.** Merge with a **merge commit** (no fast-forward, e.g.
+`gh pr merge <n> --merge`) so the branch's individual commits — and their per-commit
+history/provenance — are preserved on the target branch. Squashing collapses that history
+and is not allowed.
