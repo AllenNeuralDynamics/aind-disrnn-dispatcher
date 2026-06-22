@@ -73,6 +73,27 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
    source_run.run_dir=<mounted /results/run> source_run.checkpoint_policy=best_eval
 ```
 
+## Early stopping (manual, consistent across D)
+
+Constant lr=1e-5, **no LR scheduler** (training is stable; scheduler = marginal gain + extra
+HP). Stop each run when its within-subject **eval_LL** plateaus, then run held-out offline on
+its `best_eval` checkpoint. Criterion (applied identically to every D so the comparison is fair):
+- **min-delta ε = 0.003** eval_LL to count as a new best (below this is eval noise),
+- **patience = 2 checkpoints (20k steps)** with no new best → `beaker job cancel` that run,
+- hard overfit guard: cancel if eval_LL drops > 0.01 below the running best.
+`best_eval` is the safety net — the held-out fine-tune always uses the best checkpoint, so ε
+only controls compute saved, not result quality. (Within-subject eval saturates ~0.74 across
+H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
+
+## TODO / follow-ups
+
+- **Hidden-size scan on the HELD-OUT metric.** Within-subject eval is flat H2→H256 (capacity-
+  saturated), so model size looks irrelevant there — but capacity may matter more for
+  representing a *new* mouse. After the D-curve is in, scan hidden_size {16, 64, 128, 256} at a
+  fixed large D and compare **held-out** generalization (not within-subject LL). Keep H128 as
+  the default for the main D-sweep.
+- N (model-size) × IsoFLOP scaling only if the D-curve shows real headroom.
+
 ## Status log
 
 - 2026-06-22: study scaffolded; nested-sampling patch landed in wrapper
