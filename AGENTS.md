@@ -138,10 +138,12 @@ and *readably* identifiable, with platform-native ids saved alongside for cross-
   repeats of a variant; readable (variant → study folder, launch_id → time). `launch_id`
   is also folded into run ids, so repeats get unique ids (and the deleted-id resync trap
   is avoided).
-- **`meta.{study,variant,launch_id,label,config_hash}`** — our portable system, consistent
-  across CO / Beaker / AI1 HPC. Set by `launch_beaker_resumable.py` (derives study/variant
-  from the `studies/<study>/variants/<variant>/` path) via `DISRNN_META_*` env; stamped by
-  the wrapper's `start_wandb_run`.
+- **`meta.{study,variant,launch_id,label,note,config_hash}`** — our portable system,
+  consistent across CO / Beaker / AI1 HPC. Set by `launch_beaker_resumable.py` (derives
+  study/variant from the `studies/<study>/variants/<variant>/` path) via `DISRNN_META_*`
+  env; stamped by the wrapper's `start_wandb_run`. **`note`** is free-text "why this run
+  exists + what we want to learn", injected by either launcher's `--note` so humans and
+  agents can read a run's scientific intent straight from the W&B record (no second lookup).
 - **Platform-native ids saved next to `CO_COMPUTATION_ID`**: `BEAKER_EXPERIMENT_ID`,
   `BEAKER_JOB_ID` (read from Beaker env by the wrapper — route-agnostic, so this works for
   both the resumable launcher and the native `wandb agent` route), plus `wrapper_commit` /
