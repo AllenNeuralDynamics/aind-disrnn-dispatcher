@@ -77,3 +77,8 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
 
 - 2026-06-22: study scaffolded; nested-sampling patch landed in wrapper
   (`study/data-scaling-law`, `41efc09`); resume path re-validated on Beaker.
+- 2026-06-22: fixed resumable-mode `inputs.yaml` bug (`b0c7f11`) that made the
+  held-out fine-tune silently skip; re-confirmed held-out eval logs (≈0.70 on a
+  tiny D≈30 probe). Launched the 15-run sweep (scalar, lr=1e-5, 300k, lean) as
+  experiment `01KVPPMQ38NNT00870Q1QAT0XF` on onprem-H200 (preemptible/autoResume).
+  Watching large-D `train_likelihood` to validate lr=1e-5 convergence.
