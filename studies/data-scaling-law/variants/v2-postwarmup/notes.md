@@ -12,14 +12,15 @@ after ≥150k — keeps the compute-saver but needs a wrapper change. **Decide b
 **W&B:** same project `AIND-disRNN/mice_data_scaling`, distinct group
 `mice-data-scaling-v2-postwarmup` (so it sits beside v1 for comparison).
 
-**W&B Sweep (optional, if you want the sweep UI):** confirmed 2026-06-22 that
-offline-synced runs **cannot** be attached to a sweep retroactively (`wandb sync` has no
-`--sweep` flag, ignores `WANDB_SWEEP_ID`, and `run.sweep` isn't API-settable). A real
-sweep requires runs to init **online** with `WANDB_SWEEP_ID` set at creation. So for a
-v2 sweep: keep it online (it's configured online here) and inject `WANDB_SWEEP_ID` per
-task in the launcher (a small `launch_beaker_resumable.py` addition) — but note an
-offline *fallback* would drop sweep membership for that run. Otherwise rely on the
-**group** for comparison (works regardless of online/offline), as v1 does.
+**W&B Sweep — not available for this pipeline (tested 2026-06-22).** A W&B sweep is
+*owned by its agent*: runs must be **created by `wandb agent`**. You cannot attach our
+externally-created runs to a sweep — neither offline (`wandb sync` ignores
+`WANDB_SWEEP_ID`) nor online (injecting `WANDB_SWEEP_ID` into a `wandb.sweep()`-created
+PENDING sweep → backend 404 "sweep not found", confirmed cross-process incl. with
+`WANDB_ENTITY` forced). And the native `wandb agent` route doesn't support our
+per-grid-point checkpoint-resume. So: **use the group** (`mice-data-scaling-v2-postwarmup`)
+for comparison — Runs-table / parallel-coordinates give the same cross-run comparison as
+a sweep page (minus HP-importance panels, which are for tuning anyway).
 
 **Compute:** onprem-H200, `WRAPPER_REF=6ede321` (retry→offline-fallback safeguard), **online**
 by default (the v1 init failures were a transient outage; safeguard auto-falls-back if it
