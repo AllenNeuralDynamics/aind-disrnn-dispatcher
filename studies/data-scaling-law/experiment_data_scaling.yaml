@@ -32,5 +32,11 @@ tasks:
         value: bdb326d5f0132f7a9c5ab5bd108634ce5d3b6d17
       - name: DISPATCHER_REF
         value: study/data-scaling-law
+      # W&B run-creation throttles under a concurrent-init burst: on onprem-H200 a
+      # single wandb.init succeeds in ~1.5s but 14 simultaneous ones all time out.
+      # Offline init is local, so it's immune — runs write to /results/wandb and are
+      # `wandb sync`'d later. (L40s additionally can't reach W&B even solo.)
+      - name: WANDB_MODE
+        value: offline
     result:
       path: /results
