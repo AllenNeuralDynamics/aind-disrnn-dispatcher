@@ -26,14 +26,31 @@ training mice (D)**.
 
 15 runs total (5 D × 3 seeds).
 
+## Variants
+
+Each run/condition of this study lives in `variants/<name>/` (its own `sweep.yaml`,
+`experiment.yaml`, `notes.md`, launch record). Shared tooling stays at the study root
+(`analyze_scaling.py`, `heldout_offline.yaml`, base configs in `code/config`). All
+variants log to **one** W&B project (`AIND-disRNN/mice_data_scaling`) under a **distinct
+group** (set via the sweep's `name:`) so they're directly comparable side-by-side.
+
+| variant | what differs | status | W&B group | Beaker exp |
+|---|---|---|---|---|
+| [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `mice-data-scaling-gru` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
+| [`v2-postwarmup`](variants/v2-postwarmup/notes.md) | train through warm-up (≥150k) so session conditioning engages | 📝 draft | `mice-data-scaling-v2-postwarmup` | — |
+
 ## Launch (resumable, one autoResume task per grid point)
+
+Pick a variant and point the launcher at its `sweep.yaml` + `experiment.yaml`:
 
 ```bash
 cd <dispatcher repo>
 export PATH="$PWD/.venv/bin:$PATH"   # launcher calls bare `wandb`/`beaker`
+V=variants/v1-pretrain-phase         # or variants/v2-postwarmup, ...
 python code/launch_beaker_resumable.py \
-  --sweep studies/data-scaling-law/sweep_data_scaling.yaml \
-  --experiment studies/data-scaling-law/experiment_data_scaling.yaml
+  --sweep studies/data-scaling-law/$V/sweep.yaml \
+  --experiment studies/data-scaling-law/$V/experiment.yaml \
+  --output-dir /tmp/dsl_$(basename $V)
 ```
 
 Each grid point becomes a preemptible Beaker task with `autoResume` (Beaker restarts

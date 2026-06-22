@@ -112,3 +112,22 @@ status logs, run reports, PR/commit notes), make it directly readable for the us
   reader can click through (e.g. the project `https://wandb.ai/<entity>/<project>` or the
   specific run URL). Beaker experiments aren't W&B sweeps — link the W&B project/run, and
   the Beaker experiment id/link when relevant.
+
+## 8. Study & Experiment Organization
+
+A study answers one scientific question; its many runs/conditions are *variants* of that
+question, not separate studies.
+
+- **One folder per study** under `studies/<study-name>/`. Shared tooling lives at the study
+  root (analysis scripts, reusable configs, README).
+- **Variants as subfolders:** `studies/<study>/variants/<variant-name>/`, each self-contained
+  — its `sweep.yaml`, `experiment.yaml`, a `notes.md` (what differs + result + W&B group +
+  Beaker exp id), and its launch record. Name variants descriptively (`v2-postwarmup`,
+  `hsize-scan`), not by date.
+- **One W&B project per study, one group per variant** (set the group via the sweep's
+  `name:`). This keeps every variant directly comparable side-by-side in a single project —
+  prefer this over a project-per-variant.
+- The study README carries a **Variants index** table (one row per variant: what differs,
+  status, W&B group, experiment id).
+- Spin up a **new** top-level `studies/<name>/` only for a genuinely different question
+  (different model family, metric, or task) — not for a variant of the same one.
