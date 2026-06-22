@@ -154,14 +154,19 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   `01KVQ682F0XPAH4QD58SAKQ4R7`** (`WRAPPER_REF=bdb326d`). 3-h cron repointed.
   Throughput note: only ~4 run at once on the single L40s node, so 15 drain in
   waves (early stopping shortens each).
-- 2026-06-22: L40s *also* timed out on `wandb.init` → not cluster-specific.
-  Decisive test: my local machine *creates* a W&B run in 1.4s, both Beaker
-  clusters hang on creation, W&B status green ⇒ the broken link is the **Beaker
-  compute→W&B run-creation path** (shared by both clusters), which went bad after
-  the bench connected fine at 07:08. Switched to **`WANDB_MODE=offline`** (env, no
-  code change) — training no longer hangs on init; runs are written to
-  `/results/wandb` and `wandb sync`'d later from a reachable machine. **Relaunched
-  as experiment `01KVQ6K7XTF0H6X7R144NQ708M`** (L40s, offline). Hourly probe cron
-  watches for the online path to recover. NOTE: offline runs won't appear live in
-  W&B — track via Beaker logs / `/results`; deliverable metrics are in `/results`
-  regardless.
+- 2026-06-22: ran offline on L40s (`01KVQ6K7…`), trained fine. Then probes settled
+  the real root cause: on **onprem-H200 a single `wandb.init` succeeds (~1.5s) but
+  14 concurrent ones all time out** — a W&B **run-creation throttle under a
+  concurrent-init burst**, not a dead path. (The earlier "L40s also fails even
+  staggered" was a red herring: L40s has a *separate* W&B-reachability problem, so
+  staggering couldn't be validated there — running that test on L40s instead of
+  H200 wrongly sank the concurrency theory.) Online needs init concurrency limited
+  (stagger/serialize); offline sidesteps it entirely since init is local.
+- 2026-06-22: final config — **onprem-H200 + `WANDB_MODE=offline` + full 8+4 quota**.
+  The resumable launcher only uses the 8 preemptible slots (autoResume), so the
+  rendered spec is post-edited to flip the **4 largest-D runs** (ratio 1.0 ×3 seeds
+  + ratio 0.489 seed 0) to **allocated/non-preemptible** (uses the 4 allocated
+  slots; no autoResume, but protected — relaunch-to-resume if one dies).
+  **Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36`** (15 tasks, ~12–14 concurrent). Offline
+  runs live in `/results/wandb` for later `wandb sync`; track health via Beaker
+  logs / `/results`, not the live W&B project.
