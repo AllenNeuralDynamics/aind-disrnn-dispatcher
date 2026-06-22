@@ -188,3 +188,12 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   runs are persisted to each task's **Beaker result dataset (S3)**, not a local path
   — `beaker experiment results <exp>` to fetch, then `wandb sync` (see "Syncing the
   offline W&B runs"). Track health via Beaker logs, not the live W&B project.
+- 2026-06-22: wrapper `6ede321` — `start_wandb_run` now tries online with jittered
+  retry, then **falls back to `WANDB_MODE=offline`** so training never blocks on a
+  flaky online run-creation handshake (knobs `WANDB_INIT_ATTEMPTS`/`WANDB_INIT_TIMEOUT`;
+  post-finish sync deliberately not added — it'd run on the cluster where the same
+  path may be down). NOT adopted by the running sweep: it stays pinned to
+  `WRAPPER_REF=bdb326d` + explicit `WANDB_MODE=offline` so all 15 tasks (and any
+  caretaker relaunch of a dead allocated task) behave identically. **Future launches**
+  can bump `WRAPPER_REF=6ede321` and drop `WANDB_MODE=offline` from the template to get
+  adaptive online-with-offline-fallback automatically.
