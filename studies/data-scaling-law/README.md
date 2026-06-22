@@ -127,7 +127,14 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   autoResume tasks, onprem-H200).
 - 2026-06-22: concise W&B run names — replaced the full subject-ID list in the run
   name with the subject count (`_n<count>subj`; full list stays in
-  `config.resolved_subject_ids`), wrapper `ed8f50e`. Cancelled
-  `01KVQ3EXZ6PNVQETACT42TGB58` and **relaunched on `WRAPPER_REF=ed8f50e` as
-  experiment `01KVQ42H3ZT0EJQGXD3KRBKV3V`** (15 autoResume tasks, onprem-H200).
-  3-h status cron repointed to the new experiment.
+  `config.resolved_subject_ids`), wrapper `ed8f50e`. Relaunched as
+  `01KVQ42H3ZT0EJQGXD3KRBKV3V` — but that launch surfaced two W&B failure modes:
+  (1) reusing a deterministic `WANDB_RUN_ID` from a cancelled run + a changed
+  `wrapper_commit` → `ConfigError`; (2) 13 simultaneous `wandb.init` calls
+  overwhelming the backend → 90s init timeout (only 1/15 runs came up).
+- 2026-06-22: hardened `start_wandb_run` (wrapper `ef862fd`): per-run staggered
+  init, `init_timeout=300`, retry+backoff, and `allow_val_change=True` on the
+  SHA stamp (knobs `WANDB_INIT_TIMEOUT`/`WANDB_INIT_STAGGER`). Cancelled the
+  broken experiments, deleted partial W&B runs, and **relaunched clean on
+  `WRAPPER_REF=ef862fd` as experiment `01KVQ4VSN5HXB91YH0MF7EZ5K0`** (15
+  autoResume tasks, onprem-H200). 3-h status cron repointed to it.
