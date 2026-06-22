@@ -154,3 +154,14 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   `01KVQ682F0XPAH4QD58SAKQ4R7`** (`WRAPPER_REF=bdb326d`). 3-h cron repointed.
   Throughput note: only ~4 run at once on the single L40s node, so 15 drain in
   waves (early stopping shortens each).
+- 2026-06-22: L40s *also* timed out on `wandb.init` → not cluster-specific.
+  Decisive test: my local machine *creates* a W&B run in 1.4s, both Beaker
+  clusters hang on creation, W&B status green ⇒ the broken link is the **Beaker
+  compute→W&B run-creation path** (shared by both clusters), which went bad after
+  the bench connected fine at 07:08. Switched to **`WANDB_MODE=offline`** (env, no
+  code change) — training no longer hangs on init; runs are written to
+  `/results/wandb` and `wandb sync`'d later from a reachable machine. **Relaunched
+  as experiment `01KVQ6K7XTF0H6X7R144NQ708M`** (L40s, offline). Hourly probe cron
+  watches for the online path to recover. NOTE: offline runs won't appear live in
+  W&B — track via Beaker logs / `/results`; deliverable metrics are in `/results`
+  regardless.
