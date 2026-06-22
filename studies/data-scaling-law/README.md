@@ -105,8 +105,10 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   p95 = 846, p99 = 1083), so **~76%** of per-step unroll compute is spent on padding. Bucketing
   sessions by length (pad only within a bucket) or capping session length would cut this:
   capping at p95 (846) drops waste to ~38% for a **~2.6x** per-step speedup with negligible data
-  loss (only 5% of sessions truncated); capping at p90 gives ~3.0x. This is a data-loader/batching
-  change and is **secondary to early stopping** above, which already cuts total steps ~10x.
+  loss (only 5% of sessions truncated); capping at p90 gives ~3.0x. Make it config-driven and
+  **optional / default off** (e.g. `data.session_length_cap: null` plus a `length_bucketing`
+  toggle) so existing runs are unaffected. This is a data-loader/batching change and is
+  **secondary to early stopping** above, which already cuts total steps ~10x.
 
 ## Status log
 
