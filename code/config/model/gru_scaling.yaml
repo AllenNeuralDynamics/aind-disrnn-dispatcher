@@ -61,6 +61,8 @@ training:
     min_delta: 0.003
     patience: 2                 # checkpoints with no new best
     overfit_guard: 0.01         # stop if metric falls this far below best
+    start_after_step: 0         # only arm once step >= this (0 = no gating); use to let
+                                # session conditioning reach lambda=1 + train before stopping
 
   # ── Per-checkpoint likelihood eval + W&B logging ────────────────────────
   checkpoint_eval_on_train_split: true
