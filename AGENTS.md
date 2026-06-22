@@ -146,6 +146,7 @@ and *readably* identifiable, with platform-native ids saved alongside for cross-
   `BEAKER_JOB_ID` (read from Beaker env by the wrapper — route-agnostic, so this works for
   both the resumable launcher and the native `wandb agent` route), plus `wrapper_commit` /
   `dispatcher_commit`.
-- The native `wandb agent` route gets the platform ids automatically; for the portable
-  `meta.*` it also needs `DISRNN_META_*` injected (patch `launch_beaker.py` when a native
-  sweep variant is actually run).
+- **Both launchers** implement this identically: `launch_beaker_resumable.py` (pseudo-sweep)
+  and `launch_beaker.py` (native `wandb agent` sweep) share the helpers and both inject
+  `WANDB_RUN_GROUP` + `DISRNN_META_*`. The native route additionally has a real W&B sweep
+  as its platform-native launch id; the wrapper stamps Beaker/CO ids for both routes.
