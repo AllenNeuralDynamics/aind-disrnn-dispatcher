@@ -1,0 +1,9 @@
+{
+  "v1": {
+    "exp": "01KVSQNGDB4MKP4SN42671WD1J",
+    "group": "heldout-rerun-v1@20260623-005608",
+    "launched_pt": "2026-06-23 00:56"
+  },
+  "v2": null,
+  "note": "v2 offline re-run to be launched by the cron once v2 training (01KVRMSAAJTRSJMFV5JT7JAP6X) finishes: launch_heldout_rerun.py --source-exp 01KVRMSAAJTRSJMFV5JT7JAP6X --variant v2"
+}
