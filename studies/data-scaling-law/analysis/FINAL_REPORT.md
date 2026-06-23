@@ -43,7 +43,7 @@ Per-mouse-mean LL (equal-weight; differs from the trial-weighted Result 1 levels
 | frac of total gain by D=100 | 0.90 [0.89, 0.91] | 0.85 [0.84, 0.87] |
 | late gain D=100→614 | +0.00049 [+0.00042, +0.00056] | +0.00092 [+0.00084, +0.00100] |
 
-Both late-gain CIs **exclude 0** → not perfectly saturated; a small real slope persists (≈2× larger under SC). Power-law fit is degenerate (Dc→0) — the curve is "fast early rise + shallow continued slope," not a clean power law. **~85–90% of the data benefit is captured by ~100 mice.** The residual is small per-trial but statistically real and, per the per-session compounding (below), genuine evidence — just headroom-poor on this metric.
+Both late-gain CIs **exclude 0** → not perfectly saturated; a small real slope persists (≈2× larger under SC). A saturating fit `L = L∞ − A·D^−α` (seed-averaged) gives **v1: L∞=0.727, α=0.88** (asymptote essentially reached by D=614) and **v2: L∞=0.729, α=0.52** — SC's shallower exponent means it keeps rising, with the asymptote ~+0.001 above the observed D=614, echoing v2's ~2× late slope. **~85–90% of the data benefit is captured by ~100 mice.** The residual is small per-trial but statistically real and, per the per-session compounding (below), genuine evidence — just headroom-poor on this metric.
 
 ## Result 4 — zero-shot vs adapted held-out generalization
 ![zero-shot vs adapted](fig_zeroshot_vs_d.png)
