@@ -82,7 +82,20 @@ def _git_sha(repo_dir: Path) -> str | None:
     return None
 
 
-def enumerate_source_tasks(source_exp: str) -> list[dict]:
+def _job_exit_code(job: dict) -> int | None:
+    for status in (
+        job.get("status"),
+        job.get("execution", {}).get("status"),
+    ):
+        if not isinstance(status, dict):
+            continue
+        value = status.get("exitCode")
+        if value is not None:
+            return int(value)
+    return None
+
+
+def enumerate_source_tasks(source_exp: str, *, include_failed: bool = False) -> list[dict]:
     """Return [{result_dataset, subject_ratio, seed, job_name}] for each source task."""
     out = subprocess.run(
         [BEAKER, "experiment", "get", source_exp, "--format", "json"],
@@ -94,6 +107,9 @@ def enumerate_source_tasks(source_exp: str) -> list[dict]:
     exp = data[0] if isinstance(data, list) else data
     rows = []
     for job in exp.get("jobs", []):
+        exit_code = _job_exit_code(job)
+        if not include_failed and exit_code != 0:
+            continue
         result = (job.get("result") or {}).get("beaker") or (
             (job.get("execution", {}).get("result") or {}).get("beaker")
         )
@@ -108,6 +124,7 @@ def enumerate_source_tasks(source_exp: str) -> list[dict]:
             "subject_ratio": m_ratio.group(1),
             "seed": m_seed.group(1),
             "job_name": job.get("name") or job.get("execution", {}).get("spec", {}).get("name"),
+            "source_exit_code": exit_code,
         })
     return rows
 
@@ -222,6 +239,8 @@ def main() -> None:
     p.add_argument("--cluster", default="ai1/octo-hub-onprem-h200")
     p.add_argument("--workspace", default="ai1/aind-dynamic-foraging-foundation-model")
     p.add_argument("--limit", type=int, default=None, help="Only the first N source tasks.")
+    p.add_argument("--include-failed-source-jobs", action="store_true",
+                   help="include source jobs with nonzero/unknown exit codes (default: only exit 0)")
     p.add_argument("--only-ratio", default=None, help="Filter to this subject_ratio.")
     p.add_argument("--only-seed", default=None, help="Filter to this seed.")
     p.add_argument("--no-submit", action="store_true")
@@ -245,7 +264,10 @@ def main() -> None:
     )
     args = p.parse_args()
 
-    all_tasks = enumerate_source_tasks(args.source_exp)
+    all_tasks = enumerate_source_tasks(
+        args.source_exp,
+        include_failed=bool(args.include_failed_source_jobs),
+    )
     print(f"[heldout-rerun] source exp {args.source_exp}: {len(all_tasks)} tasks")
     tasks = all_tasks
     if args.only_ratio is not None:
@@ -291,6 +313,7 @@ def main() -> None:
         "wrapper_ref": args.wrapper_ref,
         "dispatcher_ref": DISPATCHER_REF,
         "cluster": args.cluster,
+        "include_failed_source_jobs": bool(args.include_failed_source_jobs),
         "experiment_id": experiment_id,
         "experiment_url": f"https://beaker.org/ex/{experiment_id}" if experiment_id else None,
         "n_tasks": len(tasks),
