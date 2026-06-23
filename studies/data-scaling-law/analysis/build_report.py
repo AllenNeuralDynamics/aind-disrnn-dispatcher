@@ -24,6 +24,17 @@ def _variant(meta):  # 'v1' / 'v2' from meta.variant (strip -retry)
     v = (meta or {}).get("variant", "")
     return "v1" if v.startswith("v1") else ("v2" if v.startswith("v2") else None)
 
+
+def _per_subject_table_dataframe(run):
+    for art in run.logged_artifacts():
+        if art.type != "run_table":
+            continue
+        for entry_name in art.manifest.entries:
+            if "per_subject_likelihood" not in str(entry_name):
+                continue
+            return art.get(entry_name).get_dataframe()
+    raise ValueError("no heldout/per_subject_likelihood table artifact found")
+
 def collect_per_subject():
     api = wandb.Api()
     rows = []  # variant, ratio, seed, subject, n_trials, ll
@@ -54,9 +65,7 @@ def collect_per_subject():
         if var is None or ratio is None:
             continue
         try:
-            art = next(a for a in r.logged_artifacts() if a.type == "run_table")
-            tbl = art.get(next(iter(art.manifest.entries)))
-            df = tbl.get_dataframe()
+            df = _per_subject_table_dataframe(r)
         except Exception as e:
             print(f"  [skip {r.name[:40]}] table err: {e}")
             continue
