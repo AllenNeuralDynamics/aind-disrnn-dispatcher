@@ -74,3 +74,35 @@ current fit's Dc≈0 already suggests no sustained slope — confirm with CIs.
 place a foundation-model signal hides) → (2) N×D grid (moderate compute) → (3) OOD transfer (needs
 new data). Metric caveat throughout: per-trial choice likelihood is ceilinged; adaptation-efficiency
 and OOD transfer have more headroom and are more faithful to the foundation-model thesis.
+
+## On effect sizes (Kevin Miller): small consistent ΔLL is real
+Likelihood here is per-trial-normalized (NL = exp(mean_t log p_t)). A *consistent* Δ=+0.001 at
+NL≈0.73 ≈ +0.0014 nats/trial → ~0.7 nats over a 500-trial session → ~2× per-session likelihood
+ratio, compounding across sessions/mice. So small per-trial deltas (our SC +0.0015 at large D, the
+data-scaling residual) are genuine model evidence, not noise (and the per-mouse pairing, p~1e-24,
+confirms consistency). Caveat: this is about *evidence/detectability*, not *headroom* — the curve
+still saturates because per-trial L/R choice is near a predictability ceiling. Don't dismiss small
+consistent effects; do seek headroom-ier metrics (below).
+
+## 5. Generative behavioral-statistics validation (2nd-order; CHEAP, do first)
+Beyond next-trial likelihood, roll the model out AS AN AGENT and compare behavioral phenomenology to
+the real mouse (win-stay/lose-shift, switch curves, block/ reversal transitions, choice
+autocorrelation). Code exists: `run_analysis.py generative` → `post_training_analysis/generative_analysis.py`
+(Po-chen). Runs on existing checkpoints (offline, like the held-out re-runs). A model can match LL yet
+generate wrong dynamics → orthogonal check; scaling/SC effects invisible in LL may appear here.
+
+## 6. 3-way output: include ignored trials (more headroom, MODERATE)
+Flip `data.ignore_policy=exclude→include` (output_size 2→3: L/R/ignore — wrapper already supports it)
+and re-run the D-sweep. Engagement/ignore is strongly session-structured (motivation, satiation, drift)
+and may transfer across mice → a learnable axis with headroom that saturated L/R lacks; possibly where
+data-scaling finally shows. Note: 3-way NL has a different chance baseline than 2-way → analyze as its
+own curve, not directly comparable to the L/R numbers.
+
+## 7. Lick-level modeling: RT + lick counts/timing (HIGHEST headroom, flagship build)
+Model the full behavioral output per trial — reaction time, lick number, lick timing pattern — not just
+the discrete choice. Continuous/temporal motor output is far from any ceiling, so data should keep
+helping (most likely to validate the foundation-model thesis). Big build: new data pipeline (lick
+rasters/RT from raw logs), new output heads + likelihoods (point-process/Poisson for lick trains,
+continuous/censored model for RT), new eval. Longer-term flagship.
+
+Priority: 5 (cheap, orthogonal) → 6 (config-flip retrain) → 1/2 (few-shot/N×D, in progress) → 7 (flagship).
