@@ -1,0 +1,5 @@
+{
+  "reason": "stopped to prioritize cheap zero/few-shot; relaunch after",
+  "stopped_exp": "01KVTMNY1XB2GRAVGYD7FJ2GV6",
+  "relaunch_cmd": "python code/launch_beaker_resumable.py --sweep studies/data-scaling-law/variants/nxd-grid/sweep.yaml --experiment studies/data-scaling-law/variants/nxd-grid/experiment.yaml --note 'N\u00d7D joint scaling grid (relaunch after zero/few-shot)' --output-dir studies/data-scaling-law/variants/nxd-grid/launch_record"
+}
