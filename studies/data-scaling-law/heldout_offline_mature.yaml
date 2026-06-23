@@ -1,13 +1,14 @@
-# mature-only (STAGE_FINAL/GRADUATED) variant — tests curriculum-heterogeneity confound
-# + the SC-accounts-for-stage hypothesis (does v2-v1 shrink mature-only?).
+# mature-only variant (mature_only:true). heldout_every_n/min_sessions set to the
+# source values so _selector_fields_present recognizes the override block (else mature_only
+# is silently dropped to the source's false). Same held-out cohort, mature trials only.
 source_run:
   model_dir: /prior/run
   checkpoint_policy: best_eval
 heldout_subjects:
   test_subject_ids: null
   curricula: null
-  min_sessions: null
-  heldout_every_n: null
+  min_sessions: 10
+  heldout_every_n: 5
   mature_only: true
   cols_to_retain: null
 heldout_finetuning:
