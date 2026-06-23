@@ -8,8 +8,10 @@ foundation-model metric is **held-out-mouse generalization vs the number of
 training mice (D)**.
 
 **Design (minimal; Kaplan/Chinchilla practice — fix N & HPs, vary one axis).**
-- Fixed: GRU `hidden_size=128`, `session_encoding_type=scalar` (session conditioning ON), `n_steps=300000`
-  (train to convergence — the 100k run was undertrained), `lr=1e-5`, `batch_size=2048`.
+- Fixed: GRU `hidden_size=128`, `session_encoding_type=scalar` (session conditioning ON),
+  `lr=1e-5`, `batch_size=2048`. Training protocol differs by variant (see Variants): v1 used
+  `n_steps=300000` but early-stopped ~40k inside pretrain (SC never engaged); v2 uses λ-forward
+  (full SC @50k) + `n_steps=150000` + gated early-stop @70k.
 - Swept (science axis): `data.subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}`
   → D ≈ {10, 30, 100, 300, ~614} training mice (scalar ratio ⇒ natural curriculum
   composition at every D).
@@ -85,7 +87,7 @@ Pick a variant and point the launcher at its `sweep.yaml` + `experiment.yaml`:
 ```bash
 cd <dispatcher repo>
 export PATH="$PWD/.venv/bin:$PATH"   # launcher calls bare `wandb`/`beaker`
-V=variants/v1-pretrain-phase         # or variants/v2-postwarmup, ...
+V=variants/v2-sc-active              # or variants/v1-pretrain-phase, variants/nxd-grid
 python code/launch_beaker_resumable.py \
   --sweep studies/data-scaling-law/$V/sweep.yaml \
   --experiment studies/data-scaling-law/$V/experiment.yaml \
@@ -99,8 +101,8 @@ reaches the AWS DB) and a 48 GB `octo-hub-aws-l40s`. 15 tasks ride the preemptib
 (unallocated) quota and drain in waves; preemption auto-recovers, so even the long
 large-D runs need no allocated slots.
 
-Code versions: `WRAPPER_REF=41efc09…` (study/data-scaling-law — nested sampling),
-`DISPATCHER_REF=study/data-scaling-law`.
+Code versions: pinned per variant in each `experiment.yaml` `WRAPPER_REF` (e.g. v2 uses
+`65c3350`; offline analyses use `4f29680`/`bb4b052`), `DISPATCHER_REF=study/data-scaling-law`.
 
 ## Pre-launch check
 
@@ -114,7 +116,7 @@ small curriculum; raise the smallest ratio if so).
 
 ```bash
 .venv/bin/python studies/data-scaling-law/analyze_scaling.py            # all variants
-.venv/bin/python studies/data-scaling-law/analyze_scaling.py --variant v2-postwarmup
+.venv/bin/python studies/data-scaling-law/analyze_scaling.py --variant v2-sc-active
 ```
 Writes `scaling_results.csv` (+ `scaling_curve.png` if matplotlib present): held-out
 likelihood (`heldout/eval_likelihood` / `heldout/test_likelihood`, from each run's final
@@ -151,6 +153,10 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
 
 ## Results — first run (2026-06-22)
 
+> **→ For the comprehensive, current results (v1 vs v2, zero-shot, few-shot, SC-stage verdict,
+> bootstrap CIs), see [`analysis/FINAL_REPORT.md`](analysis/FINAL_REPORT.md).** The section below is
+> the **v1 historical record** (the no-session-conditioning regime).
+
 Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36` (onprem-H200, offline W&B; 15 runs all completed,
 synced to W&B `AIND-disRNN/mice_data_scaling` as `mice-data-scaling-gru-*-r1`).
 
@@ -175,6 +181,11 @@ engaged** — this curve is effectively "more mice, no session conditioning," ex
 is most expected. **The question of whether more mice help *with* session conditioning active is
 still open.** To answer it, re-run with early stopping gated to start after warm-up (≥150k) or
 disabled, so runs train through the session-conditioning schedule.
+
+> **Resolved by v2-sc-active** (λ-forward + gated early-stop, so SC fully engages): SC active gives a
+> **small, highly-significant gain that grows with D** (+0.001→+0.0015 at D≥100, p~1e-24 per mouse),
+> ~¾ of which persists mature-only (mostly not a curriculum-stage artifact). Data-scaling still
+> **saturates by ~100 mice** even with SC. Full numbers in `analysis/FINAL_REPORT.md`.
 
 ## Early stopping (manual, consistent across D)
 
