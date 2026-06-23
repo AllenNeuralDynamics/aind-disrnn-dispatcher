@@ -189,9 +189,11 @@ Hard-won lessons (verified on onprem-H200 + aws-L40s, 2026-06-22):
 - **Per-task cluster/resource splits** aren't in `launch_beaker_resumable.py` (single cluster,
   uniform resources). Render with `--no-submit`, edit `context`/`constraints.cluster`/
   `resources` per task, then `beaker experiment create`.
-- **Validate one unit before the full fan-out.** Check the assigned GPUs/resources on the
-  *first scheduled job* before trusting a 15-task launch — catches over-assignment in one
-  step instead of repeated relaunches.
+- **Validate one unit first only when something is untested** — a new cluster, a new
+  resource sizing, or a changed spec. Then check the assigned GPUs/resources on the
+  *first scheduled job* before trusting the full fan-out (catches over-assignment in one
+  step). For a routine repeat of a known-good launch, just fan out directly; don't gate
+  every launch on a one-unit probe.
 
 ## 11. Verify Mechanisms With Data Before Asserting
 
