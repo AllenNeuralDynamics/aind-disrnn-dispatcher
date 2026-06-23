@@ -114,18 +114,23 @@ def enumerate_source_tasks(source_exp: str) -> list[dict]:
 
 def _inject_config_cmd(group: str, study: str, variant: str, launch_id: str,
                        subject_ratio: str, seed: str, source_dataset: str,
-                       source_exp: str) -> str:
-    """A python one-liner (run in-container) that copies heldout_offline.yaml,
+                       source_exp: str, config_in_container: str, kind: str) -> str:
+    """A python one-liner (run in-container) that copies the held-out config,
     fills its empty ``wandb`` block + adds a ``meta`` block, and writes /tmp config.
+
+    ``config_in_container`` is the in-container path to the source config
+    (heldout_offline.yaml for adapted reruns, heldout_zeroshot.yaml for the
+    no-adaptation zero-shot variant). ``kind`` tags ``meta.kind`` for provenance.
 
     The wrapper's finetune path only starts a W&B run when ``config['wandb']`` is
     truthy; populating it (and relying on native WANDB_* env for group/project) is
     the no-commit way to enable per-job W&B logging. The whole config (incl. meta)
     lands in wandb.config for provenance.
     """
+    tmp_config = f"/tmp/{Path(config_in_container).name}"
     py = (
         "import yaml,os;"
-        f"c=yaml.safe_load(open({CONFIG_IN_CONTAINER!r}));"
+        f"c=yaml.safe_load(open({config_in_container!r}));"
         "c['wandb']={'project':os.environ.get('WANDB_PROJECT'),"
         "'entity':os.environ.get('WANDB_ENTITY'),"
         "'group':os.environ.get('WANDB_RUN_GROUP')};"
@@ -133,12 +138,12 @@ def _inject_config_cmd(group: str, study: str, variant: str, launch_id: str,
         f"'study':{study!r},'variant':{variant!r},'launch_id':{launch_id!r},"
         f"'source_subject_ratio':{subject_ratio!r},'source_seed':{seed!r},"
         f"'source_dataset':{source_dataset!r},'source_exp':{source_exp!r},"
-        "'kind':'heldout-rerun-offline'};"
-        "open('/tmp/heldout_offline.yaml','w').write(yaml.safe_dump(c))"
+        f"'kind':{kind!r}}};"
+        f"open({tmp_config!r},'w').write(yaml.safe_dump(c))"
     )
     return (
         f"python -c {_shq(py)} && "
-        "python -m run_analysis finetune --config /tmp/heldout_offline.yaml"
+        f"python -m run_analysis finetune --config {tmp_config}"
     )
 
 
@@ -148,17 +153,24 @@ def _shq(s: str) -> str:
 
 
 def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
-               launch_id: str) -> tuple[dict, str]:
+               launch_id: str, config_rel: str) -> tuple[dict, str]:
     study = "data-scaling-law"
-    group = f"heldout-rerun-{variant}@{launch_id}"
+    # Zero-shot (no-adaptation) configs get a distinct group/kind so they sit beside
+    # the adapted reruns in the same W&B project without colliding.
+    is_zeroshot = "zeroshot" in Path(config_rel).stem.lower()
+    group_kind = "heldout-zeroshot" if is_zeroshot else "heldout-rerun"
+    meta_kind = "heldout-zeroshot" if is_zeroshot else "heldout-rerun-offline"
+    config_in_container = f"{DISPATCHER_DIR}/{config_rel}"
+    group = f"{group_kind}-{variant}@{launch_id}"
     spec_tasks = []
     for row in tasks:
         inner = _inject_config_cmd(
             group=group, study=study, variant=variant, launch_id=launch_id,
             subject_ratio=row["subject_ratio"], seed=row["seed"],
             source_dataset=row["result_dataset"], source_exp=source_exp,
+            config_in_container=config_in_container, kind=meta_kind,
         )
-        name = f"heldout-rerun-{variant}-d{row['subject_ratio']}-s{row['seed']}"
+        name = f"{group_kind}-{variant}-d{row['subject_ratio']}-s{row['seed']}"
         name = re.sub(r"[^a-zA-Z0-9-]+", "-", name).strip("-")[:120]
         spec_tasks.append({
             "name": name,
@@ -182,7 +194,7 @@ def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
         })
     spec = {
         "version": "v2",
-        "description": f"{group} — {len(spec_tasks)} offline held-out reruns from {source_exp}",
+        "description": f"{group} — {len(spec_tasks)} offline held-out tasks from {source_exp}",
         "tasks": spec_tasks,
     }
     return spec, group
@@ -213,6 +225,12 @@ def main() -> None:
     p.add_argument("--only-seed", default=None, help="Filter to this seed.")
     p.add_argument("--no-submit", action="store_true")
     p.add_argument("--output-dir", default=str(Path(__file__).resolve().parent))
+    p.add_argument(
+        "--heldout-config", default=CONFIG_REL,
+        help="Dispatcher-relative held-out config the in-container finetune points at "
+             "(default heldout_offline.yaml; pass the data-scaling-law/heldout_zeroshot.yaml "
+             "path for no-adaptation zero-shot — group becomes heldout-zeroshot-<variant>@...).",
+    )
     args = p.parse_args()
 
     all_tasks = enumerate_source_tasks(args.source_exp)
@@ -231,11 +249,15 @@ def main() -> None:
         print(f"    D={t['subject_ratio']} seed={t['seed']} dataset={t['result_dataset']}")
 
     launch_id = _seattle_launch_id()
-    spec, group = build_spec(args.source_exp, args.variant, tasks, args.cluster, launch_id)
+    spec, group = build_spec(args.source_exp, args.variant, tasks, args.cluster,
+                             launch_id, args.heldout_config)
+    # File-name stem mirrors the W&B group prefix so zero-shot records don't clobber
+    # the adapted-rerun records in the same output dir.
+    record_stem = group.split("@")[0]  # e.g. heldout-rerun-v1 / heldout-zeroshot-v1
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    rendered = output_dir / f"heldout_rerun_{args.variant}_{launch_id}.yaml"
+    rendered = output_dir / f"{record_stem}_{launch_id}.yaml"
 
     experiment_id = None
     if args.no_submit:
@@ -245,7 +267,8 @@ def main() -> None:
         experiment_id = submit(spec, args.workspace, rendered)
 
     record = {
-        "kind": "heldout-rerun-offline",
+        "kind": record_stem.rsplit("-", 1)[0],  # heldout-rerun / heldout-zeroshot
+        "heldout_config": args.heldout_config,
         "source_exp": args.source_exp,
         "variant": args.variant,
         "launch_id": launch_id,
@@ -263,7 +286,7 @@ def main() -> None:
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "rendered_spec": str(rendered),
     }
-    rec_path = output_dir / f"heldout_rerun_{args.variant}_{launch_id}.json"
+    rec_path = output_dir / f"{record_stem}_{launch_id}.json"
     rec_path.write_text(json.dumps(record, indent=2))
     print(f"[heldout-rerun] saved record: {rec_path}")
     print(json.dumps(record, indent=2))
