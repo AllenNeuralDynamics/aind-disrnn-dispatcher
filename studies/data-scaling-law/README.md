@@ -190,6 +190,11 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
 
 ## TODO / follow-ups
 
+**→ [FUTURE_DIRECTIONS.md](FUTURE_DIRECTIONS.md)** — validating the foundation-model/scaling thesis
+(per-trial LL is near a predictability ceiling, so D-alone saturating isn't conclusive):
+zero/few-shot adaptation-efficiency metrics, joint N×D (IsoFLOP) scaling, OOD task/rig transfer,
+and quantifying the current saturation.
+
 - **Hidden-size scan on the HELD-OUT metric.** Within-subject eval is flat H2→H256 (capacity-
   saturated), so model size looks irrelevant there — but capacity may matter more for
   representing a *new* mouse. After the D-curve is in, scan hidden_size {16, 64, 128, 256} at a
