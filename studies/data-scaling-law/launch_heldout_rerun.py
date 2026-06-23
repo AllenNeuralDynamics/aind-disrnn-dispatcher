@@ -153,7 +153,7 @@ def _shq(s: str) -> str:
 
 
 def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
-               launch_id: str, config_rel: str) -> tuple[dict, str]:
+               launch_id: str, config_rel: str, wrapper_ref: str) -> tuple[dict, str]:
     study = "data-scaling-law"
     # Zero-shot (no-adaptation) configs get a distinct group/kind so they sit beside
     # the adapted reruns in the same W&B project without colliding.
@@ -187,7 +187,7 @@ def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
                 {"name": "WANDB_PROJECT", "value": WANDB_PROJECT},
                 {"name": "WANDB_ENTITY", "value": WANDB_ENTITY},
                 {"name": "WANDB_RUN_GROUP", "value": group},
-                {"name": "WRAPPER_REF", "value": WRAPPER_REF},
+                {"name": "WRAPPER_REF", "value": wrapper_ref},
                 {"name": "DISPATCHER_REF", "value": DISPATCHER_REF},
             ],
             "result": {"path": "/results"},
@@ -224,6 +224,13 @@ def main() -> None:
     p.add_argument("--only-ratio", default=None, help="Filter to this subject_ratio.")
     p.add_argument("--only-seed", default=None, help="Filter to this seed.")
     p.add_argument("--no-submit", action="store_true")
+    p.add_argument(
+        "--wrapper-ref", default=WRAPPER_REF,
+        help="Wrapper git ref the in-container entrypoint checks out (default the "
+             "per_subject_likelihood commit). Override to a newer commit when the "
+             "config relies on a feature added after the default pin (e.g. the "
+             "few-shot adapt_sessions_per_subject knob).",
+    )
     p.add_argument("--output-dir", default=str(Path(__file__).resolve().parent))
     p.add_argument(
         "--heldout-config", default=CONFIG_REL,
@@ -250,7 +257,7 @@ def main() -> None:
 
     launch_id = _seattle_launch_id()
     spec, group = build_spec(args.source_exp, args.variant, tasks, args.cluster,
-                             launch_id, args.heldout_config)
+                             launch_id, args.heldout_config, args.wrapper_ref)
     # File-name stem mirrors the W&B group prefix so zero-shot records don't clobber
     # the adapted-rerun records in the same output dir.
     record_stem = group.split("@")[0]  # e.g. heldout-rerun-v1 / heldout-zeroshot-v1
@@ -275,7 +282,7 @@ def main() -> None:
         "wandb_group": group,
         "wandb_project": WANDB_PROJECT,
         "wandb_entity": WANDB_ENTITY,
-        "wrapper_ref": WRAPPER_REF,
+        "wrapper_ref": args.wrapper_ref,
         "dispatcher_ref": DISPATCHER_REF,
         "cluster": args.cluster,
         "experiment_id": experiment_id,
