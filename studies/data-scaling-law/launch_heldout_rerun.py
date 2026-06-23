@@ -153,7 +153,8 @@ def _shq(s: str) -> str:
 
 
 def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
-               launch_id: str, config_rel: str, wrapper_ref: str) -> tuple[dict, str]:
+               launch_id: str, config_rel: str, wrapper_ref: str,
+               memory: str = "256GiB", cpu: int = 16) -> tuple[dict, str]:
     study = "data-scaling-law"
     # Zero-shot (no-adaptation) configs get a distinct group/kind so they sit beside
     # the adapted reruns in the same W&B project without colliding.
@@ -178,7 +179,7 @@ def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
             "command": ["bash", ENTRYPOINT, "bash", "-lc", inner],
             "context": {"priority": "low", "preemptible": True},
             "constraints": {"cluster": [cluster]},
-            "resources": {"gpuCount": 1, "cpuCount": 16, "memory": "256GiB"},
+            "resources": {"gpuCount": 1, "cpuCount": cpu, "memory": memory},
             "datasets": [
                 {"mountPath": "/prior", "source": {"beaker": row["result_dataset"]}},
             ],
@@ -231,6 +232,10 @@ def main() -> None:
              "config relies on a feature added after the default pin (e.g. the "
              "few-shot adapt_sessions_per_subject knob).",
     )
+    p.add_argument("--memory", default="256GiB",
+                   help="per-task host memory. On L40s use <=90GiB so the job gets 1 GPU "
+                        "(each L40s GPU bundles ~93GiB; 256GiB grabs 3 GPUs — AGENTS §10).")
+    p.add_argument("--cpu", type=int, default=16, help="per-task cpuCount (<=12 for 1 L40s GPU).")
     p.add_argument("--output-dir", default=str(Path(__file__).resolve().parent))
     p.add_argument(
         "--heldout-config", default=CONFIG_REL,
@@ -257,7 +262,8 @@ def main() -> None:
 
     launch_id = _seattle_launch_id()
     spec, group = build_spec(args.source_exp, args.variant, tasks, args.cluster,
-                             launch_id, args.heldout_config, args.wrapper_ref)
+                             launch_id, args.heldout_config, args.wrapper_ref,
+                             memory=args.memory, cpu=args.cpu)
     # File-name stem mirrors the W&B group prefix so zero-shot records don't clobber
     # the adapted-rerun records in the same output dir.
     record_stem = group.split("@")[0]  # e.g. heldout-rerun-v1 / heldout-zeroshot-v1
