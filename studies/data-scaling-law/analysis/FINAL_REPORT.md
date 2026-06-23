@@ -59,3 +59,34 @@ continued slope". **Read:** ~85–90% of the data benefit is captured by ~100 mi
 statistically real but economically marginal — consistent with per-trial choice LL being near a
 predictability ceiling. See FUTURE_DIRECTIONS.md for the axes (few-shot, N×D, OOD) that can show
 foundation-model scaling with more headroom.
+
+## Result 4 — zero-shot vs adapted held-out generalization
+![zero-shot vs adapted](fig_zeroshot_vs_d.png)
+
+Zero-shot = held-out mouse assigned the **population-mean embedding**, NO adaptation (n_steps=0).
+Adapted = embedding fine-tuned on ~half the mouse's sessions (test on the other half). Per-mouse means.
+
+| D | v1 zero | v1 adapt | gap | v2 zero | v2 adapt | gap |
+|---|---|---|---|---|---|---|
+| 10 | 0.7264 | 0.7285 | +0.0021 | 0.7264 | 0.7285 | +0.0021 |
+| 30 | 0.7296 | 0.7316 | +0.0020 | 0.7295 | 0.7315 | +0.0019 |
+| 100 | 0.7309 | 0.7328 | +0.0019 | 0.7319 | 0.7338 | +0.0019 |
+| 300 | 0.7314 | 0.7332 | +0.0018 | 0.7328 | 0.7346 | +0.0018 |
+| 614 | 0.7315 | 0.7333 | +0.0018 | 0.7331 | 0.7347 | +0.0016 |
+
+**Findings:**
+- **Adaptation buys almost nothing (~+0.002) and the gap is flat across D.** The population-mean
+  ("average mouse") already predicts a new mouse to within ~0.3% of full adaptation — subject-specific
+  identity barely matters for next-trial LL. ⇒ "few-shot efficiency improves with scale" is unlikely
+  to be the foundation-model win here; the adaptation headroom is tiny and doesn't grow with D.
+- **Zero-shot DOES scale with D** (v1 +0.0051, v2 +0.0068 over D=10→614) but **saturates ~D=100**, same
+  shape as adapted. So "more training mice → better unseen-mouse prediction with no adaptation" holds
+  but is weak/saturating.
+- **SC's large-D edge appears even at zero-shot** (v2>v1 by ~+0.0016 at D=614) — its frozen
+  session-conditioning generalizes better when trained on more mice.
+
+**Verdict (combined with Results 1–3):** on per-trial choice likelihood the system is near a
+predictability ceiling — generalization to a new mouse is already ~99.7% of adapted from the population
+mean, scales weakly with D, and saturates by ~100 mice. This metric does not validate "big data ⇒
+materially better foundation model." The N×D grid (does capacity unlock more data benefit?) and a
+headroom-ier metric (OOD task/rig transfer) remain the tests that could.
