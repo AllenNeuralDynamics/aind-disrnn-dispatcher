@@ -1,0 +1,1526 @@
+version: v2
+description: "nxd-grid@20260623-092311 \u2014 27 resumable grid tasks (autoResume)"
+tasks:
+- name: nxd-grid-20260623-092311-000
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.016
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-bb0ce18e
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - &id001
+    name: DISRNN_META_STUDY
+    value: data-scaling-law
+  - &id002
+    name: DISRNN_META_VARIANT
+    value: nxd-grid
+  - &id003
+    name: DISRNN_META_LAUNCH_ID
+    value: 20260623-092311
+  - &id004
+    name: DISRNN_META_CONFIG_HASH
+    value: eb81a5ad
+  - &id005
+    name: DISRNN_META_NOTE
+    value: "N\xD7D joint scaling grid (H16/64/256 \xD7 D10/100/614; H128 comes from\
+      \ v2-sc-active) \u2014 test capacity\xD7data interaction for held-out generalization"
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-001
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.016
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-3c88e459
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-002
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.016
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-95d7e524
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-003
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.163
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-d4cd37ee
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-004
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.163
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-a07edb21
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-005
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=0.163
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-cf5022f3
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-006
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=1.0
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-55f188f0
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-007
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=1.0
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-34b35630
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-008
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=16
+  - data.subject_ratio=1.0
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-839c0ae0
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-009
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.016
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-471daead
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-010
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.016
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-799c0630
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-011
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.016
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-6660555d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-012
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.163
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-333d7b61
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-013
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.163
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-0bca89ab
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-014
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=0.163
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-28ac2ffe
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-015
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=1.0
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-3e01b552
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-016
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=1.0
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-4f4d29d6
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-017
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=64
+  - data.subject_ratio=1.0
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-0515a099
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-018
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.016
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-05d9bf4f
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-019
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.016
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-9403f2f2
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-020
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.016
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-421583cd
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-021
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.163
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-23c8c8a1
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-022
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.163
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-f003eacd
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-023
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=0.163
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-feb2ecfd
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-024
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=1.0
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-f463b939
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-025
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=1.0
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-81ba68f8
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: nxd-grid-20260623-092311-026
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=gru_scaling
+  - wandb.project=mice_data_scaling
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.lr=1e-5
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.early_stopping.enabled=true
+  - model.training.early_stopping.start_after_step=70000
+  - model.architecture.hidden_size=256
+  - data.subject_ratio=1.0
+  - seed=2
+  constraints:
+    cluster:
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+    cpuCount: 16
+    memory: 256GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 4f296807f4ea06f9a58afa4eeb0553c220db4726
+  - name: DISPATCHER_REF
+    value: study/data-scaling-law
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: nxd-grid-20260623-092311-3f8a0f9f
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: nxd-grid@20260623-092311
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
