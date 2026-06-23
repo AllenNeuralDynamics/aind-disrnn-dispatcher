@@ -29,6 +29,24 @@ def collect_per_subject():
     rows = []  # variant, ratio, seed, subject, n_trials, ll
     runs = [r for r in api.runs(PROJECT)
             if any((r.group or "").startswith(p) for p in GROUP_PREFIXES) and r.state == "finished"]
+    # DEDUP: validation + mass-launch + retries can produce >1 offline run per
+    # (variant, ratio, seed). Keep exactly one (the most recent) so seed-averaging
+    # isn't skewed by double-counted cells. (The offline finetune is deterministic
+    # from the same checkpoint, so duplicates are ~identical, but partial duplication
+    # — e.g. only seed 0 re-run — would over-weight that seed.)
+    by_cell = {}
+    for r in runs:
+        meta = r.config.get("meta", {}) or {}
+        var = _variant(meta)
+        ratio = meta.get("source_subject_ratio"); seed = meta.get("source_seed")
+        if var is None or ratio is None:
+            continue
+        key = (var, round(float(ratio), 3), seed)
+        prev = by_cell.get(key)
+        if prev is None or str(getattr(r, "created_at", "")) > str(getattr(prev, "created_at", "")):
+            by_cell[key] = r
+    runs = list(by_cell.values())
+    print(f"  deduped to {len(runs)} offline runs (one per variant,ratio,seed)")
     for r in runs:
         meta = r.config.get("meta", {}) or {}
         var = _variant(meta)

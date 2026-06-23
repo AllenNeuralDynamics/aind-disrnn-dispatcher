@@ -176,11 +176,11 @@
     "per_ratio": {
       "0.016": {
         "n_subjects": 149,
-        "mean_delta": 0.00031172018517681093,
-        "median_delta": 0.00017401660676741315,
-        "frac_positive": 0.6845637583892618,
-        "wilcoxon_W": 2751.0,
-        "wilcoxon_p": 7.639572059191093e-08
+        "mean_delta": -7.135298096489871e-05,
+        "median_delta": -7.949864286715957e-05,
+        "frac_positive": 0.3422818791946309,
+        "wilcoxon_W": 3130.0,
+        "wilcoxon_p": 3.2054067683938087e-06
       },
       "0.049": {
         "n_subjects": 149,
@@ -200,19 +200,19 @@
       },
       "0.489": {
         "n_subjects": 149,
-        "mean_delta": 0.0013007856996540238,
-        "median_delta": 0.0012160858902008354,
-        "frac_positive": 0.912751677852349,
-        "wilcoxon_W": 296.0,
-        "wilcoxon_p": 1.1493317718305812e-23
+        "mean_delta": 0.0013517196822203082,
+        "median_delta": 0.001239458575218788,
+        "frac_positive": 0.9328859060402684,
+        "wilcoxon_W": 274.0,
+        "wilcoxon_p": 7.528844885768895e-24
       },
       "1.0": {
         "n_subjects": 149,
-        "mean_delta": 0.0014499272978946325,
-        "median_delta": 0.001348498000386833,
-        "frac_positive": 0.9328859060402684,
-        "wilcoxon_W": 213.0,
-        "wilcoxon_p": 2.3089750796292693e-24
+        "mean_delta": 0.0014570038332477801,
+        "median_delta": 0.0013819774224975712,
+        "frac_positive": 0.9463087248322147,
+        "wilcoxon_W": 192.0,
+        "wilcoxon_p": 1.5324124276497467e-24
       }
     },
     "coverage": {
