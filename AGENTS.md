@@ -162,6 +162,13 @@ and is not allowed.
 
 ## 10. Beaker / AI Hub Launch & Scheduling
 
+- **ONLY submit jobs to clusters whose name contains `hub`** — the team's pools
+  (`octo-hub-onprem-h200`, `octo-hub-aws-h200`, `octo-hub-aws-l40s`, `octo.hub-*`,
+  `aihub-*`). **NEVER** submit to non-hub clusters (`aipbd-*`, `octo.ai-*`, `siti-*`,
+  `dev-*`) even when they show free capacity — they are not ours. When dodging contention,
+  pick a DIFFERENT *hub* cluster (e.g. idle `octo-hub-aws-h200` / `octo-hub-aws-l40s`), not
+  a non-hub one.
+
 Hard-won lessons (verified on onprem-H200 + aws-L40s, 2026-06-22):
 
 - **Priority for preemptible fan-outs: use `low`.** Low-priority preemptible jobs burst
