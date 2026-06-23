@@ -91,6 +91,21 @@ autocorrelation). Code exists: `run_analysis.py generative` → `post_training_a
 (Po-chen). Runs on existing checkpoints (offline, like the held-out re-runs). A model can match LL yet
 generate wrong dynamics → orthogonal check; scaling/SC effects invisible in LL may appear here.
 
+> **⚠️ IMPORTANT TODO — generative task params are NOT stage-matched.** The rollout environment
+> (`_build_curriculum_matched_task`, Po-chen's code) matches only the curriculum **family**
+> (coupled/uncoupled + baiting) and uses the gym's **default** block/reward parameters
+> (`rwd_prob_array=[0.1,0.5,0.9]`, `block_min=20, block_max=35`, …). It **ignores
+> `current_stage_actual`**, so a curriculum spanning multiple stages — each with its own reward
+> probabilities / block structure / sometimes a different task — is collapsed into one generic
+> task. The model is therefore rolled out against a *generic* environment and compared to the
+> animal behaving under its *actual, stage-specific* tasks — a confound baked into the corr-0.96
+> result. **Faithful fix:** instantiate each session's task with its real per-(curriculum, stage)
+> parameters, which live in
+> [aind-foraging-behavior-bonsai-automatic-training](https://github.com/AllenNeuralDynamics/aind-foraging-behavior-bonsai-automatic-training).
+> This affects **all** D points, so adopting it means recomputing the existing generative numbers.
+> (The 2026-06-23 family-substring fix only made high-D `*2p3*` curricula resolve to the same
+> default-param task — it did **not** address this.)
+
 ## 6. 3-way output: include ignored trials (more headroom, MODERATE)
 Flip `data.ignore_policy=exclude→include` (output_size 2→3: L/R/ignore — wrapper already supports it)
 and re-run the D-sweep. Engagement/ignore is strongly session-structured (motivation, satiation, drift)
