@@ -312,3 +312,8 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   cleared. Offline mode was the right mitigation regardless; the `6ede321`
   retry→offline-fallback safeguard handles any recurrence. Concurrency is not a real
   constraint for these launches.
+- 2026-06-23: **v2-sc-active complete (15/15).** v1-vs-v2 matched-pair held-out analysis done.
+  Cell-level (n=15): mean Δ(v2−v1)=+0.00074, paired t p=0.0015, Wilcoxon p=0.0043. Per-held-out-
+  mouse (offline re-runs, n=149/D): SC gain grows with D — ~0 at D≤30 (slightly hurts at D=30),
+  +0.0010 (D=100) → +0.0015 (D=614), Wilcoxon p~1e-20–1e-24. Report run:
+  https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu ; see analysis/FINAL_REPORT.md.

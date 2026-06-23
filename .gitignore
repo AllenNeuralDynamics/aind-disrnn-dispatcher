@@ -155,3 +155,5 @@ dmypy.json
 
 src/
 .codeocean/
+# offline-rerun launch artifacts (provenance in studies/.../analysis/)
+studies/data-scaling-law/heldout_rerun_*.yaml
