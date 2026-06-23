@@ -90,3 +90,28 @@ predictability ceiling — generalization to a new mouse is already ~99.7% of ad
 mean, scales weakly with D, and saturates by ~100 mice. This metric does not validate "big data ⇒
 materially better foundation model." The N×D grid (does capacity unlock more data benefit?) and a
 headroom-ier metric (OOD task/rig transfer) remain the tests that could.
+
+## Result 5 — few-shot adaptation curve (K = # new-mouse sessions used to adapt)
+![few-shot curve](fig_fewshot_curve.png)
+
+Per-mouse-mean held-out LL vs #adapt sessions K (K=full ≈ 8 sessions; test sessions fixed):
+
+| var | D | K=0 (zero) | K=1 | K=4 | K=full |
+|---|---|---|---|---|---|
+| v1 | 10 | 0.7264 | 0.7047 | 0.7252 | 0.7285 |
+| v1 | 614 | 0.7315 | 0.7107 | 0.7307 | 0.7333 |
+| v2 | 10 | 0.7264 | 0.7045 | 0.7250 | 0.7285 |
+| v2 | 614 | 0.7331 | 0.7153 | 0.7326 | 0.7347 |
+(all 10 cells show the same shape)
+
+**Non-monotonic:** K=1 craters LL by ~−0.02 (a 4-dim embedding overfits one session at 500
+steps/lr=1e-3), recovers to ≈zero-shot by K=4, and only exceeds zero-shot at K=full (+~0.002).
+The dip is **D- and variant-independent** (protocol property, not scale), internally consistent
+with the K=2 probe (0.712, between K=1 and K=4).
+
+**Findings:** (1) the population-mean embedding (zero-shot) is a far better default than 1-shot —
+per-mouse adaptation needs several sessions to break even; (2) **"few-shot efficiency improves with
+data" is NOT supported** — the dip doesn't shrink with D; (3) caveat: the crash is largely a
+**protocol artifact** (fixed 500 steps, no L2-to-mean / early-stop / lr-scaling for small K) — a
+tuned few-shot would likely not crash. Follow-up: regularized few-shot (L2 toward the mean embedding,
+early-stop, steps∝K) before concluding on few-shot transfer.
