@@ -125,3 +125,14 @@ better with more data) and shows even at zero-shot (frozen, shared).
   `current_stage_actual`; if SC encodes stage, the context representation should separate early vs mature.
 - Mature-only ALSO addresses the K=1 few-shot crash (adapting on a naive early session); and re-reads
   all our absolute numbers as "all-stage" (mature-only may shift them).
+
+### Mature-only: two levels (A = eval-only now; B = retrain, confirmatory)
+- **A (eval-only, CHEAP, doing now):** `heldout_*_mature.yaml` (`mature_only:true`) re-run the held-out
+  finetune+test on STAGE_FINAL/GRADUATED sessions only, using the EXISTING all-stage-trained v1/v2
+  checkpoints (no retraining). Tests whether SC's held-out benefit is concentrated in the early-stage
+  eval sessions (benefit shrinks mature-only ⇒ supports the stage-accounting hypothesis at the eval
+  level). Also fixes the K=1 crash + re-baselines numbers as all-stage-vs-mature.
+- **B (retrain mature-only, EXPENSIVE, confirmatory — only if A is ambiguous):** train v1 (SC off) and
+  v2 (SC on) FROM SCRATCH on mature-only data, then eval. If SC's benefit vanishes when there were no
+  early stages to absorb during *training*, that's the definitive verdict on the design choice. ~30
+  training runs (a focused v1+v2 × few-D sweep, not the full grid). Decide after A.
