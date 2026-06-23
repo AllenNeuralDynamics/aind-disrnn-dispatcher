@@ -26,6 +26,28 @@ training mice (D)**.
 
 15 runs total (5 D × 3 seeds).
 
+## Cohort sampling, seeds & nesting (verified 2026-06-23)
+
+- **One `seed` controls *both* data selection and training.** `subject_sample_seed`
+  defaults to `seed` (`mice.py`: `data_cfg.get("subject_sample_seed", data_cfg.get("seed"))`)
+  and the sweeps never set it separately — so each seed is a *different random subset of
+  mice* **and** a different training init. This is intentional: seed-averaging then captures
+  **sampling variability** (which D mice you happened to grab — the honest error bar at small
+  D), not just training noise. To make `seed` training-only, pin `data.subject_sample_seed`
+  to a constant and vary `seed`.
+- **`subject_ratio` → actual D is fuzzy** (e.g. ratio `0.049` → **29 or 30** mice depending
+  on seed). The per-curriculum sample *count* is deterministic (`round(ratio × pool)`), but a
+  selected mouse that passes the `min_sessions ≥ 10` filter (which counts *all* sessions) yet
+  **contributes no trials** after the scoped trial fetch is dropped (`mice.py:115-138`), so
+  the surviving count depends on *which* mice a seed picked. We therefore use the **actual
+  resolved D** (`len(resolved_subject_ids)`) as the x-axis, never the nominal ratio.
+- **Verified empirically (both v1 and v2):**
+  - v1 and v2 train on the **identical mouse set** in all 15 (ratio, seed) cells → the
+    held-out v1-vs-v2 comparison is matched cohorts (apples-to-apples).
+  - Cohorts are **nested across ratios** for each seed (seed0: `10⊂29⊂99⊂300⊂614`,
+    seed1: `10⊂30⊂101⊂301⊂614`, seed2: `10⊂30⊂101⊂300⊂614`) — the permutation-prefix design
+    holds, and the post-fetch drop preserves nesting (the drop is per-mouse, D-independent).
+
 ## Variants
 
 Each run/condition of this study lives in `variants/<name>/` (its own `sweep.yaml`,
@@ -37,7 +59,7 @@ side-by-side; each launch is its own group (see Provenance below).
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
-| [`v2-postwarmup`](variants/v2-postwarmup/notes.md) | train through warm-up (≥150k) so session conditioning engages | 📝 draft | `v2-postwarmup@<launch_id>` (at launch) | — |
+| [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | 🏃 running | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 
@@ -189,6 +211,26 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   `session_regularized_training._sample_batch` is **shared**, so it likely "just works" once
   `disrnn_trainer` sets `dataset_train.length_bucketing` on its train set — verify against
   disRNN's warmup/pretrain + session-reg schedule. Defer for now.
+- **Selection vs trial-validity filter mismatch.** `min_sessions≥10` (Step 2) counts *all*
+  sessions, but selection is followed by a post-fetch drop of subjects that "contribute no
+  trials" (`mice.py:115-138`) → actual D is seed-dependent (29 vs 30) and < nominal. Current
+  approach (plot actual resolved D) is scientifically fine, so this is optional. If we want a
+  deterministic ratio→D map: either (a) **filter the pool on usable-trial sessions up front**
+  (count sessions with ≥1 valid trial under the same `ignore_policy` before selection — most
+  principled, but needs a trial-level pass over all subjects), or (b) **select → drop →
+  top-up** from the next permutation-prefix subjects to hit `n_take` survivors (cheap, keeps
+  nesting). First run a diagnostic: how many subjects pass `min_sessions` but yield 0 trials?
+  If just the 1–2 we see, leave it; if many, the `min_sessions` filter is mis-specified → do (a).
+- **Use PAIRED / repeated-measures analysis (the cohorts support it).** Two free power gains:
+  (1) **v1 vs v2 (SC off/on):** every (D, seed) cell uses the *identical* mouse set, so test
+  the **15 paired differences** (v2−v1) with a paired t / Wilcoxon — cancels cell-to-cell and
+  which-mice variance, far more powerful than two independent groups of 15 (doable now from the
+  aggregate held-out LL). (2) **Across D (scaling trend):** the held-out *test* cohort is fixed
+  at every D, so each held-out mouse is measured repeatedly across D ⇒ a per-held-out-mouse
+  repeated-measures / mixed model is both more powerful and *more correct* (adjacent-D training
+  cohorts are nested, so run-level means are NOT independent — treating them as independent
+  overstates df). This needs **per-held-out-subject (or per-session) likelihoods saved**, not
+  just the run-level aggregate — small logging add for future runs.
 
 ## Status log
 
