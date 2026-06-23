@@ -106,3 +106,22 @@ rasters/RT from raw logs), new output heads + likelihoods (point-process/Poisson
 continuous/censored model for RT), new eval. Longer-term flagship.
 
 Priority: 5 (cheap, orthogonal) → 6 (config-flip retrain) → 1/2 (few-shot/N×D, in progress) → 7 (flagship).
+
+## 8. Hypothesis: SC's benefit = accounting for curriculum/stage heterogeneity (TEST via mature-only)
+This study deliberately includes early stages (`mature_only=false`), hoping session conditioning
+absorbs the naive→mature drift. SC's session feature is `session_idx/session_max` (continuous
+"position in the mouse's session sequence"), which correlates with training stage — so SC is
+well-positioned to do this. **Falsifiable prediction:** if SC's value is stage-accounting, the SC
+benefit (v2−v1) should **shrink toward 0 in a mature-only eval** (STAGE_FINAL/GRADUATED only). Fits
+what we see: SC's benefit grows with D (shared session-delta learns the across-mouse stage trajectory
+better with more data) and shows even at zero-shot (frozen, shared). 
+- **Test:** mature-only held-out re-run (configs `heldout_*_mature.yaml`, `mature_only:true`) for v1+v2,
+  zero-shot + adapted → compare SC benefit mature-only vs all-stage. Shrinks ⇒ SC was doing the
+  stage job (validates the design choice; SC = tool for messy longitudinal data, not a general
+  booster). Persists ⇒ SC also captures within-mature drift.
+- Caveat: `session_idx/session_max` tracks across-session drift broadly, not stage *specifically*, so
+  "persists" wouldn't be surprising; the *shrinkage magnitude* = fraction of SC's value that was stage.
+- Complementary (free): the held-out `subject_session_context_state_space` plot — color sessions by
+  `current_stage_actual`; if SC encodes stage, the context representation should separate early vs mature.
+- Mature-only ALSO addresses the K=1 few-shot crash (adapting on a naive early session); and re-reads
+  all our absolute numbers as "all-stage" (mature-only may shift them).
