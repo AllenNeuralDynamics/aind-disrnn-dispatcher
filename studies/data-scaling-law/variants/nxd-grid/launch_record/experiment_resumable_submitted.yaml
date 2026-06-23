@@ -1,7 +1,7 @@
 version: v2
-description: "nxd-grid@20260623-092311 \u2014 27 resumable grid tasks (autoResume)"
+description: "nxd-grid@20260623-102649 \u2014 27 resumable grid tasks (autoResume)"
 tasks:
-- name: nxd-grid-20260623-092311-000
+- name: nxd-grid-20260623-102649-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -42,11 +42,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-bb0ce18e
+    value: nxd-grid-20260623-102649-1de6455e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - &id001
     name: DISRNN_META_STUDY
     value: data-scaling-law
@@ -55,20 +55,20 @@ tasks:
     value: nxd-grid
   - &id003
     name: DISRNN_META_LAUNCH_ID
-    value: 20260623-092311
+    value: 20260623-102649
   - &id004
     name: DISRNN_META_CONFIG_HASH
     value: eb81a5ad
   - &id005
     name: DISRNN_META_NOTE
-    value: "N\xD7D joint scaling grid (H16/64/256 \xD7 D10/100/614; H128 comes from\
-      \ v2-sc-active) \u2014 test capacity\xD7data interaction for held-out generalization"
+    value: "N\xD7D joint scaling grid (relaunch after cheap zero/few-shot; H16/64/256\
+      \ \xD7 D10/100/614)"
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-001
+- name: nxd-grid-20260623-102649-001
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -109,11 +109,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-3c88e459
+    value: nxd-grid-20260623-102649-3f09abfe
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -124,7 +124,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-002
+- name: nxd-grid-20260623-102649-002
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -165,11 +165,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-95d7e524
+    value: nxd-grid-20260623-102649-18e65dc2
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -180,7 +180,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-003
+- name: nxd-grid-20260623-102649-003
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -221,11 +221,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-d4cd37ee
+    value: nxd-grid-20260623-102649-4e971eab
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -236,7 +236,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-004
+- name: nxd-grid-20260623-102649-004
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -277,11 +277,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-a07edb21
+    value: nxd-grid-20260623-102649-e663d794
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -292,7 +292,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-005
+- name: nxd-grid-20260623-102649-005
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -333,11 +333,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-cf5022f3
+    value: nxd-grid-20260623-102649-79d54f5d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -348,7 +348,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-006
+- name: nxd-grid-20260623-102649-006
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -389,11 +389,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-55f188f0
+    value: nxd-grid-20260623-102649-e306a046
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -404,7 +404,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-007
+- name: nxd-grid-20260623-102649-007
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -445,11 +445,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-34b35630
+    value: nxd-grid-20260623-102649-cfdcbee4
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -460,7 +460,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-008
+- name: nxd-grid-20260623-102649-008
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -501,11 +501,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-839c0ae0
+    value: nxd-grid-20260623-102649-e3d303a2
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -516,7 +516,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-009
+- name: nxd-grid-20260623-102649-009
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -557,11 +557,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-471daead
+    value: nxd-grid-20260623-102649-e8df2cdb
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -572,7 +572,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-010
+- name: nxd-grid-20260623-102649-010
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -613,11 +613,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-799c0630
+    value: nxd-grid-20260623-102649-e225ee22
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -628,7 +628,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-011
+- name: nxd-grid-20260623-102649-011
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -669,11 +669,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-6660555d
+    value: nxd-grid-20260623-102649-368c9931
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -684,7 +684,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-012
+- name: nxd-grid-20260623-102649-012
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -725,11 +725,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-333d7b61
+    value: nxd-grid-20260623-102649-88a1afe7
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -740,7 +740,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-013
+- name: nxd-grid-20260623-102649-013
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -781,11 +781,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-0bca89ab
+    value: nxd-grid-20260623-102649-f506e94f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -796,7 +796,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-014
+- name: nxd-grid-20260623-102649-014
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -837,11 +837,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-28ac2ffe
+    value: nxd-grid-20260623-102649-287afe8a
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -852,7 +852,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-015
+- name: nxd-grid-20260623-102649-015
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -893,11 +893,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-3e01b552
+    value: nxd-grid-20260623-102649-27bd5ac3
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -908,7 +908,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-016
+- name: nxd-grid-20260623-102649-016
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -949,11 +949,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-4f4d29d6
+    value: nxd-grid-20260623-102649-e144140c
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -964,7 +964,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-017
+- name: nxd-grid-20260623-102649-017
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1005,11 +1005,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-0515a099
+    value: nxd-grid-20260623-102649-3f93a188
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1020,7 +1020,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-018
+- name: nxd-grid-20260623-102649-018
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1061,11 +1061,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-05d9bf4f
+    value: nxd-grid-20260623-102649-1bb4f364
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1076,7 +1076,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-019
+- name: nxd-grid-20260623-102649-019
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1117,11 +1117,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-9403f2f2
+    value: nxd-grid-20260623-102649-5e4a6cf3
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1132,7 +1132,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-020
+- name: nxd-grid-20260623-102649-020
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1173,11 +1173,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-421583cd
+    value: nxd-grid-20260623-102649-d2eaf831
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1188,7 +1188,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-021
+- name: nxd-grid-20260623-102649-021
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1229,11 +1229,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-23c8c8a1
+    value: nxd-grid-20260623-102649-993442f6
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1244,7 +1244,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-022
+- name: nxd-grid-20260623-102649-022
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1285,11 +1285,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-f003eacd
+    value: nxd-grid-20260623-102649-08c18c82
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1300,7 +1300,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-023
+- name: nxd-grid-20260623-102649-023
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1341,11 +1341,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-feb2ecfd
+    value: nxd-grid-20260623-102649-94c45e43
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1356,7 +1356,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-024
+- name: nxd-grid-20260623-102649-024
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1397,11 +1397,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-f463b939
+    value: nxd-grid-20260623-102649-78e14bfc
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1412,7 +1412,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-025
+- name: nxd-grid-20260623-102649-025
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1453,11 +1453,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-81ba68f8
+    value: nxd-grid-20260623-102649-0554750e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003
@@ -1468,7 +1468,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: nxd-grid-20260623-092311-026
+- name: nxd-grid-20260623-102649-026
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration
   command:
@@ -1509,11 +1509,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: nxd-grid-20260623-092311-3f8a0f9f
+    value: nxd-grid-20260623-102649-6eb7c553
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: nxd-grid@20260623-092311
+    value: nxd-grid@20260623-102649
   - *id001
   - *id002
   - *id003

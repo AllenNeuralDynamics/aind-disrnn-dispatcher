@@ -1,9 +1,9 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 27,
-  "experiment_id": "01KVTMNY1XB2GRAVGYD7FJ2GV6",
-  "experiment_url": "https://beaker.org/ex/01KVTMNY1XB2GRAVGYD7FJ2GV6",
-  "dispatcher_commit": "484472084d452dad54ef80402f99aab9ae78a23f",
+  "experiment_id": "01KVTRAF21E73WDWEX8MDRYM9E",
+  "experiment_url": "https://beaker.org/ex/01KVTRAF21E73WDWEX8MDRYM9E",
+  "dispatcher_commit": "99aa2fcaf34ba8a879ec0771030c008573d5f5fa",
   "sweep_file": "studies/data-scaling-law/variants/nxd-grid/sweep.yaml",
-  "created_utc": "2026-06-23T16:23:14.600493+00:00"
+  "created_utc": "2026-06-23T17:26:53.743785+00:00"
 }
