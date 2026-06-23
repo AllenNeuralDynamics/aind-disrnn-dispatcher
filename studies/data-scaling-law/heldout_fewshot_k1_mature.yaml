@@ -1,0 +1,27 @@
+# mature-only (STAGE_FINAL/GRADUATED) variant — tests curriculum-heterogeneity confound
+# + the SC-accounts-for-stage hypothesis (does v2-v1 shrink mature-only?).
+source_run:
+  model_dir: /prior/run
+  checkpoint_policy: best_eval
+heldout_subjects:
+  test_subject_ids: null
+  curricula: null
+  min_sessions: null
+  heldout_every_n: null
+  mature_only: true
+  cols_to_retain: null
+heldout_finetuning:
+  n_steps: 500
+  lr: 1e-3
+  checkpoint_every_n_steps: 100
+  batch_size: null
+  batch_mode: single
+  example_max_subjects: 1
+  skip_subjects_with_insufficient_sessions: true
+  keep_media_files: false
+  adapt_sessions_per_subject: 1
+output:
+  output_root: /results/heldout
+  run_name_suffix: null
+wandb: {}
+seed: 0
