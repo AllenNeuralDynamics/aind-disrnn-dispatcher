@@ -1,5 +1,6 @@
 {
-  "reason": "stopped to prioritize cheap zero/few-shot; relaunch after",
-  "stopped_exp": "01KVTMNY1XB2GRAVGYD7FJ2GV6",
-  "relaunch_cmd": "python code/launch_beaker_resumable.py --sweep studies/data-scaling-law/variants/nxd-grid/sweep.yaml --experiment studies/data-scaling-law/variants/nxd-grid/experiment.yaml --note 'N\u00d7D joint scaling grid (relaunch after zero/few-shot)' --output-dir studies/data-scaling-law/variants/nxd-grid/launch_record"
+  "status": "RELAUNCHED 2026-06-23 ~10:27 PT after cheap zero/few-shot done",
+  "exp": "01KVTRAF21E73WDWEX8MDRYM9E",
+  "group": "nxd-grid@20260623-102649",
+  "cluster": "octo-hub-onprem-h200 (hub)"
 }
