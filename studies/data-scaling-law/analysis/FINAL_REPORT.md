@@ -42,3 +42,20 @@ Session conditioning is **not** a small-data lever for held-out generalization (
 
 ## Provenance
 v1 group `v1-pretrain-phase@20260622-013415` (exp 01KVQ7EJ3C5YJ8FJVNJB8C8N36); v2 group `v2-sc-active@20260622-144622` (exp 01KVRMSAAJTRSJMFV5JT7JAP6X). Per-subject from offline re-runs (wrapper 4f29680), deduped to one run per (variant,ratio,seed). Report run: https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu
+
+## Result 3 — bootstrap CIs on the scaling shape (resample 149 held-out mice ×1000)
+Within-cohort increments (paired across D on the same resampled mice) are tight even though
+absolute per-D levels are not (mice vary in predictability). Per-mouse-mean LL (equal-weight),
+distinct from the trial-weighted aggregate above.
+
+| quantity | v1 (SC off) | v2 (SC on) |
+|---|---|---|
+| frac of total gain by D=100 | 0.90 [0.89, 0.91] | 0.85 [0.84, 0.87] |
+| late gain D=100→614 | +0.00049 [+0.00042, +0.00056] | +0.00092 [+0.00084, +0.00100] |
+
+Both late-gain CIs **exclude 0** → not perfectly saturated; a small real slope persists (≈2× larger
+under SC). Power-law fit degenerate (Dc→0) → no clean exponent; curve is "fast early rise + shallow
+continued slope". **Read:** ~85–90% of the data benefit is captured by ~100 mice; the residual is
+statistically real but economically marginal — consistent with per-trial choice LL being near a
+predictability ceiling. See FUTURE_DIRECTIONS.md for the axes (few-shot, N×D, OOD) that can show
+foundation-model scaling with more headroom.
