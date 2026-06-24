@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """N x D joint scaling analysis.
 
-Pulls held-out-mouse eval likelihood for the N x D joint grid from W&B:\n  * N (hidden_size) in {16, 64, 256} x D in {10, 100, 614} x seed in {0,1,2}
-    from group nxd-grid@20260623-102649 (27 runs)
-  * N=128 column at D in {10, 100, 614} x seed in {0,1,2}
+Pulls held-out-mouse eval likelihood for the N x D joint grid from W&B:
+  * N (hidden_size) in {16, 64, 256} x D in {10, 30, 100, 614} x seed in {0,1,2}
+    from nxd-grid groups
+  * N=128 column at D in {10, 30, 100, 614} x seed in {0,1,2}
     from group v2-sc-active@20260622-144622 (subset)
 
 Metric: aggregate `heldout/final/eval_likelihood` (single scalar per run, over the
@@ -37,9 +38,12 @@ from scipy.optimize import curve_fit
 from scipy import stats
 
 PROJECT = "AIND-disRNN/mice_data_scaling"
-NXD_GROUP = "nxd-grid@20260623-102649"
+NXD_GROUPS = [
+    "nxd-grid@20260623-102649",
+    "nxd-grid@20260624-141106",
+]
 H128_GROUP = "v2-sc-active@20260622-144622"
-RATIO_D = {0.016: 10, 0.163: 100, 1.0: 614}
+RATIO_D = {0.016: 10, 0.049: 30, 0.163: 100, 1.0: 614}
 TARGET_RATIOS = sorted(RATIO_D.keys())
 TARGET_HS = [16, 64, 128, 256]
 OUTDIR = Path(__file__).parent
@@ -59,10 +63,11 @@ def collect():
     """Return cell[(N, D)][seed] = aggregate heldout/final/eval_likelihood."""
     api = wandb.Api()
     runs = []
-    for grp in (NXD_GROUP, H128_GROUP):
+    groups = [*NXD_GROUPS, H128_GROUP]
+    for grp in groups:
         runs.extend(api.runs(PROJECT, filters={"group": grp}))
     runs = [r for r in runs if r.state == "finished"]
-    print(f"  found {len(runs)} finished runs across {NXD_GROUP} + {H128_GROUP}")
+    print(f"  found {len(runs)} finished runs across {', '.join(groups)}")
 
     by_cell = {}
     for r in runs:
@@ -77,7 +82,8 @@ def collect():
         if prior is None or str(getattr(r, "created_at", "")) > str(getattr(prior, "created_at", "")):
             by_cell[key] = r
 
-    print(f"  unique (N, D, seed) cells: {len(by_cell)} (target 36 = 4x3x3)")
+    target = len(TARGET_HS) * len(TARGET_RATIOS) * 3
+    print(f"  unique (N, D, seed) cells: {len(by_cell)} (target {target} = 4x{len(TARGET_RATIOS)}x3)")
 
     cell = defaultdict(dict)
     no_scalar = 0
@@ -266,13 +272,25 @@ def plot(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, out_png):
 
 
 def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_scalars, out_md):
+    def d_index(D):
+        return Ds.index(D) if D in Ds else None
+
+    def val_at(row_idx, D):
+        j = d_index(D)
+        if j is None:
+            return float("nan")
+        return float(mean_grid[row_idx, j])
+
+    def fmt(v):
+        return "nan" if np.isnan(v) else f"{v:.4f}"
+
     lines = []
     lines.append("# N x D joint scaling - verdict")
     lines.append("")
     lines.append("> Independently replicated: two agents ran this scan separately and obtained "
                  "identical grid values and additive-fit parameters (E=0.729, alpha=1.19, "
-                 "beta=0.67) -- this merged analysis combines both (nonlinear AIC test + the "
-                 "log-log regression p-value below).")
+                 "beta=0.67) before the D=30 gap-fill. This merged analysis combines the "
+                 "original grid, the D=30 gap-fill, and both statistical views below.")
     lines.append("")
     lines.append(f"Grid: N (hidden_size) in {Ns} x D (#training mice) in {Ds}; 3 seeds per cell.")
     lines.append(f"Metric: aggregate `heldout/final/eval_likelihood` over the fixed held-out mouse set (~149 mice).")
@@ -281,14 +299,18 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
 
     lines.append("## Per-N gain from scaling D")
     lines.append("")
-    lines.append("| N | L(D=10) | L(D=100) | L(D=614) | delta (D100->D614) | frac of D-gain by D=100 |")
-    lines.append("|---|---|---|---|---|---|")
+    d_cols = " | ".join(f"L(D={D})" for D in Ds)
+    lines.append(f"| N | {d_cols} | delta (D100->D614) | frac of D-gain by D=100 |")
+    lines.append("|---|" + "---|" * (len(Ds) + 2))
     for i, N in enumerate(Ns):
-        l10, l100, l614 = mean_grid[i, 0], mean_grid[i, 1], mean_grid[i, 2]
+        vals = [float(mean_grid[i, j]) for j in range(len(Ds))]
+        l10, l100, l614 = val_at(i, 10), val_at(i, 100), val_at(i, 614)
         tot = l614 - l10
         late = l614 - l100
         frac = (l100 - l10) / tot if abs(tot) > 1e-9 else float("nan")
-        lines.append(f"| {N} | {l10:.4f} | {l100:.4f} | {l614:.4f} | {late:+.4f} | {frac*100:.0f}% |")
+        vstr = " | ".join(fmt(v) for v in vals)
+        frac_str = "nan" if np.isnan(frac) else f"{frac*100:.0f}%"
+        lines.append(f"| {N} | {vstr} | {late:+.4f} | {frac_str} |")
     lines.append("")
 
     lines.append("## Per-D gain from scaling N")
@@ -342,17 +364,17 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     lines.append("")
     sat_per_N = []
     for i, N in enumerate(Ns):
-        l10, l100, l614 = mean_grid[i, 0], mean_grid[i, 1], mean_grid[i, 2]
+        l10, l100, l614 = val_at(i, 10), val_at(i, 100), val_at(i, 614)
         tot = l614 - l10
         if abs(tot) < 1e-9:
             sat_per_N.append(1.0)
         else:
             sat_per_N.append((l100 - l10) / tot)
-    mean_frac_by100 = float(np.mean(sat_per_N))
+    mean_frac_by100 = float(np.nanmean(sat_per_N))
     lines.append(f"- **D saturates by ~100 across all N.** Mean fraction of total D-gain captured by D=100: **{mean_frac_by100*100:.0f}%**. Saturation persists from H=16 to H=256, so it is NOT a hidden-size artifact.")
 
-    diff_at_D614 = float(mean_grid[-1, -1] - mean_grid[0, -1])
-    diff_at_D10 = float(mean_grid[-1, 0] - mean_grid[0, 0])
+    diff_at_D614 = val_at(-1, 614) - val_at(0, 614)
+    diff_at_D10 = val_at(-1, 10) - val_at(0, 10)
     grows = "GROWS" if diff_at_D614 > diff_at_D10 + 0.001 else "FLAT/SHRINKS"
     lines.append(f"- **N effect at every D is small, but GROWS with D.** N={Ns[0]}->{Ns[-1]} gain: at D=10 = {diff_at_D10:+.4f}; at D=614 = {diff_at_D614:+.4f}. This IS the Chinchilla pattern (more data needs more capacity to exploit). The gap nearly doubles ({diff_at_D614/max(diff_at_D10,1e-9):.1f}x), giving qualitative support for an N x D interaction. But the absolute magnitudes are small (<0.01 nats/trial), so this isn't a 'data unlocks much-bigger models' result; it's 'with D=614 mice, hidden_size>=64 is starting to matter where at D=10 it barely did.'")
 
@@ -381,8 +403,8 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     lines.append("")
     lines.append("- `eval_likelihood` is bounded in [0, 1] (per-trial choice probability); saturation could reflect a per-trial task-noise ceiling. Generative behavioral-match (corr~0.96+) corroborates the near-ceiling claim from a 2nd metric.")
     lines.append("- H128 column re-uses `v2-sc-active` runs (same SC-active lambda-forward + gated-early-stop recipe as the other Ns in `nxd-grid`). No new H128 runs were trained for this scan.")
-    lines.append("- v2-sc-active's N=128 has 5 D points (10/30/100/300/614); only {10, 100, 614} used here for grid symmetry.")
-    lines.append("- 12 fit points vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N=256 is not warranted.")
+    lines.append("- v2-sc-active's N=128 has 5 D points (10/30/100/300/614); only {10, 30, 100, 614} used here for grid symmetry.")
+    lines.append(f"- {len(Ns) * len(Ds)} fit points vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N=256 is not warranted.")
     out_md.write_text("\n".join(lines) + "\n")
     print(f"  wrote {out_md}")
 
@@ -411,7 +433,7 @@ def main():
     print(f"  interaction term: {fit_ll['interaction']}")
 
     out = {
-        "groups": [NXD_GROUP, H128_GROUP],
+        "groups": [*NXD_GROUPS, H128_GROUP],
         "metric": "heldout/final/eval_likelihood (aggregate over held-out mice; same fixed held-out set across all cells)",
         "Ns": Ns,
         "Ds": Ds,
