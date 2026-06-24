@@ -29,4 +29,6 @@ ALL other knobs identical to `v2-sc-active`: scalar SC, lambda forward
 
 ## Status
 
-Launched 2026-06-23 ~09:23 PT. At submit: 27 jobs, 14 scheduled / 13 queued.
+Launched 2026-06-23 ~09:23 PT. At submit: 27 jobs, 14 scheduled / 13 queued. *Note*: the first launch at `092311` was cancelled at 16:34 UTC after the cheap zero/few-shot finished freeing the queue; *relaunched* as `nxd-grid@20260623-102649` (exp `01KVTRAF21E73WDWEX8MDRYM9E`).
+
+**Completed 2026-06-24 ~12:30 UTC**: 27/27 jobs OK (1 preemption auto-resumed once on task -000). All written to W&B group `nxd-grid@20260623-102649`. Analysis in `studies/data-scaling-law/analysis/nxd_scaling.{py,json}` + `fig_nxd_scaling.png` + `nxd_scaling_verdict.md`. Headline result folded into FINAL_REPORT.md as Result 7. TL;DR: D saturates at every N, weak Chinchilla-style N×D interaction (gain from N=16→256 grows from +0.004 at D=10 to +0.006 at D=614, ×1.7), single irreducible floor E≈0.729.

@@ -83,14 +83,32 @@ Tests "is SC's benefit just accounting for curriculum/early-stage heterogeneity?
 
 Large-D mean v2−v1: **+0.00128 (all-stage) → +0.00098 (mature) = ~23% shrinkage** (mature still p~1e-15). **So ~¼ of SC's benefit was the early-stage heterogeneity (the design rationale was partly real), but ~¾ persists on mature animals → SC mostly captures general session structure (within-mature drift / within-session non-stationarity), not just training stage.** (Eval-level test; models still trained all-stage. A definitive "retrain mature-only" test is deprioritized given this.)
 
+## Result 7 — N × D joint scaling grid (Chinchilla-style)
+Grid: N (hidden_size) ∈ {16, 64, 128, 256} × D ∈ {10, 100, 614} × 3 seeds (12 (N,D) cells). H128 column re-used from `v2-sc-active`. Metric: aggregate `heldout/final/eval_likelihood` across the same fixed held-out mouse set (~149 mice).
+
+Mean L grid (held-out eval likelihood):
+
+| N | D=10 | D=100 | D=614 | Δ (D100→D614) | frac of D-gain by D=100 |
+|---|---|---|---|---|---|
+| 16  | 0.7177 | 0.7220 | 0.7226 | +0.0006 | 88% |
+| 64  | 0.7218 | 0.7264 | 0.7270 | +0.0006 | 88% |
+| 128 | 0.7218 | 0.7273 | 0.7282 | +0.0009 | 85% |
+| 256 | 0.7214 | 0.7273 | 0.7290 | +0.0017 | 77% |
+
+- *D saturates by ~100 across every N tested* (mean 85% of D-gain captured by D=100). Saturation is *not* a hidden-size artifact — it persists from H=16 to H=256.
+- *N-axis gain at fixed D grows weakly with D* (Chinchilla-style interaction). N=16→256 gain: +0.0037 at D=10, +0.0064 at D=614 (×1.7). Qualitative support for an N×D synergy, but absolute magnitudes are small (<0.01 nats/trial).
+- Additive fit `L = E + A·N^{-α} + B·D^{-β}`: E≈0.729 (single irreducible floor), α≈1.19 (N), β≈0.67 (D); N-axis dominates within this grid.
+- Interaction-term fit improves AIC by 15.5 *but the C-term is degenerate with the B-term* (C ≈ −B, γ ≈ 0), so the AIC win is mostly re-parameterization. The qualitative N×D interaction is better read off the raw Δ(N=16→256) row.
+- *Verdict*: same predictability ceiling story as Result 1; with D=614 mice, hidden_size ≥ 64 is starting to matter where at D=10 it barely did, but the headroom is small. See `nxd_scaling_verdict.md` + `fig_nxd_scaling.png`.
+
 ## On effect sizes (Kevin Miller)
 LL is per-trial-normalized (NL = exp(mean_t log p_t)). A *consistent* Δ=+0.001 ≈ +0.0014 nats/trial → ~0.7 nats over a ~500-trial session → **~2× per-session likelihood ratio**, compounding across sessions/mice. So the small SC / data-scaling deltas are genuine model evidence (per-mouse pairing p~1e-24 confirms), not noise — even though the metric is headroom-poor.
 
 ## Verdict
-On **per-trial choice likelihood**, the system is **near a predictability ceiling**: a new mouse is predicted to ~99.7% of its adapted likelihood from the population mean; data-scaling rises fast then saturates by ~100 mice; per-mouse adaptation adds ~+0.002 (flat in D); SC adds a small, real, mostly-not-stage gain that grows with D. None of this *invalidates* the foundation-model idea — the effects are real and compound — but this **metric/task lacks the headroom** to demonstrate big-data scaling. The tests that could: **N×D capacity×data interaction** (in progress), and **headroom-ier targets** — 3-way output incl. ignored trials, lick/RT modeling, and OOD task/rig transfer (see `FUTURE_DIRECTIONS.md`).
+On **per-trial choice likelihood**, the system is **near a predictability ceiling**: a new mouse is predicted to ~99.7% of its adapted likelihood from the population mean; data-scaling rises fast then saturates by ~100 mice; per-mouse adaptation adds ~+0.002 (flat in D); SC adds a small, real, mostly-not-stage gain that grows with D. The **N×D joint scan (Result 7)** confirms D saturates at every N tested and the N-axis adds only a small (+0.004 to +0.006) gain that mildly grows with D — a weak Chinchilla-style interaction within this metric. None of this *invalidates* the foundation-model idea — the effects are real and compound — but this **metric/task lacks the headroom** to demonstrate big-data scaling. The tests that could: **headroom-ier targets** — 3-way output incl. ignored trials, lick/RT modeling, OOD task/rig transfer, and **fair-comparison RL baselines** (hierarchical Bayesian fit; see `FUTURE_DIRECTIONS.md`).
 
 ## Status (2026-06-23)
-Done: Results 1–6 + bootstrap + generative-validation. In progress: mature-only few-shot (crash test), mass-generative behavioral-match-vs-D, N×D grid. Deferred: mature-only retrain (B); regularized few-shot.
+Done: Results 1–6 + bootstrap + generative-validation + **N×D joint scan**. In progress: mature-only few-shot (crash test), mass-generative behavioral-match-vs-D. Deferred: mature-only retrain (B); regularized few-shot.
 
 ## Provenance
 Training variants: `v1-pretrain-phase@20260622-013415` (exp 01KVQ7EJ3C5YJ8FJVNJB8C8N36), `v2-sc-active@20260622-144622` (exp 01KVRMSAAJTRSJMFV5JT7JAP6X), `nxd-grid@20260623-102649`. Offline analyses (wrapper 4f29680 / few-shot knob bb4b052), one run/cell deduped: `heldout-rerun-*` (adapted), `heldout-zeroshot-*` (zero-shot), `heldout-rerun-*-fewshot-k*`, `heldout-rerun-*-mature2@` (mature), `generative-*`. Artifacts in `analysis/` (`*.json`, `fig_*.png`). Report run: https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu
