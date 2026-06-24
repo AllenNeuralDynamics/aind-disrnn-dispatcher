@@ -115,43 +115,10 @@ status logs, run reports, PR/commit notes), make it directly readable for the us
 
 ## 8. Study & Experiment Organization
 
-A study answers one scientific question; its many runs/conditions are *variants* of that
-question, not separate studies.
-
-- **One folder per study** under `studies/<study-name>/`. Shared tooling lives at the study
-  root (analysis scripts, reusable configs, README).
-- **Variants as subfolders:** `studies/<study>/variants/<variant-name>/`, each self-contained
-  — its `sweep.yaml`, `experiment.yaml`, a `notes.md` (what differs + result + W&B group +
-  Beaker exp id), and its launch record. Name variants descriptively (`v2-postwarmup`,
-  `hsize-scan`), not by date.
-- **One W&B project per study, one group per variant** (set the group via the sweep's
-  `name:`). This keeps every variant directly comparable side-by-side in a single project —
-  prefer this over a project-per-variant.
-- The study README carries a **Variants index** table (one row per variant: what differs,
-  status, W&B group, experiment id).
-- Spin up a **new** top-level `studies/<name>/` only for a genuinely different question
-  (different model family, metric, or task) — not for a variant of the same one.
-
-**Provenance / tracking (one launch == one "pseudo-sweep").** Every launch is uniquely
-and *readably* identifiable, with platform-native ids saved alongside for cross-ref:
-- **W&B group = `<variant>@<launch_id>`** (launch_id = Seattle timestamp). Distinguishes
-  repeats of a variant; readable (variant → study folder, launch_id → time). `launch_id`
-  is also folded into run ids, so repeats get unique ids (and the deleted-id resync trap
-  is avoided).
-- **`meta.{study,variant,launch_id,label,note,config_hash}`** — our portable system,
-  consistent across CO / Beaker / AI1 HPC. Set by `launch_beaker_resumable.py` (derives
-  study/variant from the `studies/<study>/variants/<variant>/` path) via `DISRNN_META_*`
-  env; stamped by the wrapper's `start_wandb_run`. **`note`** is free-text "why this run
-  exists + what we want to learn", injected by either launcher's `--note` so humans and
-  agents can read a run's scientific intent straight from the W&B record (no second lookup).
-- **Platform-native ids saved next to `CO_COMPUTATION_ID`**: `BEAKER_EXPERIMENT_ID`,
-  `BEAKER_JOB_ID` (read from Beaker env by the wrapper — route-agnostic, so this works for
-  both the resumable launcher and the native `wandb agent` route), plus `wrapper_commit` /
-  `dispatcher_commit`.
-- **Both launchers** implement this identically: `launch_beaker_resumable.py` (pseudo-sweep)
-  and `launch_beaker.py` (native `wandb agent` sweep) share the helpers and both inject
-  `WANDB_RUN_GROUP` + `DISRNN_META_*`. The native route additionally has a real W&B sweep
-  as its platform-native launch id; the wrapper stamps Beaker/CO ids for both routes.
+One folder per study under `studies/<name>/`; variants as self-contained subfolders
+`variants/<variant>/`; one W&B project per study, one group per variant
+(`<variant>@<launch_id>`). A study answers one scientific question — variants are not
+separate studies. Full conventions + the provenance/`meta` scheme: **`docs/study-organization.md`**.
 
 ## 9. Merging Pull Requests
 
@@ -162,53 +129,19 @@ and is not allowed.
 
 ## 10. Beaker / AI Hub Launch & Scheduling
 
-- **ONLY submit jobs to clusters whose name contains `hub`** — the team's pools
-  (`octo-hub-onprem-h200`, `octo-hub-aws-h200`, `octo-hub-aws-l40s`, `octo.hub-*`,
-  `aihub-*`). **NEVER** submit to non-hub clusters (`aipbd-*`, `octo.ai-*`, `siti-*`,
-  `dev-*`) even when they show free capacity — they are not ours. When dodging contention,
-  pick a DIFFERENT *hub* cluster (e.g. idle `octo-hub-aws-h200` / `octo-hub-aws-l40s`), not
-  a non-hub one.
-- **Exception — `ai1/octo.ai-aws-g6e` (verified 2026-06-23).** This non-hub cluster has
-  `allowPreemptibleRestrictionExceptions: True`, so **low-priority preemptible** jobs are
-  admitted past its user-whitelist (a `{priority: low, preemptible: true}` task scheduled in
-  ~3s). It is **AWS** (reaches S3, unlike gcp) with the **same NVIDIA L40S bundle as
-  `octo-hub-aws-l40s`** (≈93 GiB + 12 CPU/GPU → size `--memory 90GiB --cpu 12` for 1 GPU);
-  4 nodes × 4 GPUs = 16 slots. Use it as **extra preemptible burst capacity for S3-backed
-  offline jobs only**, and only as `low`/preemptible — do **not** assume guaranteed slots
-  there. Other `octo.ai-*` / `aipbd-*` / `siti-*` clusters remain off-limits unless similarly
-  verified.
-
-Hard-won lessons (verified on onprem-H200 + aws-L40s, 2026-06-22):
-
-- **Priority for preemptible fan-outs: use `low`.** Low-priority preemptible jobs burst
-  onto spare idle GPUs *beyond* the workspace's unallocated-slot budget (measured ~14
-  concurrent on H200), whereas `normal`-priority preemptible jobs are **capped at the
-  unallocated budget** (8) — free physical slots will sit idle while tasks pend. Use
-  `normal` only for a single job you need to resist eviction. `autoResume` is **auto-applied**
-  to preemptible jobs — do not set it explicitly (Beaker rejects `preemptible` + `autoResume`).
-- **Guaranteed slots:** `{priority: normal, preemptible: false}` draws on the non-preemptible
-  (allocated) budget — protected indefinitely, never evicted.
-- **GPUs are bundled with host CPU/RAM.** A `memory` or `cpuCount` request exceeding **one**
-  GPU's bundle makes Beaker assign **multiple GPUs** to a `gpuCount: 1` job (L40s bundle
-  ≈ 93 GiB + 12 CPU/GPU, so `memory: 256GiB` → **3 GPUs**, starving other allocated tasks).
-  Size `memory`/`cpuCount` to one bundle on the target cluster; big-memory only where the
-  workload needs it. Check `BEAKER_ASSIGNED_GPU_COUNT` / `beaker job get` GPUS column.
-- **Budget caps ≠ physical capacity.** Tasks pending while physical slots are free ⇒ a
-  budget cap (or GPU over-assignment) is binding, not capacity.
-- **Per-task cluster/resource splits** aren't in `launch_beaker_resumable.py` (single cluster,
-  uniform resources). Render with `--no-submit`, edit `context`/`constraints.cluster`/
-  `resources` per task, then `beaker experiment create`.
-- **Validate one unit first only when something is untested** — a new cluster, a new
-  resource sizing, or a changed spec. Then check the assigned GPUs/resources on the
-  *first scheduled job* before trusting the full fan-out (catches over-assignment in one
-  step). For a routine repeat of a known-good launch, just fan out directly; don't gate
-  every launch on a one-unit probe.
+- **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
+  **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
+  — they're not ours. Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
+  preemptible** jobs (AWS, reaches S3, L40S bundle).
+- Heavy work never on the login node (see §5).
+- Scheduling detail — priority/bursting, GPU-bundle sizing (`--memory 90GiB --cpu 12` = 1 L40s
+  GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
+  **`docs/beaker-playbook.md`** (read before any non-trivial launch).
 
 ## 11. Verify Mechanisms With Data Before Asserting
 
 When explaining *why* infra/scheduling/quota behaves a certain way, **pull the actual data
-first** (`beaker experiment/job get --format json`, `cluster get`, the W&B API) and cite the
-field. Distinguish observed fact from inference — label "verified: …" vs "likely, unconfirmed:
-…". Don't present a plausible hypothesis as a conclusion, and when two variables changed at
-once, isolate them before attributing cause. (Born from this turn: several confident-but-wrong
-explanations had to be retracted — see §10.)
+first** (`beaker ... --format json`, `cluster get`, the W&B API) and cite the field. Label
+observed fact ("verified: …") vs inference ("likely, unconfirmed: …"); don't present a
+hypothesis as a conclusion; isolate variables before attributing cause. Worked examples:
+`docs/beaker-playbook.md`.
