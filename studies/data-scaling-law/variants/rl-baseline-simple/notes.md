@@ -8,10 +8,12 @@ interpretable dynamic-foraging RL model independently per subject.
 
 - **Model:** `baseline_rl` / `ForagerQLearning`, `number_of_learning_rate=1`,
   `number_of_forget_rate=1`, `choice_kernel=one_step`, `action_selection=softmax`.
-- **Fit:** one RL parameter vector per subject via differential evolution.
+- **Fit/scoring set:** directly load the reserved held-out mice with
+  `data.split=heldout`; no training-subject fit is run.
 - **Held-out scoring:** for each reserved held-out mouse, fit a fresh RL agent on
-  that mouse's held-out train sessions and score that same mouse's held-out eval
-  sessions (`eval_every_n=2`, every second ordered session is eval).
+  that mouse's train sessions and score that same mouse's eval sessions
+  (`eval_every_n=2`, every second ordered session is eval). In W&B this direct
+  run reports the aggregate as `eval_likelihood`.
 - **What it tests:** whether the GRU beats a stable per-mouse cognitive model on
   the same held-out scoring sessions.
 - **What it does not test:** whether more training mice improve a population
@@ -26,12 +28,11 @@ from its train sessions, and score its eval sessions.
 ## Sweep
 
 `sweep.yaml` runs one optimizer seed. Differential evolution is stable enough
-for this reference that the default launch should not spend three full held-out
-refits; add seeds `[1, 2]` only as an optional stability check if the first run
-looks suspicious. It fixes `data.subject_ratio=0.016`
-only to keep the required training-subject fit small; the reported reference is
-`heldout/eval_likelihood`, produced by held-out re-fit on the fixed reserved
-held-out cohort.
+for this reference that the default launch should not spend three full fits; add
+seeds `[1, 2]` only as an optional stability check if the first run looks
+suspicious. It uses `data.split=heldout` and
+`model.heldout_refit.enabled=false`, so the main baseline-RL fit is already on
+the fixed reserved held-out cohort.
 
 Parallelism is CPU-only:
 
@@ -56,8 +57,8 @@ python code/launch_hpc.py \
   --mode cpu \
   --sbatch-extra="--array=0-0 --nodes=1 --cpus-per-task=112 --mem=400G --time=24:00:00 --constraint=cpu" \
   --agent-count 1 \
-  --label simple-rl \
-  --note "independent per-subject RL reference: fit fresh RL params per held-out mouse train sessions; score held-out eval sessions; horizontal baseline, not D-scaling"
+  --label simple-rl-bari-l1f1-ck1 \
+  --note "Bari L1F1_CK1 independent per-subject RL reference: directly fit reserved held-out mice train sessions; score held-out eval sessions; horizontal baseline, not D-scaling"
 ```
 
 The launcher creates the W&B sweep in
