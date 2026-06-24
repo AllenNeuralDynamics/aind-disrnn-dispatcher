@@ -87,6 +87,7 @@ def _render_experiment(experiment_file: str, sweep_id: str, group: str, meta_env
     managed = {
         "WANDB_RUN_GROUP", "DISRNN_META_STUDY", "DISRNN_META_VARIANT",
         "DISRNN_META_LAUNCH_ID", "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL",
+        "DISRNN_META_NOTE",
     }
     for task in spec.get("tasks", []):
         env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
@@ -149,6 +150,8 @@ def main() -> None:
                         "(default: /results, the Code Ocean mount). Set this to run outside CO.")
     p.add_argument("--label", default=None,
                    help="optional human label for this launch (stamped to W&B meta.label)")
+    p.add_argument("--note", default=None,
+                   help="free-text background + what we want to learn (stamped to W&B meta.note)")
     args = p.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -168,6 +171,8 @@ def main() -> None:
     ]
     if args.label:
         meta_env.append({"name": "DISRNN_META_LABEL", "value": args.label})
+    if args.note:
+        meta_env.append({"name": "DISRNN_META_NOTE", "value": args.note})
     print(f"[launch_beaker] study={study} variant={variant} launch_id={launch_id} "
           f"group={group} config_hash={config_hash}")
 

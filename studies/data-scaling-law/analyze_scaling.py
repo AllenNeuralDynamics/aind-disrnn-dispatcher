@@ -3,7 +3,7 @@
 
 Pulls the study's runs from W&B (project mice_data_scaling), uses the ACTUAL number
 of training subjects (len(resolved_subject_ids)) as x, the held-out generalization
-likelihood as y, averages over seeds, fits L = E + (Dc/D)^alpha, and writes a CSV
+likelihood as y, averages over seeds, fits L = L_inf - A * D^-alpha, and writes a CSV
 (always) plus a PNG (if matplotlib is available).
 
 Runs are grouped by **variant** (config `meta.variant`, e.g. v1-pretrain-phase,
@@ -33,6 +33,8 @@ Y_HISTORY_KEYS = ["heldout/eval_likelihood", "checkpoint/heldout_test_likelihood
 
 def _subject_count(run) -> int | None:
     rs = run.config.get("resolved_subject_ids")
+    if rs is None and isinstance(run.config.get("data"), dict):
+        rs = run.config["data"].get("resolved_subject_ids")
     return len(rs) if isinstance(rs, list) else None
 
 
@@ -64,6 +66,8 @@ def main() -> None:
     ap.add_argument("--project", default="AIND-disRNN/mice_data_scaling")
     ap.add_argument("--variant", default=None,
                     help="restrict to one variant (matches config meta.variant); default: all")
+    ap.add_argument("--group-prefix", action="append", default=None,
+                    help="optional W&B group prefix filter; repeat for multiple prefixes")
     ap.add_argument("--out", default=str(Path(__file__).parent))
     args = ap.parse_args()
 
@@ -73,17 +77,21 @@ def main() -> None:
         if run.state != "finished":
             continue
         variant = _variant(run)
+        group = run.group or ""
+        if args.group_prefix and not any(group.startswith(p) for p in args.group_prefix):
+            continue
         if args.variant and variant != args.variant:
             continue
         d = _subject_count(run)
         y = _heldout_value(run)
         if d is None or y is None:
             continue
+        data_cfg = run.config.get("data") if isinstance(run.config.get("data"), dict) else {}
         rows.append({
             "variant": variant,
             "launch_id": _meta(run, "launch_id") or "",
-            "group": run.group or "",
-            "run": run.id, "D": d, "seed": run.config.get("seed"),
+            "group": group,
+            "run": run.id, "D": d, "seed": run.config.get("seed", data_cfg.get("seed")),
             "heldout_likelihood": y,
         })
 
@@ -115,13 +123,22 @@ def main() -> None:
             import numpy as np
             from scipy.optimize import curve_fit
 
-            def model(D, E, Dc, alpha):
-                return E + (Dc / D) ** alpha
+            def model(D, L_inf, A, alpha):
+                return L_inf - A * np.power(D, -alpha)
 
             if len(Ds) >= 3:
-                popt, _ = curve_fit(model, np.array(Ds, float), np.array(means, float),
-                                    p0=[max(means), Ds[0], 0.5], maxfev=20000)
-                print(f"  fit: L = {popt[0]:.4f} + ({popt[1]:.2f}/D)^{popt[2]:.3f}")
+                y = np.array(means, float)
+                D = np.array(Ds, float)
+                span = max(float(y.max() - y.min()), 1e-6)
+                popt, _ = curve_fit(
+                    model,
+                    D,
+                    y,
+                    p0=[float(y.max() + 0.1 * span), float(span * D[0] ** 0.5), 0.5],
+                    bounds=([float(y.max()), 0.0, 0.0], [1.0, np.inf, 5.0]),
+                    maxfev=20000,
+                )
+                print(f"  fit: L = {popt[0]:.4f} - {popt[1]:.4g} * D^-{popt[2]:.3f}")
         except Exception as e:
             print(f"  (power-law fit skipped: {e})")
 

@@ -8,8 +8,10 @@ foundation-model metric is **held-out-mouse generalization vs the number of
 training mice (D)**.
 
 **Design (minimal; Kaplan/Chinchilla practice — fix N & HPs, vary one axis).**
-- Fixed: GRU `hidden_size=128`, `session_encoding_type=scalar` (session conditioning ON), `n_steps=300000`
-  (train to convergence — the 100k run was undertrained), `lr=1e-5`, `batch_size=2048`.
+- Fixed: GRU `hidden_size=128`, `session_encoding_type=scalar` (session conditioning ON),
+  `lr=1e-5`, `batch_size=2048`. Training protocol differs by variant (see Variants): v1 used
+  `n_steps=300000` but early-stopped ~40k inside pretrain (SC never engaged); v2 uses λ-forward
+  (full SC @50k) + `n_steps=150000` + gated early-stop @70k.
 - Swept (science axis): `data.subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}`
   → D ≈ {10, 30, 100, 300, ~614} training mice (scalar ratio ⇒ natural curriculum
   composition at every D).
@@ -26,6 +28,28 @@ training mice (D)**.
 
 15 runs total (5 D × 3 seeds).
 
+## Cohort sampling, seeds & nesting (verified 2026-06-23)
+
+- **One `seed` controls *both* data selection and training.** `subject_sample_seed`
+  defaults to `seed` (`mice.py`: `data_cfg.get("subject_sample_seed", data_cfg.get("seed"))`)
+  and the sweeps never set it separately — so each seed is a *different random subset of
+  mice* **and** a different training init. This is intentional: seed-averaging then captures
+  **sampling variability** (which D mice you happened to grab — the honest error bar at small
+  D), not just training noise. To make `seed` training-only, pin `data.subject_sample_seed`
+  to a constant and vary `seed`.
+- **`subject_ratio` → actual D is fuzzy** (e.g. ratio `0.049` → **29 or 30** mice depending
+  on seed). The per-curriculum sample *count* is deterministic (`round(ratio × pool)`), but a
+  selected mouse that passes the `min_sessions ≥ 10` filter (which counts *all* sessions) yet
+  **contributes no trials** after the scoped trial fetch is dropped (`mice.py:115-138`), so
+  the surviving count depends on *which* mice a seed picked. We therefore use the **actual
+  resolved D** (`len(resolved_subject_ids)`) as the x-axis, never the nominal ratio.
+- **Verified empirically (both v1 and v2):**
+  - v1 and v2 train on the **identical mouse set** in all 15 (ratio, seed) cells → the
+    held-out v1-vs-v2 comparison is matched cohorts (apples-to-apples).
+  - Cohorts are **nested across ratios** for each seed (seed0: `10⊂29⊂99⊂300⊂614`,
+    seed1: `10⊂30⊂101⊂301⊂614`, seed2: `10⊂30⊂101⊂300⊂614`) — the permutation-prefix design
+    holds, and the post-fetch drop preserves nesting (the drop is per-mouse, D-independent).
+
 ## Variants
 
 Each run/condition of this study lives in `variants/<name>/` (its own `sweep.yaml`,
@@ -37,7 +61,7 @@ side-by-side; each launch is its own group (see Provenance below).
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
-| [`v2-postwarmup`](variants/v2-postwarmup/notes.md) | train through warm-up (≥150k) so session conditioning engages | 📝 draft | `v2-postwarmup@<launch_id>` (at launch) | — |
+| [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 
@@ -63,7 +87,7 @@ Pick a variant and point the launcher at its `sweep.yaml` + `experiment.yaml`:
 ```bash
 cd <dispatcher repo>
 export PATH="$PWD/.venv/bin:$PATH"   # launcher calls bare `wandb`/`beaker`
-V=variants/v1-pretrain-phase         # or variants/v2-postwarmup, ...
+V=variants/v2-sc-active              # or variants/v1-pretrain-phase, variants/nxd-grid
 python code/launch_beaker_resumable.py \
   --sweep studies/data-scaling-law/$V/sweep.yaml \
   --experiment studies/data-scaling-law/$V/experiment.yaml \
@@ -77,8 +101,8 @@ reaches the AWS DB) and a 48 GB `octo-hub-aws-l40s`. 15 tasks ride the preemptib
 (unallocated) quota and drain in waves; preemption auto-recovers, so even the long
 large-D runs need no allocated slots.
 
-Code versions: `WRAPPER_REF=41efc09…` (study/data-scaling-law — nested sampling),
-`DISPATCHER_REF=study/data-scaling-law`.
+Code versions: pinned per variant in each `experiment.yaml` `WRAPPER_REF` (e.g. v2 uses
+`65c3350`; offline analyses use `4f29680`/`bb4b052`), `DISPATCHER_REF=study/data-scaling-law`.
 
 ## Pre-launch check
 
@@ -92,7 +116,7 @@ small curriculum; raise the smallest ratio if so).
 
 ```bash
 .venv/bin/python studies/data-scaling-law/analyze_scaling.py            # all variants
-.venv/bin/python studies/data-scaling-law/analyze_scaling.py --variant v2-postwarmup
+.venv/bin/python studies/data-scaling-law/analyze_scaling.py --variant v2-sc-active
 ```
 Writes `scaling_results.csv` (+ `scaling_curve.png` if matplotlib present): held-out
 likelihood (`heldout/eval_likelihood` / `heldout/test_likelihood`, from each run's final
@@ -129,6 +153,10 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
 
 ## Results — first run (2026-06-22)
 
+> **→ For the comprehensive, current results (v1 vs v2, zero-shot, few-shot, SC-stage verdict,
+> bootstrap CIs), see [`analysis/FINAL_REPORT.md`](analysis/FINAL_REPORT.md).** The section below is
+> the **v1 historical record** (the no-session-conditioning regime).
+
 Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36` (onprem-H200, offline W&B; 15 runs all completed,
 synced to W&B `AIND-disRNN/mice_data_scaling` as `mice-data-scaling-gru-*-r1`).
 
@@ -154,6 +182,11 @@ is most expected. **The question of whether more mice help *with* session condit
 still open.** To answer it, re-run with early stopping gated to start after warm-up (≥150k) or
 disabled, so runs train through the session-conditioning schedule.
 
+> **Resolved by v2-sc-active** (λ-forward + gated early-stop, so SC fully engages): SC active gives a
+> **small, highly-significant gain that grows with D** (+0.001→+0.0015 at D≥100, p~1e-24 per mouse),
+> ~¾ of which persists mature-only (mostly not a curriculum-stage artifact). Data-scaling still
+> **saturates by ~100 mice** even with SC. Full numbers in `analysis/FINAL_REPORT.md`.
+
 ## Early stopping (manual, consistent across D)
 
 Constant lr=1e-5, **no LR scheduler** (training is stable; scheduler = marginal gain + extra
@@ -167,6 +200,11 @@ only controls compute saved, not result quality. (Within-subject eval saturates 
 H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
 
 ## TODO / follow-ups
+
+**→ [FUTURE_DIRECTIONS.md](FUTURE_DIRECTIONS.md)** — validating the foundation-model/scaling thesis
+(per-trial LL is near a predictability ceiling, so D-alone saturating isn't conclusive):
+zero/few-shot adaptation-efficiency metrics, joint N×D (IsoFLOP) scaling, OOD task/rig transfer,
+and quantifying the current saturation.
 
 - **Hidden-size scan on the HELD-OUT metric.** Within-subject eval is flat H2→H256 (capacity-
   saturated), so model size looks irrelevant there — but capacity may matter more for
@@ -189,6 +227,26 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   `session_regularized_training._sample_batch` is **shared**, so it likely "just works" once
   `disrnn_trainer` sets `dataset_train.length_bucketing` on its train set — verify against
   disRNN's warmup/pretrain + session-reg schedule. Defer for now.
+- **Selection vs trial-validity filter mismatch.** `min_sessions≥10` (Step 2) counts *all*
+  sessions, but selection is followed by a post-fetch drop of subjects that "contribute no
+  trials" (`mice.py:115-138`) → actual D is seed-dependent (29 vs 30) and < nominal. Current
+  approach (plot actual resolved D) is scientifically fine, so this is optional. If we want a
+  deterministic ratio→D map: either (a) **filter the pool on usable-trial sessions up front**
+  (count sessions with ≥1 valid trial under the same `ignore_policy` before selection — most
+  principled, but needs a trial-level pass over all subjects), or (b) **select → drop →
+  top-up** from the next permutation-prefix subjects to hit `n_take` survivors (cheap, keeps
+  nesting). First run a diagnostic: how many subjects pass `min_sessions` but yield 0 trials?
+  If just the 1–2 we see, leave it; if many, the `min_sessions` filter is mis-specified → do (a).
+- **Use PAIRED / repeated-measures analysis (the cohorts support it).** Two free power gains:
+  (1) **v1 vs v2 (SC off/on):** every (D, seed) cell uses the *identical* mouse set, so test
+  the **15 paired differences** (v2−v1) with a paired t / Wilcoxon — cancels cell-to-cell and
+  which-mice variance, far more powerful than two independent groups of 15 (doable now from the
+  aggregate held-out LL). (2) **Across D (scaling trend):** the held-out *test* cohort is fixed
+  at every D, so each held-out mouse is measured repeatedly across D ⇒ a per-held-out-mouse
+  repeated-measures / mixed model is both more powerful and *more correct* (adjacent-D training
+  cohorts are nested, so run-level means are NOT independent — treating them as independent
+  overstates df). This needs **per-held-out-subject (or per-session) likelihoods saved**, not
+  just the run-level aggregate — small logging add for future runs.
 
 ## Status log
 
@@ -270,3 +328,8 @@ H2–H256 — a noise/feature ceiling, not capacity; see TODO.)
   cleared. Offline mode was the right mitigation regardless; the `6ede321`
   retry→offline-fallback safeguard handles any recurrence. Concurrency is not a real
   constraint for these launches.
+- 2026-06-23: **v2-sc-active complete (15/15).** v1-vs-v2 matched-pair held-out analysis done.
+  Cell-level (n=15): mean Δ(v2−v1)=+0.00074, paired t p=0.0015, Wilcoxon p=0.0043. Per-held-out-
+  mouse (offline re-runs, n=149/D): SC gain grows with D — ~0 at D≤30 (slightly hurts at D=30),
+  +0.0010 (D=100) → +0.0015 (D=614), Wilcoxon p~1e-20–1e-24. Report run:
+  https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu ; see analysis/FINAL_REPORT.md.
