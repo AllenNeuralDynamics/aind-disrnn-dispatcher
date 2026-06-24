@@ -42,7 +42,7 @@ command:
   # A single Python process pool uses one node's local CPUs; the practical
   # CPU-only-node ceiling on aind is 112 cores.
   - model.multisubject_subject_workers=112
-  - model.DE_kwargs.workers=1
+  - +model.DE_kwargs.workers=1
   - model.heldout_refit.enabled=true
   # Reduce plotting overhead; the metric comes from aggregate held-out likelihood.
   - data.heldout_example_sessions_per_subject=0
