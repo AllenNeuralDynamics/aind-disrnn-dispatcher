@@ -8,7 +8,7 @@
 #     python code/launch_hpc.py --mode gpu
 #
 # Manual use (skips lineage injection and auto AGENT_COUNT):
-#     wandb sweep code/hpc/sweeps/scaling_disrnn.yaml
+#     wandb sweep code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml
 #     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>
 #
 #SBATCH -J disrnn_wb_gpu

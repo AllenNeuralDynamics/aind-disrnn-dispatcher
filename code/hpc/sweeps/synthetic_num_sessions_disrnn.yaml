@@ -1,15 +1,15 @@
-# W&B sweep config for scaling-vs-num_sessions experiments.
+# W&B sweep config for synthetic disRNN scaling over number of sessions.
 #
 # Prefer launching via code/launch_hpc.py from the dispatcher repo root. It
 # creates the sweep from this file, injects dispatcher/wrapper git lineage into
 # each run as Hydra +meta.* overrides, and submits a SLURM array of sweep
 # agents:
 #
-#     python code/launch_hpc.py --sweep-yaml code/hpc/sweeps/scaling_disrnn.yaml --mode cpu
-#     python code/launch_hpc.py --sweep-yaml code/hpc/sweeps/scaling_disrnn.yaml --mode gpu
+#     python code/launch_hpc.py --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml --mode cpu
+#     python code/launch_hpc.py --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml --mode gpu
 #
 # Manual use (skips lineage injection and AGENT_COUNT auto-computation):
-#     wandb sweep code/hpc/sweeps/scaling_disrnn.yaml
+#     wandb sweep code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml
 #     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper code/hpc/slurm/wandb_sweep_{cpu,gpu}.slurm <SWEEP_ID>
 
 entity: AIND-disRNN  # Sweep routing: all sweep runs go to this W&B entity.
@@ -35,6 +35,10 @@ command:
   - -m
   - run_hpc
   - data=synthetic
+  # Synthetic data is not multisubject. The default disRNN config is now the
+  # multisubject mice setup, so keep this synthetic sweep explicitly
+  # single-subject.
+  - model.architecture.multisubject=false
   - data.num_trials=500
   - data/task=random_walk
   - data.task.reward_baiting=true
@@ -48,6 +52,10 @@ command:
   - model.training.n_warmup_steps=100
   - model.training.n_steps=200
   - model.training.max_grad_norm=1
+  - model.training.checkpoint_plot_split_examples_every_n=0
+  - model.training.checkpoint_log_split_examples_to_wandb=false
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.auto_heldout_finetune.enabled=false
   - "wandb.tags=[num_sessions,hpc]"
   - ${args_no_hyphens}
 

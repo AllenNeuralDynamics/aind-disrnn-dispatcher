@@ -2,7 +2,7 @@
 
 This launcher does three things:
 
-1. Reads a sweep YAML (e.g. ``code/hpc/sweeps/scaling_disrnn.yaml``).
+1. Reads a sweep YAML (e.g. ``code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml``).
 2. Injects per-run lineage fields into the sweep's ``command`` list so every
    run started by every agent records where it came from. Injected fields:
 
@@ -33,7 +33,7 @@ Notes on W&B sweep behavior:
 
 Example:
     python code/launch_hpc.py \
-        --sweep-yaml code/hpc/sweeps/scaling_disrnn.yaml \
+        --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml \
         --mode cpu \
         --sbatch-extra=--array=0-1
 """
@@ -251,7 +251,7 @@ def main() -> None:
         default=None,
         help=(
             "Path to W&B sweep YAML file. Defaults to "
-            "code/hpc/sweeps/scaling_disrnn.yaml."
+            "code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml."
         ),
     )
     parser.add_argument(
@@ -314,7 +314,7 @@ def main() -> None:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    default_sweep_yaml = repo_root / "code" / "hpc" / "sweeps" / "scaling_disrnn.yaml"
+    default_sweep_yaml = repo_root / "code" / "hpc" / "sweeps" / "synthetic_num_sessions_disrnn.yaml"
     sweep_yaml_arg = args.sweep_yaml or str(default_sweep_yaml)
     sweep_yaml = (repo_root / sweep_yaml_arg).resolve()
     if not sweep_yaml.exists():

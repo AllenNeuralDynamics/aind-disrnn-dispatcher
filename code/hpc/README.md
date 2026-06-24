@@ -58,11 +58,11 @@ Run from the dispatcher repo root:
 conda activate disrnn-cpu
 
 python code/launch_hpc.py \
-  --sweep-yaml code/hpc/sweeps/scaling_disrnn.yaml \
+  --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml \
   --mode cpu
 
 python code/launch_hpc.py \
-  --sweep-yaml code/hpc/sweeps/scaling_disrnn.yaml \
+  --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml \
   --mode gpu
 ```
 
@@ -72,8 +72,15 @@ Useful launch variants:
 # Inspect planned commands without creating a sweep or submitting SLURM jobs.
 python code/launch_hpc.py --mode gpu --dry-run
 
-# Bounded validation: one array task, one W&B agent run.
-python code/launch_hpc.py --mode gpu --sbatch-extra=--array=0-0 --agent-count 1
+# End-to-end smoke test: one tiny run on one CPU array task.
+python code/launch_hpc.py \
+  --sweep-yaml code/hpc/sweeps/synthetic_disrnn_smoke.yaml \
+  --mode cpu \
+  --sbatch-extra=--array=0-0 \
+  --agent-count 1
+
+# Bounded validation of the synthetic num-sessions sweep: one grid point.
+python code/launch_hpc.py --mode cpu --sbatch-extra=--array=0-0 --agent-count 1
 
 # Request a specific GPU tier.
 python code/launch_hpc.py --mode gpu --gpu-type a100
@@ -92,7 +99,7 @@ the W&B sweep finished after the array drains.
 Manual use skips lineage injection and `AGENT_COUNT` auto-computation:
 
 ```bash
-wandb sweep code/hpc/sweeps/scaling_disrnn.yaml
+wandb sweep code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml
 sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
   code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>
 ```
