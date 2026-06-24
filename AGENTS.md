@@ -129,6 +129,9 @@ and is not allowed.
 
 ## 10. Beaker / AI Hub Launch & Scheduling
 
+- If you trigger jobs from Allen's HPC, use the `disrnn-cpu` conda env
+  (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`), not base. Treat this as the
+  launcher/control-plane environment for `wandb`, `beaker`, and YAML tooling.
 - **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
