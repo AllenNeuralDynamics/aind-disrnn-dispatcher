@@ -110,9 +110,17 @@ def main():
     variants = ["v1", "v2"]
     Ks = [0, 1, 4]
 
-    # all-stage reference (K0,K1,K4 are indices 0,1,2 in fewshot_curve.json arrays)
+    # all-stage reference: fewshot_curve.json arrays are [K0, K1, K4, Kfull]
     allstage = json.load(open(HERE / "fewshot_curve.json"))
-    idx = {0: 0, 1: 1, 4: 2}
+    idx = {0: 0, 1: 1, 4: 2, "full": 3}
+
+    # graft the fully-adapted (K=full) MATURE point from mature_sc_verdict.json
+    # (heldout-rerun-*-mature groups): v1_mat given directly, v2_mat = v1_mat + Δ(v2-v1).
+    verdict = json.load(open(HERE / "mature_sc_verdict.json"))
+    full_mat = {}  # (variant, D) -> ll
+    for Dk, v in verdict.items():
+        full_mat[("v1", int(Dk))] = v["v1_mat"]
+        full_mat[("v2", int(Dk))] = v["v1_mat"] + v["mature_delta"]
 
     result = {"mature": {}, "k1_dip_vs_k0": {}}
     for var in variants:
@@ -122,6 +130,8 @@ def main():
                 c = cohort.get((var, D, K))
                 if c:
                     cell[str(K)] = c
+            if (var, D) in full_mat:
+                cell["full"] = {"ll": full_mat[(var, D)], "n": 117}
             result["mature"][f"{var}_D{D}"] = cell
             # K=1 dip relative to K=0, mature vs all-stage
             mk0 = cohort.get((var, D, 0)); mk1 = cohort.get((var, D, 1))
@@ -135,19 +145,23 @@ def main():
 
     json.dump(result, open(HERE / "mature_fewshot_curve.json", "w"), indent=2)
 
-    # figure: K-curve per D, mature (solid) vs all-stage (dashed), v1 & v2 panels
+    # figure: K-curve per D, mature (solid) vs all-stage (dashed), v1 & v2 panels.
+    # x positions: K0,K1,K4 evenly, then Kfull at the right end (categorical).
+    Kpts = [0, 1, 4, "full"]
+    xpos = [0, 1, 2, 3]
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.5), sharey=True)
     cmap = plt.get_cmap("viridis")
     for ax, var in zip(axes, variants):
         for i, D in enumerate(Ds):
             color = cmap(i / max(1, len(Ds) - 1))
-            mat = [cohort.get((var, D, K), {}).get("ll") for K in Ks]
-            ax.plot(Ks, mat, "o-", color=color, label=f"D~{D} mature")
+            mat = [(cohort.get((var, D, K), {}).get("ll") if K != "full"
+                    else full_mat.get((var, D))) for K in Kpts]
+            ax.plot(xpos, mat, "o-", color=color, label=f"D~{D} mature")
             ak = allstage.get(f"{var}_D{D}")
             if ak:
-                ax.plot(Ks, [ak[idx[K]] for K in Ks], "s--", color=color, alpha=0.5)
-        ax.axhline(0, color="k", lw=0.5)
-        ax.set_xticks(Ks); ax.set_xlabel("K (adaptation sessions)")
+                ax.plot(xpos, [ak[idx[K]] for K in Kpts], "s--", color=color, alpha=0.5)
+        ax.set_xticks(xpos); ax.set_xticklabels(["0", "1", "4", "full"])
+        ax.set_xlabel("K (adaptation sessions)")
         ax.set_title(f"{var} — solid=mature, dashed=all-stage")
     axes[0].set_ylabel("held-out-mouse likelihood")
     axes[1].legend(fontsize=7, ncol=2)

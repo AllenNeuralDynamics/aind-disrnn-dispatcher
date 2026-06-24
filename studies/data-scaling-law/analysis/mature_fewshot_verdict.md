@@ -38,6 +38,11 @@ Supporting features (unchanged from all-stage):
 - **v1 ≈ v2**: session conditioning doesn't rescue it → not SC-related.
 - **Full recovery by K=4** (K4 ≈ K0 in every cell, mature and all-stage): ≥4 sessions give
   the embedding enough signal to stop overfitting.
+- **K=full asymptote** (grafted from the fully-adapted mature runs, `mature_sc_verdict.json`):
+  ~0.7426→0.7482, i.e. only ~+0.002 above zero-shot — adaptation beyond the K=1 crash buys
+  very little on mature sessions. The mature curve now has the same {K0, K1, K4, Kfull}
+  points as the all-stage curve (no K=2/K=8 in either — K=2 was only an all-stage overfit
+  probe, K=8 was never run).
 
 **Practical takeaway:** report zero-shot (K0) and K≥4, and treat K=1 adapted as an unreliable
 operating point. Mature-only filtering improves but does not fix it — the fix is more
