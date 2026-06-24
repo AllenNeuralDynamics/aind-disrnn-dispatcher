@@ -22,6 +22,18 @@ S3-backed offline jobs only**, and only as `low`/preemptible — do **not** assu
 slots there. Other `octo.ai-*` / `aipbd-*` / `siti-*` clusters remain off-limits unless
 similarly verified (probe `cluster get --format json` for `allowPreemptibleRestrictionExceptions`).
 
+## Preferred Cluster Order
+
+For known-good S3-backed jobs that can run as `low`/preemptible, prefer:
+
+1. `ai1/octo.ai-aws-g6e` — first choice. It has the same L40S bundle as `octo-hub-aws-l40s`,
+   has had lots of available slots, reaches S3, and L40S has been faster than H200 for our
+   current workloads. Use only as the verified low/preemptible exception above.
+2. `ai1/octo-hub-onprem-h200` — second choice; many slots and reaches S3, good fallback for
+   jobs that need H200 memory.
+3. `ai1/octo-hub-aws-l40s` — third choice; reaches S3 and uses the same L40S class, but has
+   been more constrained than g6e.
+
 ### Cross-cloud S3 caveat
 
 gcp clusters (e.g. gcp-h100) **cannot reach AWS S3** (`aind-scratch-data.s3.amazonaws.com`

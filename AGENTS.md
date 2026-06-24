@@ -133,6 +133,9 @@ and is not allowed.
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
   preemptible** jobs (AWS, reaches S3, L40S bundle).
+- Preferred cluster order for known-good low/preemptible S3-backed jobs: `ai1/octo.ai-aws-g6e`
+  first (L40S has been faster than H200 for our current workloads and has many slots), then
+  `ai1/octo-hub-onprem-h200` (many slots), then `ai1/octo-hub-aws-l40s`.
 - Heavy work never on the login node (see §5).
 - Scheduling detail — priority/bursting, GPU-bundle sizing (`--memory 90GiB --cpu 12` = 1 L40s
   GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
