@@ -168,6 +168,15 @@ and is not allowed.
   `dev-*`) even when they show free capacity — they are not ours. When dodging contention,
   pick a DIFFERENT *hub* cluster (e.g. idle `octo-hub-aws-h200` / `octo-hub-aws-l40s`), not
   a non-hub one.
+- **Exception — `ai1/octo.ai-aws-g6e` (verified 2026-06-23).** This non-hub cluster has
+  `allowPreemptibleRestrictionExceptions: True`, so **low-priority preemptible** jobs are
+  admitted past its user-whitelist (a `{priority: low, preemptible: true}` task scheduled in
+  ~3s). It is **AWS** (reaches S3, unlike gcp) with the **same NVIDIA L40S bundle as
+  `octo-hub-aws-l40s`** (≈93 GiB + 12 CPU/GPU → size `--memory 90GiB --cpu 12` for 1 GPU);
+  4 nodes × 4 GPUs = 16 slots. Use it as **extra preemptible burst capacity for S3-backed
+  offline jobs only**, and only as `low`/preemptible — do **not** assume guaranteed slots
+  there. Other `octo.ai-*` / `aipbd-*` / `siti-*` clusters remain off-limits unless similarly
+  verified.
 
 Hard-won lessons (verified on onprem-H200 + aws-L40s, 2026-06-22):
 
