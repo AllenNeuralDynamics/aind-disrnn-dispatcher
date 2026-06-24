@@ -6,6 +6,15 @@ This launcher does three things:
 2. Injects per-run lineage fields into the sweep's ``command`` list so every
    run started by every agent records where it came from. Injected fields:
 
+       +meta.study                    study name from studies/<study>/...
+       +meta.variant                  variant name from variants/<variant>/...
+       +meta.launch_id                Seattle-time launch id
+       +meta.config_hash              hash of the sweep YAML at launch
+       +meta.label                    optional human launch label
+       +meta.note                     optional launch intent / rationale
+       +meta.slurm_job_id             SLURM_JOB_ID resolved on the compute node
+       +meta.slurm_array_job_id       SLURM_ARRAY_JOB_ID resolved on the compute node
+       +meta.slurm_array_task_id      SLURM_ARRAY_TASK_ID resolved on the compute node
        +meta.dispatcher_git_commit    dispatcher SHA at launch time
        +meta.dispatcher_git_branch    dispatcher branch at launch time
        +meta.dispatcher_git_dirty     dispatcher dirty flag
@@ -20,6 +29,8 @@ This launcher does three things:
    These appear in each W&B run's config under ``meta.*`` and are filterable
    in the Runs/Sweeps UI, so any run can be traced back to the exact code
    and command that produced it without relying on a separate registry file.
+   Runs launched from ``studies/<study>/variants/<variant>/`` are also grouped
+   in W&B as ``<variant>@<launch_id>``, matching the Beaker launchers.
 
 3. Creates the sweep via ``wandb sweep`` (using a temp YAML patched with the
    lineage fields) and submits a SLURM array job of agents.
@@ -43,6 +54,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import getpass
+import hashlib
 import math
 import os
 import re
@@ -194,11 +206,38 @@ def _git_info(repo_root: Path) -> dict[str, str]:
     return {"commit": commit, "branch": branch, "dirty": dirty}
 
 
+def _seattle_launch_id() -> str:
+    """Readable, unique-per-launch id = Seattle local timestamp."""
+    return _dt.datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y%m%d-%H%M%S")
+
+
+def _study_variant(sweep_path: Path) -> tuple[str, str]:
+    """Derive (study, variant) from studies/<study>/variants/<variant>/sweep.yaml."""
+    parts = sweep_path.resolve().parts
+    study = variant = None
+    if "studies" in parts and parts.index("studies") + 1 < len(parts):
+        study = parts[parts.index("studies") + 1]
+    if "variants" in parts and parts.index("variants") + 1 < len(parts):
+        variant = parts[parts.index("variants") + 1]
+    return study or "adhoc", variant or sweep_path.stem
+
+
+def _hydra_value(value: object) -> str:
+    """Render a value for a Hydra CLI override."""
+    sval = str(value)
+    if any(c in sval for c in " =,'\"[]{}"):
+        escaped = sval.replace("'", "\\'")
+        return f"'{escaped}'"
+    return sval
+
+
 def _inject_lineage_into_command(
     sweep_cfg: dict,
     lineage: dict[str, str],
+    *,
+    group: str | None = None,
 ) -> dict:
-    """Append Hydra +meta.* overrides to the sweep 'command' list.
+    """Append Hydra provenance overrides to the sweep 'command' list.
 
     Sweep mode ignores per-run wandb.entity/project overrides, but Hydra
     overrides in the command list are still applied to each run's config,
@@ -209,12 +248,19 @@ def _inject_lineage_into_command(
         # `+meta.<key>=<value>` adds the field (won't error if missing in schema).
         # Quote values containing chars that Hydra's override parser rejects
         # (spaces, '=', commas, etc.) so they survive as plain strings.
-        sval = str(value)
-        if any(c in sval for c in " =,'\"[]{}"):
-            # Use single quotes; escape any embedded single quotes.
-            escaped = sval.replace("'", "\\'")
-            sval = f"'{escaped}'"
-        cmd.append(f"+meta.{key}={sval}")
+        cmd.append(f"+meta.{key}={_hydra_value(value)}")
+    if group:
+        # Also pass the group in config so wandb.init receives it directly.
+        cmd.append(f"+wandb.group={_hydra_value(group)}")
+    # Platform-native HPC ids are only known on the compute node. Use OmegaConf
+    # env resolvers so each run records its exact Slurm job/array coordinates.
+    cmd.extend(
+        [
+            "+meta.slurm_job_id='${oc.env:SLURM_JOB_ID,unknown}'",
+            "+meta.slurm_array_job_id='${oc.env:SLURM_ARRAY_JOB_ID,unknown}'",
+            "+meta.slurm_array_task_id='${oc.env:SLURM_ARRAY_TASK_ID,unknown}'",
+        ]
+    )
     sweep_cfg["command"] = cmd
     return sweep_cfg
 
@@ -311,6 +357,16 @@ def main() -> None:
             "code/hpc/slurm/user.env."
         ),
     )
+    parser.add_argument(
+        "--label",
+        default=None,
+        help="Optional human label for this launch (stamped to W&B meta.label).",
+    )
+    parser.add_argument(
+        "--note",
+        default=None,
+        help="Free-text background + intent (stamped to W&B meta.note).",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
@@ -382,14 +438,38 @@ def main() -> None:
                 f"({total_grid_runs}); only a subset of the grid will be sampled."
             )
 
+    study, variant = _study_variant(sweep_yaml)
+    launch_id = _seattle_launch_id()
+    config_hash = hashlib.sha1(sweep_yaml.read_bytes()).hexdigest()[:8]
+    group = f"{variant}@{launch_id}"
+    provenance_env = {
+        "WANDB_RUN_GROUP": group,
+        "DISRNN_META_STUDY": study,
+        "DISRNN_META_VARIANT": variant,
+        "DISRNN_META_LAUNCH_ID": launch_id,
+        "DISRNN_META_CONFIG_HASH": config_hash,
+    }
+
+    print(
+        f"Study provenance: study={study} variant={variant} "
+        f"launch_id={launch_id} group={group} config_hash={config_hash}"
+    )
+
     sweep_cmd = ["wandb", "sweep", str(sweep_yaml)]
     print("Running:", " ".join(shlex.quote(x) for x in sweep_cmd))
+
+    export_pairs = {
+        "AGENT_COUNT": str(computed_agent_count),
+        "WRAPPER_ROOT": str(wrapper_root),
+        **provenance_env,
+    }
+    export_arg = "ALL," + ",".join(f"{key}={value}" for key, value in export_pairs.items())
 
     if args.dry_run:
         dry_sbatch_cmd: list[str] = [
             "sbatch",
             "--export",
-            f"ALL,AGENT_COUNT={computed_agent_count},WRAPPER_ROOT={wrapper_root}",
+            export_arg,
         ]
         if args.gpu_type and args.mode == "gpu":
             dry_sbatch_cmd.extend([f"--gres=gpu:{args.gpu_type}:1"])
@@ -408,6 +488,10 @@ def main() -> None:
     wrapper_git = _git_info(wrapper_root)
     launcher_cmd = " ".join(shlex.quote(a) for a in sys.argv)
     lineage = {
+        "study": study,
+        "variant": variant,
+        "launch_id": launch_id,
+        "config_hash": config_hash,
         "dispatcher_git_commit": dispatcher_git["commit"],
         "dispatcher_git_branch": dispatcher_git["branch"],
         "dispatcher_git_dirty": dispatcher_git["dirty"],
@@ -419,6 +503,10 @@ def main() -> None:
         "launcher_cmd": launcher_cmd,
         "mode": args.mode,
     }
+    if args.label:
+        lineage["label"] = args.label
+    if args.note:
+        lineage["note"] = args.note
     sweep_cfg = yaml.safe_load(sweep_yaml.read_text())
     # Suffix the sweep display name with a Seattle-local timestamp so
     # re-launches of the same YAML don't produce indistinguishable entries
@@ -426,12 +514,9 @@ def main() -> None:
     # affects the human-readable label. If the YAML has no `name`, leave
     # it alone (let W&B assign its random codename).
     if isinstance(sweep_cfg, dict) and sweep_cfg.get("name"):
-        stamp = _dt.datetime.now(ZoneInfo("America/Los_Angeles")).strftime(
-            "%Y%m%d-%H%M%S"
-        )
-        sweep_cfg["name"] = f"{sweep_cfg['name']}-{stamp}"
+        sweep_cfg["name"] = f"{sweep_cfg['name']}-{launch_id}"
         print(f"Sweep display name: {sweep_cfg['name']}")
-    sweep_cfg = _inject_lineage_into_command(sweep_cfg, lineage)
+    sweep_cfg = _inject_lineage_into_command(sweep_cfg, lineage, group=group)
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".yaml", prefix="sweep_", delete=False
     ) as tmp:
@@ -461,7 +546,7 @@ def main() -> None:
     sbatch_cmd.extend(
         [
             "--export",
-            f"ALL,AGENT_COUNT={computed_agent_count},WRAPPER_ROOT={wrapper_root}",
+            export_arg,
         ]
     )
     if args.gpu_type:

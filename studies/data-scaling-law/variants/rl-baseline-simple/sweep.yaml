@@ -1,0 +1,58 @@
+# Variant rl-baseline-simple -- independent per-subject RL reference.
+#
+# This is a CPU-only baseline for the data-scaling study. BaselineRLTrainer fits
+# one dynamic-foraging RL agent per subject with differential evolution; held-out
+# subjects are re-fit independently on their held-out train sessions and scored on
+# their held-out eval sessions. There is no cross-mouse population fit, no
+# subject/session embedding, and no D-scaling mechanism.
+#
+# Use this as a horizontal classical-RL reference against the GRU held-out curves,
+# not as a population-model scaling baseline. Hierarchical Bayesian RL is the
+# later fair population-model counterpart.
+#
+# Launch from the dispatcher repo on Allen HPC:
+#
+#   conda activate disrnn-cpu
+#   python code/launch_hpc.py \
+#     --sweep-yaml studies/data-scaling-law/variants/rl-baseline-simple/sweep.yaml \
+#     --mode cpu \
+#     --sbatch-extra="--array=0-0 --nodes=1 --cpus-per-task=112 --mem=400G --time=24:00:00 --constraint=cpu" \
+#     --agent-count 1
+
+entity: AIND-disRNN
+project: mice_data_scaling
+name: rl-baseline-simple-independent-subject
+
+method: grid
+metric:
+  name: heldout/eval_likelihood
+  goal: maximize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=baseline_rl
+  - wandb.project=mice_data_scaling
+  # Keep the required training-subject fit small. The reported reference is the
+  # held-out re-fit under heldout/*, which does not use the training subjects.
+  - data.subject_ratio=0.016
+  # Avoid nested CPU oversubscription: parallelize over subjects, not inside DE.
+  # A single Python process pool uses one node's local CPUs; the practical
+  # CPU-only-node ceiling on aind is 112 cores.
+  - model.multisubject_subject_workers=112
+  - model.DE_kwargs.workers=1
+  - model.heldout_refit.enabled=true
+  # Reduce plotting overhead; the metric comes from aggregate held-out likelihood.
+  - data.heldout_example_sessions_per_subject=0
+  - data.train_example_sessions_per_subject=0
+  - data.eval_example_sessions_per_subject=0
+  - data.example_max_subjects=0
+  - +meta.baseline_kind=independent_per_subject_rl
+  - "wandb.tags=[hpc,cpu,mice,baseline_rl,rl-baseline-simple,data-scaling-law]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [0]

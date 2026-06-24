@@ -62,12 +62,13 @@ side-by-side; each launch is its own group (see Provenance below).
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
 | [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
+| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject dynamic-foraging RL; held-out mice re-fit and scored on the same held-out session split | ready | pending | HPC CPU, pending |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 
 Every launch is uniquely + readably identifiable, with platform-native ids saved alongside.
-Both launchers (`launch_beaker_resumable.py` and the native-sweep `launch_beaker.py`) stamp it
-identically; see `AGENTS.md` §8.
+The Beaker launchers (`launch_beaker_resumable.py`, `launch_beaker.py`) and the HPC launcher
+(`launch_hpc.py`) stamp the shared study/variant/launch metadata; see `AGENTS.md` §8.
 
 - **W&B group = `<variant>@<launch_id>`** (`launch_id` = Seattle timestamp). Distinguishes
   repeats of a variant; `launch_id` is also folded into run ids (unique per launch).
@@ -100,6 +101,9 @@ checkpoint). H128 fits both `octo-hub-onprem-h200` (template default; free slots
 reaches the AWS DB) and a 48 GB `octo-hub-aws-l40s`. 15 tasks ride the preemptible
 (unallocated) quota and drain in waves; preemption auto-recovers, so even the long
 large-D runs need no allocated slots.
+
+`rl-baseline-simple` is the exception: it is CPU-only differential-evolution RL,
+launched via `code/launch_hpc.py` on Allen HPC; see its variant notes.
 
 Code versions: pinned per variant in each `experiment.yaml` `WRAPPER_REF` (e.g. v2 uses
 `65c3350`; offline analyses use `4f29680`/`bb4b052`), `DISPATCHER_REF=study/data-scaling-law`.
