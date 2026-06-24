@@ -38,4 +38,4 @@ heldout_refit:
 seed: ${seed}
 
 # Your template for the model part of the run name
-run_name_component: baseline_rl_${.agent_class}_L${.agent_kwargs.number_of_learning_rate}F${.agent_kwargs.number_of_forget_rate}
+run_name_component: baseline_rl_${.agent_class}_L${.agent_kwargs.number_of_learning_rate}F${.agent_kwargs.number_of_forget_rate}_CK1
