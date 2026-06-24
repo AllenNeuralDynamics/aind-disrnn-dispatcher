@@ -7,6 +7,7 @@ _target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
 
 architecture:
   multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # run_hpc overrides to <run>/outputs
 multisubject_subject_workers: 6  # Number of subjects to fit concurrently in multisubject mode
 # multisubject fitting only goes through the process pool when multisubject_subject_workers > 1
 # Agent class from aind_dynamic_foraging_models.generative_model
