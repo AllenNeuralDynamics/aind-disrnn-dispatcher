@@ -84,6 +84,10 @@ Tests "is SC's benefit just accounting for curriculum/early-stage heterogeneity?
 Large-D mean v2−v1: **+0.00128 (all-stage) → +0.00098 (mature) = ~23% shrinkage** (mature still p~1e-15). **So ~¼ of SC's benefit was the early-stage heterogeneity (the design rationale was partly real), but ~¾ persists on mature animals → SC mostly captures general session structure (within-mature drift / within-session non-stationarity), not just training stage.** (Eval-level test; models still trained all-stage. A definitive "retrain mature-only" test is deprioritized given this.)
 
 ## Result 7 — N × D joint scaling grid (Chinchilla-style)
+![N x D joint scaling](fig_nxd_scaling.png)
+
+*Heatmap and paired slices through the N×D grid. D saturates by ~100 mice at each hidden size, while the fixed-D N gain grows modestly from D=10 to D=614.*
+
 Grid: N (hidden_size) ∈ {16, 64, 128, 256} × D ∈ {10, 100, 614} × 3 seeds (12 (N,D) cells). H128 column re-used from `v2-sc-active`. Metric: aggregate `heldout/final/eval_likelihood` across the same fixed held-out mouse set (~149 mice).
 
 Mean L grid (held-out eval likelihood):
@@ -99,7 +103,7 @@ Mean L grid (held-out eval likelihood):
 - *N-axis gain at fixed D grows weakly with D* (Chinchilla-style interaction). N=16→256 gain: +0.0037 at D=10, +0.0064 at D=614 (×1.7). Qualitative support for an N×D synergy, but absolute magnitudes are small (<0.01 nats/trial).
 - Additive fit `L = E + A·N^{-α} + B·D^{-β}`: E≈0.729 (single irreducible floor), α≈1.19 (N), β≈0.67 (D); N-axis dominates within this grid.
 - Interaction-term fit improves AIC by 15.5 *but the C-term is degenerate with the B-term* (C ≈ −B, γ ≈ 0), so the AIC win is mostly re-parameterization. The qualitative N×D interaction is better read off the raw Δ(N=16→256) row.
-- *Verdict*: same predictability ceiling story as Result 1; with D=614 mice, hidden_size ≥ 64 is starting to matter where at D=10 it barely did, but the headroom is small. See `nxd_scaling_verdict.md` + `fig_nxd_scaling.png`.
+- *Verdict*: same predictability ceiling story as Result 1; with D=614 mice, hidden_size ≥ 64 is starting to matter where at D=10 it barely did, but the headroom is small. See `nxd_scaling_verdict.md` for the fit details.
 
 ## On effect sizes (Kevin Miller)
 LL is per-trial-normalized (NL = exp(mean_t log p_t)). A *consistent* Δ=+0.001 ≈ +0.0014 nats/trial → ~0.7 nats over a ~500-trial session → **~2× per-session likelihood ratio**, compounding across sessions/mice. So the small SC / data-scaling deltas are genuine model evidence (per-mouse pairing p~1e-24 confirms), not noise — even though the metric is headroom-poor.
