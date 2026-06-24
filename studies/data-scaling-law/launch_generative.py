@@ -52,7 +52,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Pinned refs (see task context).
-WRAPPER_REF = "bb4b052e8b92cf3973e1465f3f3f804343ec4e31"  # latest wrapper
+WRAPPER_REF = "916d3b497cfa866e14d1f041d1316f70c706f6e1"  # study: partition fix + parallel stats + smaller bootstrap
 DISPATCHER_REF = "study/data-scaling-law"
 IMAGE = "han-hou/disrnn-wrapper-pck-integration"
 WANDB_PROJECT = "mice_data_scaling"
@@ -224,6 +224,10 @@ def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
                 {"name": "WANDB_RUN_GROUP", "value": group},
                 {"name": "WRAPPER_REF", "value": wrapper_ref},
                 {"name": "DISPATCHER_REF", "value": DISPATCHER_REF},
+                # Fan the 3 independent session partitions (train/eval/combined)
+                # across a spawn pool — the stats phase dominates high-D
+                # wall-clock. 3 = one worker per partition (combined is the pole).
+                {"name": "DISRNN_GENERATIVE_STATS_WORKERS", "value": "3"},
             ],
             "result": {"path": "/results"},
         })
