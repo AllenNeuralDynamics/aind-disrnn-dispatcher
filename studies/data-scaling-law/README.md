@@ -62,7 +62,7 @@ side-by-side; each launch is its own group (see Provenance below).
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
 | [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
-| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; directly fits reserved held-out mice and scores their eval sessions | ready | pending | HPC CPU, pending |
+| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; skips train fit and scores reserved held-out mice under `heldout/*` | ready | pending | HPC CPU, pending |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 
@@ -103,8 +103,8 @@ reaches the AWS DB) and a 48 GB `octo-hub-aws-l40s`. 15 tasks ride the preemptib
 large-D runs need no allocated slots.
 
 `rl-baseline-simple` is the exception: it is CPU-only differential-evolution RL
-run directly on the reserved held-out cohort, launched via `code/launch_hpc.py`
-on Allen HPC; see its variant notes.
+that skips the training-subject fit and fits only the reserved held-out cohort,
+launched via `code/launch_hpc.py` on Allen HPC; see its variant notes.
 
 Code versions: pinned per variant in each `experiment.yaml` `WRAPPER_REF` (e.g. v2 uses
 `65c3350`; offline analyses use `4f29680`/`bb4b052`), `DISPATCHER_REF=study/data-scaling-law`.

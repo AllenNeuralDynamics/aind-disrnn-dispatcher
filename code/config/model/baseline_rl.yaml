@@ -31,9 +31,11 @@ clamp_params: {}
 # Differential evolution optimizer settings
 DE_kwargs:
   polish: true
-# Auto-refit on held-out subjects after the main fit
+# Auto-refit on held-out subjects. Set skip_train_fit=true for held-out-only
+# baselines that should preserve heldout/* metrics without a training-subject fit.
 heldout_refit:
   enabled: true
+  skip_train_fit: false
 
 seed: ${seed}
 

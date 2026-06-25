@@ -8,12 +8,12 @@ interpretable dynamic-foraging RL model independently per subject.
 
 - **Model:** `baseline_rl` / `ForagerQLearning`, `number_of_learning_rate=1`,
   `number_of_forget_rate=1`, `choice_kernel=one_step`, `action_selection=softmax`.
-- **Fit/scoring set:** directly load the reserved held-out mice with
-  `data.split=heldout`; no training-subject fit is run.
+- **Fit/scoring set:** use the normal mice config but set
+  `model.heldout_refit.skip_train_fit=true`; no training-subject fit is run.
 - **Held-out scoring:** for each reserved held-out mouse, fit a fresh RL agent on
   that mouse's train sessions and score that same mouse's eval sessions
-  (`eval_every_n=2`, every second ordered session is eval). In W&B this direct
-  run reports the aggregate as `eval_likelihood`.
+  (`eval_every_n=2`, every second ordered session is eval). In W&B this reports
+  the aggregate as `heldout/eval_likelihood`, matching the GRU namespace.
 - **What it tests:** whether the GRU beats a stable per-mouse cognitive model on
   the same held-out scoring sessions.
 - **What it does not test:** whether more training mice improve a population
@@ -30,9 +30,9 @@ from its train sessions, and score its eval sessions.
 `sweep.yaml` runs one optimizer seed. Differential evolution is stable enough
 for this reference that the default launch should not spend three full fits; add
 seeds `[1, 2]` only as an optional stability check if the first run looks
-suspicious. It uses `data.split=heldout` and
-`model.heldout_refit.enabled=false`, so the main baseline-RL fit is already on
-the fixed reserved held-out cohort.
+suspicious. It uses `model.heldout_refit.skip_train_fit=true`, so the main
+training-subject fit is skipped and only the fixed reserved held-out cohort is
+fit/scored under `heldout/*`.
 
 Parallelism is CPU-only:
 
