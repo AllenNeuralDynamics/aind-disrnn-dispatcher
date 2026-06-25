@@ -1,4 +1,18 @@
 {
+  "_meta": {
+    "produced_by": "analysis/rl_baseline.py",
+    "produced_at_pt": "2026-06-25T01:54:53-07:00",
+    "dispatcher_git_sha": "c3b299cbeda210cdc1e40eeb91f5dcf7d504fe29",
+    "wandb_groups": [
+      "heldout-rerun-v1-retry@20260623-011405",
+      "heldout-rerun-v1-retry@20260623-011406",
+      "heldout-rerun-v1@20260623-004601",
+      "heldout-rerun-v1@20260623-005608",
+      "heldout-rerun-v2-retry@20260623-065818",
+      "heldout-rerun-v2@20260623-053951",
+      "rl-baseline-simple@20260624-171829"
+    ]
+  },
   "rl": {
     "run_id": "cdq292n5",
     "run_url": "https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5",

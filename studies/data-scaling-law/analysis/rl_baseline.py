@@ -39,6 +39,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from _meta import build_meta
+
 # Presentation styling: large fonts, ticks style (no top/right spines after despine).
 sns.set_theme(style="ticks", context="talk", font_scale=1.05)
 plt.rcParams.update({
@@ -111,6 +113,14 @@ def pull_rl(api):
     print(f"  RL: n={rl['n_subjects']} mice, pooled={rl['pooled_likelihood_trial_weighted']:.4f}, "
           f"per-subj mean={rl['per_subject_mean_likelihood']:.4f}")
     return rl
+
+
+def list_gru_groups(api):
+    """Enumerate GRU W&B groups matching GRU_PREFIXES (cheap metadata-only pass;
+    needed for `_meta.wandb_groups` even when the per-subject pull is cached)."""
+    groups = {r.group for r in api.runs(PROJECT)
+              if any((r.group or "").startswith(p) for p in GRU_PREFIXES)}
+    return sorted(g for g in groups if g)
 
 
 def pull_gru_per_subject(api):
@@ -500,8 +510,15 @@ def main():
               f"meanΔ={s['mean_delta']:+.5f} frac_GRU>RL={s['frac_gru_wins']:.2%} "
               f"Wilcoxon p={s['wilcoxon_p']:.2e}")
 
-    json.dump({"rl": rl, "gru_vs_rl_paired": paired},
-              open(HERE / "rl_baseline.json", "w"), indent=2)
+    out = {
+        "_meta": build_meta(
+            "analysis/rl_baseline.py",
+            [*list_gru_groups(api), rl["group"]],
+        ),
+        "rl": rl,
+        "gru_vs_rl_paired": paired,
+    }
+    json.dump(out, open(HERE / "rl_baseline.json", "w"), indent=2)
     print(f"\nwrote rl_baseline.json")
 
     write_verdict(rl, paired, HERE / "rl_baseline_verdict.md")
