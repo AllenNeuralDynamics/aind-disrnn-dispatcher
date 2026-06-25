@@ -6,12 +6,14 @@ per-subject data (one run per variant,ratio,seed). Run with the wrapper venv."""
 from __future__ import annotations
 import json
 from collections import defaultdict
+from pathlib import Path
 import numpy as np
 import wandb
 from scipy.optimize import curve_fit
 
 from _meta import build_meta
 
+HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
 PREFIXES = ("heldout-rerun-v1@", "heldout-rerun-v1-retry@", "heldout-rerun-v2@", "heldout-rerun-v2-retry@")
 RATIO_D = {0.016:10, 0.049:30, 0.163:100, 0.489:300, 1.0:614}
@@ -80,7 +82,7 @@ def main():
             "powerlaw_E":{"mean":float(np.mean(boots["E"])) if boots["E"] else None,"CI":ci(boots["E"]) if boots["E"] else None},
             "powerlaw_alpha":{"mean":float(np.mean(boots["alpha"])) if boots["alpha"] else None,"CI":ci(boots["alpha"]) if boots["alpha"] else None},
         }
-    json.dump(res, open("studies/data-scaling-law/analysis/bootstrap_scaling.json","w"), indent=2)
+    json.dump(res, open(HERE / "bootstrap_scaling.json","w"), indent=2)
     for var in ("v1","v2"):
         v=res["variants"][var]
         print(f"\n=== {var} (n={len(common)} mice, {NBOOT} boots) ===")
