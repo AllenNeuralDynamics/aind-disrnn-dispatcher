@@ -151,3 +151,14 @@ first** (`beaker ... --format json`, `cluster get`, the W&B API) and cite the fi
 observed fact ("verified: …") vs inference ("likely, unconfirmed: …"); don't present a
 hypothesis as a conclusion; isolate variables before attributing cause. Worked examples:
 `docs/beaker-playbook.md`.
+
+## 12. Post-hoc Analysis & Reporting
+
+Reports are code: committed, regenerable, one producer per artifact. Every analysis JSON
+carries a `_meta` block; every report file under `studies/<study>/analysis/reports/r*.md`
+has YAML frontmatter (`id`, `status`, `wandb_groups`, `inputs`, `reproduce`) and uses
+`<!-- BEGIN result-N -->` / `<!-- END result-N -->` markers around any region a script
+regenerates. W&B pull caches are `.gitignore`'d. Full conventions — folder layout, file
+contracts, `Makefile` convention, enforcement layers (pre-commit + CI), multi-agent
+collaboration rules, open questions: **`docs/posthoc-analysis.md`** (target spec; current
+`studies/data-scaling-law/` is mid-migration).
