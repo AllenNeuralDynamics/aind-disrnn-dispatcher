@@ -22,6 +22,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from _meta import build_meta
+
 HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
 # K-level -> group prefixes (variant folded in). Match by prefix; dedup by created_at
@@ -54,10 +56,12 @@ def collect():
     api = wandb.Api()
     # rows: (variant, D, K, seed, subject, ll)
     rows = []
+    groups_seen = set()
     for K, prefixes in KLEVELS.items():
         runs = [r for r in api.runs(PROJECT)
                 if any((r.group or "").startswith(p) for p in prefixes)
                 and r.state == "finished"]
+        groups_seen.update(r.group for r in runs if r.group)
         # dedup to one run per (variant, ratio, seed) — newest wins
         by_cell = {}
         for r in runs:
@@ -82,7 +86,7 @@ def collect():
                 rows.append(dict(variant=var, D=DLAB.get(ratio, ratio), ratio=ratio,
                                  K=K, seed=seed, subject=str(row["heldout_subject_id"]),
                                  ll=float(row["eval_likelihood"])))
-    return rows
+    return rows, sorted(groups_seen)
 
 
 def cohort_means(rows):
@@ -103,7 +107,7 @@ def cohort_means(rows):
 
 
 def main():
-    rows = collect()
+    rows, groups = collect()
     print(f"collected {len(rows)} per-subject rows")
     cohort = cohort_means(rows)
     Ds = sorted({k[1] for k in cohort})
@@ -122,7 +126,11 @@ def main():
         full_mat[("v1", int(Dk))] = v["v1_mat"]
         full_mat[("v2", int(Dk))] = v["v1_mat"] + v["mature_delta"]
 
-    result = {"mature": {}, "k1_dip_vs_k0": {}}
+    result = {
+        "_meta": build_meta("analysis/mature_fewshot_curve.py", groups),
+        "mature": {},
+        "k1_dip_vs_k0": {},
+    }
     for var in variants:
         for D in Ds:
             cell = {}
