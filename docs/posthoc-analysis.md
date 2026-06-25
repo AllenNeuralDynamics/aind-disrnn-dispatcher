@@ -136,7 +136,6 @@ Every JSON written by an analysis script carries an opening `_meta`:
     "produced_by": "analysis/nxd_scaling.py",
     "produced_at_pt": "2026-06-24T23:30:00-07:00",
     "dispatcher_git_sha": "<sha>",
-    "studies_git_sha": "<sha>",
     "wandb_groups": ["nxd-grid@20260624-141106", "..."]
   },
   "...": "actual data"
@@ -144,8 +143,6 @@ Every JSON written by an analysis script carries an opening `_meta`:
 ```
 
 - Times stamped in `America/Los_Angeles` per AGENTS.md §7.
-- `studies_git_sha` exists once the studies/ split lands; until then, only
-  `dispatcher_git_sha`.
 - The check script verifies `_meta.produced_by` is a real path that exists in the repo.
 
 ## `launch_record_<label>/results.md` contract
@@ -166,9 +163,8 @@ Written **once** after the launch group settles — a short stub a human can rea
 - Notes: <anything non-obvious — preemption count, retries, oddities>
 ```
 
-The check script enforces presence of `results.md` in any `launch_record_*/` whose W&B
-group has at least one finished run. Backfill scope (just active launches vs all historical
-records) is **open** — see Open Questions.
+The check script enforces presence of `results.md` in any `launch_record*/` whose W&B
+group has at least one finished run.
 
 ## Makefile convention
 
@@ -218,7 +214,7 @@ caches — they are committed.
 - Every `studies/*/analysis/reports/r*.md` has valid frontmatter with required keys.
 - Every `<!-- BEGIN result-N -->` has a matching `<!-- END result-N -->`.
 - Every `studies/*/analysis/*.json` (other than caches) has `_meta` with required keys.
-- Every `launch_record_*/` with finished W&B runs has a `results.md`.
+- Every `launch_record*/` with finished W&B runs has a `results.md`.
 - `_meta.produced_by` points to a real path.
 - No two analysis scripts write the same figure path (grep for `savefig`).
 - Cache patterns are present in `.gitignore`.
@@ -238,21 +234,6 @@ These are the social contracts that make multi-LLM + multi-human work survivable
   regen is a checkpoint of "what the report said at this commit").
 - **State assumptions in the PR body** when changing what a report claims; cite the W&B
   group(s) that justify the change.
-
-## Open questions
-
-Before this doc transitions from spec to enforced contract, decide:
-
-1. **`results.md` backfill scope.** Stub new `launch_record_*/` only, or backfill all
-   historical ones (~6 in `data-scaling-law` today)?
-2. **CI hook vs local-only.** Wire `scripts/check_analysis_artifacts.py` into GitHub
-   Actions now, or run only via `pre-commit` initially?
-3. **`pre-commit` strictness.** Hard gate (block commit on failure) or warning-only for a
-   ramp-up period?
-4. **Repo split timing.** Adopt these conventions in the current monorepo first, then
-   split to `aind-disrnn-studies` — or do the split as the migration vehicle?
-5. **`studies_git_sha` in `_meta`.** Add a placeholder field now (always `null` pre-split)
-   so JSON schema doesn't change later, or add only post-split?
 
 ## Related
 
