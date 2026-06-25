@@ -60,7 +60,7 @@ side-by-side; each launch is its own group (see Provenance below).
 
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
+| [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `mice-data-scaling-gru` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
 | [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
 | [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; skips train fit and scores reserved held-out mice under `heldout/*` | ✅ done | `rl-baseline-simple@20260624-171829` | HPC CPU, run [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5) |
 

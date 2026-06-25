@@ -5,7 +5,7 @@ status: live
 authors: [han]
 wandb_groups:
   - rl-baseline-simple@20260624-171829
-  - v1-pretrain-phase@20260622-013415
+  - mice-data-scaling-gru
   - v2-sc-active@20260622-144622
 inputs:
   script: analysis/rl_baseline.py
