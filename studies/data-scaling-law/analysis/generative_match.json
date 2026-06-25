@@ -1,4 +1,13 @@
 {
+  "_meta": {
+    "produced_by": "analysis/generative_match.py",
+    "produced_at_pt": "2026-06-25T02:06:38-07:00",
+    "dispatcher_git_sha": "acba0c92c43460472eb9a30c4c1e42d5cacbe23f",
+    "wandb_groups": [
+      "generative-v1@20260623-180747",
+      "generative-v2@20260623-180750"
+    ]
+  },
   "v1_D10": {
     "D": 10,
     "n_seeds": 3,

@@ -22,6 +22,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from _meta import build_meta
+
 HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
 PREFIXES = ("generative-v1@", "generative-v2@")
@@ -44,6 +46,7 @@ def collect():
     api = wandb.Api()
     runs = [r for r in api.runs(PROJECT)
             if any((r.group or "").startswith(p) for p in PREFIXES) and r.state == "finished"]
+    groups = sorted({r.group for r in runs if r.group})
     by_cell = {}
     for r in runs:
         meta = r.config.get("meta", {}) or {}
@@ -66,11 +69,11 @@ def collect():
         rows.append(dict(variant=var, ratio=ratio, D=DLAB.get(ratio, ratio), seed=seed,
                          corr=float(corr), corr_overall=float(corr_o) if corr_o is not None else None,
                          rmse=math.sqrt(float(mse))))
-    return rows
+    return rows, groups
 
 
 def main():
-    rows = collect()
+    rows, groups = collect()
     print(f"collected {len(rows)} generative cells")
     # aggregate over seeds per (variant, D)
     agg = defaultdict(lambda: defaultdict(list))
@@ -82,7 +85,8 @@ def main():
         out[f"{var}_D{D}"] = dict(D=D, n_seeds=len(m["corr"]),
                                   corr_mean=float(np.mean(m["corr"])), corr_sd=float(np.std(m["corr"])),
                                   rmse_mean=float(np.mean(m["rmse"])), rmse_sd=float(np.std(m["rmse"])))
-    json.dump(out, open(HERE / "generative_match.json", "w"), indent=2)
+    json.dump({"_meta": build_meta("analysis/generative_match.py", groups), **out},
+              open(HERE / "generative_match.json", "w"), indent=2)
 
     Ds = sorted({v["D"] for v in out.values()})
     fig, (axc, axr) = plt.subplots(1, 2, figsize=(11, 4.3))
