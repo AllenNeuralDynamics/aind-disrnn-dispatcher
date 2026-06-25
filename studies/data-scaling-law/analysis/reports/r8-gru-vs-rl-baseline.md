@@ -1,0 +1,51 @@
+---
+id: r8
+slug: gru-vs-rl-baseline
+status: live
+authors: [han]
+wandb_groups:
+  - rl-baseline-simple@20260624-171829
+  - v1-pretrain-phase@20260622-013415
+  - v2-sc-active@20260622-144622
+inputs:
+  script: analysis/rl_baseline.py
+  data: analysis/rl_baseline.json
+  figure: analysis/fig_rl_paired.png
+  related_outputs:
+    - analysis/rl_baseline_verdict.md
+reproduce: python studies/data-scaling-law/analysis/rl_baseline.py
+---
+
+# Result 8 — paired GRU vs per-mouse RL on the same 149 held-out mice
+
+![paired GRU vs RL](../fig_rl_paired.png)
+
+RL reference: classical Bari Q-learning (`ForagerQLearning` L1F1_CK1 — 1 learn-rate, 1 forget-rate, 1-step choice kernel, softmax), one differential-evolution fit per held-out mouse on its train sessions, scored on its eval sessions. Same fixed n=149 cohort and eval sessions as the GRU (1.01M eval trials). Group `rl-baseline-simple@20260624-171829`, run `cdq292n5`. Aggregates: trial-weighted pooled LL **0.7143**, per-subject mean **0.7211** ± 0.0052 SE, median 0.7305. Per-curriculum (n=149): Uncoupled Baiting 71 (0.725), None 32 (0.683), Mixed 27 (0.733), Uncoupled Without Baiting 17 (0.773), Coupled Baiting 2 (0.613) — RL underperforms most on `None` (early-stage, less structured behavior).
+
+Paired GRU mean (over 3 seeds) minus per-mouse RL, per (variant, D):
+
+| variant | D | GRU mean | RL mean | meanΔ (GRU−RL) | %GRU wins | Wilcoxon p |
+|---|---|---|---|---|---|---|
+| v1 | 10  | 0.7285 | 0.7211 | +0.00738 | 97% | 9.0e-26 |
+| v1 | 30  | 0.7316 | 0.7211 | +0.01045 | 100% | 3.4e-26 |
+| v1 | 100 | 0.7328 | 0.7211 | +0.01166 | 100% | 3.4e-26 |
+| v1 | 300 | 0.7332 | 0.7211 | +0.01206 | 100% | 3.4e-26 |
+| v1 | 614 | 0.7333 | 0.7211 | +0.01214 | 100% | 3.4e-26 |
+| v2 | 10  | 0.7285 | 0.7211 | +0.00731 | 97% | 9.8e-26 |
+| v2 | 30  | 0.7315 | 0.7211 | +0.01035 | 100% | 3.4e-26 |
+| v2 | 100 | 0.7338 | 0.7211 | +0.01268 | 100% | 3.4e-26 |
+| v2 | 300 | 0.7346 | 0.7211 | +0.01342 | 100% | 3.4e-26 |
+| v2 | 614 | 0.7347 | 0.7211 | +0.01360 | 100% | 3.4e-26 |
+
+- **GRU beats per-mouse RL at every (variant, D) cell, including D=10.** A population GRU trained on as few as 10 other mice predicts a new mouse better than fitting *that same mouse's own data* with a classical Q-learner (97% of mice, p~1e-25). This is strong evidence the GRU exploits cross-mouse structure that per-mouse RL cannot.
+- **Large-D gain over RL is the dominant signal in this study.** v2 D=614 vs RL: +0.0136 per mouse (100%, p=3e-26) — **~9× the v2−v1 SC effect (+0.0015)** and **~2× the within-GRU D=10→614 gain (+0.0063)**. The population-vs-per-mouse cognitive-model gap dwarfs both session conditioning and within-GRU data scaling.
+- **SC's incremental win over RL is consistent with Result 1.** v2 D=614 beats RL by +0.0136; v1 D=614 by +0.0121 → v2 adds +0.00146 over v1, matching the matched-pair v2−v1 SC effect.
+
+**Caveats** (also in `rl_baseline_verdict.md`): (a) the RL baseline has **no D-axis** — it is a per-mouse independent fit, not a population model; this tests "GRU vs classical RL on the same data" (yes), not "does more mice help a population RL?" (deferred hierarchical-Bayesian baseline; see `FUTURE_DIRECTIONS.md`); (b) **L1F1_CK1** is the simplest agent in this family — richer agents (more learn/forget rates; `ForagerLossCounting`; `ForagerCompareThreshold`) may close part of the gap; (c) single DE optimizer seed (DE is stable; add seeds [1, 2] for a tighter check).
+
+## Related
+
+- [[r1-heldout-scaling-curve]] — matched-pair SC effect (v2−v1) referenced in the third bullet.
+- [[r4-zeroshot-vs-adapted]] — zero-shot GRU vs. RL reference at the population-embedding floor.
+- [[r7-nxd-joint-scaling-grid]] — RL band overlaid on the N × D figure.
+- `rl_baseline_verdict.md` — extended caveats.
