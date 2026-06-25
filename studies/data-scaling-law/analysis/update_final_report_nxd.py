@@ -46,7 +46,7 @@ def build_block(data: dict) -> str:
     fit_add = data["fit_additive"]
     fit_int = data["fit_interaction"]
     fit_ll = data.get("fit_loglog_interaction", {})
-    groups = ", ".join(f"`{g}`" for g in data["groups"])
+    groups = ", ".join(f"`{g}`" for g in data["_meta"]["wandb_groups"])
 
     d_cols = " | ".join(f"D={d}" for d in ds)
     align = "|---|" + "---|" * (len(ds) + 2)

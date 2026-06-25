@@ -37,6 +37,8 @@ import wandb
 from scipy.optimize import curve_fit
 from scipy import stats
 
+from _meta import build_meta
+
 PROJECT = "AIND-disRNN/mice_data_scaling"
 NXD_GROUPS = [
     "nxd-grid@20260623-102649",
@@ -433,7 +435,7 @@ def main():
     print(f"  interaction term: {fit_ll['interaction']}")
 
     out = {
-        "groups": [*NXD_GROUPS, H128_GROUP],
+        "_meta": build_meta("analysis/nxd_scaling.py", [*NXD_GROUPS, H128_GROUP]),
         "metric": "heldout/final/eval_likelihood (aggregate over held-out mice; same fixed held-out set across all cells)",
         "Ns": Ns,
         "Ds": Ds,

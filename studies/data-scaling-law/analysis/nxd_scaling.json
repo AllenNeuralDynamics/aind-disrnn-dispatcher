@@ -1,9 +1,14 @@
 {
-  "groups": [
-    "nxd-grid@20260623-102649",
-    "nxd-grid@20260624-141106",
-    "v2-sc-active@20260622-144622"
-  ],
+  "_meta": {
+    "produced_by": "analysis/nxd_scaling.py",
+    "produced_at_pt": "2026-06-25T01:49:50-07:00",
+    "dispatcher_git_sha": "a84dd1bd1f0cb925caf9140223e5bdb37c0e2cc8",
+    "wandb_groups": [
+      "nxd-grid@20260623-102649",
+      "nxd-grid@20260624-141106",
+      "v2-sc-active@20260622-144622"
+    ]
+  },
   "metric": "heldout/final/eval_likelihood (aggregate over held-out mice; same fixed held-out set across all cells)",
   "Ns": [
     16,
