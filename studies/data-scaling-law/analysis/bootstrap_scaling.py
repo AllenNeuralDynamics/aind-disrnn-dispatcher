@@ -10,6 +10,8 @@ import numpy as np
 import wandb
 from scipy.optimize import curve_fit
 
+from _meta import build_meta
+
 PROJECT = "AIND-disRNN/mice_data_scaling"
 PREFIXES = ("heldout-rerun-v1@", "heldout-rerun-v1-retry@", "heldout-rerun-v2@", "heldout-rerun-v2-retry@")
 RATIO_D = {0.016:10, 0.049:30, 0.163:100, 0.489:300, 1.0:614}
@@ -22,6 +24,7 @@ def _variant(m):
 def collect():
     api=wandb.Api()
     runs=[r for r in api.runs(PROJECT) if any((r.group or "").startswith(p) for p in PREFIXES) and r.state=="finished"]
+    groups=sorted({r.group for r in runs if r.group})
     by_cell={}
     for r in runs:
         m=r.config.get("meta",{}) or {}; var=_variant(m); ratio=m.get("source_subject_ratio"); seed=m.get("source_seed")
@@ -41,19 +44,19 @@ def collect():
     out=defaultdict(dict)
     for (var,D),subs in cell.items():
         for s,lls in subs.items(): out[(var,D)][s]=float(np.mean(lls))
-    return out
+    return out, groups
 
 def powerlaw(D,E,Dc,a): return E+(Dc/D)**a
 
 def main():
-    data=collect()
+    data, groups = collect()
     Ds=sorted({D for (_,D) in data});
     # common held-out subjects (intersection across all cells)
     subj_sets=[set(data[k]) for k in data]; common=sorted(set.intersection(*subj_sets))
     print(f"D points: {Ds}; common held-out subjects: {len(common)}")
     def curve(var, subjects):
         return np.array([np.mean([data[(var,D)][s] for s in subjects]) for D in Ds])
-    res={"Ds":Ds,"n_subjects":len(common),"nboot":NBOOT,"variants":{}}
+    res={"_meta":build_meta("analysis/bootstrap_scaling.py", groups),"Ds":Ds,"n_subjects":len(common),"nboot":NBOOT,"variants":{}}
     for var in ("v1","v2"):
         boots={"perD":[], "late_gain":[], "frac_by100":[], "alpha":[], "E":[]}
         for b in range(NBOOT):
