@@ -1,4 +1,17 @@
 {
+  "_meta": {
+    "produced_by": "analysis/build_report.py",
+    "produced_at_pt": "2026-06-25T02:00:37-07:00",
+    "dispatcher_git_sha": "52a40000fd41aa880f1180bb784258e1d47b7c25",
+    "wandb_groups": [
+      "heldout-rerun-v1-retry@20260623-011405",
+      "heldout-rerun-v1-retry@20260623-011406",
+      "heldout-rerun-v1@20260623-004601",
+      "heldout-rerun-v1@20260623-005608",
+      "heldout-rerun-v2-retry@20260623-065818",
+      "heldout-rerun-v2@20260623-053951"
+    ]
+  },
   "cell_level": {
     "n_pairs": 15,
     "mean_delta": 0.0007423679033915202,

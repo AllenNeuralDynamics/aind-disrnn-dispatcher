@@ -14,6 +14,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from _meta import build_meta
+
 HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
 # offline per-subject re-run groups (v1 + v2, incl. retries)
@@ -40,6 +42,7 @@ def collect_per_subject():
     rows = []  # variant, ratio, seed, subject, n_trials, ll
     runs = [r for r in api.runs(PROJECT)
             if any((r.group or "").startswith(p) for p in GROUP_PREFIXES) and r.state == "finished"]
+    groups = sorted({r.group for r in runs if r.group})
     # DEDUP: validation + mass-launch + retries can produce >1 offline run per
     # (variant, ratio, seed). Keep exactly one (the most recent) so seed-averaging
     # isn't skewed by double-counted cells. (The offline finetune is deterministic
@@ -73,7 +76,7 @@ def collect_per_subject():
             rows.append(dict(variant=var, ratio=round(float(ratio), 3), seed=seed,
                              subject=str(row["heldout_subject_id"]),
                              n_trials=int(row["n_trials"]), ll=float(row["eval_likelihood"])))
-    return rows
+    return rows, groups
 
 def per_subject_analysis(rows):
     # average over seeds -> (variant, ratio, subject) mean ll
@@ -124,11 +127,16 @@ def make_figures(cell, persub, mean, ratios):
 
 def main():
     cell = json.load(open(HERE/"paired_v1_v2_cell.json"))
-    rows = collect_per_subject()
+    rows, groups = collect_per_subject()
     print(f"collected {len(rows)} per-subject rows")
     persub, mean, ratios = per_subject_analysis(rows)
     figs = make_figures(cell, persub, mean, ratios)
-    json.dump({"cell_level": cell, "per_subject": persub}, open(HERE/"report_data.json","w"), indent=2)
+    out = {
+        "_meta": build_meta("analysis/build_report.py", groups),
+        "cell_level": cell,
+        "per_subject": persub,
+    }
+    json.dump(out, open(HERE/"report_data.json","w"), indent=2)
     # summary print
     print("\n=== per-subject repeated-measures (v2-v1, paired by held-out mouse, avg over seeds) ===")
     for r, s in persub["per_ratio"].items():
