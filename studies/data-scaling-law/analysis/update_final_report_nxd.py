@@ -15,7 +15,7 @@ HERE = Path(__file__).parent
 REPORT = HERE / "FINAL_REPORT.md"
 NXD_JSON = HERE / "nxd_scaling.json"
 START = "## Result 7 — N × D joint scaling grid (Chinchilla-style)"
-END = "## On effect sizes (Kevin Miller)"
+END = "## Result 8"  # next section header; bounds the Result 7 block tightly
 
 
 def _fmt(v: float) -> str:
@@ -91,7 +91,7 @@ def build_block(data: dict) -> str:
         f"- *N-axis gain at fixed D grows weakly with D* (Chinchilla-style interaction). N={ns[0]}→{ns[-1]} gain: {diff_d10:+.4f} at D=10, {diff_d614:+.4f} at D=614 ({ratio:.1f}×). Qualitative support for an N×D synergy, but absolute magnitudes are small (<0.01 nats/trial).",
         f"- Additive fit `L = E + A·N^{{-α}} + B·D^{{-β}}`: E≈{fit_add['E']:.3f} (single irreducible floor), α≈{fit_add['alpha']:.2f} (N), β≈{fit_add['beta']:.2f} (D); {'D-axis dominates' if abs(fit_add['beta']) > abs(fit_add['alpha']) else 'N-axis dominates'} within this grid.",
         f"- Interaction-term fit ΔAIC vs additive: {d_aic:+.1f}; log-log interaction p={p_text}. Treat the nonlinear interaction fit as descriptive because the grid remains small relative to the number of fit parameters.",
-        f"- *Verdict*: same predictability ceiling story as Result 1; adding D=30 fills the low-data bend but does not by itself create new headroom. See `nxd_scaling_verdict.md` for the fit details.",
+        f"- *Verdict*: same predictability ceiling story as Result 1; adding D=30 fills the low-data bend but does not by itself create new headroom. RL reference (trial-weighted pooled **0.7143**, dashed line on slice panels) sits below every (N, D) cell. See `nxd_scaling_verdict.md` for the fit details.",
         "",
         f"Source W&B groups: {groups}.",
         "",
