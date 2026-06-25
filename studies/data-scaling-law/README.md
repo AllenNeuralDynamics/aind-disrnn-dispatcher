@@ -62,7 +62,7 @@ side-by-side; each launch is its own group (see Provenance below).
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `v1-pretrain-phase@20260622-013415` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
 | [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
-| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; skips train fit and scores reserved held-out mice under `heldout/*` | ready | pending | HPC CPU, pending |
+| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; skips train fit and scores reserved held-out mice under `heldout/*` | ✅ done | `rl-baseline-simple@20260624-171829` | HPC CPU, run [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5) |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 
@@ -338,3 +338,10 @@ and quantifying the current saturation.
   mouse (offline re-runs, n=149/D): SC gain grows with D — ~0 at D≤30 (slightly hurts at D=30),
   +0.0010 (D=100) → +0.0015 (D=614), Wilcoxon p~1e-20–1e-24. Report run:
   https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu ; see analysis/FINAL_REPORT.md.
+- 2026-06-24: **rl-baseline-simple complete (1/1).** Bari L1F1_CK1, one DE fit per held-out mouse on
+  its train sessions, scored on its eval sessions. n=149, 1.01M eval trials. Trial-weighted pooled
+  LL **0.7143**; per-subject mean **0.7211** ± 0.0052 SE. **GRU beats per-mouse RL by +0.0136 at
+  v2 D=614 (100% of mice, Wilcoxon p=3e-26)** — ~9× the SC effect, ~2× the within-GRU
+  D=10→614 gain. Even v2 D=10 wins on 97% of mice. Run
+  [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5);
+  see Result 8 in analysis/FINAL_REPORT.md and analysis/rl_baseline_verdict.md.

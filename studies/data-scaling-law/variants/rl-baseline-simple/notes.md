@@ -68,4 +68,10 @@ W&B group to `<variant>@<launch_id>`, and submits CPU-only Slurm agents.
 
 ## Status
 
-Ready to launch; no runs recorded yet.
+Done (2026-06-24). Single run on Allen HPC (CPU, 112 cores, ~24h DE fit).
+
+- Launch: `rl-baseline-simple@20260624-171829`
+- Run: [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5)
+- Coverage: 149 held-out mice (1.01M eval trials)
+- Aggregates: trial-weighted pooled LL **0.7143**; per-subject mean **0.7211** ± 0.0052 SE; median 0.7305
+- GRU beats per-mouse RL by **+0.0136** at v2 D=614 (100% of mice, Wilcoxon p=3e-26); even v2 D=10 wins on 97% of mice. See [`analysis/rl_baseline_verdict.md`](../../analysis/rl_baseline_verdict.md) and Result 8 in [`analysis/FINAL_REPORT.md`](../../analysis/FINAL_REPORT.md).
