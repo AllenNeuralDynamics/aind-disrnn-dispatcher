@@ -357,7 +357,7 @@ def fig_nxd_scaling_with_rl(rl, out_png):
     se_grid = np.array(nx["se_grid"], dtype=float)
     fa = nx["fit_additive"]; fi = nx["fit_interaction"]
 
-    fig, axes = plt.subplots(1, 3, figsize=(20, 6.2))
+    fig, axes = plt.subplots(1, 3, figsize=(22, 6.2))
 
     # Panel A: heatmap (unchanged from nxd_scaling.py)
     ax = axes[0]
@@ -384,7 +384,8 @@ def fig_nxd_scaling_with_rl(rl, out_png):
     ax.set_xscale("log"); ax.set_xlabel("D (# training mice)")
     ax.set_ylabel("held-out eval_likelihood")
     ax.set_title("L vs D, per N (+ RL reference)")
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0),
+              borderaxespad=0, frameon=False, fontsize=12)
 
     # Panel C: L vs N, one line per D — plus RL band
     ax = axes[2]
@@ -396,7 +397,8 @@ def fig_nxd_scaling_with_rl(rl, out_png):
     ax.set_xscale("log"); ax.set_xlabel("N (hidden size)")
     ax.set_ylabel("held-out eval_likelihood")
     ax.set_title("L vs N, per D (+ RL reference)")
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0),
+              borderaxespad=0, frameon=False, fontsize=12)
 
     title = (f"Result 7 — N×D scaling | additive E={fa['E']:.4f} "
              f"α={fa['alpha']:.3f} β={fa['beta']:.3f} "
