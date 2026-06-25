@@ -1,3 +1,16 @@
+---
+aliases:
+  - beaker
+  - AI hub
+  - cluster playbook
+  - scheduling
+tags:
+  - convention
+  - meta
+  - launching
+  - infra
+---
+
 # Beaker / AI Hub launch & scheduling playbook
 
 Operational reference for launching jobs on Beaker (AI Hub). The terse guardrails live in
@@ -74,3 +87,11 @@ field. Distinguish observed fact from inference — label "verified: …" vs "li
 …". Don't present a plausible hypothesis as a conclusion, and when two variables changed at
 once, isolate them before attributing cause. (Born from a turn where several confident-but-wrong
 infra explanations had to be retracted.)
+
+## Related
+
+- [[study-organization]] — where launches belong in the repo (study/variant folder layout,
+  W&B group naming, the `meta` block).
+- [[posthoc-analysis]] — what to do with the artifacts after the launch completes
+  (reports, JSON `_meta`, regeneration contract).
+- [[AGENTS]] §5 (HPC execution safety), §10 (cluster allowlist), §11 (verify before asserting).

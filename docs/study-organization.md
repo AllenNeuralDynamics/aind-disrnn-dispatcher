@@ -1,3 +1,16 @@
+---
+aliases:
+  - study organization
+  - study layout
+  - variants
+  - launch provenance
+tags:
+  - convention
+  - meta
+  - launching
+  - study
+---
+
 # Study & experiment organization
 
 Conventions for organizing studies, variants, and run provenance. The one-line rule lives in
@@ -43,3 +56,11 @@ alongside for cross-ref:
   and `launch_beaker.py` (native `wandb agent` sweep) share the helpers and both inject
   `WANDB_RUN_GROUP` + `DISRNN_META_*`. The native route additionally has a real W&B sweep
   as its platform-native launch id; the wrapper stamps Beaker/CO ids for both routes.
+
+## Related
+
+- [[beaker-playbook]] — cluster selection, GPU bundle sizing, and the operational layer
+  the launchers above target.
+- [[posthoc-analysis]] — analysis & reporting conventions for the W&B groups produced by
+  the launches structured here.
+- [[AGENTS]] §8 (this section's one-line rule), §10 (Beaker launches), §12 (post-hoc analysis).
