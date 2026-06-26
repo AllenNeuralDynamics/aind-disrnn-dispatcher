@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 """Generative behavioral-match vs D (2nd-order validation).
 
-Rolls-out GRU as an agent; compares the switch-triggered behavioral curve (post-switch
-choice by reward x run-length) of model vs real mouse. Headline = subject-mean correlation
-(the corr~0.96 result) + subject-balanced RMSE, on the COMBINED session partition.
+Rolls-out GRU as an agent; compares two model-vs-animal behavioral curves on the COMBINED
+session partition:
 
-Pulls W&B groups generative-v{1,2}@... (one run per source ratio x seed), dedups to the
-newest run per (variant, ratio, seed), reads the logged combined-partition scalars, averages
-over seeds, and plots match-vs-D for v1 (SC off) and v2 (SC active). Run with the wrapper venv.
+  (1) switch-triggered: p_switch(t+1) conditioned on (reward at t) x (preceding run-length),
+      i.e. ``post_switch_by_reward_and_run_length`` -- 4 bins, the corr~0.96 headline.
+  (2) history-dependent: p_switch(t) conditioned on the previous N trials' (choice, reward)
+      pattern, for N in {1, 2, 3}, in two encodings (``abstract`` canonicalises the first
+      trial to A; ``detailed`` keeps L/R identity). N=3 abstract = 32 pattern bins.
 
-NOTE: behavioral match is logged for the COMBINED partition (all sessions). The per-partition
-train/eval breakdowns exist too but combined is the headline (largest n, most stable).
+For each (variant, D) cell we average corr / RMSE over 3 seeds. RMSE is sqrt(MSE) of the
+subject-balanced delta MSE under ``delta_significance_summary`` (per-subject mean delta,
+then MSE across subjects).
+
+Run with the wrapper venv (or any env with wandb + numpy + matplotlib). Source W&B groups:
+``generative-v{1,2}@<launch_id>`` in project ``AIND-disRNN/mice_data_scaling``.
 """
 from __future__ import annotations
 import json, math
@@ -29,12 +34,26 @@ PROJECT = "AIND-disRNN/mice_data_scaling"
 PREFIXES = ("generative-v1@", "generative-v2@")
 DLAB = {0.016: 10, 0.049: 30, 0.163: 100, 0.489: 300, 1.0: 614}
 
-# the run-length-resolved switch curve (the corr~0.96 headline stat)
+# (1) switch-triggered: run-length-resolved switch curve (the corr~0.96 headline).
 STAT = "post_switch_by_reward_and_run_length"
 K_CORR = f"combined/switch_triggered/quantitative_summary/subject_mean/{STAT}/correlation"
 K_MSE = (f"combined/switch_triggered/delta_significance_summary/{STAT}/"
          "subject_balanced_error_summary/mean_squared_error")
 K_CORR_OVERALL = "combined/switch_triggered/quantitative_summary/subject_mean/overall/correlation"
+
+# (2) history-dependent: p_switch | last N trials' (choice, reward) pattern.
+HIST_PATTERNS = ("abstract", "detailed")
+HIST_N_BACKS = (1, 2, 3)
+HIST_HEADLINE = ("abstract", 3)  # (pattern_type, n_back) shown in fig_generative_match_history.png
+
+
+def _k_hist_corr(pattern: str, n_back: int) -> str:
+    return f"combined/history_dependent/quantitative_summary/subject_mean/{pattern}/{n_back}/correlation"
+
+
+def _k_hist_mse(pattern: str, n_back: int) -> str:
+    return (f"combined/history_dependent/delta_significance_summary/{pattern}/{n_back}/"
+            "subject_balanced_error_summary/mean_squared_error")
 
 
 def _variant(meta):
@@ -66,16 +85,24 @@ def collect():
         if corr is None or mse is None:
             print(f"    [skip {r.name[:40]}] missing combined scalars")
             continue
-        rows.append(dict(variant=var, ratio=ratio, D=DLAB.get(ratio, ratio), seed=seed,
-                         corr=float(corr), corr_overall=float(corr_o) if corr_o is not None else None,
-                         rmse=math.sqrt(float(mse))))
+        row = dict(variant=var, ratio=ratio, D=DLAB.get(ratio, ratio), seed=seed,
+                   corr=float(corr), corr_overall=float(corr_o) if corr_o is not None else None,
+                   rmse=math.sqrt(float(mse)))
+        # history-dependent metric: corr + sqrt(subject-balanced MSE), per (pattern, n_back).
+        for pattern in HIST_PATTERNS:
+            for n in HIST_N_BACKS:
+                hc = s.get(_k_hist_corr(pattern, n))
+                hm = s.get(_k_hist_mse(pattern, n))
+                row[f"hist_{pattern}_n{n}_corr"] = float(hc) if hc is not None else None
+                row[f"hist_{pattern}_n{n}_rmse"] = math.sqrt(float(hm)) if hm is not None else None
+        rows.append(row)
     return rows, groups
 
 
 def main():
     rows, groups = collect()
     print(f"collected {len(rows)} generative cells")
-    # aggregate over seeds per (variant, D)
+    # (1) switch-triggered: aggregate over seeds per (variant, D).
     agg = defaultdict(lambda: defaultdict(list))
     for r in rows:
         agg[(r["variant"], r["D"])]["corr"].append(r["corr"])
@@ -85,9 +112,30 @@ def main():
         out[f"{var}_D{D}"] = dict(D=D, n_seeds=len(m["corr"]),
                                   corr_mean=float(np.mean(m["corr"])), corr_sd=float(np.std(m["corr"])),
                                   rmse_mean=float(np.mean(m["rmse"])), rmse_sd=float(np.std(m["rmse"])))
-    json.dump({"_meta": build_meta("analysis/generative_match.py", groups), **out},
+
+    # (2) history-dependent: same aggregation, nested by pattern_type / n_back.
+    hist_out: dict = {pattern: {str(n): {} for n in HIST_N_BACKS} for pattern in HIST_PATTERNS}
+    for pattern in HIST_PATTERNS:
+        for n in HIST_N_BACKS:
+            cell_agg = defaultdict(lambda: defaultdict(list))
+            for r in rows:
+                c = r.get(f"hist_{pattern}_n{n}_corr"); e = r.get(f"hist_{pattern}_n{n}_rmse")
+                if c is None or e is None:
+                    continue
+                cell_agg[(r["variant"], r["D"])]["corr"].append(c)
+                cell_agg[(r["variant"], r["D"])]["rmse"].append(e)
+            for (var, D), m in cell_agg.items():
+                hist_out[pattern][str(n)][f"{var}_D{D}"] = dict(
+                    D=D, n_seeds=len(m["corr"]),
+                    corr_mean=float(np.mean(m["corr"])), corr_sd=float(np.std(m["corr"])),
+                    rmse_mean=float(np.mean(m["rmse"])), rmse_sd=float(np.std(m["rmse"])),
+                )
+
+    json.dump({"_meta": build_meta("analysis/generative_match.py", groups),
+               **out, "history_dependent": hist_out},
               open(HERE / "generative_match.json", "w"), indent=2)
 
+    # --- figure 1: switch-triggered match vs D (unchanged) ---------------------
     Ds = sorted({v["D"] for v in out.values()})
     fig, (axc, axr) = plt.subplots(1, 2, figsize=(11, 4.3))
     for var, mk in (("v1", "o-"), ("v2", "s-")):
@@ -107,11 +155,44 @@ def main():
     axr.set_title("Generative switch-curve error vs D")
     fig.tight_layout(); fig.savefig(HERE / "fig_generative_match.png", dpi=150); plt.close(fig)
 
-    print("\n=== generative match (combined partition, switch by reward x run-length) ===")
+    # --- figure 2: history-dependent match vs D (abstract n=3 headline) --------
+    hp, hn = HIST_HEADLINE
+    cells = hist_out[hp][str(hn)]
+    Ds_h = sorted({c["D"] for c in cells.values()})
+    fig, (axc, axr) = plt.subplots(1, 2, figsize=(11, 4.3))
+    for var, mk in (("v1", "o-"), ("v2", "s-")):
+        xs = [D for D in Ds_h if f"{var}_D{D}" in cells]
+        cm = [cells[f"{var}_D{D}"]["corr_mean"] for D in xs]
+        cs = [cells[f"{var}_D{D}"]["corr_sd"] for D in xs]
+        rm = [cells[f"{var}_D{D}"]["rmse_mean"] for D in xs]
+        rs = [cells[f"{var}_D{D}"]["rmse_sd"] for D in xs]
+        lab = "v1 (SC off)" if var == "v1" else "v2 (SC active)"
+        axc.errorbar(xs, cm, yerr=cs, fmt=mk, capsize=3, label=lab)
+        axr.errorbar(xs, rm, yerr=rs, fmt=mk, capsize=3, label=lab)
+    for ax in (axc, axr):
+        ax.set_xscale("log"); ax.set_xlabel("# training mice (D)"); ax.legend()
+    axc.set_ylabel(f"subject-mean correlation ({hp} n={hn})")
+    axc.set_title(f"Generative 3-trial-back history match vs D ({hp})")
+    axr.set_ylabel(f"subject-balanced RMSE ({hp} n={hn})")
+    axr.set_title(f"Generative 3-trial-back history error vs D ({hp})")
+    fig.tight_layout(); fig.savefig(HERE / "fig_generative_match_history.png", dpi=150); plt.close(fig)
+
+    # --- console summary --------------------------------------------------------
+    print("\n=== switch-triggered (combined, post-switch by reward x run-length, 4 bins) ===")
     print(f"{'cell':>9} {'n':>2} {'corr':>8} {'rmse':>8}")
     for cell in sorted(out, key=lambda c: (c[:2], out[c]["D"])):
         v = out[cell]
         print(f"{cell:>9} {v['n_seeds']:>2} {v['corr_mean']:>8.4f} {v['rmse_mean']:>8.4f}")
+    for pattern in HIST_PATTERNS:
+        for n in HIST_N_BACKS:
+            section = hist_out[pattern][str(n)]
+            if not section:
+                continue
+            print(f"\n=== history-dependent {pattern} n_back={n} ===")
+            print(f"{'cell':>9} {'n':>2} {'corr':>8} {'rmse':>8}")
+            for cell in sorted(section, key=lambda c: (c[:2], section[c]["D"])):
+                v = section[cell]
+                print(f"{cell:>9} {v['n_seeds']:>2} {v['corr_mean']:>8.4f} {v['rmse_mean']:>8.4f}")
 
 
 if __name__ == "__main__":

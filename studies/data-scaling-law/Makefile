@@ -14,10 +14,10 @@
 # Targets that produce these figures chain rl_baseline.py last so the
 # committed PNGs end up with the overlay.
 
-.PHONY: all r1 r2 r3 r4 r5 r6 r7 r8
+.PHONY: all r1 r2 r3 r4 r5 r6 r7 r8 r9
 
 # r2 is subsumed by r1 (same producer); r6 has no committed producer.
-all: r1 r3 r4 r5 r7 r8
+all: r1 r3 r4 r5 r7 r8 r9
 
 # r1 + r2 share build_report.py (writes report_data.json, fig_scaling_v1_v2.png
 # [bare], fig_per_subject_delta.png). rl_baseline.py restores the RL overlay
@@ -50,3 +50,9 @@ r7:
 r8:
 	python analysis/rl_baseline.py
 	python analysis/update_r8.py
+
+# r9: generative behavioral-match vs D (switch-triggered + history-dependent).
+# Pulls W&B groups generative-v{1,2}@*; writes generative_match.json,
+# fig_generative_match.png, fig_generative_match_history.png.
+r9:
+	python analysis/generative_match.py
