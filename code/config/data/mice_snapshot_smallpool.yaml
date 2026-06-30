@@ -28,6 +28,10 @@ train_example_sessions_per_subject: 1
 eval_example_sessions_per_subject: 1
 example_max_subjects: 1
 
+# Pin reads to a dated database snapshot instead of the live (growing) database,
+# so the exact same sessions/subjects are selected on every run. null -> live.
+snapshot: "20260603"
+
 # ── Trial / feature processing ───────────────────────────────────────────
 mature_only: false            # all-stage trials (does NOT affect subject selection)
 curricula:
