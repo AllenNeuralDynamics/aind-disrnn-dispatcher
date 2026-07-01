@@ -29,6 +29,81 @@ Split `aind-disrnn-dispatcher` at the framework/application seam:
 Pilot: `studies/data-scaling-law/` (the only study today and the most
 standard-conformant one). Preserve per-file history via `git filter-repo`.
 
+## Should we do this now? (discussion 2026-06-30)
+
+**Current lean: not yet.** The split is a defensible long-term direction but
+premature today, and separating the *analysis* layer — not the whole `studies/`
+tree — is the sharper cut. Reasoning, from a 2-people-plus-AI project's point of
+view (don't over-engineer):
+
+- **Only one study exists.** Standing up a second repo to organize a single
+  folder pays multi-repo overhead (side-by-side clones, cross-repo PRs,
+  container entrypoint changes, a 3-way version matrix for provenance) with no
+  offsetting benefit yet. Revisit when there is a *second study* or a *second
+  contributor who only touches studies* — either gives the seam a concrete job.
+- **Package before you split.** The launch-side coupling
+  (`studies/*/variants/` → `code/` launchers) is a *shell path* (`python
+  ../aind-disrnn-dispatcher/code/launch_*.py`), not a real interface. That is
+  fragile in containers and unversioned. The clean boundary only exists once
+  `code/` is a pip-installable package the studies repo depends on with a pinned
+  version — exactly how the study already consumes the wrapper via
+  `environment.lock`. Splitting first leaves you in the fragile relative-path
+  phase indefinitely. So: **package `code/` is a prerequisite, not a non-goal**
+  (supersedes the "Non-goals" bullet below for sequencing purposes).
+
+### The analysis layer is the most-separable piece — and it is already split
+
+The "analysis" concept is *already* bisected across the two existing repos, along
+a natural axis, with **W&B as the boundary**:
+
+- **Producer (per-run, in the wrapper):**
+  `aind-disrnn-wrapper/code/post_training_analysis/` (`generative_analysis.py`,
+  `heldout_finetuning.py`, `likelihood_*`, `baseline_rl_analysis.py`,
+  `embedding_space_analysis.py`), invoked in the capsule via
+  `run_analysis.py <subcommand>` (generative / from-histories /
+  likelihood-comparison / likelihood-advantage / embedding / baseline-rl /
+  finetune). Needs the trained model + data + JAX/GPU. Writes quantitative
+  summaries into each run's **W&B summary + logged artifacts**.
+- **Consumer (cross-run, in the study):** `studies/data-scaling-law/analysis/`
+  reads those summary keys/artifacts back via `wandb.Api()`, aggregates across
+  cells (D × seed × subject), fits curves, renders `reports/r*.md`. It does
+  **not** import `post_training_analysis`; verified it has **zero references to
+  `code/`** either. Its only inbound contract is a handful of W&B key strings.
+
+So the study `analysis/` is the single most extractable component (its input is
+the cloud, keyed by group name). But it is also the most *semantically* bound to
+its study — it **is** the study's answer — so pulling it into its own repo fights
+the "a study is self-contained" principle in `study-organization.md`. Net: leave
+it in place; the fragility to fix is the *contract*, not the location.
+
+### The wrapper↔study analysis contract (measured, then hardened in place)
+
+Measured 2026-06-30: the consumer hardcodes **7 distinct W&B summary keys**; the
+key *vocabulary* has been stable in wrapper history (churn is in analysis
+internals, not key names). The real hazard was the **failure mode**: reads used
+`summary.get(key)` then `if None: continue`, so a renamed/dropped key **silently
+drops runs** — a report would shrink and its numbers shift with no error.
+
+Right-sized fixes applied (no shared schema package, no CI validator, no
+machine-readable manifest — those exceed the benefit at this scale):
+
+1. **`analysis/wandb_keys.py`** — single source of truth for the 7 keys
+   (builders + constants) plus a `require()` helper. The whole wrapper-contract
+   surface is now one greppable file to review when bumping the wrapper pin.
+2. **Loud-on-schema-break guards** — `generative_match.py` and `nxd_scaling.py`
+   still skip individual partial runs, but now `raise KeyError` if *all* cells
+   lack the required key (the rename signal), pointing at `wandb_keys.py`.
+3. **`_meta.wrapper_git_sha`** — every analysis JSON now stamps the wrapper
+   commit (read from `environment.lock`) that produced the keys, alongside
+   `dispatcher_git_sha`. Closes the producer-side provenance gap.
+
+`analysis/watch_nxd_d30.py` (a defunct one-off watcher that only presence-checks
+readiness, no report corruption risk) was intentionally left untouched.
+
+Because that contract is small (7 keys) and stable, it is genuinely fine to keep
+the analysis layer where it is; these guards make the W&B boundary safe to cross
+whether or not analysis ever becomes its own repo.
+
 ## Prerequisites (do these before executing)
 
 1. **All in-flight PRs against dispatcher must be merged first.** As of writing,
