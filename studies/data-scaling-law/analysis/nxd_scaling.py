@@ -38,6 +38,7 @@ from scipy.optimize import curve_fit
 from scipy import stats
 
 from _meta import build_meta
+from wandb_keys import HELDOUT_LL_KEYS
 
 PROJECT = "AIND-disRNN/mice_data_scaling"
 NXD_GROUPS = [
@@ -90,15 +91,18 @@ def collect():
     cell = defaultdict(dict)
     no_scalar = 0
     for (h, D, seed), r in by_cell.items():
-        s = r.summary.get("heldout/final/eval_likelihood")
-        if s is None:
-            s = r.summary.get("heldout/eval_likelihood")
+        s = next((r.summary.get(k) for k in HELDOUT_LL_KEYS if r.summary.get(k) is not None), None)
         if s is None:
             no_scalar += 1
             continue
         cell[(h, D)][seed] = float(s)
     if no_scalar:
-        print(f"  WARN: skipped {no_scalar} runs missing heldout/final/eval_likelihood")
+        print(f"  WARN: skipped {no_scalar} runs missing {HELDOUT_LL_KEYS[0]}")
+    if by_cell and no_scalar == len(by_cell):
+        raise KeyError(
+            f"all {len(by_cell)} cells missing {HELDOUT_LL_KEYS} "
+            f"(wrapper schema changed? see analysis/wandb_keys.py)"
+        )
     return cell
 
 

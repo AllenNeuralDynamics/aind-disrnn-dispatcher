@@ -28,6 +28,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from _meta import build_meta
+from wandb_keys import (SWITCH_CORR_OVERALL, hist_corr, hist_mse, switch_corr,
+                        switch_mse)
 
 HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
@@ -36,24 +38,14 @@ DLAB = {0.016: 10, 0.049: 30, 0.163: 100, 0.489: 300, 1.0: 614}
 
 # (1) switch-triggered: run-length-resolved switch curve (the corr~0.96 headline).
 STAT = "post_switch_by_reward_and_run_length"
-K_CORR = f"combined/switch_triggered/quantitative_summary/subject_mean/{STAT}/correlation"
-K_MSE = (f"combined/switch_triggered/delta_significance_summary/{STAT}/"
-         "subject_balanced_error_summary/mean_squared_error")
-K_CORR_OVERALL = "combined/switch_triggered/quantitative_summary/subject_mean/overall/correlation"
+K_CORR = switch_corr(STAT)
+K_MSE = switch_mse(STAT)
+K_CORR_OVERALL = SWITCH_CORR_OVERALL
 
 # (2) history-dependent: p_switch | last N trials' (choice, reward) pattern.
 HIST_PATTERNS = ("abstract", "detailed")
 HIST_N_BACKS = (1, 2, 3)
 HIST_HEADLINE = ("abstract", 3)  # (pattern_type, n_back) shown in fig_generative_match_history.png
-
-
-def _k_hist_corr(pattern: str, n_back: int) -> str:
-    return f"combined/history_dependent/quantitative_summary/subject_mean/{pattern}/{n_back}/correlation"
-
-
-def _k_hist_mse(pattern: str, n_back: int) -> str:
-    return (f"combined/history_dependent/delta_significance_summary/{pattern}/{n_back}/"
-            "subject_balanced_error_summary/mean_squared_error")
 
 
 def _variant(meta):
@@ -91,11 +83,18 @@ def collect():
         # history-dependent metric: corr + sqrt(subject-balanced MSE), per (pattern, n_back).
         for pattern in HIST_PATTERNS:
             for n in HIST_N_BACKS:
-                hc = s.get(_k_hist_corr(pattern, n))
-                hm = s.get(_k_hist_mse(pattern, n))
+                hc = s.get(hist_corr(pattern, n))
+                hm = s.get(hist_mse(pattern, n))
                 row[f"hist_{pattern}_n{n}_corr"] = float(hc) if hc is not None else None
                 row[f"hist_{pattern}_n{n}_rmse"] = math.sqrt(float(hm)) if hm is not None else None
         rows.append(row)
+    # All finished cells missing the required scalars means a renamed key, not
+    # a few partial runs -> fail loudly rather than emit an empty report.
+    if by_cell and not rows:
+        raise KeyError(
+            f"none of {len(by_cell)} finished generative cells carry {K_CORR!r}/"
+            f"{K_MSE!r} (wrapper schema changed? see analysis/wandb_keys.py)"
+        )
     return rows, groups
 
 
