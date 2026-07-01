@@ -10,7 +10,7 @@ tags:
 
 # Data-scaling study — results index
 
-Study cover (TL;DR, Design, Verdict, Status, Provenance): [../FINAL_REPORT.md](../FINAL_REPORT.md).
+Study cover (TL;DR, Design, Verdict, Status, Provenance): [../../README.md](../../README.md).
 
 | id | slug | status | one-line headline |
 |---|---|---|---|
@@ -44,4 +44,4 @@ These are committed artifacts without committed producers — future work to wir
 
 - [[posthoc-analysis]] — conventions used here (frontmatter, markers, _meta blocks, enforcement).
 - [[study-organization]] — folder layout for `studies/<study>/variants/<variant>/` and W&B group naming.
-- [[FINAL_REPORT]] — study-level cover.
+- [[README]] — study-level cover (`studies/data-scaling-law/README.md`).

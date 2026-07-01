@@ -28,6 +28,58 @@ training mice (D)**.
 
 15 runs total (5 D × 3 seeds).
 
+## Summary (verdict, 2026-06-24)
+
+Per-result writeups live in [`analysis/reports/`](analysis/reports/INDEX.md) (r1–r9);
+this is the study-level cover.
+
+**TL;DR.** Training on more mice improves prediction of *unseen* mice, but the gain
+**saturates by ~100 mice** and the absolute ceiling is low — per-trial L/R choice
+likelihood is near a **predictability ceiling**. Session conditioning (v2) is
+neutral-to-slightly-negative at small D, then adds a **small, highly-significant gain
+that grows with D** (robust from D≈100); ~¾ of that gain persists on mature-only
+sessions, so it's mostly *not* a curriculum-stage artifact. The population-mean
+("average mouse") already predicts a new mouse to within ~0.3% of full adaptation, so
+per-mouse few-shot adaptation is **not** where scale pays off. Effects are tiny
+per-trial but, being consistent across ~149 mice, are real evidence (a +0.001
+per-trial-normalized LL ≈ ~2× per-session likelihood ratio). **The population GRU beats
+a per-mouse classical RL baseline (Bari L1F1_CK1) by +0.0136 at D=614 (100% of mice,
+Wilcoxon p~3e-26) — ~10× the SC effect and the dominant signal in this study** (r8).
+
+**On effect sizes (Kevin Miller).** LL is per-trial-normalized (NL = exp(mean_t log p_t)).
+A *consistent* Δ=+0.001 ≈ +0.0014 nats/trial → ~0.7 nats over a ~500-trial session →
+**~2× per-session likelihood ratio**, compounding across sessions/mice — so the small
+SC / data-scaling deltas are genuine model evidence (per-mouse pairing p~1e-24), not
+noise, even though the metric is headroom-poor.
+
+**Verdict.** On **per-trial choice likelihood** the system is **near a predictability
+ceiling**: a new mouse is predicted to ~99.7% of its adapted likelihood from the
+population mean; data-scaling rises fast then saturates by ~100 mice; per-mouse
+adaptation adds ~+0.002 (flat in D); SC adds a small, real, mostly-not-stage gain that
+grows with D. The **N×D joint scan (r7)** confirms D saturates at every N and the N-axis
+adds only +0.004→+0.006 (a weak Chinchilla-style interaction). **But the GRU beats the
+per-mouse RL baseline by +0.0136 at D=614 on 100% of held-out mice (p~3e-26) — ~9× the
+SC effect (r8).** This doesn't *invalidate* the foundation-model idea (effects are real
+and compound, and the cross-mouse vs per-mouse cognitive-model gap is substantial) but
+this **metric/task lacks the headroom** to demonstrate further big-data scaling within
+the GRU. Tests that could: headroom-ier targets — 3-way output incl. ignored trials,
+lick/RT modeling, OOD task/rig transfer, and a fair-comparison population RL baseline
+(hierarchical Bayesian fit with a D-axis; see `TODO / follow-ups`).
+
+**Status (2026-06-24).** Done: r1–r6 + bootstrap + N×D joint scan (r7) + simple per-mouse
+RL baseline (r8) + generative behavioral-match vs D (r9). In progress: mature-only
+few-shot. Deferred: mature-only retrain; regularized few-shot; hierarchical-Bayesian
+population RL (the D-aware fair-comparison baseline).
+
+**Provenance.** Training variants: `mice-data-scaling-gru` (exp 01KVQ7EJ3C5YJ8FJVNJB8C8N36),
+`v2-sc-active@20260622-144622` (exp 01KVRMSAAJTRSJMFV5JT7JAP6X), `nxd-grid@20260623-102649`.
+Offline analyses (wrapper 4f29680 / few-shot knob bb4b052), one run/cell deduped:
+`heldout-rerun-*` (adapted), `heldout-zeroshot-*` (zero-shot), `heldout-rerun-*-fewshot-k*`,
+`heldout-rerun-*-mature2@` (mature), `generative-*`. RL baseline:
+`rl-baseline-simple@20260624-171829` (run `cdq292n5`, HPC CPU, 149 held-out mice, 1.01M
+eval trials). Per-arm launch breadcrumbs in [`analysis/provenance/`](analysis/provenance/).
+Report run: https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu
+
 ## Cohort sampling, seeds & nesting (verified 2026-06-23)
 
 - **One `seed` controls *both* data selection and training.** `subject_sample_seed`
@@ -159,7 +211,8 @@ python code/run_heldout_subject_finetuning.py --config configs/config_heldout_su
 ## Results — first run (2026-06-22)
 
 > **→ For the comprehensive, current results (v1 vs v2, zero-shot, few-shot, SC-stage verdict,
-> bootstrap CIs), see [`analysis/FINAL_REPORT.md`](analysis/FINAL_REPORT.md).** The section below is
+> bootstrap CIs), see the [Summary](#summary-verdict-2026-06-24) above and
+> [`analysis/reports/`](analysis/reports/INDEX.md) (r1–r9).** The section below is
 > the **v1 historical record** (the no-session-conditioning regime).
 
 Experiment `01KVQ7EJ3C5YJ8FJVNJB8C8N36` (onprem-H200, offline W&B; 15 runs all completed,
@@ -190,7 +243,7 @@ disabled, so runs train through the session-conditioning schedule.
 > **Resolved by v2-sc-active** (λ-forward + gated early-stop, so SC fully engages): SC active gives a
 > **small, highly-significant gain that grows with D** (+0.001→+0.0015 at D≥100, p~1e-24 per mouse),
 > ~¾ of which persists mature-only (mostly not a curriculum-stage artifact). Data-scaling still
-> **saturates by ~100 mice** even with SC. Full numbers in `analysis/FINAL_REPORT.md`.
+> **saturates by ~100 mice** even with SC. Full numbers in [`analysis/reports/`](analysis/reports/INDEX.md).
 
 ## Early stopping (manual, consistent across D)
 
@@ -337,11 +390,11 @@ and quantifying the current saturation.
   Cell-level (n=15): mean Δ(v2−v1)=+0.00074, paired t p=0.0015, Wilcoxon p=0.0043. Per-held-out-
   mouse (offline re-runs, n=149/D): SC gain grows with D — ~0 at D≤30 (slightly hurts at D=30),
   +0.0010 (D=100) → +0.0015 (D=614), Wilcoxon p~1e-20–1e-24. Report run:
-  https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu ; see analysis/FINAL_REPORT.md.
+  https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/0fhvwwfu ; see the Summary above.
 - 2026-06-24: **rl-baseline-simple complete (1/1).** Bari L1F1_CK1, one DE fit per held-out mouse on
   its train sessions, scored on its eval sessions. n=149, 1.01M eval trials. Trial-weighted pooled
   LL **0.7143**; per-subject mean **0.7211** ± 0.0052 SE. **GRU beats per-mouse RL by +0.0136 at
   v2 D=614 (100% of mice, Wilcoxon p=3e-26)** — ~9× the SC effect, ~2× the within-GRU
   D=10→614 gain. Even v2 D=10 wins on 97% of mice. Run
   [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5);
-  see Result 8 in analysis/FINAL_REPORT.md and analysis/rl_baseline_verdict.md.
+  see r8 in [`analysis/reports/`](analysis/reports/INDEX.md) and analysis/rl_baseline_verdict.md.

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """Build the v1-vs-v2 data-scaling held-out report: cell-level paired test (loaded),
 per-held-out-subject repeated-measures (pulled from the offline heldout-rerun W&B
-tables), figures, and FINAL_REPORT.md. Run with the wrapper venv (wandb+scipy+mpl).
+tables). Writes report_data.json + figures (feeds reports/r1, r2). Run with the
+wrapper venv (wandb+scipy+mpl).
 """
 from __future__ import annotations
 import json, math
