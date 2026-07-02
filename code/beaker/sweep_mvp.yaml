@@ -10,6 +10,12 @@
 #   data=synthetic   -> synthetic.yaml defaults to agent=rl, task=random_walk
 #   model=disrnn     -> disRNN with the default architecture/penalties/training
 #
+# model.architecture.multisubject=false: `data=synthetic` yields a single-agent
+# dataset (no per-subject dimension). disrnn.yaml defaults multisubject=true,
+# which makes _validate_multisubject_dataset_inputs reject the synthetic data
+# with "out-of-range subject ids [0, 1]". Only multisubject data configs
+# (data=mice_snapshot*) support multisubject=true.
+#
 # Create the sweep (returns a SWEEP_ID), then put it in experiment_mvp.yaml:
 #   wandb sweep code/beaker/sweep_mvp.yaml
 #
@@ -30,6 +36,7 @@ command:
   - run_hpc
   - data=synthetic
   - model=disrnn
+  - model.architecture.multisubject=false
   - "wandb.tags=[beaker,mvp]"
   - ${args_no_hyphens}
 
