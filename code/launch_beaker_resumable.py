@@ -20,6 +20,12 @@ dashboard continuity across the restart is preserved by pinning a deterministic
 Only ``method: grid`` sweeps are supported (the whole point of Option 1 — the
 trial set must be enumerable up front; there is no sweep controller to ask).
 
+Beaker submission goes through ``code/beaker_client.py`` (beaker-py) rather than the
+``beaker`` CLI, so this script runs unmodified whether invoked on Allen HPC / Code
+Ocean or from the Claude Science sandbox (Mac-based orchestration; see
+``docs/claude-science-workflow.md``) — see ``beaker_client.py``'s docstring for why
+the CLI-based version couldn't do that.
+
 Usage:
   python code/launch_beaker_resumable.py \
     --sweep code/beaker/sweep_gru_scaling.yaml \

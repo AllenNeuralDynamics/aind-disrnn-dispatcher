@@ -1,26 +1,41 @@
 """Library-only clients for W&B sweep creation and Beaker submission.
 
-Both `launch_beaker.py` and `launch_beaker_resumable.py` used to shell out to the
-`wandb` and `beaker` CLIs via `subprocess`. That made them depend on two CLI binaries
-being installed and reachable on PATH -- fine on Code Ocean / HPC (both installed by
-`environment/postInstall`), but a `wandb sweep` invocation also tries to launch a
-local `wandb-core` helper process over a Unix socket, and there is no portable way to
-install the Beaker CLI (a compiled Go binary) everywhere the dispatcher might run.
+WHY THIS MODULE EXISTS: we want ONE launcher code path
+(`launch_beaker.py` / `launch_beaker_resumable.py`) that runs unmodified on
+BOTH the Allen HPC / Code Ocean side AND the Claude Science sandbox (the Mac
+agent environment orchestrating launches per
+`docs/claude-science-workflow.md`) -- not two maintained copies. Both
+launchers used to shell out to the `wandb` and `beaker` CLIs via `subprocess`,
+which works fine on Code Ocean / HPC (both installed by
+`environment/postInstall`) but breaks the sandbox in two independent ways:
 
-This module replaces both CLI calls with their underlying HTTP/library equivalents,
-which work identically wherever Python + network access are available:
+  1. `wandb sweep <file>` spawns a local `wandb-core` helper process that binds
+     a Unix socket and writes to `~/.config/wandb` -- both blocked in the
+     Claude Science sandbox, so sweep creation fails outright there.
+  2. The `beaker` CLI is a compiled Go binary with no portable install path in
+     the sandbox (no apt/brew, no prebuilt wheel) -- it simply can't be put on
+     PATH there.
 
-  * `create_wandb_sweep` -- the same GraphQL `UpsertSweep` mutation the `wandb` CLI
-    issues under the hood (bypasses the `wandb-core` service process entirely).
+Rather than special-case the sandbox (an `if sandbox: ... else: subprocess...`
+branch, or a second sandbox-only launcher), this module swaps BOTH CLI calls
+for their underlying HTTP/library equivalents, which work identically
+everywhere Python + network access are available -- HPC, Code Ocean, and the
+sandbox alike:
+
+  * `create_wandb_sweep` -- the same GraphQL `UpsertSweep` mutation the `wandb`
+    CLI issues under the hood (bypasses the `wandb-core` service process
+    entirely, so it can't hit the socket/config-file restriction above).
   * `get_beaker_client` / `submit_beaker_experiment` -- the official `beaker-py`
-    client, which talks to the Beaker server directly over HTTPS (no CLI required).
+    client, which talks to the Beaker server directly over HTTPS (no CLI
+    binary required, so there's nothing to install).
 
-Both routes were validated end-to-end (sweep creation, Beaker submission, run
-completion) from a sandboxed environment where neither CLI binary is installable
-and local sockets/config-file writes are blocked -- see
-`docs/claude-science-workflow.md` for that context. They are unconditionally used
-here (not sandbox-specific): using them everywhere means one code path instead of
-two, and they are strictly more portable than the CLI on HPC/CO as well.
+These are used unconditionally by both launchers now, on every platform --
+not just when running in the sandbox. That is the point: one code path that
+happens to also be more portable than the CLI it replaced, rather than a
+sandbox-specific fork. Verified end-to-end (sweep creation, Beaker submission,
+run completion) from the Claude Science sandbox, where the old CLI-based code
+could not run at all -- see `docs/claude-science-workflow.md` for the broader
+Mac/HPC/Beaker architecture this fits into.
 """
 
 from __future__ import annotations

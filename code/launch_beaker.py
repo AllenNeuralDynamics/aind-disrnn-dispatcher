@@ -12,7 +12,10 @@ analog of `generate_jobs.py` for the Code Ocean compute path. Running it (the CO
   4. submit it to Beaker.
 
 Sweep creation and Beaker submission both go through code/beaker_client.py (GraphQL
-+ beaker-py) rather than the `wandb`/`beaker` CLIs — see that module's docstring.
++ beaker-py) rather than the `wandb`/`beaker` CLIs, so this SAME script runs
+unmodified whether invoked on Allen HPC / Code Ocean or from the Claude Science
+sandbox (Mac-based orchestration; see docs/claude-science-workflow.md) — see
+beaker_client.py's docstring for why the CLI-based version couldn't do that.
 
 The W&B key reaches the Beaker job via the Beaker secret referenced in the
 experiment spec (see code/beaker/README.md) — it is not handled here.
