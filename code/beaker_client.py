@@ -123,5 +123,9 @@ def submit_beaker_experiment(spec_path: str, workspace: str, name: str | None = 
 
     beaker = get_beaker_client(workspace=workspace)
     spec = ExperimentSpec.from_file(spec_path)
-    experiment = beaker.experiment.create(name, spec, workspace=workspace)
+    # Pass `name`/`workspace` as keywords only -- ExperimentClient.create()'s
+    # positional-arg parser rejects `name=None` passed positionally (it can't tell
+    # that apart from a malformed call), so `create(name, spec, ...)` breaks when
+    # name is None. `create(spec, name=name, ...)` handles None cleanly.
+    experiment = beaker.experiment.create(spec, name=name, workspace=workspace)
     return experiment.id
