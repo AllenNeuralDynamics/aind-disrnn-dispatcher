@@ -9,7 +9,10 @@ analog of `generate_jobs.py` for the Code Ocean compute path. Running it (the CO
      dispatcher commit (so the whole sweep is reproducible; CO persists /results
      under a CO_COMPUTATION_ID, which each Beaker run stamps into its W&B config),
   3. render the Beaker experiment spec with the SWEEP_ID, and
-  4. submit it with `beaker experiment create`.
+  4. submit it to Beaker.
+
+Sweep creation and Beaker submission both go through code/beaker_client.py (GraphQL
++ beaker-py) rather than the `wandb`/`beaker` CLIs — see that module's docstring.
 
 The W&B key reaches the Beaker job via the Beaker secret referenced in the
 experiment spec (see code/beaker/README.md) — it is not handled here.
@@ -24,8 +27,6 @@ Usage:
 import argparse
 import hashlib
 import json
-import os
-import re
 import shutil
 import subprocess
 import sys
@@ -39,13 +40,12 @@ import yaml
 # module guards execution behind `if __name__ == "__main__"`.
 from launch_beaker_resumable import _seattle_launch_id, _study_variant
 
+# Library-only clients (GraphQL for W&B, beaker-py for Beaker) -- no `wandb`/`beaker`
+# CLI dependency; see code/beaker_client.py docstring for why.
+from beaker_client import create_wandb_sweep, submit_beaker_experiment
+
 REPO_ROOT = Path(__file__).resolve().parent.parent  # the dispatcher capsule root (a git repo)
 RESULTS = Path("/results")
-
-# wandb is on PATH; beaker is installed to ~/.local/bin by environment/postInstall
-# and may not be on PATH in a non-login shell, so fall back to the known location.
-WANDB = shutil.which("wandb") or "wandb"
-BEAKER = shutil.which("beaker") or os.path.expanduser("~/.local/bin/beaker")
 
 
 def _git_sha(repo_dir: Path) -> str | None:
@@ -62,17 +62,19 @@ def _git_sha(repo_dir: Path) -> str | None:
 
 
 def create_sweep(sweep_file: str) -> str:
-    """Run `wandb sweep` and return the full sweep path (entity/project/id)."""
+    """Create a W&B sweep and return the full sweep path (entity/project/id).
+
+    Uses the GraphQL API directly (see beaker_client.create_wandb_sweep) rather than
+    shelling out to `wandb sweep`, which also works but spawns a local `wandb-core`
+    helper service unnecessarily for a one-shot create call.
+    """
     print(f"[launch_beaker] creating W&B sweep from {sweep_file}")
-    out = subprocess.run([WANDB, "sweep", sweep_file], capture_output=True, text=True)
-    combined = out.stdout + out.stderr
-    print(combined)
-    if out.returncode != 0:
-        sys.exit(f"[launch_beaker] `wandb sweep` failed (exit {out.returncode})")
-    m = re.search(r"wandb agent\s+(\S+)", combined)
-    if not m:
-        sys.exit("[launch_beaker] could not parse SWEEP_ID from wandb output")
-    return m.group(1)
+    try:
+        sweep_id = create_wandb_sweep(sweep_file)
+    except Exception as exc:
+        sys.exit(f"[launch_beaker] W&B sweep creation failed: {exc}")
+    print(f"[launch_beaker] SWEEP_ID = {sweep_id}")
+    return sweep_id
 
 
 def _render_experiment(experiment_file: str, sweep_id: str, group: str, meta_env: list) -> dict:
@@ -105,15 +107,12 @@ def submit_experiment(
     rendered = output_dir / "experiment_submitted.yaml"
     rendered.write_text(yaml.safe_dump(_render_experiment(experiment_file, sweep_id, group, meta_env), sort_keys=False))
     print(f"[launch_beaker] submitting {rendered.name} to {workspace}")
-    out = subprocess.run(
-        [BEAKER, "experiment", "create", "-w", workspace, str(rendered)],
-        capture_output=True, text=True,
-    )
-    print(out.stdout + out.stderr)
-    if out.returncode != 0:
-        sys.exit(f"[launch_beaker] `beaker experiment create` failed (exit {out.returncode})")
-    m = re.search(r"Experiment\s+(\S+)\s+submitted", out.stdout + out.stderr)
-    return m.group(1) if m else None
+    try:
+        experiment_id = submit_beaker_experiment(str(rendered), workspace)
+    except Exception as exc:
+        sys.exit(f"[launch_beaker] Beaker experiment submission failed: {exc}")
+    print(f"[launch_beaker] Experiment {experiment_id} submitted")
+    return experiment_id
 
 
 def save_record(

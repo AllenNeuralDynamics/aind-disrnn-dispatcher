@@ -33,7 +33,6 @@ import copy
 import hashlib
 import itertools
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -44,10 +43,12 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+# Library-only Beaker client (beaker-py) -- no `beaker` CLI dependency; see
+# code/beaker_client.py docstring for why.
+from beaker_client import submit_beaker_experiment
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RESULTS = Path("/results")
-
-BEAKER = shutil.which("beaker") or os.path.expanduser("~/.local/bin/beaker")
 
 # Stable path (per task's own /results dataset) where run_hpc anchors outputs so
 # autoResume restarts re-find their checkpoints. See run_hpc.py.
@@ -226,15 +227,12 @@ def submit(spec: dict, workspace: str, output_dir: Path) -> str | None:
     rendered = output_dir / "experiment_resumable_submitted.yaml"
     rendered.write_text(yaml.safe_dump(spec, sort_keys=False))
     print(f"[resumable] submitting {rendered.name} ({len(spec['tasks'])} tasks) to {workspace}")
-    out = subprocess.run(
-        [BEAKER, "experiment", "create", "-w", workspace, str(rendered)],
-        capture_output=True, text=True,
-    )
-    print(out.stdout + out.stderr)
-    if out.returncode != 0:
-        sys.exit(f"[resumable] `beaker experiment create` failed (exit {out.returncode})")
-    m = re.search(r"Experiment\s+(\S+)\s+submitted", out.stdout + out.stderr)
-    return m.group(1) if m else None
+    try:
+        experiment_id = submit_beaker_experiment(str(rendered), workspace)
+    except Exception as exc:
+        sys.exit(f"[resumable] Beaker experiment submission failed: {exc}")
+    print(f"[resumable] Experiment {experiment_id} submitted")
+    return experiment_id
 
 
 def save_record(sweep_file: str, experiment_id: str | None, n_tasks: int, output_dir: Path) -> None:

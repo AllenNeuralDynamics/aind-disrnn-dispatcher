@@ -20,9 +20,11 @@ RUN --mount=type=secret,id=git-access-token \
     aind-dynamic-foraging-data-utils==0.1.41 \
     aind-dynamic-foraging-models==0.13.0 \
     aind-dynamic-foraging-multisession-analysis==0.0.18 \
+    beaker-py==1.38.1 \
     hydra-core==1.3.0 \
     jax==0.6.1 \
     omegaconf==2.3.0 \
+    requests==2.34.2 \
     wandb==0.23.0 \
     -e git+https://github.com/AllenNeuralDynamics/aind-disentangled-rnns.git@a9b9978831cb22d37e2a75c15805c621dfe00b1f#egg=disentangled-rnns \
     -e git+https://github.com/AllenNeuralDynamics/aind_disrnn_utils.git@74de874d93b951d9ef3ae6bff6453e6ae805b649#egg=aind-disrnn-utils
