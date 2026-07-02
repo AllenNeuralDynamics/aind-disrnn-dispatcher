@@ -162,3 +162,14 @@ regenerates. W&B pull caches are `.gitignore`'d. Full conventions — folder lay
 contracts, `Makefile` convention, enforcement layers (pre-commit + CI), multi-agent
 collaboration rules, open questions: **`docs/posthoc-analysis.md`** (target spec; current
 `studies/data-scaling-law/` is mid-migration).
+
+## 13. Claude Science Workflow
+
+The agent runs on the user's Mac (persistent brain); GitHub is the source of truth.
+Two checkouts track it: the Mac clone (`~/Scripts/aind-disrnn-dispatcher`, authoring)
+and the HPC login node (`/home/han.hou/code/...`, pull-only runtime). Load balancing:
+CPU jobs → HPC SLURM, GPU jobs → Beaker — both launchers live here and only submit, so
+one repo drives both. The sandbox cannot create a `.git` dir in a granted path, so the
+user owns cloning (and SSO auth); the agent edits/commits/pushes into existing checkouts.
+Full scheme — task-to-host table, W&B-from-sandbox access, credentials:
+**`docs/claude-science-workflow.md`**.
