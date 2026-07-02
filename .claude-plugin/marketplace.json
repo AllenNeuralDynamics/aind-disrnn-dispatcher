@@ -1,0 +1,14 @@
+{
+  "name": "aind-behavior-foundation-model",
+  "owner": {
+    "name": "Han Hou",
+    "email": "houhan@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "aind-behavior-foundation-model-skills",
+      "source": "./aind-behavior-foundation-model-skills",
+      "description": "Skills pack: dispatcher codebase map, Beaker (AI Hub) launching, Allen on-prem SLURM launching, study organization, post-hoc reporting."
+    }
+  ]
+}
