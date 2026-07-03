@@ -56,6 +56,6 @@ median ~7.6h / p90 ~11.9h at ~3–3.5 steps/s. The `wandb_sweep_gpu.slurm` defau
 `--sbatch-extra='--time=16:00:00'`. On Beaker this is handled by preemptible + autoResume.
 
 **Status.** 🚧 scaffolded, `--no-submit` rendered, **not launched** (awaiting go/no-go).
-W&B group `updnet-ratio-100mice@<launch_id>`, project `mice_beta_scan`.
+W&B group `updnet-ratio-100mice@<launch_id>`, project `disrnn_updnet_bottleneck_ratio_100mice`.
 
 **Result.** _TBD._
