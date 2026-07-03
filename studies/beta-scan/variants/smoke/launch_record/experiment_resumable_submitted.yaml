@@ -1,0 +1,72 @@
+version: v2
+description: "smoke@20260703-122759 \u2014 1 resumable grid tasks (autoResume)"
+tasks:
+- name: smoke-20260703-122759-000
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=mice_beta_scan
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=2000
+  - model.architecture.session_n_warmup_steps=1000
+  - model.training.n_steps=6000
+  - model.training.n_warmup_steps=500
+  - model.training.checkpoint_every_n_steps=2000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: smoke-20260703-122759-2304714f
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: smoke@20260703-122759
+  - name: DISRNN_META_STUDY
+    value: beta-scan
+  - name: DISRNN_META_VARIANT
+    value: smoke
+  - name: DISRNN_META_LAUNCH_ID
+    value: 20260703-122759
+  - name: DISRNN_META_CONFIG_HASH
+    value: edd7dccc
+  - name: DISRNN_META_LABEL
+    value: beta-scan-smoke
+  - name: DISRNN_META_NOTE
+    value: '1-task smoke: validate real-time bottleneck-sparsity logging on real JAX
+      params before the 48-run grid'
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true

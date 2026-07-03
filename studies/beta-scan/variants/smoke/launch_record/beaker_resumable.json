@@ -1,0 +1,9 @@
+{
+  "mode": "resumable-grid",
+  "n_tasks": 1,
+  "experiment_id": "01KWMQ7HWYCRC4WEYC5FZSCP1M",
+  "experiment_url": "https://beaker.org/ex/01KWMQ7HWYCRC4WEYC5FZSCP1M",
+  "dispatcher_commit": "873d98a0f95527e690498d45672da7ef64caf93e",
+  "sweep_file": "studies/beta-scan/variants/smoke/sweep.yaml",
+  "created_utc": "2026-07-03T19:28:01.655702+00:00"
+}
