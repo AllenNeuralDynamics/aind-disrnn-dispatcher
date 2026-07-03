@@ -129,7 +129,16 @@ def get_beaker_client(workspace: str | None = None):
 
     token = os.environ["BEAKER_TOKEN"]
     cfg = Config(user_token=token, default_org="ai1", default_workspace=workspace)
-    return Beaker(cfg)
+    client = Beaker(cfg)
+    # beaker-py's ServiceClient.request uses `timeout or self.beaker._timeout`, and
+    # the client default is 5.0s. That default reliably times out on the POST that
+    # creates a large multi-task experiment (e.g. a 48-task grid), raising
+    # requests.exceptions.ReadTimeout even though the experiment often IS created
+    # server-side. Raise it so large `experiment.create` calls complete cleanly.
+    # (On any create timeout, still verify via `workspace.experiments(...)` before
+    # resubmitting, to avoid a duplicate launch.)
+    client._timeout = 120
+    return client
 
 
 def submit_beaker_experiment(spec_path: str, workspace: str, name: str | None = None) -> str:
