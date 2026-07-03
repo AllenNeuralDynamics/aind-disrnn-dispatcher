@@ -1,9 +1,9 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 1,
-  "experiment_id": "01KWMQZES16TV4E7JK0N2MNSVS",
-  "experiment_url": "https://beaker.org/ex/01KWMQZES16TV4E7JK0N2MNSVS",
-  "dispatcher_commit": "70c9d83ca5079d666f7e36bdc82d40ba3c982299",
+  "experiment_id": "01KWMX6Y16KJM2MKZ9RPDZVJYC",
+  "experiment_url": "https://beaker.org/ex/01KWMX6Y16KJM2MKZ9RPDZVJYC",
+  "dispatcher_commit": "3b96e8ee75089c23a6df2d1d04ae62794415db9b",
   "sweep_file": "studies/beta-scan/variants/smoke/sweep.yaml",
-  "created_utc": "2026-07-03T19:41:05.211686+00:00"
+  "created_utc": "2026-07-03T21:12:32.807223+00:00"
 }

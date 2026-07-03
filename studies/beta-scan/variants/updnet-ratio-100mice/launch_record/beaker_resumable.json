@@ -1,9 +1,10 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 48,
-  "experiment_id": null,
-  "experiment_url": null,
-  "dispatcher_commit": "114bf1559dd328d3b164d882f9f20d501ca1d72b",
+  "experiment_id": "01KWMXQDX0CVESEFYP3A4EM2PC",
+  "experiment_url": "https://beaker.org/ex/01KWMXQDX0CVESEFYP3A4EM2PC",
+  "dispatcher_commit": "3b96e8ee75089c23a6df2d1d04ae62794415db9b",
   "sweep_file": "studies/beta-scan/variants/updnet-ratio-100mice/sweep.yaml",
-  "created_utc": "2026-07-03T21:12:15.894258+00:00"
+  "created_utc": "2026-07-03T21:20:20.093442+00:00",
+  "note": "full 48-run grid; W&B project disrnn_updnet_bottleneck_ratio_100mice; wrapper eaca1a0 (loss-pace sparsity + step-0 baseline); submitted via extended-timeout client (launcher 5s create timeout on 48-task POST)"
 }
