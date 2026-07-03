@@ -26,8 +26,8 @@ schedule, lr, batch, held-out cohort, snapshot pin) is held identical to the `v2
 
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`validation-2way-vs-3way`](variants/validation-2way-vs-3way/notes.md) | quick D≈10 smoke: `ignore_policy` ∈ {exclude, include}, short `n_steps`; proves the 3-way pipeline end-to-end and gives a first look at the ignore effect | 🚧 pending launch | `validation-2way-vs-3way@<launch_id>` | — |
-| [`nxd-3way`](variants/nxd-3way/notes.md) | full N×D grid (mirror of `data-scaling-law/nxd-grid`) with `ignore_policy=include` | 🚧 pending validation | `nxd-3way@<launch_id>` | — |
+| [`validation-2way-vs-3way`](variants/validation-2way-vs-3way/notes.md) | quick D≈10 smoke: `ignore_policy` ∈ {exclude, include}, short `n_steps`; proves the 3-way pipeline end-to-end and gives a first look at the ignore effect | 🏃 running | `validation-2way-vs-3way@20260703-092118` | [`01KWMCHPQ803BCBR0AKP4VZWDW`](https://beaker.org/ex/01KWMCHPQ803BCBR0AKP4VZWDW) |
+| [`nxd-3way`](variants/nxd-3way/notes.md) | full N×D grid (mirror of `data-scaling-law/nxd-grid`) with `ignore_policy=include` | 🏃 running (48 tasks) | `nxd-3way@20260703-094210` | [`01KWMDT0ETCM6QW6XADAKEQXP8`](https://beaker.org/ex/01KWMDT0ETCM6QW6XADAKEQXP8) |
 
 W&B project: **`mice_ignore_scaling`** (one project per study; one group per launch).
 
