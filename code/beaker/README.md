@@ -19,7 +19,23 @@ compute runs the **wrapper** image, built and maintained in
 | Dispatcher (control) | composes Hydra config → job artifact | `wandb sweep` → **SWEEP_ID** → submit experiment |
 | Wrapper (compute) | runs `run_hpc` | image runs `wandb agent` → `run_hpc` |
 
+## Check schedulable capacity before large launches
+
+Before submitting any large job (**> 4 GPUs / > 4 concurrent tasks**), run:
+
+```bash
+python code/check_gpu_availability.py            # Beaker + HPC
+python code/check_gpu_availability.py --beaker   # Beaker only (no VPN)
+```
+
+It reports **schedulable** GPUs — free **and not on a cordoned node** (Beaker) or
+`CfgTRES−AllocTRES` on non-drained nodes (HPC `aind` partition). The raw counts from
+`beaker cluster list` / `sinfo` include cordoned/drained nodes and overstate what can
+actually launch. If all hub clusters read 0 schedulable, route to HPC (`--hpc`) or wait
+(preemptible jobs burst as nodes uncordon). See AGENTS.md §10 and the beaker-launch skill.
+
 ## Files
+- `check_gpu_availability.py` *(in `code/`)* — schedulable-GPU probe for Beaker + HPC (run before large launches).
 - `launch_beaker.py` *(in `code/`)* — the launcher invoked by a CO Reproducible Run:
   creates the sweep, saves a `/results` record, renders the SWEEP_ID, and submits.
 - `sweep_mvp.yaml` — 1-point W&B sweep (smoke / default single run).

@@ -20,6 +20,24 @@ README wins.**
 4. One-time setup per user: `cp code/hpc/slurm/user.env.example code/hpc/slurm/user.env`
    and edit (`SBATCH_*` vars for sbatch, `CONDA_SH` for env activation).
 
+## Check available resources FIRST (mandatory for large jobs)
+
+**Before launching any large job (> 4 GPUs / > 4 concurrent array tasks), check
+schedulable capacity** and route to whichever backend (HPC vs Beaker) has room.
+Hard rule (AGENTS.md §10).
+
+```bash
+python code/check_gpu_availability.py --hpc     # this partition (default: aind)
+python code/check_gpu_availability.py           # HPC + Beaker, to load-balance
+```
+
+`sinfo` free counts include `drain`/`down`/reserved nodes. The script reports the
+real figure — `CfgTRES.gres/gpu − AllocTRES.gres/gpu` on non-drained nodes —
+broken down by GPU type (a100/h200/v100/l40s/…). HPC often has genuinely idle GPUs
+when all Beaker hub clusters are saturated/cordoned, so it is the natural overflow
+for large GPU grids. Requires the Allen network (login node, or the sandbox with
+VPN up).
+
 ## Standard launch (W&B sweep + SLURM array)
 
 From the dispatcher repo root:

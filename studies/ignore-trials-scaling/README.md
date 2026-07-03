@@ -51,6 +51,15 @@ W&B project: **`mice_ignore_scaling`** (one project per study; one group per lau
 4. Cross-study overlay: place the 3-way curves beside `data-scaling-law` r1/r7 with the chance-baseline
    caveat annotated.
 
+## Compute / capacity
+The `nxd-3way` grid is 48 tasks — a large job. **Before (re)launching, check schedulable
+capacity and route accordingly:** `python code/check_gpu_availability.py` (Beaker + HPC).
+It reports GPUs that can actually accept a job (Beaker: free *and* not on a cordoned node;
+HPC: `Cfg−Alloc` on non-drained `aind` nodes) — the raw `beaker cluster list` / `sinfo`
+counts overstate availability. Route narrow-N (H16/H64/H128) to any L40S/A100/V100 pool with
+room; H256 needs ≥141 GB (H200 or A100-80G). H200 is used for memory, not speed. See the
+beaker-launch / hpc-launch skills and AGENTS §10.
+
 ## Provenance
 Branch: `feat/ignore-trials-scaling`. Wrapper image `han-hou/disrnn-wrapper-pck-integration`.
 Follows `docs/study-organization.md` + `docs/posthoc-analysis.md` conventions.
