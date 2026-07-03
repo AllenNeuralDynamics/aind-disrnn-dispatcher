@@ -1,0 +1,2993 @@
+version: v2
+description: "updnet-ratio-100mice@20260703-142019 \u2014 48 resumable grid tasks\
+  \ (autoResume)"
+tasks:
+- name: updnet-ratio-100mice-20260703-142019-000
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f707aa78
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - &id001
+    name: DISRNN_META_STUDY
+    value: beta-scan
+  - &id002
+    name: DISRNN_META_VARIANT
+    value: updnet-ratio-100mice
+  - &id003
+    name: DISRNN_META_LAUNCH_ID
+    value: 20260703-142019
+  - &id004
+    name: DISRNN_META_CONFIG_HASH
+    value: 1a5cb3e6
+  - &id005
+    name: DISRNN_META_LABEL
+    value: updnet-ratio-100mice
+  - &id006
+    name: DISRNN_META_NOTE
+    value: update-net latent penalty ratio scan @100 mice, linear choice net; sparsity
+      at loss pace + step-0 baseline (wrapper eaca1a0)
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-001
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-14d1c216
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-002
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-0272a098
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-003
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-50c15b78
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-004
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-5877a03f
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-005
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-ff372f68
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-006
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-93a46f3d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-007
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f72121dd
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-008
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-53db4a06
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-009
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f361f6ed
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-010
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-e081b7bd
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-011
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=1
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-b0d8fefe
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-012
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-29c8327a
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-013
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-c65603ad
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-014
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-54953a7a
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-015
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f841f2e2
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-016
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-57d6b9f9
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-017
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-a9e78d8e
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-018
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-887f3066
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-019
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-3a374785
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-020
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-ac10eae5
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-021
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f4bd44c6
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-022
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-05eed955
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-023
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=2
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-db2f385a
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-024
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-0324904a
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-025
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-b53294d2
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-026
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-cc827a97
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-027
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-f229b190
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-028
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-9920efa3
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-029
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-adbf594c
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-030
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-314cfb51
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-031
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-a233aa76
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-032
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-eaef4dd8
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-033
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-34f4b178
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-034
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-28b49cff
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-035
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=5
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-6ce8d3e8
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-036
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-da0a326d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-037
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-4
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-9f9d160d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-038
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-085b3d17
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-039
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-4
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-5807f538
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-040
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-a0f219e2
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-041
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=1e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-19b6094e
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-042
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-49031e9c
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-043
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=1e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-9e3e832b
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-044
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-d8f3f6dc
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-045
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-3
+  - model.training.lr=1e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-fb55a036
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-046
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=0
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-3f7c66e7
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true
+- name: updnet-ratio-100mice-20260703-142019-047
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500
+  - model.training.checkpoint_every_n_steps=10000
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.penalties.update_net_latent_penalty_multiplier=10
+  - model.penalties.beta=3e-3
+  - model.training.lr=5e-3
+  - seed=1
+  constraints:
+    cluster:
+    - ai1/octo.ai-aws-g6e
+  resources:
+    gpuCount: 1
+    cpuCount: 12
+    memory: 90GiB
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: WRAPPER_REF
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+  - name: DISPATCHER_REF
+    value: feat/beta-scan
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: updnet-ratio-100mice-20260703-142019-598d6848
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: updnet-ratio-100mice@20260703-142019
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+  context:
+    priority: low
+    preemptible: true

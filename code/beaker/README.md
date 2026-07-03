@@ -149,6 +149,20 @@ The image is built on a Mac and pushed to Beaker — see the wrapper's
 rebuild**; control the branch/commit via `WRAPPER_REF` / `DISPATCHER_REF` in
 `experiment_mvp.yaml` (a branch name, or a SHA to pin a run).
 
+**Rebuild is only needed for DEPENDENCY changes** (`pyproject.toml` / the pinned
+git deps). A code edit that starts calling a dependency with a *new* signature is
+effectively a dependency change: e.g. `load_mice_database.py` calling
+`select_sessions(snapshot=...)` requires a newer `aind-dynamic-foraging-database`
+than older images ship — an older image fails at data-load with
+`TypeError: select_sessions() got an unexpected keyword argument 'snapshot'`.
+
+### Available images (use the newest for new studies)
+
+| image | built | notes |
+|---|---|---|
+| `han-hou/disrnn-wrapper-pck-integration-20260630` | 2026-07-01 | **current — use this.** Ships the newer `aind-dynamic-foraging-database` with `select_sessions(snapshot=...)` support (the `mice_snapshot_scaling` data path). |
+| `han-hou/disrnn-wrapper-pck-integration` | 2026-06-18 | older; DB package predates `snapshot=` — fails on the snapshot data loader used by `data-scaling-law` / `ignore-trials` / `beta-scan`. Pin `WRAPPER_REF` to a commit whose `load_mice_database.py` calls `select_sessions` *without* `snapshot` (e.g. `4f296807`) if you must use it. |
+
 ## Scaling
 
 Two ways to parallelize (both portable to HPC):

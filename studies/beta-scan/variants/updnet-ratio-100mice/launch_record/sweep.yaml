@@ -1,0 +1,56 @@
+# W&B sweep for beta-scan / updnet-ratio-100mice.
+# Consumed by launch_beaker_resumable.py, which expands this grid into one
+# autoResume Beaker task per (multiplier × base beta × lr × seed) point = 48 tasks.
+#
+# HYPOTHESIS (Kevin, via Po-Chen): to keep the *interaction* (update-net) bottleneck
+# sparse at large cohort, penalize the update-net latent channel HARDER than the rest
+# via update_net_latent_penalty_multiplier, and keep the choice (decision) net a pure
+# LINEAR readout (choice_net_n_layers=0) so the latent->policy map stays interpretable.
+# GAP this closes: Po-Chen only ever scanned this multiplier at <=10 mice; never at 100.
+#
+# disRNN-trainer NOTES (differ from the gru_scaling sweeps — do NOT copy those verbatim):
+#   * NO early_stopping / length_bucketing keys — those are gru_trainer-only; the disRNN
+#     trainer has no such fields and Hydra would error on them.
+#   * n_warmup_steps here is the disRNN *penalty* warmup (~5% of n_steps, Po-Chen convention).
+#   * session_* are the scalar session-conditioning knobs carried from data-scaling-law.
+entity: AIND-disRNN
+project: disrnn_updnet_bottleneck_ratio_100mice
+name: mice-beta-scan-updnet-ratio-100mice     # informational; launcher sets the real group
+method: grid
+metric:
+  name: final/bottlenecks/update_net_latent_frac_open
+  goal: minimize        # sparser interaction bottleneck = fewer open update-net latents
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=disrnn
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
+  # --- cohort: 100 mice (same as the data-scaling-law / ignore-trials D=100 arm) ---
+  - data.subject_ratio=0.163
+  - data.ignore_policy=exclude          # 2-way L/R, comparable to data-scaling-law baseline
+  # --- architecture: linear choice net (Kevin) + disRNN defaults ---
+  - model.architecture.choice_net_n_layers=0
+  - model.architecture.latent_size=5
+  - model.architecture.update_net_n_units_per_layer=16
+  - model.architecture.update_net_n_layers=5
+  # --- scalar session conditioning (λ-forward), carried from data-scaling-law ---
+  - model.architecture.session_encoding_type=scalar
+  - model.architecture.session_n_pretrain_steps=30000
+  - model.architecture.session_n_warmup_steps=20000
+  # --- training budget ---
+  - model.training.n_steps=150000
+  - model.training.n_warmup_steps=7500          # disRNN penalty warmup (~5% of n_steps)
+  - model.training.checkpoint_every_n_steps=10000  # ~15 sparsity/likelihood logs per run
+  - model.training.checkpoint_run_heldout_eval=false
+  - ${args_no_hyphens}
+parameters:
+  model.penalties.update_net_latent_penalty_multiplier:
+    values: [1, 2, 5, 10]
+  model.penalties.beta:
+    values: [3e-4, 1e-3, 3e-3]
+  model.training.lr:
+    values: [1e-3, 5e-3]
+  seed:
+    values: [0, 1]
