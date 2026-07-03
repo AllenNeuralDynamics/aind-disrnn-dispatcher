@@ -1,9 +1,9 @@
 version: v2
-description: "smoke@20260703-122759 \u2014 1 resumable grid tasks (autoResume)"
+description: "smoke@20260703-124103 \u2014 1 resumable grid tasks (autoResume)"
 tasks:
-- name: smoke-20260703-122759-000
+- name: smoke-20260703-124103-000
   image:
-    beaker: han-hou/disrnn-wrapper-pck-integration
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
   - bash
   - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -47,24 +47,24 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: smoke-20260703-122759-2304714f
+    value: smoke-20260703-124103-6f823e8d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: smoke@20260703-122759
+    value: smoke@20260703-124103
   - name: DISRNN_META_STUDY
     value: beta-scan
   - name: DISRNN_META_VARIANT
     value: smoke
   - name: DISRNN_META_LAUNCH_ID
-    value: 20260703-122759
+    value: 20260703-124103
   - name: DISRNN_META_CONFIG_HASH
     value: edd7dccc
   - name: DISRNN_META_LABEL
     value: beta-scan-smoke
   - name: DISRNN_META_NOTE
-    value: '1-task smoke: validate real-time bottleneck-sparsity logging on real JAX
-      params before the 48-run grid'
+    value: 'definitive smoke: new snapshot-baked image (20260630) + sparsity commit
+      5cb7154; validate bottlenecks/* logging before full 48-run grid'
   result:
     path: /results
   context:

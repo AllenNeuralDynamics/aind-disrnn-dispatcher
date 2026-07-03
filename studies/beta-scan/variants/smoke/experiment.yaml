@@ -17,7 +17,7 @@ description: >
 tasks:
   - name: beta-scan-updnet-ratio-template
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration
+      beaker: han-hou/disrnn-wrapper-pck-integration-20260630
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -34,7 +34,7 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: b2fad502ac18fcbcb68812dadec2c407eadf9b56   # real-time bottleneck-sparsity logging
+        value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb   # real-time bottleneck-sparsity logging
       - name: DISPATCHER_REF
         value: feat/beta-scan                              # this study's code/config source
       # (online by default; safeguard auto-falls-back to offline on a flaky init)
