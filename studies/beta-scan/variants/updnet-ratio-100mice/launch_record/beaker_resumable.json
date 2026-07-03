@@ -1,9 +1,10 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 48,
-  "experiment_id": null,
-  "experiment_url": null,
-  "dispatcher_commit": "bf3a3e285c4df48fced453125f397fba168becdc",
+  "experiment_id": "01KWMWFN51T7782CWAF53BQ9JQ",
+  "experiment_url": "https://beaker.org/ex/01KWMWFN51T7782CWAF53BQ9JQ",
+  "dispatcher_commit": "be2430fdfcfe9acebd1a1f09beb6f5587281cfa2",
   "sweep_file": "studies/beta-scan/variants/updnet-ratio-100mice/sweep.yaml",
-  "created_utc": "2026-07-03T18:36:26.567665+00:00"
+  "created_utc": "2026-07-03T20:58:30.513396+00:00",
+  "note": "submitted via extended-client retry after launcher 5s read-timeout (spec was NOT created on first attempt; verified no duplicate)"
 }
