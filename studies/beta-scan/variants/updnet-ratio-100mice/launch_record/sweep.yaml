@@ -14,7 +14,7 @@
 #   * n_warmup_steps here is the disRNN *penalty* warmup (~5% of n_steps, Po-Chen convention).
 #   * session_* are the scalar session-conditioning knobs carried from data-scaling-law.
 entity: AIND-disRNN
-project: mice_beta_scan
+project: disrnn_updnet_bottleneck_ratio_100mice
 name: mice-beta-scan-updnet-ratio-100mice     # informational; launcher sets the real group
 method: grid
 metric:
@@ -26,7 +26,7 @@ command:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   # --- cohort: 100 mice (same as the data-scaling-law / ignore-trials D=100 arm) ---
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude          # 2-way L/R, comparable to data-scaling-law baseline

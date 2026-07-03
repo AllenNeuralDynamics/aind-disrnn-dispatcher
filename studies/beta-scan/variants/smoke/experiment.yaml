@@ -34,7 +34,7 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb   # real-time bottleneck-sparsity logging
+        value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf   # real-time bottleneck-sparsity logging
       - name: DISPATCHER_REF
         value: feat/beta-scan                              # this study's code/config source
       # (online by default; safeguard auto-falls-back to offline on a flaky init)

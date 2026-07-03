@@ -1,8 +1,8 @@
 version: v2
-description: "updnet-ratio-100mice@20260703-135847 \u2014 48 resumable grid tasks\
+description: "updnet-ratio-100mice@20260703-141215 \u2014 48 resumable grid tasks\
   \ (autoResume)"
 tasks:
-- name: updnet-ratio-100mice-20260703-135847-000
+- name: updnet-ratio-100mice-20260703-141215-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -13,7 +13,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -42,17 +42,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-a5e001b3
+    value: updnet-ratio-100mice-20260703-141215-0b77837f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - &id001
     name: DISRNN_META_STUDY
     value: beta-scan
@@ -61,23 +61,23 @@ tasks:
     value: updnet-ratio-100mice
   - &id003
     name: DISRNN_META_LAUNCH_ID
-    value: 20260703-135847
+    value: 20260703-141215
   - &id004
     name: DISRNN_META_CONFIG_HASH
-    value: a47b87f2
+    value: 1a5cb3e6
   - &id005
     name: DISRNN_META_LABEL
     value: updnet-ratio-100mice
   - &id006
     name: DISRNN_META_NOTE
-    value: update-net latent penalty ratio scan @100 mice, linear choice net (Kevin's
-      idea); sparsity logging validated on smoke
+    value: update-net latent penalty ratio scan @100 mice, linear choice net; sparsity
+      logged at loss pace + step-0 baseline
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-001
+- name: updnet-ratio-100mice-20260703-141215-001
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -88,7 +88,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -117,17 +117,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-2276c882
+    value: updnet-ratio-100mice-20260703-141215-42d11fb4
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -139,7 +139,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-002
+- name: updnet-ratio-100mice-20260703-141215-002
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -150,7 +150,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -179,17 +179,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-6ade054a
+    value: updnet-ratio-100mice-20260703-141215-a78da0aa
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -201,7 +201,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-003
+- name: updnet-ratio-100mice-20260703-141215-003
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -212,7 +212,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -241,17 +241,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-34fe45e5
+    value: updnet-ratio-100mice-20260703-141215-b9ee1b1f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -263,7 +263,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-004
+- name: updnet-ratio-100mice-20260703-141215-004
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -274,7 +274,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -303,17 +303,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-7eb1f86f
+    value: updnet-ratio-100mice-20260703-141215-86c04f87
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -325,7 +325,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-005
+- name: updnet-ratio-100mice-20260703-141215-005
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -336,7 +336,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -365,17 +365,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-80a0cc03
+    value: updnet-ratio-100mice-20260703-141215-a8def566
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -387,7 +387,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-006
+- name: updnet-ratio-100mice-20260703-141215-006
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -398,7 +398,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -427,17 +427,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-209409ad
+    value: updnet-ratio-100mice-20260703-141215-068c6a67
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -449,7 +449,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-007
+- name: updnet-ratio-100mice-20260703-141215-007
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -460,7 +460,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -489,17 +489,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-e10236b1
+    value: updnet-ratio-100mice-20260703-141215-18ea514f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -511,7 +511,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-008
+- name: updnet-ratio-100mice-20260703-141215-008
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -522,7 +522,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -551,17 +551,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-e492f49f
+    value: updnet-ratio-100mice-20260703-141215-81098c68
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -573,7 +573,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-009
+- name: updnet-ratio-100mice-20260703-141215-009
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -584,7 +584,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -613,17 +613,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-f3f3b3e5
+    value: updnet-ratio-100mice-20260703-141215-82fb34f6
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -635,7 +635,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-010
+- name: updnet-ratio-100mice-20260703-141215-010
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -646,7 +646,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -675,17 +675,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-25ffd6d5
+    value: updnet-ratio-100mice-20260703-141215-7c9b697d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -697,7 +697,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-011
+- name: updnet-ratio-100mice-20260703-141215-011
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -708,7 +708,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -737,17 +737,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-b098d3a9
+    value: updnet-ratio-100mice-20260703-141215-c08e3d95
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -759,7 +759,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-012
+- name: updnet-ratio-100mice-20260703-141215-012
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -770,7 +770,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -799,17 +799,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-033f915b
+    value: updnet-ratio-100mice-20260703-141215-49d456c6
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -821,7 +821,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-013
+- name: updnet-ratio-100mice-20260703-141215-013
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -832,7 +832,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -861,17 +861,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-67f8fb0b
+    value: updnet-ratio-100mice-20260703-141215-595e30e0
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -883,7 +883,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-014
+- name: updnet-ratio-100mice-20260703-141215-014
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -894,7 +894,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -923,17 +923,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-c5b1a19e
+    value: updnet-ratio-100mice-20260703-141215-45ca22fd
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -945,7 +945,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-015
+- name: updnet-ratio-100mice-20260703-141215-015
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -956,7 +956,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -985,17 +985,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-7a8cc299
+    value: updnet-ratio-100mice-20260703-141215-ab405fe9
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1007,7 +1007,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-016
+- name: updnet-ratio-100mice-20260703-141215-016
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1018,7 +1018,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1047,17 +1047,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-cbca7c74
+    value: updnet-ratio-100mice-20260703-141215-4e2ea4cc
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1069,7 +1069,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-017
+- name: updnet-ratio-100mice-20260703-141215-017
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1080,7 +1080,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1109,17 +1109,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-c847ca80
+    value: updnet-ratio-100mice-20260703-141215-a32ef473
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1131,7 +1131,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-018
+- name: updnet-ratio-100mice-20260703-141215-018
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1142,7 +1142,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1171,17 +1171,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-431f31a5
+    value: updnet-ratio-100mice-20260703-141215-014dd374
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1193,7 +1193,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-019
+- name: updnet-ratio-100mice-20260703-141215-019
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1204,7 +1204,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1233,17 +1233,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-af9d8103
+    value: updnet-ratio-100mice-20260703-141215-af5bb495
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1255,7 +1255,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-020
+- name: updnet-ratio-100mice-20260703-141215-020
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1266,7 +1266,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1295,17 +1295,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-0cc77f9a
+    value: updnet-ratio-100mice-20260703-141215-cfd1eaab
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1317,7 +1317,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-021
+- name: updnet-ratio-100mice-20260703-141215-021
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1328,7 +1328,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1357,17 +1357,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-4436dc20
+    value: updnet-ratio-100mice-20260703-141215-3911fe62
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1379,7 +1379,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-022
+- name: updnet-ratio-100mice-20260703-141215-022
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1390,7 +1390,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1419,17 +1419,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-09e5ab3d
+    value: updnet-ratio-100mice-20260703-141215-43addb45
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1441,7 +1441,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-023
+- name: updnet-ratio-100mice-20260703-141215-023
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1452,7 +1452,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1481,17 +1481,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-bc3b0dc8
+    value: updnet-ratio-100mice-20260703-141215-581f2c6e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1503,7 +1503,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-024
+- name: updnet-ratio-100mice-20260703-141215-024
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1514,7 +1514,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1543,17 +1543,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-4999e679
+    value: updnet-ratio-100mice-20260703-141215-d8a5151e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1565,7 +1565,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-025
+- name: updnet-ratio-100mice-20260703-141215-025
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1576,7 +1576,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1605,17 +1605,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-37b08621
+    value: updnet-ratio-100mice-20260703-141215-f86ea9ee
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1627,7 +1627,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-026
+- name: updnet-ratio-100mice-20260703-141215-026
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1638,7 +1638,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1667,17 +1667,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-2514ff0e
+    value: updnet-ratio-100mice-20260703-141215-6f71d3b2
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1689,7 +1689,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-027
+- name: updnet-ratio-100mice-20260703-141215-027
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1700,7 +1700,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1729,17 +1729,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-1f2c63d7
+    value: updnet-ratio-100mice-20260703-141215-98afe9ff
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1751,7 +1751,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-028
+- name: updnet-ratio-100mice-20260703-141215-028
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1762,7 +1762,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1791,17 +1791,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-fab34f5b
+    value: updnet-ratio-100mice-20260703-141215-128166cc
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1813,7 +1813,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-029
+- name: updnet-ratio-100mice-20260703-141215-029
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1824,7 +1824,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1853,17 +1853,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-c01c8fb8
+    value: updnet-ratio-100mice-20260703-141215-29e5a46a
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1875,7 +1875,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-030
+- name: updnet-ratio-100mice-20260703-141215-030
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1886,7 +1886,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1915,17 +1915,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-9cba24fd
+    value: updnet-ratio-100mice-20260703-141215-408cea8c
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1937,7 +1937,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-031
+- name: updnet-ratio-100mice-20260703-141215-031
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1948,7 +1948,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -1977,17 +1977,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-9b32a508
+    value: updnet-ratio-100mice-20260703-141215-9aac29de
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -1999,7 +1999,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-032
+- name: updnet-ratio-100mice-20260703-141215-032
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2010,7 +2010,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2039,17 +2039,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-ce32a210
+    value: updnet-ratio-100mice-20260703-141215-e74f94f8
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2061,7 +2061,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-033
+- name: updnet-ratio-100mice-20260703-141215-033
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2072,7 +2072,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2101,17 +2101,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-98941bcc
+    value: updnet-ratio-100mice-20260703-141215-dffbc822
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2123,7 +2123,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-034
+- name: updnet-ratio-100mice-20260703-141215-034
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2134,7 +2134,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2163,17 +2163,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-35d22bf8
+    value: updnet-ratio-100mice-20260703-141215-d2b5c48f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2185,7 +2185,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-035
+- name: updnet-ratio-100mice-20260703-141215-035
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2196,7 +2196,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2225,17 +2225,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-db30eaed
+    value: updnet-ratio-100mice-20260703-141215-f66d827d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2247,7 +2247,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-036
+- name: updnet-ratio-100mice-20260703-141215-036
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2258,7 +2258,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2287,17 +2287,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-cda4b5e7
+    value: updnet-ratio-100mice-20260703-141215-dca92f35
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2309,7 +2309,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-037
+- name: updnet-ratio-100mice-20260703-141215-037
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2320,7 +2320,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2349,17 +2349,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-625e11a5
+    value: updnet-ratio-100mice-20260703-141215-5dd4e8ec
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2371,7 +2371,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-038
+- name: updnet-ratio-100mice-20260703-141215-038
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2382,7 +2382,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2411,17 +2411,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-7fe429b7
+    value: updnet-ratio-100mice-20260703-141215-5b3ad5ca
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2433,7 +2433,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-039
+- name: updnet-ratio-100mice-20260703-141215-039
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2444,7 +2444,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2473,17 +2473,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-d1b758a0
+    value: updnet-ratio-100mice-20260703-141215-6207f8c3
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2495,7 +2495,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-040
+- name: updnet-ratio-100mice-20260703-141215-040
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2506,7 +2506,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2535,17 +2535,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-e39a3f8d
+    value: updnet-ratio-100mice-20260703-141215-3a05d44d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2557,7 +2557,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-041
+- name: updnet-ratio-100mice-20260703-141215-041
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2568,7 +2568,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2597,17 +2597,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-75028bdc
+    value: updnet-ratio-100mice-20260703-141215-9275ad0b
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2619,7 +2619,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-042
+- name: updnet-ratio-100mice-20260703-141215-042
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2630,7 +2630,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2659,17 +2659,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-7bb1b718
+    value: updnet-ratio-100mice-20260703-141215-0dcb9ddb
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2681,7 +2681,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-043
+- name: updnet-ratio-100mice-20260703-141215-043
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2692,7 +2692,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2721,17 +2721,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-515ea56e
+    value: updnet-ratio-100mice-20260703-141215-0d896853
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2743,7 +2743,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-044
+- name: updnet-ratio-100mice-20260703-141215-044
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2754,7 +2754,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2783,17 +2783,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-91f0f65d
+    value: updnet-ratio-100mice-20260703-141215-13115704
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2805,7 +2805,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-045
+- name: updnet-ratio-100mice-20260703-141215-045
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2816,7 +2816,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2845,17 +2845,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-79736420
+    value: updnet-ratio-100mice-20260703-141215-f1e7635b
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2867,7 +2867,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-046
+- name: updnet-ratio-100mice-20260703-141215-046
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2878,7 +2878,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2907,17 +2907,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-30a3b8e4
+    value: updnet-ratio-100mice-20260703-141215-f75efec1
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003
@@ -2929,7 +2929,7 @@ tasks:
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-135847-047
+- name: updnet-ratio-100mice-20260703-141215-047
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2940,7 +2940,7 @@ tasks:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0
@@ -2969,17 +2969,17 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-135847-45ba7cee
+    value: updnet-ratio-100mice-20260703-141215-4e324bbf
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-135847
+    value: updnet-ratio-100mice@20260703-141215
   - *id001
   - *id002
   - *id003

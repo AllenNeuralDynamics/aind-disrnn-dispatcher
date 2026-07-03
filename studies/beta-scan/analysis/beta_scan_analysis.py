@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """beta-scan / updnet-ratio-100mice analysis.
 
-Pulls every run in the ``mice_beta_scan`` W&B project and scores the
+Pulls every run in the ``disrnn_updnet_bottleneck_ratio_100mice`` W&B project and scores the
 sparsity-vs-fit tradeoff of Kevin's update-net-ratio idea across
 ``update_net_latent_penalty_multiplier`` x base beta x lr.
 
@@ -42,7 +42,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ENTITY = "AIND-disRNN"
-PROJECT = "mice_beta_scan"
+PROJECT = "disrnn_updnet_bottleneck_ratio_100mice"
 OUTDIR = Path(__file__).parent
 
 # Primary readouts.
@@ -379,7 +379,7 @@ def write_verdict(rows, path):
     lines = ["# beta-scan verdict — updnet-ratio-100mice", ""]
     if not have:
         lines += [
-            "_No runs found in `mice_beta_scan` yet. Launch the variant, then re-run this script._",
+            "_No runs found in `disrnn_updnet_bottleneck_ratio_100mice` yet. Launch the variant, then re-run this script._",
             "",
             "Primary readout once populated: **`final/bottlenecks/update_net_latent_frac_open`** "
             "(interaction sparsity, lower = sparser) vs `update_net_latent_penalty_multiplier`, "

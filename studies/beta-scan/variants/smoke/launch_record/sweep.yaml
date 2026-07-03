@@ -4,7 +4,7 @@
 # Single grid point (multiplier=5 = the diverging value Po-Chen used @10 mice; base beta=1e-3;
 # lr=1e-3; seed=0). Everything else mirrors updnet-ratio-100mice.
 entity: AIND-disRNN
-project: mice_beta_scan
+project: disrnn_updnet_bottleneck_ratio_100mice
 name: mice-beta-scan-smoke
 method: grid
 metric:
@@ -16,7 +16,7 @@ command:
   - run_hpc
   - data=mice_snapshot_scaling
   - model=disrnn
-  - wandb.project=mice_beta_scan
+  - wandb.project=disrnn_updnet_bottleneck_ratio_100mice
   - data.subject_ratio=0.163
   - data.ignore_policy=exclude
   - model.architecture.choice_net_n_layers=0

@@ -44,7 +44,7 @@ as the `data-scaling-law` / `ignore-trials` D=100 arm).
 |---|---|---|---|---|
 | [`updnet-ratio-100mice`](variants/updnet-ratio-100mice/notes.md) | 1D update-net-ratio scan (× base β × lr × seed) at 100 mice, linear choice net | 🚧 scaffolded (not launched) | `updnet-ratio-100mice@<launch_id>` | _TBD_ |
 
-W&B project: **`mice_beta_scan`** (one project per study; one group per launch).
+W&B project: **`disrnn_updnet_bottleneck_ratio_100mice`** (one project per study; one group per launch).
 
 ## Design (updnet-ratio-100mice)
 
