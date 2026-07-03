@@ -1,7 +1,7 @@
 version: v2
-description: "smoke@20260703-124103 \u2014 1 resumable grid tasks (autoResume)"
+description: "smoke@20260703-141230 \u2014 1 resumable grid tasks (autoResume)"
 tasks:
-- name: smoke-20260703-124103-000
+- name: smoke-20260703-141230-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -41,30 +41,30 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: 5cb7154df3bd9b544df5ffe3bc4357a8f16865eb
+    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: smoke-20260703-124103-6f823e8d
+    value: smoke-20260703-141230-0bb97dc7
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: smoke@20260703-124103
+    value: smoke@20260703-141230
   - name: DISRNN_META_STUDY
     value: beta-scan
   - name: DISRNN_META_VARIANT
     value: smoke
   - name: DISRNN_META_LAUNCH_ID
-    value: 20260703-124103
+    value: 20260703-141230
   - name: DISRNN_META_CONFIG_HASH
-    value: edd7dccc
+    value: e0da6f0c
   - name: DISRNN_META_LABEL
     value: beta-scan-smoke
   - name: DISRNN_META_NOTE
-    value: 'definitive smoke: new snapshot-baked image (20260630) + sparsity commit
-      5cb7154; validate bottlenecks/* logging before full 48-run grid'
+    value: 'smoke v3: verify step-0 sparsity baseline + loss-pace bottlenecks/* logging
+      (wrapper eaca1a0)'
   result:
     path: /results
   context:
