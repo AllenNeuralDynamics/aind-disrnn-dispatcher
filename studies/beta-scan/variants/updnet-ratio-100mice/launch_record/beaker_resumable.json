@@ -1,0 +1,9 @@
+{
+  "mode": "resumable-grid",
+  "n_tasks": 48,
+  "experiment_id": null,
+  "experiment_url": null,
+  "dispatcher_commit": "bf3a3e285c4df48fced453125f397fba168becdc",
+  "sweep_file": "studies/beta-scan/variants/updnet-ratio-100mice/sweep.yaml",
+  "created_utc": "2026-07-03T18:36:26.567665+00:00"
+}
