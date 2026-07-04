@@ -1,9 +1,9 @@
 {
   "mode": "resumable-grid",
   "n_tasks": 48,
-  "experiment_id": null,
-  "experiment_url": null,
-  "dispatcher_commit": "06bb5a3158131eb52c39a78da7e9cb4885842483",
+  "experiment_id": "01KWNH6J6YV382HH35GSDWNJAE",
+  "experiment_url": "https://beaker.org/ex/01KWNH6J6YV382HH35GSDWNJAE",
+  "dispatcher_commit": "f7f750692e6ed7c071457b4e63fb0cd8a06d040c",
   "sweep_file": "studies/beta-scan/variants/updnet-ratio-100mice/sweep.yaml",
-  "created_utc": "2026-07-04T02:07:45.647296+00:00"
+  "created_utc": "2026-07-04T03:01:22.329816+00:00"
 }
