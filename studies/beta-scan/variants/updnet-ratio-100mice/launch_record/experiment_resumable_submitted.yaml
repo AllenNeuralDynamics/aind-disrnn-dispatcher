@@ -1,8 +1,8 @@
 version: v2
-description: "updnet-ratio-100mice@20260703-190745 \u2014 48 resumable grid tasks\
+description: "updnet-ratio-100mice@20260703-200122 \u2014 48 resumable grid tasks\
   \ (autoResume)"
 tasks:
-- name: updnet-ratio-100mice-20260703-190745-000
+- name: updnet-ratio-100mice-20260703-200122-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -50,11 +50,11 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-9190af56
+    value: updnet-ratio-100mice-20260703-200122-8646dfc2
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - &id001
     name: DISRNN_META_STUDY
     value: beta-scan
@@ -63,19 +63,23 @@ tasks:
     value: updnet-ratio-100mice
   - &id003
     name: DISRNN_META_LAUNCH_ID
-    value: 20260703-190745
+    value: 20260703-200122
   - &id004
     name: DISRNN_META_CONFIG_HASH
     value: 6d28f4ff
   - &id005
     name: DISRNN_META_LABEL
     value: updnet-ratio-100mice
+  - &id006
+    name: DISRNN_META_NOTE
+    value: 'short-horizon (60k) relaunch: length_bucketing on (~1.86x), random/2048,
+      extend-later ready'
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-001
+- name: updnet-ratio-100mice-20260703-200122-001
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -123,22 +127,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-09c8a64b
+    value: updnet-ratio-100mice-20260703-200122-9703d37e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-002
+- name: updnet-ratio-100mice-20260703-200122-002
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -186,22 +191,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-53f8b417
+    value: updnet-ratio-100mice-20260703-200122-61873594
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-003
+- name: updnet-ratio-100mice-20260703-200122-003
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -249,22 +255,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-752efb91
+    value: updnet-ratio-100mice-20260703-200122-c74f4556
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-004
+- name: updnet-ratio-100mice-20260703-200122-004
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -312,22 +319,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-5e30c044
+    value: updnet-ratio-100mice-20260703-200122-87018bd0
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-005
+- name: updnet-ratio-100mice-20260703-200122-005
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -375,22 +383,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-00513da3
+    value: updnet-ratio-100mice-20260703-200122-c4294c47
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-006
+- name: updnet-ratio-100mice-20260703-200122-006
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -438,22 +447,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-6236e3c7
+    value: updnet-ratio-100mice-20260703-200122-ccab8055
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-007
+- name: updnet-ratio-100mice-20260703-200122-007
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -501,22 +511,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-29d75ef2
+    value: updnet-ratio-100mice-20260703-200122-a1395e7f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-008
+- name: updnet-ratio-100mice-20260703-200122-008
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -564,22 +575,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-eab4c56e
+    value: updnet-ratio-100mice-20260703-200122-a9972d14
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-009
+- name: updnet-ratio-100mice-20260703-200122-009
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -627,22 +639,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-5d54f36c
+    value: updnet-ratio-100mice-20260703-200122-81796eba
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-010
+- name: updnet-ratio-100mice-20260703-200122-010
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -690,22 +703,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-672ca70f
+    value: updnet-ratio-100mice-20260703-200122-6726abbb
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-011
+- name: updnet-ratio-100mice-20260703-200122-011
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -753,22 +767,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-e134f27f
+    value: updnet-ratio-100mice-20260703-200122-418e7d2d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-012
+- name: updnet-ratio-100mice-20260703-200122-012
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -816,22 +831,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-bd0178fe
+    value: updnet-ratio-100mice-20260703-200122-1ad83f71
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-013
+- name: updnet-ratio-100mice-20260703-200122-013
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -879,22 +895,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-575f16c1
+    value: updnet-ratio-100mice-20260703-200122-3dcb9217
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-014
+- name: updnet-ratio-100mice-20260703-200122-014
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -942,22 +959,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-7c1375dc
+    value: updnet-ratio-100mice-20260703-200122-c165b687
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-015
+- name: updnet-ratio-100mice-20260703-200122-015
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1005,22 +1023,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-a4fe345e
+    value: updnet-ratio-100mice-20260703-200122-2408e539
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-016
+- name: updnet-ratio-100mice-20260703-200122-016
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1068,22 +1087,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-ca4271c5
+    value: updnet-ratio-100mice-20260703-200122-2fea9734
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-017
+- name: updnet-ratio-100mice-20260703-200122-017
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1131,22 +1151,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-4dda9dd7
+    value: updnet-ratio-100mice-20260703-200122-46df8297
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-018
+- name: updnet-ratio-100mice-20260703-200122-018
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1194,22 +1215,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-10182509
+    value: updnet-ratio-100mice-20260703-200122-0d674875
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-019
+- name: updnet-ratio-100mice-20260703-200122-019
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1257,22 +1279,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-39c9b10d
+    value: updnet-ratio-100mice-20260703-200122-686d58ad
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-020
+- name: updnet-ratio-100mice-20260703-200122-020
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1320,22 +1343,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-28446f7e
+    value: updnet-ratio-100mice-20260703-200122-6d32af0d
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-021
+- name: updnet-ratio-100mice-20260703-200122-021
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1383,22 +1407,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-3bfa3a54
+    value: updnet-ratio-100mice-20260703-200122-006ba610
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-022
+- name: updnet-ratio-100mice-20260703-200122-022
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1446,22 +1471,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-56137c4d
+    value: updnet-ratio-100mice-20260703-200122-ced0f761
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-023
+- name: updnet-ratio-100mice-20260703-200122-023
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1509,22 +1535,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-2f38a563
+    value: updnet-ratio-100mice-20260703-200122-45646c46
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-024
+- name: updnet-ratio-100mice-20260703-200122-024
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1572,22 +1599,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-9924fc49
+    value: updnet-ratio-100mice-20260703-200122-f51ea643
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-025
+- name: updnet-ratio-100mice-20260703-200122-025
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1635,22 +1663,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-3d10d0f1
+    value: updnet-ratio-100mice-20260703-200122-da46c05a
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-026
+- name: updnet-ratio-100mice-20260703-200122-026
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1698,22 +1727,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-29f657f0
+    value: updnet-ratio-100mice-20260703-200122-cace9bc8
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-027
+- name: updnet-ratio-100mice-20260703-200122-027
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1761,22 +1791,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-220e7c34
+    value: updnet-ratio-100mice-20260703-200122-e33962db
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-028
+- name: updnet-ratio-100mice-20260703-200122-028
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1824,22 +1855,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-e7abb6a4
+    value: updnet-ratio-100mice-20260703-200122-4c2635cc
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-029
+- name: updnet-ratio-100mice-20260703-200122-029
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1887,22 +1919,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-a5732ef1
+    value: updnet-ratio-100mice-20260703-200122-159eea2e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-030
+- name: updnet-ratio-100mice-20260703-200122-030
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -1950,22 +1983,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-803e2a0c
+    value: updnet-ratio-100mice-20260703-200122-87f84a2e
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-031
+- name: updnet-ratio-100mice-20260703-200122-031
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2013,22 +2047,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-bd68620a
+    value: updnet-ratio-100mice-20260703-200122-8d9faa61
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-032
+- name: updnet-ratio-100mice-20260703-200122-032
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2076,22 +2111,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-d2ebe8ff
+    value: updnet-ratio-100mice-20260703-200122-2c1d2ef5
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-033
+- name: updnet-ratio-100mice-20260703-200122-033
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2139,22 +2175,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-0ca19a22
+    value: updnet-ratio-100mice-20260703-200122-c0d18a94
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-034
+- name: updnet-ratio-100mice-20260703-200122-034
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2202,22 +2239,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-6889c41d
+    value: updnet-ratio-100mice-20260703-200122-a1e95d8c
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-035
+- name: updnet-ratio-100mice-20260703-200122-035
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2265,22 +2303,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-d42e6257
+    value: updnet-ratio-100mice-20260703-200122-81a9f5f2
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-036
+- name: updnet-ratio-100mice-20260703-200122-036
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2328,22 +2367,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-a74f6bc8
+    value: updnet-ratio-100mice-20260703-200122-07fc89ee
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-037
+- name: updnet-ratio-100mice-20260703-200122-037
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2391,22 +2431,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-c52e6821
+    value: updnet-ratio-100mice-20260703-200122-0e8f2910
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-038
+- name: updnet-ratio-100mice-20260703-200122-038
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2454,22 +2495,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-75951c4d
+    value: updnet-ratio-100mice-20260703-200122-76a5cbb7
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-039
+- name: updnet-ratio-100mice-20260703-200122-039
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2517,22 +2559,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-835f73bb
+    value: updnet-ratio-100mice-20260703-200122-25cebd13
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-040
+- name: updnet-ratio-100mice-20260703-200122-040
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2580,22 +2623,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-3315aee1
+    value: updnet-ratio-100mice-20260703-200122-fbb24a93
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-041
+- name: updnet-ratio-100mice-20260703-200122-041
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2643,22 +2687,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-54272cc8
+    value: updnet-ratio-100mice-20260703-200122-ececb4c7
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-042
+- name: updnet-ratio-100mice-20260703-200122-042
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2706,22 +2751,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-db1a2af8
+    value: updnet-ratio-100mice-20260703-200122-1fac96c7
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-043
+- name: updnet-ratio-100mice-20260703-200122-043
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2769,22 +2815,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-dd277415
+    value: updnet-ratio-100mice-20260703-200122-04073e9f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-044
+- name: updnet-ratio-100mice-20260703-200122-044
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2832,22 +2879,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-238e20a0
+    value: updnet-ratio-100mice-20260703-200122-86a5a56f
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-045
+- name: updnet-ratio-100mice-20260703-200122-045
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2895,22 +2943,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-3df0abad
+    value: updnet-ratio-100mice-20260703-200122-72fb26ca
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-046
+- name: updnet-ratio-100mice-20260703-200122-046
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -2958,22 +3007,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-48ff99c4
+    value: updnet-ratio-100mice-20260703-200122-13797a5c
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
     priority: low
     preemptible: true
-- name: updnet-ratio-100mice-20260703-190745-047
+- name: updnet-ratio-100mice-20260703-200122-047
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -3021,16 +3071,17 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-20260703-190745-afe0403e
+    value: updnet-ratio-100mice-20260703-200122-88af2b77
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice@20260703-190745
+    value: updnet-ratio-100mice@20260703-200122
   - *id001
   - *id002
   - *id003
   - *id004
   - *id005
+  - *id006
   result:
     path: /results
   context:
