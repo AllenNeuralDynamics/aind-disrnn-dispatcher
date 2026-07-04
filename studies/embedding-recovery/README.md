@@ -43,6 +43,27 @@ per-(subject, session) ground-truth parameter table (`groundtruth_params.csv`).
    Q-learning structure per subject, so its `fitted_params_per_subject` vs truth
    is the achievable parametric-recovery ceiling.
 
+## Held-out subjects: NOT used for the core question (ruling 2026-07-04)
+
+This study asks **identifiability** ("does the embedding faithfully encode the
+known true parameters?"), which is an **in-sample, representational-geometry**
+question — scored on the *trained* subjects, whose embeddings the model actually
+learns. It is deliberately NOT the data-scaling-law question (out-of-sample
+*generalization* to new mice via zero/few-shot held-out eval).
+
+Consequences:
+- Core recovery metrics (relative likelihood + embedding-vs-truth CCA/R²) need
+  **no held-out subjects**. `auto_heldout_finetune.enabled=false` in the GRU sweep
+  and `heldout_refit.enabled=false` in baseline_rl are correct — the
+  data-scaling-law few-shot/refit machinery is intentionally OFF.
+- **Parked extension (revisit if in-sample recovery is clean):** *few-shot
+  embedding recovery* — freeze the trained model, adapt ONLY a held-out subject's
+  embedding from k sessions, and score inferred-embedding-vs-truth as a function of
+  k. This reuses the data-scaling-law few-shot *mechanism* but reframes the *metric*
+  from likelihood to parameter recovery (tests whether the embedding space is a
+  usable coordinate system for cognition). Zero-shot on held-out subjects tests
+  shared dynamics, not recovery, so it is not informative here.
+
 ## Variants index
 
 | Variant | Question | Model | Grid | Status | W&B project | Group |
