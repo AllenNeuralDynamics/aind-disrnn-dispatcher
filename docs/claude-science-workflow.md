@@ -71,6 +71,72 @@ run/sweep data via the GraphQL endpoint with the `WANDB_API_KEY` credential
 instead — see the `posthoc-reporting` skill for the snippet. `api.wandb.ai` and
 `beaker.org` must each be allowlisted once (`request_network_access`).
 
+## Mac → Beaker launch (copy-paste recipe)
+
+The launchers (`code/launch_beaker.py`, `code/beaker_client.py`,
+`code/launch_beaker_resumable.py`) are **sandbox-safe** — they run directly from
+the Claude Science Mac sandbox, no HPC hop needed:
+
+- `create_wandb_sweep()` hits the W&B GraphQL API directly (no `wandb-core`
+  subprocess, no `~/.config/wandb`).
+- `get_beaker_client()` builds `beaker.Beaker` from
+  `Config(user_token=os.environ["BEAKER_TOKEN"])` directly — no `~/.beaker/config.yml`.
+
+**Prereqs (one-time):**
+- Credentials already in the sandbox env: `BEAKER_TOKEN`, `WANDB_API_KEY`.
+- Network: `beaker.org` and `api.wandb.ai` each need a one-time
+  `request_network_access` grant.
+
+**PYTHONPATH quirk (sandbox only):** `PYTHONSAFEPATH=1` disables Python's normal
+"script's own dir goes on `sys.path`" behavior, so the launchers' sibling imports
+(`beaker_client`, etc.) fail with `ModuleNotFoundError`. Run them with the repo
+`code/` dir on `PYTHONPATH`:
+
+```bash
+cd code
+PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
+  --sweep    beaker/sweep_mvp.yaml \
+  --experiment beaker/experiment_mvp.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir ./out --label <short-label> --note "why this run exists" \
+  --no-submit                # SAFE dry-run: creates the W&B sweep + renders the
+                             # Beaker spec, does NOT submit. Drop it to submit.
+```
+
+`launch_beaker.py` is two-step: it (1) creates the W&B sweep and prints
+`SWEEP_ID` (`entity/project/id`), then (2) unless `--no-submit`, submits the
+Beaker experiment. `--no-submit` is the recommended first pass. (This quirk is
+sandbox-only — on HPC/Code Ocean the launchers run without `PYTHONPATH`.)
+
+**Image name — the #1 stale-fact trap.** Old example specs referenced
+`beaker: han-hou/disrnn-wrapper`, which **no longer exists** →
+`ImageNotFound` / 404. The current image for the `ai_hub_pck_integration` line is
+`han-hou/disrnn-wrapper-pck-integration`. **List the current images before
+launching** and set the experiment spec's `image.beaker` to a live one:
+
+```python
+# in a repl cell, via beaker-py
+[im.full_name for im in b.workspace.images(
+    workspace="ai1/aind-dynamic-foraging-foundation-model")]
+# or CLI: beaker workspace images ai1/aind-dynamic-foraging-foundation-model
+```
+
+**Code edits need no image rebuild.** `beaker/entrypoint.sh` (in the wrapper)
+does `git fetch origin $WRAPPER_REF && checkout FETCH_HEAD` (same for
+`$DISPATCHER_REF`) at container startup. So pure code/config changes take effect
+by pushing the branch and setting `WRAPPER_REF` / `DISPATCHER_REF` in the
+experiment spec — **rebuild the image only when pinned dependencies change.**
+
+**Pre-launch check.** Before a large fan-out, check free slots with
+`beaker cluster list ai1` and pick a hub cluster with capacity (see the
+`beaker-launch` skill / `code/beaker/README.md` for the cluster table).
+
+**Transient node failure (not a code bug).** A GPU job (e.g. on `gcp-h100`) can
+fail in ~5 s with `status.message: "no space left on device"` and
+`started=None` — the node's NVMe filled while `mkdir`-ing the dataset dir. This
+is a per-node infra failure, **not** your code. Just resubmit; it lands on
+another node. Don't debug the training code for this signature.
+
 ## Credentials (stored in Claude Science, never in the repo)
 
 - `WANDB_API_KEY` — W&B GraphQL/API access. Entity `AIND-disRNN`, login `houhan`.
