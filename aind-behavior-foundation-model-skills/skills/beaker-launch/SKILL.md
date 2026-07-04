@@ -74,6 +74,12 @@ filled while `mkdir`-ing the dataset dir (seen on `gcp-h100`). This is a per-nod
 infra failure, not your code. Confirm with `beaker job get <id> --format json`
 (`status.message` / `status.started`), then just resubmit — it lands elsewhere.
 
+**Pre-launch capacity check.** Before a large fan-out (>4 GPUs / >4 concurrent
+tasks), run `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) —
+reports GPUs that are free **and** not cordoned, by type. That script lands with
+the `feat/ignore-trials-scaling` merge; where it's absent, fall back to
+`beaker cluster list ai1`.
+
 ## Cluster choice
 
 Preferred order for known-good low/preemptible S3-backed jobs:
