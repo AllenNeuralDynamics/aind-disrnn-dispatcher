@@ -20,6 +20,16 @@ to the same synthetic data.
 `data.num_subjects ∈ {50, 100, 200, 300}`, `seed=42` — one per #subjects column,
 matching gru-stage1 exactly (same synthetic data).
 
+## Fit scope: ALL subjects, no held-out split (Han ruling 2026-07-04)
+
+The sweep sets `model.heldout_refit.enabled=false`. The trainer's main `.fit()`
+path fits **every** subject on its own train sessions and exports
+`fitted_params_per_subject` for all N — which is exactly the N-to-N params-vs-truth
+recovery reference we compare the GRU embedding recovery against. (With the data
+config carrying no held-out-subject split, the refit path was already a no-op, but
+we disable it explicitly so the intent is unambiguous and the run doesn't attempt a
+`split="heldout"` loader call the hierarchical loader doesn't implement.)
+
 ## CRITICAL: structure match
 
 `config/model/baseline_rl.yaml` defaults to a RICHER fitter than the generator
