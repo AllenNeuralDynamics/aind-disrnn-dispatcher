@@ -15,7 +15,7 @@ description: embedding-recovery smoke (hierarchical synthetic + multisubject GRU
 tasks:
   - name: recovery-smoke-gru
     image:
-      beaker: han-hou/disrnn-wrapper
+      beaker: han-hou/disrnn-wrapper-pck-integration  # current image for the ai_hub_pck_integration line
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
