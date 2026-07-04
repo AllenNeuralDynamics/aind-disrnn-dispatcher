@@ -127,9 +127,14 @@ does `git fetch origin $WRAPPER_REF && checkout FETCH_HEAD` (same for
 by pushing the branch and setting `WRAPPER_REF` / `DISPATCHER_REF` in the
 experiment spec — **rebuild the image only when pinned dependencies change.**
 
-**Pre-launch check.** Before a large fan-out, check free slots with
-`beaker cluster list ai1` and pick a hub cluster with capacity (see the
-`beaker-launch` skill / `code/beaker/README.md` for the cluster table).
+**Pre-launch check (fact 5).** Before a large fan-out (>4 GPUs / >4 concurrent
+tasks), run the schedulable-GPU probe `python code/check_gpu_availability.py
+--beaker` (per AGENTS.md §10) — it reports GPUs that are free **and** not on a
+cordoned node, by type, so you route to a pool with real capacity. That script
+lands here with the `feat/ignore-trials-scaling` merge; on branches where it is
+not yet present, fall back to `beaker cluster list ai1` and pick a hub cluster
+with free slots (see the `beaker-launch` skill / `code/beaker/README.md` for the
+cluster table).
 
 **Transient node failure (not a code bug).** A GPU job (e.g. on `gcp-h100`) can
 fail in ~5 s with `status.message: "no space left on device"` and
