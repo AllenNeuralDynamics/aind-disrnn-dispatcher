@@ -144,6 +144,24 @@ and is not allowed.
   GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
   **`docs/beaker-playbook.md`** (read before any non-trivial launch).
 
+- **Launching from the Claude Science Mac sandbox** (no HPC hop): the launchers
+  (`code/launch_beaker.py`, `beaker_client.py`, `launch_beaker_resumable.py`) are
+  sandbox-safe (W&B GraphQL + `Config(user_token=$BEAKER_TOKEN)` directly). Run from
+  `code/` as `PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py ... --no-submit`
+  (`PYTHONSAFEPATH=1` in the sandbox breaks sibling imports otherwise; `--no-submit`
+  is the safe dry-run). `beaker.org` + `api.wandb.ai` each need a one-time
+  `request_network_access` grant. Full recipe: `docs/claude-science-workflow.md`.
+- **Verify the image name before submitting.** Old example specs
+  (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
+  which no longer exists (→ `ImageNotFound`/404). Use the current
+  `han-hou/disrnn-wrapper-pck-integration`; list live images with
+  `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
+  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
+  so code/config edits need **no** rebuild — only a stale image or changed deps do.
+- **Transient node failure ≠ code bug.** A job dying in ~5 s with
+  `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
+  resubmit (lands elsewhere) instead of debugging training code.
+
 ## 11. Verify Mechanisms With Data Before Asserting
 
 When explaining *why* infra/scheduling/quota behaves a certain way, **pull the actual data
@@ -172,4 +190,4 @@ CPU jobs → HPC SLURM, GPU jobs → Beaker — both launchers live here and onl
 one repo drives both. The sandbox cannot create a `.git` dir in a granted path, so the
 user owns cloning (and SSO auth); the agent edits/commits/pushes into existing checkouts.
 Full scheme — task-to-host table, W&B-from-sandbox access, credentials:
-**`docs/claude-science-workflow.md`**.
+**`docs/claude-science-workflow.md`**. That doc also carries the copy-paste **Mac → Beaker launch recipe** (sandbox-safe launchers, the `PYTHONPATH`/`PYTHONSAFEPATH` quirk, the stale-image trap, and the disk-full transient failure).
