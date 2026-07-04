@@ -27,10 +27,24 @@ interaction latent bottlenecks with σ < 0.1) — lower = sparser interaction. A
 (one 90GiB / 12-CPU bundle), NOT `octo-hub-onprem-h200`. Keeping it off H200 also avoids
 contending with the running `ignore-trials-scaling/nxd-3way` grid there.
 
-**disRNN-trainer caveat.** `sweep.yaml` deliberately OMITS `early_stopping` and
-`length_bucketing` — those exist only in `gru_trainer`, and the disRNN trainer would error on
-them. `n_warmup_steps=7500` here is the disRNN *penalty* warmup (~5% of `n_steps`), not GRU
-early-stopping.
+**Staged horizon (this round).** `n_steps=60000` (not 150k) so all four multipliers reach a
+comparable, interpretable point fast. `checkpoint_every_n_steps=10000` keeps the full
+resumable state uploading per run, so promising cells can be **extended later** to a longer
+horizon via `model.training.restore_from_run_id=<source run id>` — it downloads that run's
+`disrnn-output-<id>` W&B artifact and continues from its checkpoint (skips warmup) instead of
+restarting. Set a larger `n_steps` than the source (loop is `while steps_completed < n_steps`).
+Because extending only some cells makes the grid horizon-heterogeneous, read any cross-cell
+comparison at a common step (loss-pace logging supports this).
+
+**Length bucketing ON.** `model.training.length_bucketing=true` + `length_bucket_grid=128`
+trims each `random`-mode batch's unroll from the global `T_max`≈1488 to the batch's own
+session length — **measured ~1.86× throughput** (2015→1083 ms/step, matched config). Requires
+`batch_mode=random` (satisfied: batch is `random`/2048, inherited from `mice_snapshot_scaling`).
+
+**disRNN-trainer caveat.** `sweep.yaml` deliberately OMITS `early_stopping` — that exists only
+in `gru_trainer`, and the disRNN trainer would error on it. `n_warmup_steps=7500` here is the
+disRNN *penalty* warmup, not GRU early-stopping. (`length_bucketing` is now supported by the
+disRNN trainer as of wrapper `87d93f8c` — the config declares the keys.)
 
 **Launch (render-first — inspect the rendered spec before any real submit):**
 ```bash
