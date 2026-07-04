@@ -36,13 +36,14 @@ as the `data-scaling-law` / `ignore-trials` D=100 arm).
 > **isolated `update_net_latent`** breakout — mean/min sigma, `n_open`, `n_closed`,
 > `frac_open` — which is the direct readout for this hypothesis (the library's aggregate
 > `update_bottlenecks_open` mixes subj+obs+latent and hides it).
-> Wrapper commit `5cb7154` (branch `feat/bottleneck-sparsity-logging`).
+> Wrapper branch `feat/bottleneck-sparsity-logging` (HEAD `87d93f8c` = sparsity logging +
+> length bucketing + extend-later restore; docs at `842f6e5`).
 
 ## Variants
 
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`updnet-ratio-100mice`](variants/updnet-ratio-100mice/notes.md) | 1D update-net-ratio scan (× base β × lr × seed) at 100 mice, linear choice net | 🚧 scaffolded (not launched) | `updnet-ratio-100mice@<launch_id>` | _TBD_ |
+| [`updnet-ratio-100mice`](variants/updnet-ratio-100mice/notes.md) | 1D update-net-ratio scan (× base β × lr × seed) at 100 mice, linear choice net | ▶ **running** (short-horizon 60k, length-bucketed) | `updnet-ratio-100mice@20260703-200122` | `01KWNH6J6YV382HH35GSDWNJAE` |
 
 W&B project: **`disrnn_updnet_bottleneck_ratio_100mice`** (one project per study; one group per launch).
 
@@ -60,11 +61,24 @@ W&B project: **`disrnn_updnet_bottleneck_ratio_100mice`** (one project per study
 - **Fixed:** 100 mice (`subject_ratio=0.163`); **2-way** L/R (`ignore_policy=exclude`) to stay
   comparable to the `data-scaling-law` baseline; disRNN defaults (`latent_size=5`, update-net
   16×5) **except `choice_net_n_layers=0`** (linear choice net); scalar session conditioning
-  (pretrain 30k, warmup 20k); `n_steps=150000`; disRNN penalty warmup `n_warmup_steps=7500`
-  (~5% of n_steps); `checkpoint_every_n_steps=10000`; `snapshot=20260603`.
-- **disRNN-trainer caveat (baked into `sweep.yaml`):** the disRNN trainer has **no**
-  `early_stopping` or `length_bucketing` (those are `gru_trainer`-only). The sweep command
-  omits them — do **not** copy the `gru_scaling` sweeps verbatim.
+  (pretrain 30k, warmup 20k); disRNN penalty warmup `n_warmup_steps=7500`;
+  `checkpoint_every_n_steps=10000`; `snapshot=20260603`; batch `random`/2048 (inherited from
+  `data=mice_snapshot_scaling`).
+- **Staged horizon (this round): `n_steps=60000`** (not 150k). Rationale: get all four
+  multipliers past their bottleneck-sparsification transition to a comparable, interpretable
+  point *fast* (first full results in ~1 day, not ~3.5). `checkpoint_every_n_steps` is kept
+  small so the full resumable state uploads per run; promising cells can be **extended later**
+  to a longer horizon via `model.training.restore_from_run_id` (continues from the short run's
+  checkpoint, skips warmup — see wrapper `beaker/README.md` §3b) instead of restarting.
+- **Length-bucketed batching ON** (`model.training.length_bucketing=true`,
+  `length_bucket_grid=128`): trims each `random`-mode batch's unroll from the global
+  `T_max`≈1488 to the batch's own session length. **Measured ~1.86× throughput** on this
+  workload (2015→1083 ms/step, matched config). The disRNN trainer now supports this (wired to
+  the shared `_sample_batch`, mirroring `gru_trainer`); the disRNN config declares the keys so
+  the sweep override resolves.
+- **disRNN-trainer caveat (baked into `sweep.yaml`):** the disRNN trainer still has **no**
+  `early_stopping` (that is `gru_trainer`-only). The sweep command omits it — do **not** copy
+  the `gru_scaling` sweeps verbatim. (`length_bucketing`, formerly GRU-only, is now supported.)
 
 ## Readouts (see `analysis/`)
 
