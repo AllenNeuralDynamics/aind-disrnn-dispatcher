@@ -13,7 +13,7 @@ description: disRNN GPU packing — M wandb agents time-sliced on one GPU
 tasks:
   - name: disrnn-pack
     image:
-      beaker: han-hou/disrnn-wrapper
+      beaker: han-hou/disrnn-wrapper-pck-integration   # current image; list live: beaker workspace images ai1/aind-dynamic-foraging-foundation-model
     # entrypoint pulls code, then pack_gpu.sh launches <PACK_M> agents here.
     command:
       - bash
