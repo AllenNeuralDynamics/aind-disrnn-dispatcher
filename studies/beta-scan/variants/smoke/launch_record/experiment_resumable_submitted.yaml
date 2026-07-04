@@ -1,7 +1,7 @@
 version: v2
-description: "smoke@20260703-141230 \u2014 1 resumable grid tasks (autoResume)"
+description: "smoke@20260703-191003 \u2014 1 resumable grid tasks (autoResume)"
 tasks:
-- name: smoke-20260703-141230-000
+- name: smoke-20260703-191003-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -22,10 +22,12 @@ tasks:
   - model.architecture.session_encoding_type=scalar
   - model.architecture.session_n_pretrain_steps=2000
   - model.architecture.session_n_warmup_steps=1000
-  - model.training.n_steps=6000
+  - model.training.n_steps=4000
   - model.training.n_warmup_steps=500
-  - model.training.checkpoint_every_n_steps=2000
+  - model.training.checkpoint_every_n_steps=1000
   - model.training.checkpoint_run_heldout_eval=false
+  - model.training.length_bucketing=true
+  - model.training.length_bucket_grid=128
   - model.penalties.update_net_latent_penalty_multiplier=5
   - model.penalties.beta=1e-3
   - model.training.lr=1e-3
@@ -41,30 +43,29 @@ tasks:
   - name: WANDB_API_KEY
     secret: han-wandb-api-key
   - name: WRAPPER_REF
-    value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf
+    value: 87d93f8c989e2059b67c1e87c137f799103ada77
   - name: DISPATCHER_REF
     value: feat/beta-scan
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: smoke-20260703-141230-0bb97dc7
+    value: smoke-20260703-191003-561b78c0
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: smoke@20260703-141230
+    value: smoke@20260703-191003
   - name: DISRNN_META_STUDY
     value: beta-scan
   - name: DISRNN_META_VARIANT
     value: smoke
   - name: DISRNN_META_LAUNCH_ID
-    value: 20260703-141230
+    value: 20260703-191003
   - name: DISRNN_META_CONFIG_HASH
-    value: e0da6f0c
+    value: 5037e61f
   - name: DISRNN_META_LABEL
-    value: beta-scan-smoke
+    value: smoke-lengthbucket
   - name: DISRNN_META_NOTE
-    value: 'smoke v3: verify step-0 sparsity baseline + loss-pace bottlenecks/* logging
-      (wrapper eaca1a0)'
+    value: 'smoke: verify length_bucketing trims unroll + resumable ckpt for extend-later'
   result:
     path: /results
   context:
