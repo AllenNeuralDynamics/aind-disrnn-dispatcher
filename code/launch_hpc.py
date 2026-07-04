@@ -234,11 +234,20 @@ _META_VALUE_MAX_LEN = 60
 
 
 def _meta_safe(value: object) -> str:
-    """Collapse whitespace to single spaces and cap length so an injected
-    meta value can never fold across lines in the saved inputs.yaml."""
+    """Make an injected meta value safe to round-trip through inputs.yaml.
+
+    A YAML scalar only gets FOLDED across lines by the dumper when it contains
+    whitespace to break at; a long single-token value (e.g. a filesystem path)
+    is always emitted on one line. So we only need to truncate values that
+    both contain a space AND exceed the fold-safe width. Truncation uses an
+    ASCII marker ('...') because a truncated no-marker value could still be
+    fine, but the marker must never introduce a character Hydra's override
+    lexer rejects (a Unicode ellipsis does). Values with spaces are quoted by
+    _hydra_value for the CLI, so '...' inside them is harmless there too.
+    """
     collapsed = " ".join(str(value).split())
-    if len(collapsed) > _META_VALUE_MAX_LEN:
-        collapsed = collapsed[: _META_VALUE_MAX_LEN - 1].rstrip() + "\u2026"
+    if " " in collapsed and len(collapsed) > _META_VALUE_MAX_LEN:
+        collapsed = collapsed[: _META_VALUE_MAX_LEN - 3].rstrip() + "..."
     return collapsed
 
 
