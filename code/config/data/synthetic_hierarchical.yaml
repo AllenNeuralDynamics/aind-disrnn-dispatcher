@@ -1,0 +1,28 @@
+type: synthetic_hierarchical
+
+defaults:
+  - _self_
+  - task: random_walk
+  - agent: hierarchical_rl
+  - base@_here_  # shared: eval_every_n, seed, batch_size, batch_mode
+
+# Data loader class (resolved from the agent group)
+_target_: ${.agent.loader_target}
+
+# --- Mice-comparable scale (Han, 2026-07-04): a few hundred subjects, tens of
+# sessions each, 500-800 trials/session. These are the DEFAULTS; the recovery
+# sweep overrides num_subjects to map recovery quality vs subject count. ---
+num_subjects: 200
+num_sessions_per_subject: 40
+num_trials: 650
+
+# Non-overlapping seed stride (>> num_sessions_per_subject) so every
+# (subject, session) gets a unique deterministic seed.
+subject_seed_stride: 100000
+
+# Where the per-(subject,session) ground-truth table is written. "." = the
+# Hydra run dir (chdir:true), so it lands alongside each run's outputs.
+groundtruth_dir: "."
+
+# Run-name component (data half of the W&B run name)
+run_name_component: synthhier_${.agent.type}_${.task.type}_S${.num_subjects}
