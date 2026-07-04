@@ -53,6 +53,16 @@ training:
   loss_param: 1.0
   max_grad_norm: 1.0
   lambda_reg_session: 0.0   # 0 disables zero-mean session-delta regularization; try 1.0
+  # Length-bucketed batching (opt-in): trim each random-mode training batch's unroll
+  # from the global T_max to the batch's own session length, cutting padding compute.
+  # Requires data.batch_mode=random. Wired in disrnn_trainer.py (mirrors gru_scaling).
+  length_bucketing: false
+  length_bucket_grid: 128   # round session lengths up to this multiple for bucketing
+  # Extend-later: set to a prior run's W&B id to CONTINUE from its checkpoint (staged
+  # horizons). run_hpc downloads that run's training-output artifact before training so
+  # the trainer resumes from it and skips warmup. null => normal fresh run. See wrapper
+  # beaker/README.md section 3b. (env DISRNN_RESTORE_FROM_RUN_ID overrides this.)
+  restore_from_run_id: null
   checkpoint_every_n_steps: 10
   checkpoint_eval_on_eval_split: true
   checkpoint_eval_on_train_split: true
