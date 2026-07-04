@@ -1,0 +1,58 @@
+# Embedding-recovery SMOKE sweep: validate the hierarchical-synthetic ->
+# multisubject-GRU -> recovery-metrics path end-to-end WITHOUT spending compute.
+#
+# Purpose: verify the new HierarchicalCognitiveAgents loader instantiates,
+# generates a merged multisubject dataset, writes the ground-truth table, logs
+# groundtruth_likelihood + likelihood_relative_to_groundtruth, and produces
+# subject embeddings that the recovery analysis can read back. Intentionally
+# tiny (4 subjects x 6 sessions x 80 trials, 20 steps).
+#
+# Beaker (gcp-h100), from the hpc-code login node (run from dispatcher repo root):
+#   wandb sweep code/hpc/sweeps/embedding_recovery_smoke.yaml
+#   -> put SWEEP_ID into code/beaker/experiment_recovery_smoke.yaml, then
+#   beaker experiment create -w ai1/aind-dynamic-foraging-foundation-model \
+#     code/beaker/experiment_recovery_smoke.yaml
+#
+# HPC SLURM (cpu) alternative:
+#   python code/launch_hpc.py \
+#     --sweep-yaml code/hpc/sweeps/embedding_recovery_smoke.yaml \
+#     --mode cpu --sbatch-extra=--array=0-0 --agent-count 1
+
+entity: AIND-disRNN
+project: embedding_recovery_smoke
+
+name: embedding-recovery-smoke
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - model=gru
+  # --- tiny data (plumbing only; NOT mice-scale) ---
+  - data.num_subjects=4
+  - data.num_sessions_per_subject=6
+  - data.num_trials=80
+  - data.batch_size=32
+  - data.eval_every_n=2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  # --- multisubject GRU, small, few steps, keep recovery paths active ---
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=16
+  - model.architecture.subject_embedding_size=4
+  - model.architecture.session_encoding_type=none   # Stage 1: no session conditioning
+  - model.training.n_steps=20
+  - model.training.checkpoint_every_n_steps=10
+  - model.training.auto_heldout_finetune.enabled=false
+  - model.training.checkpoint_run_heldout_eval=false
+  - "wandb.tags=[smoke,embedding-recovery,stage1]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]
