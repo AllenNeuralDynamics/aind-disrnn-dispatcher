@@ -39,6 +39,31 @@ is scorable out of the box.
   per-session param deltas). Analysis script extended from the Stage-1
   model-agnostic recovery code.
 
+## The baseline_rl role FLIPS at Stage 2 (key prediction)
+
+At Stage 1 baseline_rl is the likelihood *ceiling* (~1.0) because it fits the true
+static model. At Stage 2 the generator drifts within-subject, but baseline_rl still
+fits ONE static parameter set per subject — it has no session axis. So it is now
+**misspecified along the time axis** and must explain a moving policy with a
+session-averaged compromise:
+
+- **Prediction:** baseline_rl `likelihood_relative_to_groundtruth` drops **below 1.0**
+  at Stage 2 (the more drift, the larger the drop).
+- **The GRU with session conditioning ON should NOT degrade as much** — it can track
+  the drift. The **gap that opens between GRU and static baseline_rl at Stage 2 = the
+  value added by the session-conditioning mechanism.**
+- This is a clean dissociation: GRU beats the static-per-subject RL fit *only* when
+  there is real within-subject structure to capture → evidence the session
+  embeddings encode the drift, not noise.
+
+So at Stage 2 baseline_rl is the **static-model reference band the drift-aware model
+is meant to exceed**, not a ceiling. Its degradation is the signal.
+
+**Optional fair drift-aware baseline:** a per-session RL fit (or time-varying RL)
+WOULD track the drift and not degrade — but then it is a different reference. Add it
+as a SECOND Stage-2 reference if we want a drift-aware comparison point; keep the
+static baseline_rl as the "no session mechanism" control.
+
 ## Compute / tracking
 
 Same as gru-stage1. Project `embedding_recovery`, group `gru-stage2@<launch_id>`.
