@@ -158,6 +158,11 @@ infra failure; **just resubmit** and it lands on a healthy node. Check the
 signature with `beaker job get <id> --format json` (look at `status.message` /
 `status.started`) before touching training code.
 
+Before a large fan-out (>4 GPUs / >4 concurrent tasks), run the schedulable-GPU
+probe `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) — it counts
+GPUs that are free *and* not on a cordoned node, by type. It lands with the
+`feat/ignore-trials-scaling` merge; until then use `beaker cluster list ai1`.
+
 ## Image & code version
 
 The image is built on a Mac and pushed to Beaker — see the wrapper's
