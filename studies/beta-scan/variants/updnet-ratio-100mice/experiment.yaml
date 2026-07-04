@@ -7,9 +7,10 @@
 # L40S, so route to g6e (one 90GiB / 12-CPU bundle), NOT octo-hub-onprem-h200. Keeping it
 # off H200 also avoids contending with the running ignore-trials nxd-3way grid there.
 #
-# WRAPPER_REF is pinned to the bottleneck-sparsity-logging commit so each run logs the
-# real-time bottlenecks/* scalars (incl. the isolated update_net_latent channel). The
-# entrypoint git-pulls this at container startup — no image rebuild needed (code-only edit).
+# WRAPPER_REF is pinned to the bottleneck-sparsity-logging branch commit that carries:
+# real-time bottlenecks/* scalars (incl. the isolated update_net_latent channel), disRNN
+# length-bucketed batching, and the extend-later checkpoint-restore path. The entrypoint
+# git-pulls this at container startup — no image rebuild needed (code-only edits).
 version: v2
 description: >
   beta-scan updnet-ratio-100mice — 48-task grid over update_net_latent_penalty_multiplier
@@ -34,7 +35,7 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: eaca1a0cb6d8c8fe60c8ee5e4667f02774e530bf   # real-time bottleneck-sparsity logging
+        value: 87d93f8c989e2059b67c1e87c137f799103ada77   # + length bucketing + extend-later restore
       - name: DISPATCHER_REF
         value: feat/beta-scan                              # this study's code/config source
       # (online by default; safeguard auto-falls-back to offline on a flaky init)
