@@ -22,6 +22,58 @@ Canonical detail: `docs/beaker-playbook.md` (scheduling rules) and
    `conda activate disrnn-cpu` (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`).
 4. Workspace/budget: `WS=ai1/aind-dynamic-foraging-foundation-model`.
 
+## Launching from the Claude Science Mac sandbox
+
+The launchers (`code/launch_beaker.py`, `code/beaker_client.py`,
+`code/launch_beaker_resumable.py`) run **directly from the Mac sandbox** — no HPC
+hop. They are sandbox-safe: `create_wandb_sweep()` hits the W&B GraphQL API
+directly (no `wandb-core` subprocess), and `get_beaker_client()` builds
+`beaker.Beaker` from `Config(user_token=os.environ["BEAKER_TOKEN"])` directly (no
+`~/.beaker/config.yml`). Creds `BEAKER_TOKEN` + `WANDB_API_KEY` are in the sandbox
+env; `beaker.org` and `api.wandb.ai` each need a one-time `request_network_access`
+grant.
+
+```bash
+cd code
+# PYTHONSAFEPATH=1 in the sandbox drops the script dir from sys.path, so the
+# launcher's sibling imports (beaker_client, ...) fail with ModuleNotFoundError
+# unless code/ is on PYTHONPATH:
+PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
+  --sweep beaker/sweep_mvp.yaml --experiment beaker/experiment_mvp.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir ./out --label <label> --note "why this run exists" \
+  --no-submit    # SAFE dry-run: creates the W&B sweep (prints SWEEP_ID) and
+                 # renders the spec, does NOT submit. Drop it to actually submit.
+```
+
+`launch_beaker.py` is two-step: create the W&B sweep (prints `SWEEP_ID` =
+`entity/project/id`), then submit the Beaker experiment unless `--no-submit`.
+Full recipe: `docs/claude-science-workflow.md` -> "Mac -> Beaker launch".
+
+**Verify the image name before submitting.** Old example specs
+(`experiment_h100.yaml`, `experiment_h200.yaml`, `experiment_pack.yaml`) reference
+`beaker: han-hou/disrnn-wrapper`, which **no longer exists** ->
+`ImageNotFound`/404. The current image for the `ai_hub_pck_integration` line is
+`han-hou/disrnn-wrapper-pck-integration`. List live images and set the spec's
+`image.beaker` to one that exists:
+
+```python
+# repl cell, via beaker-py
+[im.full_name for im in b.workspace.images(
+    workspace="ai1/aind-dynamic-foraging-foundation-model")]
+# or CLI: beaker workspace images ai1/aind-dynamic-foraging-foundation-model
+```
+
+Code is pulled fresh at container startup (`entrypoint.sh` checks out
+`WRAPPER_REF`/`DISPATCHER_REF`), so **code/config edits need no image rebuild** —
+push the branch and set the refs. Rebuild only when pinned dependencies change.
+
+**Transient node failure != code bug.** A job can die in ~5 s with
+`status.message: "no space left on device"` and `started=None` — the node's NVMe
+filled while `mkdir`-ing the dataset dir (seen on `gcp-h100`). This is a per-node
+infra failure, not your code. Confirm with `beaker job get <id> --format json`
+(`status.message` / `status.started`), then just resubmit — it lands elsewhere.
+
 ## Cluster choice
 
 Preferred order for known-good low/preemptible S3-backed jobs:
