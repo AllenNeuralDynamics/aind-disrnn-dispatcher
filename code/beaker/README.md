@@ -49,6 +49,29 @@ beaker experiment create -w "$WS" code/beaker/experiment_mvp.yaml
 
 Monitor at `https://beaker.org/ex/<id>`; runs also appear in W&B `AIND-disRNN/ai_hub_test`.
 
+### From the Claude Science Mac sandbox (no CLI, no HPC hop)
+
+The launchers are **sandbox-safe** and replace the two CLI steps above:
+`create_wandb_sweep()` uses the W&B GraphQL API directly (no `wandb-core`
+subprocess), and `get_beaker_client()` builds `beaker.Beaker` from
+`Config(user_token=os.environ["BEAKER_TOKEN"])` directly (no `~/.beaker/config.yml`).
+Creds `BEAKER_TOKEN` + `WANDB_API_KEY` are in the sandbox env; `beaker.org` and
+`api.wandb.ai` each need a one-time `request_network_access` grant.
+
+```bash
+cd code
+# PYTHONSAFEPATH=1 in the sandbox drops the script dir from sys.path, so put
+# code/ on PYTHONPATH or the sibling imports fail with ModuleNotFoundError.
+PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
+  --sweep beaker/sweep_mvp.yaml --experiment beaker/experiment_mvp.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir ./out --label <label> --note "why" \
+  --no-submit    # dry-run: makes the sweep + renders the spec, does NOT submit
+```
+
+Drop `--no-submit` to actually submit. Full recipe (incl. resumable launcher):
+`docs/claude-science-workflow.md` → "Mac → Beaker launch".
+
 ## Clusters
 
 **Rule: only use AI Hub _hub_ clusters** — those with `hub` in the name. The
@@ -126,12 +149,31 @@ Cap co-location with `resources.memory` + `replicas` so concurrent runs don't
 exceed node RAM (≈ `373 GiB / replicas`). Wide (H256) runs: prefer an H200, or
 L40s with the eval chunking above and `replicas`≤2.
 
+## Transient node failures (resubmit, don't debug)
+
+Not every early failure is a code bug. A GPU job can die in ~5 s with
+`status.message: "no space left on device"` and `started=None` — the node's NVMe
+filled while creating the dataset dir (seen on `gcp-h100`). This is a per-node
+infra failure; **just resubmit** and it lands on a healthy node. Check the
+signature with `beaker job get <id> --format json` (look at `status.message` /
+`status.started`) before touching training code.
+
 ## Image & code version
 
 The image is built on a Mac and pushed to Beaker — see the wrapper's
 `beaker/README.md`. Code is pulled fresh at job startup, so **code edits need no
 rebuild**; control the branch/commit via `WRAPPER_REF` / `DISPATCHER_REF` in
 `experiment_mvp.yaml` (a branch name, or a SHA to pin a run).
+
+**Image names go stale — verify before launching.** Old example specs referenced
+`beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
+The current image for the `ai_hub_pck_integration` line is
+`han-hou/disrnn-wrapper-pck-integration`. List live images and point the spec's
+`image.beaker` at one that exists:
+`beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
+Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
+Because code is pulled fresh at startup, a stale image is the only thing here that
+needs fixing before launch — you almost never rebuild for a code change.
 
 ## Scaling
 
