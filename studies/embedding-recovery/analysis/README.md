@@ -46,14 +46,37 @@ network-restricted sandbox use the raw GraphQL POST already wired into
 `fetch_sweep_runs()` (`https://api.wandb.ai/graphql`, `auth=("api",
 WANDB_API_KEY)`).
 
-## Stage-1 finding (preliminary, hidden=16 + first hidden=64 cells)
-- **Fit likelihood is at ceiling (0.98–0.999) for every embedding size** — a 2-D
-  embedding fits the behaviour essentially perfectly.
+## Stage-1 finding (complete CPU grid: hidden∈{16,64} × embed∈{2,4} × N∈{50,100,200,300})
+- **Fit likelihood is at ceiling (relative ≈ 0.98–1.00) for every cell** — a 2-D
+  embedding fits the behaviour essentially perfectly. Likelihood alone cannot
+  distinguish embedding sizes.
 - **Recovery discriminates**: `embedding_size = 4` recovers all three parameters
-  (R² ≈ 0.93–0.99, CCA r ≈ 0.995); `embedding_size = 2` is under-capacity
-  (R²_mean ≈ 0.42) — two dimensions cannot span three generating factors.
-- `biasL` is the most sample- and capacity-hungry parameter (R² 0.80 → 0.95 as
-  N grows 50 → 200 at hidden=16; 0.80 → 0.93 going hidden=16 → 64 at N=50).
+  (mean R² ≈ 0.91–0.96, CCA r ≈ 0.99) at BOTH hidden sizes; `embedding_size = 2`
+  is under-capacity (mean R² ≈ 0.42–0.50) — two dimensions cannot span three
+  generating factors.
+- **The neural embedding matches the correct-model reference.** baseline_rl
+  (correctly-specified Q-learning, fitted per subject) recovers its own
+  generating params at mean R² ≈ 0.91–0.97 — the achievable ceiling (imperfect
+  only due to DE estimation noise, mostly in softmax_temp). GRU embed=4 recovery
+  (0.91–0.96) essentially equals it: the learned subject embedding recovers the
+  latent parameters as well as directly fitting the true model.
+- **More hidden capacity does NOT rescue a too-small embedding — it can hurt.**
+  At embed=2, going hidden 16→64 drops learn_rate recovery toward ~0 (the larger
+  network fits behaviour without routing learn_rate cleanly through the 2-D
+  bottleneck). The embedding size, not network size, is the identifiability knob.
+- `softmax_inverse_temperature` is the hardest parameter for BOTH the GRU and the
+  correct-model baseline (≈0.74–0.91), i.e. a property of the data
+  (weak identifiability at the high-temperature end), not a GRU limitation.
 
-This is the core methodological point: **likelihood alone would rate both
-embedding sizes equally; only embedding-vs-truth recovery reveals identifiability.**
+Core methodological point: **likelihood alone would rate embed=2 and embed=4
+equally; only embedding-vs-truth recovery reveals identifiability, and it needs
+embedding_size ≥ number of latent generating factors.**
+
+### Metric-scale gotcha (do not reintroduce)
+baseline_rl logs **absolute** `eval_likelihood` (≈0.76 here), NOT the relative
+ratio. To compare fit quality against GRU on one axis, divide by the
+generating-policy likelihood: `baseline_relative = eval_likelihood /
+groundtruth_likelihood` (per-N ground truth ≈ 50→0.7606, 100→0.7621, 200→0.7709,
+300→0.7765; baseline relative then ≈ 0.9999, i.e. exactly at ceiling). Plotting
+baseline-absolute against GRU-relative on a shared axis is a scale error that
+makes the correct-model reference look worse than ceiling.
