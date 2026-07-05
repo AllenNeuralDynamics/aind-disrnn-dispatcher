@@ -20,6 +20,14 @@ num_trials: 650
 # (subject, session) gets a unique deterministic seed.
 subject_seed_stride: 100000
 
+# Held-out-session split (Stage 2b+). interleaved (default) = every eval_every_n-th
+# session is eval (model can interpolate drift). tail = the last heldout_frac fraction
+# of each subject's sessions are the held-out eval block (model must EXTRAPOLATE drift;
+# fair GRU-vs-baseline comparison on genuinely unseen sessions). Both GRU and baseline_rl
+# honor this via loader-provided train/eval session metadata.
+heldout_session_mode: "interleaved"
+heldout_frac: 0.2
+
 # Where the per-(subject,session) ground-truth table is written. "." = the
 # Hydra run dir (chdir:true), so it lands alongside each run's outputs.
 groundtruth_dir: "."
