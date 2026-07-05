@@ -64,9 +64,15 @@ WANDB_API_KEY)`).
   At embed=2, going hidden 16→64 drops learn_rate recovery toward ~0 (the larger
   network fits behaviour without routing learn_rate cleanly through the 2-D
   bottleneck). The embedding size, not network size, is the identifiability knob.
-- `softmax_inverse_temperature` is the hardest parameter for BOTH the GRU and the
-  correct-model baseline (≈0.74–0.91), i.e. a property of the data
-  (weak identifiability at the high-temperature end), not a GRU limitation.
+- Which parameter is hardest differs by model class. For the correct-model
+  baseline, `softmax_inverse_temperature` is clearly the worst-recovered
+  (R² 0.74–0.91, vs biasL ≈1.00 and learn_rate ≈1.00) — weak identifiability at
+  the high-temperature end, a property of the data. For the GRU embed=4 cells the
+  three params are all recovered well and close together (biasL 0.80–0.95,
+  learn_rate 0.97–0.99, softmax_temp 0.89–0.94); biasL is the marginally hardest
+  and the most sample/capacity-hungry (it improves with more subjects and more
+  hidden units), while softmax_temp is recovered *better* by the GRU than by the
+  correctly-specified baseline.
 
 Core methodological point: **likelihood alone would rate embed=2 and embed=4
 equally; only embedding-vs-truth recovery reveals identifiability, and it needs
