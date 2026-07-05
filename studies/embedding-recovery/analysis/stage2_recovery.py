@@ -1,9 +1,12 @@
 
-"""Stage-2 recovery analysis (runs on HPC: reaches W&B GCS + regenerates GT).
+"""Stage-2 SUBJECT-level recovery analysis (runs on HPC: reaches W&B GCS + regenerates GT).
 For each GRU run: download subject_embeddings.pkl from its W&B training-output
-artifact; regenerate ground truth byte-identically from its logged config;
-compute (a) per-subject param recovery (R2 + canonical-corr) from the SUBJECT
-embedding, and (b) session-trajectory recovery from the SESSION context map.
+artifact; regenerate ground truth byte-identically from its logged config; compute
+per-subject param recovery (R2 + canonical-corr) from the SUBJECT embedding, using
+each subject's session-MEAN parameters as the target.
+
+Session-TRAJECTORY recovery (per-session embedding vs drifting per-session params,
+using the learned session-delta MLP) is a SEPARATE script: stage2_session_traj.py.
 """
 import os, sys, json, pickle, hashlib
 import numpy as np, pandas as pd
