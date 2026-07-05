@@ -175,11 +175,36 @@ def fetch_params(s, run_name):
     return None, None
 
 
+def _write_wandb_summary(run_name, fam_metrics_by_family):
+    """Push post-hoc metrics onto a run's W&B summary via the public API.
+
+    Keys mirror the trainer's live namespace exactly (bottlenecks/<fam>_<metric>)
+    so live and backfilled runs are consistent, plus a bottlenecks/_backfilled=1
+    marker so it is unambiguous these scalars were added post-hoc (the run's own
+    history does not contain them; the live grid pinned an older wrapper ref).
+    Requires a working wandb SDK + credentials (WANDB_API_KEY or ~/.netrc) -- runs
+    on HPC / login node, NOT the Claude Science sandbox (wandb.Api() fails there).
+    """
+    import wandb
+    api = wandb.Api(timeout=60)
+    run = api.run(f"{ENTITY}/{PROJECT}/{run_name}")
+    n = 0
+    for fam, mets in fam_metrics_by_family.items():
+        for mk, mv in mets.items():
+            run.summary[f"bottlenecks/{fam}_{mk}"] = mv
+            n += 1
+    run.summary["bottlenecks/_backfilled"] = 1
+    run.summary.update()
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--group", required=True)
     ap.add_argument("--out", default="backfill_sparsity_metrics.csv")
     ap.add_argument("--only-finished", action="store_true", default=True)
+    ap.add_argument("--write-wandb", action="store_true",
+                    help="also push metrics onto each run's W&B summary (needs wandb SDK + creds)")
     args = ap.parse_args()
     s = _sess()
     runs = list_group_runs(s, args.group)
@@ -192,11 +217,21 @@ def main():
         if mp is None:
             print(f"  SKIP {rn[-8:]}: no params artifact"); continue
         rec = {"run": rn, "src": src, **{k: meta[k] for k in ("mult", "beta", "lr", "seed", "in_eval_ll", "heldout_eval_ll")}}
+        fam_metrics_by_family = {}
         for fam, key in FAMKEYS.items():
             if key not in mp:
                 continue
-            for mk, mv in family_metrics(mp[key]).items():
+            fm = family_metrics(mp[key])
+            fam_metrics_by_family[fam] = fm
+            for mk, mv in fm.items():
                 rec[f"{fam}.{mk}"] = mv
+        if args.write_wandb:
+            try:
+                nk = _write_wandb_summary(rn, fam_metrics_by_family)
+                rec["wandb_summary_keys_written"] = nk
+                print(f"    -> wrote {nk} summary keys to W&B run {rn}")
+            except Exception as ex:
+                print(f"    -> W&B summary write FAILED for {rn}: {str(ex)[:120]}")
         rows.append(rec)
         u = {k[len("update_net_latent."):]: v for k, v in rec.items() if k.startswith("update_net_latent.")}
         print(f"  {rn[-8:]} mult={meta['mult']} b={meta['beta']} lr={meta['lr']} seed={meta['seed']} | "
