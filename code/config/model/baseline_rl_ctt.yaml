@@ -1,0 +1,26 @@
+# Baseline fitter -- CompareToThreshold (ForagerCompareThreshold: local income vs a learned
+# threshold; params learn_rate/threshold/softmax_inverse_temperature/biasL). One of THREE
+# FIXED baselines (Bari/Hattori/CTT). DIFFERENT base class: agent_kwargs carries ONLY
+# choice_kernel (QL structure kwargs do not apply and ForagerCompareThreshold REJECTS them).
+# STANDALONE config so no QL kwargs leak in via deep-merge.
+type: baseline_rl
+
+agent_class: ForagerCompareThreshold
+agent_kwargs:
+  choice_kernel: none
+run_name_component: baseline_ctt
+_target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
+
+architecture:
+  multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+multisubject_subject_workers: 6
+fit_bounds_override: {}
+clamp_params: {}
+DE_kwargs:
+  polish: true
+heldout_refit:
+  enabled: false
+  skip_train_fit: false
+
+seed: ${seed}
