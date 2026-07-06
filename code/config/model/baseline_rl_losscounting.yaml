@@ -1,0 +1,27 @@
+# Baseline fitter -- LossCounting (ForagerLossCounting: lose-shift after N losses;
+# params loss_count_threshold_mean/std/biasL). One of the THREE FIXED Stage-4a baselines
+# (QLearning-Bari / CompareToThreshold / LossCounting), each fit as a SINGLE model type
+# over ALL subjects (one fit per subject). Model-selection over the three recovers each
+# subject's FAMILY. STANDALONE config (no baseline_rl merge) -- different base class,
+# takes no QL/CTT kwargs.
+type: baseline_rl
+
+agent_class: ForagerLossCounting
+agent_kwargs: {}
+run_name_component: baseline_losscounting
+
+_target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
+
+architecture:
+  multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+multisubject_subject_workers: 6
+fit_bounds_override: {}
+clamp_params: {}
+DE_kwargs:
+  polish: true
+heldout_refit:
+  enabled: false
+  skip_train_fit: false
+
+seed: ${seed}
