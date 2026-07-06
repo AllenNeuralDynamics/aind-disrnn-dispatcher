@@ -1,0 +1,111 @@
+# Hierarchical MIXTURE-OF-Q-LEARNING-VARIANTS agent (STAGE 3, Han 2026-07-06).
+#
+# Stage 3 layers a per-subject MODEL-TYPE (preset) axis on top of the per-subject
+# parameter-subregion axis: each subject is assigned ONE Q-learning variant for its
+# whole lifetime (an animal does not switch algorithm within a session; per-session
+# family switching is the separate Stage-4b axis). The three presets are the three
+# canonical dynamic-foraging Q-learning variants:
+#
+#   * Bari2019        -- 1 learning rate + forget + one-step choice kernel, softmax
+#   * Hattori2019     -- 2 learning rates (rew/unrew) + forget, no choice kernel, softmax
+#   * Rescorla-Wagner -- 1 learning rate, no forget, no choice kernel, epsilon-greedy
+#
+# Recovery axes this enables (analysis side): (1) WITHIN-family parameter recovery
+# (each preset's own subject_param_dist), (2) preset CLASSIFICATION from the subject
+# embedding, (3) baseline = the three FIXED baselines (Bari/Hattori/CTT) fit one model
+# per subject; model-selection over the three picks each subject's family.
+#
+# Parameter diversity is RETAINED WITHIN each preset (per-subject centroids drawn from
+# that preset's subject_param_dist) -- the class axis is layered on top, not instead of,
+# the continuous param diversity (Han 2026-07-05).
+#
+# Each preset carries Stage-2b-style drift (magnitude x2 + non-monotonic softmax +
+# session_noise) on the parameters it actually has, so the held-out-tail extrapolation
+# split remains the sensitive model-comparison split.
+type: "mixture_qlearning"
+
+loader_target: data_loaders.hierarchical_synthetic.HierarchicalCognitiveAgents
+
+# Shared per-session jitter default (a preset may override its own session_noise).
+session_noise:
+  biasL: 0.15
+  softmax_inverse_temperature: 1.5
+
+# Per-subject preset assignment: balanced round-robin (equal counts, no RNG, fully
+# reproducible and independent of the param/seed streams). Use assignment: random +
+# weights: [...] for an unequal mixture.
+subject_presets:
+  assignment: "balanced"
+  presets:
+    # ---------------- Bari 2019 ----------------
+    - name: "Bari2019"
+      agent_class: "ForagerQLearning"
+      agent_kwargs:
+        number_of_learning_rate: 1
+        number_of_forget_rate: 1
+        choice_kernel: "one_step"
+        action_selection: "softmax"
+      agent_params: {}
+      # choice_kernel_step_size is FIXED at 1.0 for a one_step kernel (pydantic ge=le=1.0),
+      # so it is NOT a free param -- it stays at its default and is not drawn here.
+      subject_param_dist:
+        learn_rate: {type: uniform, min: 0.1, max: 0.9}
+        forget_rate_unchosen: {type: uniform, min: 0.0, max: 0.4}
+        choice_kernel_relative_weight: {type: uniform, min: 0.0, max: 0.5}
+        biasL: {type: uniform, min: -1.5, max: 1.5}
+        softmax_inverse_temperature: {type: uniform, min: 2.0, max: 15.0}
+      drift:
+        learn_rate: {mode: linear, delta: 0.6}
+        biasL: {mode: toward_zero, frac: 0.8}
+        softmax_inverse_temperature: {mode: sinusoidal, amp: 4.0, cycles: 1.0}
+      session_noise:
+        learn_rate: 0.05
+        biasL: 0.15
+        softmax_inverse_temperature: 1.5
+    # ---------------- Hattori 2019 ----------------
+    - name: "Hattori2019"
+      agent_class: "ForagerQLearning"
+      agent_kwargs:
+        number_of_learning_rate: 2
+        number_of_forget_rate: 1
+        choice_kernel: "none"
+        action_selection: "softmax"
+      agent_params: {}
+      subject_param_dist:
+        learn_rate_rew: {type: uniform, min: 0.1, max: 0.9}
+        learn_rate_unrew: {type: uniform, min: 0.05, max: 0.6}
+        forget_rate_unchosen: {type: uniform, min: 0.0, max: 0.4}
+        biasL: {type: uniform, min: -1.5, max: 1.5}
+        softmax_inverse_temperature: {type: uniform, min: 2.0, max: 15.0}
+      drift:
+        learn_rate_rew: {mode: linear, delta: 0.6}
+        biasL: {mode: toward_zero, frac: 0.8}
+        softmax_inverse_temperature: {mode: sinusoidal, amp: 4.0, cycles: 1.0}
+      session_noise:
+        learn_rate_rew: 0.05
+        learn_rate_unrew: 0.05
+        biasL: 0.15
+        softmax_inverse_temperature: 1.5
+    # ---------------- Rescorla-Wagner (epsilon-greedy) ----------------
+    - name: "RescorlaWagner"
+      agent_class: "ForagerQLearning"
+      agent_kwargs:
+        number_of_learning_rate: 1
+        number_of_forget_rate: 0
+        choice_kernel: "none"
+        action_selection: "epsilon-greedy"
+      agent_params: {}
+      subject_param_dist:
+        learn_rate: {type: uniform, min: 0.1, max: 0.9}
+        biasL: {type: uniform, min: -1.5, max: 1.5}
+        epsilon: {type: uniform, min: 0.02, max: 0.35}
+      drift:
+        learn_rate: {mode: linear, delta: 0.6}
+        biasL: {mode: toward_zero, frac: 0.8}
+        epsilon: {mode: toward_zero, frac: 0.5}
+      session_noise:
+        learn_rate: 0.05
+        biasL: 0.15
+        epsilon: 0.02
+
+seed: ${seed}
