@@ -22,6 +22,7 @@ command:
   - data=synthetic_hierarchical
   - data/agent=hierarchical_rl_stage3
   - model=baseline_rl_ctt
+  - model.multisubject_subject_workers=48
   - data.num_subjects=200
   - data.num_sessions_per_subject=40
   - data.num_trials=650
