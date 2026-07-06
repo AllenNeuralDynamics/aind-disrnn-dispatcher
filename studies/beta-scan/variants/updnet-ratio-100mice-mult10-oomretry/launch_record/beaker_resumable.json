@@ -1,0 +1,9 @@
+{
+  "mode": "resumable-grid",
+  "n_tasks": 1,
+  "experiment_id": "01KWWN3QAY96HRV68FXJG9MCZT",
+  "experiment_url": "https://beaker.org/ex/01KWWN3QAY96HRV68FXJG9MCZT",
+  "dispatcher_commit": "0bf9200314a86d47c6cdfefacf812c4bd0d3f317",
+  "sweep_file": "studies/beta-scan/variants/updnet-ratio-100mice-mult10-oomretry/sweep.yaml",
+  "created_utc": "2026-07-06T21:24:54.493874+00:00"
+}
