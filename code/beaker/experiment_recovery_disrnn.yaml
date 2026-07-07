@@ -21,8 +21,8 @@ tasks:
       - "<SWEEP_ID>"
     replicas: 6                    # 6 agents drain the 6-cell grid (~1 run each)
     context:
-      priority: normal
-      preemptible: false
+      priority: low          # p5en is a reserved cluster — must run low+preemptible to be admitted
+      preemptible: true
     constraints:
       cluster:
         - ai1/octo.ai-aws-p5en
