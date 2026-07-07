@@ -112,6 +112,7 @@ if run: print(f"\n  slowest active job finishes in ~{fmt_eta(max(r['eta_s'] for 
 
 # ================= MULT=10 SUPPLEMENT (h200/l40s) =================
 SUPP_GROUP="updnet-ratio-100mice-mult10-supp@20260706-093606"
+OOMRETRY_EXP="01KWWZ5WXRD8B0AXYC81T1D7SB"  # 3rd attempt, on g6e now
 SUPP_EXP="01KWW4K1BVG07223K9SMJAHPP3"
 try:
     from beaker import Beaker, Config
@@ -145,3 +146,12 @@ try:
         print(f"     mult=10  {r['state'][:8]:>8}  {bar(r['main'],width=18,state=r['state']):^26} {eta:>6} | {hld:>5}{tag}")
 except Exception as _e:
     print(f"\n  [supplement query failed: {str(_e)[:80]}]")
+
+# ---- tiny OOM-retry check (g6e) ----
+try:
+    _og=_b.experiment.get(OOMRETRY_EXP)
+    for _t in _b.experiment.tasks(_og):
+        _s="created" if not _t.jobs else str(getattr(_t.jobs[-1].status,'current',None))
+        print(f"\n  oom-retry-g6e (mult=10 b=3e-4 lr=1e-3 seed=0): {_s}")
+except Exception as _e:
+    print(f"  [oom-retry query failed: {str(_e)[:60]}]")
