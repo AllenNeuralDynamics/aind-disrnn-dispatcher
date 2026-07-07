@@ -26,8 +26,7 @@ tasks:
       - agent
     constraints:
       cluster:
-        - ai1/octo-hub-onprem-h200
-        - ai1/octo-hub-aws-l40s
+        - ai1/octo.ai-aws-g6e
     resources:
       gpuCount: 1
       cpuCount: 12

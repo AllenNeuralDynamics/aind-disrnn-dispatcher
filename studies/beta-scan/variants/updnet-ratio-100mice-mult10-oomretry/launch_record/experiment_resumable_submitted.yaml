@@ -1,8 +1,8 @@
 version: v2
-description: "updnet-ratio-100mice-mult10-oomretry@20260706-142450 \u2014 1 resumable\
+description: "updnet-ratio-100mice-mult10-oomretry@20260706-172047 \u2014 1 resumable\
   \ grid tasks (autoResume)"
 tasks:
-- name: updnet-ratio-100mice-mult10-oomretry-20260706-142450-000
+- name: updnet-ratio-100mice-mult10-oomretry-20260706-172047-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -35,8 +35,7 @@ tasks:
   - seed=0
   constraints:
     cluster:
-    - ai1/octo-hub-onprem-h200
-    - ai1/octo-hub-aws-l40s
+    - ai1/octo.ai-aws-g6e
   resources:
     gpuCount: 1
     cpuCount: 12
@@ -51,24 +50,24 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-mult10-oomretry-20260706-142450-01e6d07a
+    value: updnet-ratio-100mice-mult10-oomretry-20260706-172047-11850b94
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice-mult10-oomretry@20260706-142450
+    value: updnet-ratio-100mice-mult10-oomretry@20260706-172047
   - name: DISRNN_META_STUDY
     value: beta-scan
   - name: DISRNN_META_VARIANT
     value: updnet-ratio-100mice-mult10-oomretry
   - name: DISRNN_META_LAUNCH_ID
-    value: 20260706-142450
+    value: 20260706-172047
   - name: DISRNN_META_CONFIG_HASH
     value: 92c3f5d0
   - name: DISRNN_META_LABEL
-    value: mult10-oomretry
+    value: mult10-oomretry-g6e
   - name: DISRNN_META_NOTE
-    value: 'OOM-retry: single mult=10 beta=3e-4/lr=1e-3/seed=0 cell (transient H200
-      OOM in supp 01KWW4K1)'
+    value: 'OOM-retry attempt 2: mult=10 beta=3e-4/lr=1e-3/seed=0, retargeted to g6e
+      (h200/l40s OOM''d twice - contention)'
   result:
     path: /results
   context:
