@@ -117,3 +117,13 @@ after the squash must be PR'd up separately first, or it orphans. `git branch -d
 refuses a squash-merged branch — use `-D` once the two-dot diff confirms capture.
 Record the tip SHA before deleting (recoverable). Branches with unmerged unique
 commits, or another active session's work, are off-limits.
+
+**Renaming study folders (`git mv` + content edits):** when a rename also touches
+file *contents* (cross-study paths, comments, captions), `git mv` stages the rename
+with the OLD content — editing the file afterward leaves those edits UNSTAGED. Always
+`git add -A` (or re-stage the edited files) immediately before committing, and confirm
+`git diff --cached` shows the content changes, not just the `R` rename lines.
+Committing without re-staging silently ships the renamed files with stale content
+(e.g. a cross-study `TWO_WAY_JSON` path still pointing at the old folder → broken
+pipeline). The one functional cross-study reference to check first is any
+`STUDY.parent / "<other-study>" / ...` path in an analysis script.
