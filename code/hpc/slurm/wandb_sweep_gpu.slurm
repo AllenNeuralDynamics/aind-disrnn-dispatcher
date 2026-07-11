@@ -15,7 +15,7 @@
 #SBATCH -p aind
 #SBATCH -t 05:00:00
 #SBATCH -c 2
-#SBATCH --mem=32G
+#SBATCH --mem=128G
 #SBATCH --gres=gpu:v100:1
 #SBATCH --array=0-5
 #SBATCH --mail-type=FAIL,END,BEGIN

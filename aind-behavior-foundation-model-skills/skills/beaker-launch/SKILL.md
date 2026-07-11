@@ -22,18 +22,47 @@ Canonical detail: `docs/beaker-playbook.md` (scheduling rules) and
    `conda activate disrnn-cpu` (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`).
 4. Workspace/budget: `WS=ai1/aind-dynamic-foraging-foundation-model`.
 
+## Check available resources FIRST (mandatory for large jobs)
+
+**Before launching any large job (> 4 GPUs / > 4 concurrent tasks), run the
+capacity check and route to a backend that actually has schedulable GPUs.**
+This is a hard rule (AGENTS.md §10) — do not assume the preferred cluster order
+below has free slots.
+
+```bash
+# schedulable = free AND not on a cordoned node (Beaker) / Cfg-Alloc on non-drain nodes (HPC)
+python code/check_gpu_availability.py            # both backends
+python code/check_gpu_availability.py --beaker   # Beaker only (no VPN needed)
+python code/check_gpu_availability.py --hpc      # HPC only (needs Allen network / VPN)
+```
+
+Why the built-in counts lie:
+
+- **Beaker** advertises a node's `free.gpu_count` even when the node is
+  **`cordoned`** — those GPUs are *not* schedulable. A cluster can read "16 free"
+  while all 16 sit on cordoned nodes (0 launchable). `check_gpu_availability.py`
+  subtracts cordoned-node GPUs; `beaker cluster list ai1` does **not**.
+- Always compare against the **schedulable** column, never raw "free".
+
+If all Beaker clusters show 0 schedulable, **check HPC** (`--hpc`) and route the
+job there instead (`hpc-launch` skill) — the two backends load-balance. HPC needs
+VPN/Allen-network; if VPN is down, HPC is unreachable and Beaker is the only option
+(wait out the queue — preemptible jobs burst as capacity frees / nodes uncordon).
+
 ## Cluster choice
 
-Preferred order for known-good low/preemptible S3-backed jobs:
+Clusters (pick by *live schedulable capacity* first, then by these properties):
 
-1. `ai1/octo.ai-aws-g6e` — L40S, many slots, faster than H200 for our workloads;
-   **low/preemptible only** (the verified exception).
-2. `ai1/octo-hub-onprem-h200` — many slots; needed for big-GPU jobs (hidden_size=256
-   needs H200's 141 GB; it OOMs a 48 GB L40S).
-3. `ai1/octo-hub-aws-l40s` — same L40S class, more contended.
+- `ai1/octo.ai-aws-g6e` — L40S 48GB, many slots; **low/preemptible only** (the
+  verified non-hub exception).
+- `ai1/octo-hub-aws-l40s` — L40S 48GB, same class.
+- `ai1/octo-hub-onprem-h200` — H200 141GB. **Use only when a task needs the memory**
+  (wide `hidden_size=256` OOMs a 48GB L40S). **H200 is NOT inherently faster than
+  L40S/g6e** for our workloads — do not prefer it on speed grounds; for narrow N it
+  offers no throughput advantage and is often the most contended.
 
 **GCP clusters cannot reach AWS S3** (`aind-scratch-data` DNS fails cross-cloud) —
-never route DB/S3-backed jobs there. Check free slots: `beaker cluster list ai1`.
+never route DB/S3-backed jobs there.
 
 ## Priority & preemption (hard-won, verified 2026-06-22)
 
