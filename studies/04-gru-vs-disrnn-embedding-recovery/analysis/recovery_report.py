@@ -106,7 +106,7 @@ def _fig_ladder(ladder):
 def _fig_disrnn(dis):
     gru_lik = {4: 0.990552868070854, 8: 0.990559486606228, 16: 0.9881624486414816}
     mk = {"none": "o", "scalar": "s"}
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.4))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.4))
     axA = axes[0]
     for enc in ["none", "scalar"]:
         sub = dis[dis.enc == enc].sort_values("embed")
@@ -130,6 +130,32 @@ def _fig_disrnn(dis):
     axB.set_xlabel("subject embedding size"); axB.set_ylabel("relative likelihood")
     axB.set_title("disRNN costs ~4\u20136 pts likelihood\nfor its sparse latent", fontsize=12, loc="left")
     axB.legend(frameon=False, fontsize=11, loc="center right")
+
+    # Panel C: embedding-space PCA of the scalar-D16 disRNN subject embedding,
+    # colored by true model family (the interpretable clusters). Reads the
+    # committed emb CSV; the true family per subject is joined from the grid.
+    axC = axes[2]
+    FAMCOL = {"QLearning": "#2166ac", "CompareToThreshold": "#b2182b", "LossCounting": "#1b7837"}
+    embp = HERE / "emb_disrnn_scalar_D16.csv"
+    if embp.exists():
+        emb = pd.read_csv(embp)
+        ecols = [c for c in emb.columns if c.startswith("emb_")]
+        X = emb[ecols].to_numpy(float); X = X - X.mean(0)
+        # PCA via numpy SVD (sklearn absent in default env)
+        U, S, Vt = np.linalg.svd(X, full_matrices=False)
+        pcs = X @ Vt[:2].T
+        for f, col in FAMCOL.items():
+            m = emb.dominant_family.values == f
+            axC.scatter(pcs[m, 0], pcs[m, 1], s=26, c=col, edgecolor="white", lw=0.4,
+                        label=f.replace("CompareToThreshold", "CompareThresh"), alpha=0.9)
+        axC.set_xlabel("PC1 \u2192"); axC.set_ylabel("PC2 \u2192")
+        axC.set_xticks([]); axC.set_yticks([])
+        axC.legend(frameon=False, fontsize=10, loc="lower left")
+        axC.set_title("disRNN embedding separates\nthe three families (scalar D16)", fontsize=12, loc="left")
+    else:
+        axC.axis("off")
+        axC.text(0.5, 0.5, "emb CSV not staged\n(panel skipped)", ha="center", va="center",
+                 fontsize=10, color="#999", transform=axC.transAxes)
     fig.tight_layout(); fig.savefig(HERE / "fig_disrnn_stage4a.png"); plt.close(fig)
 
 

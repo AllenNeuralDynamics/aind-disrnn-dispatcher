@@ -35,3 +35,7 @@ subject embedding against true per-subject parameters (Stages 1–2), and
 classification accuracy of model variant/family from the embedding (Stages 3–4).
 The `baseline_rl` runs are the correct-model-class **reference**, not a
 competitor.
+
+## Figure gallery
+
+All per-stage recovery, parameter-recovery, and embedding-space figures (Stages 1→4) are catalogued in [`../FIGURES.md`](../FIGURES.md); the images live in [`../figures/`](../figures/).
