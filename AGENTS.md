@@ -136,9 +136,18 @@ and is not allowed.
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
   preemptible** jobs (AWS, reaches S3, L40S bundle).
-- Preferred cluster order for known-good low/preemptible S3-backed jobs: `ai1/octo.ai-aws-g6e`
-  first (L40S has been faster than H200 for our current workloads and has many slots), then
-  `ai1/octo-hub-onprem-h200` (many slots), then `ai1/octo-hub-aws-l40s`.
+- **Check schedulable capacity BEFORE launching any large job (> 4 GPUs / > 4 concurrent
+  tasks): `python code/check_gpu_availability.py`** (Beaker + HPC). Route to whichever backend
+  has room. "Free" is not "schedulable": Beaker reports GPUs on **cordoned** nodes as free
+  (unschedulable), and `sinfo` counts `drain`/`down` nodes — the script strips both. Do not
+  trust `beaker cluster list` / raw `sinfo` free counts, and never assume the cluster order
+  below has open slots.
+- Cluster choice: pick by **live schedulable capacity first**. `ai1/octo.ai-aws-g6e` (L40S,
+  low/preemptible-only exception) and `ai1/octo-hub-aws-l40s` (L40S) for general jobs;
+  `ai1/octo-hub-onprem-h200` **only when a task needs the 141 GB** (wide `hidden_size=256`
+  OOMs a 48 GB L40S). **H200 is not inherently faster than L40S/g6e** — do not prefer it on
+  speed grounds. When all Beaker clusters are saturated/cordoned, HPC SLURM (`aind` partition)
+  is the GPU overflow — check it with `--hpc` and launch there (§13 load-balancing).
 - Heavy work never on the login node (see §5).
 - Scheduling detail — priority/bursting, GPU-bundle sizing (`--memory 90GiB --cpu 12` = 1 L40s
   GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
