@@ -1,6 +1,11 @@
 # Study: Include-ignore-trials scaling (3-way output)
 
-**Question.** The `data-scaling-law` study showed per-trial **L/R choice** likelihood is
+*Folder `02-gru-scaling-law-ignore` — formerly `ignore-trials-scaling`. W&B project
+`mice_ignore_scaling`; most runs logged before the 2026-07-11 rename carry
+`meta.study="ignore-trials-scaling"` (63/66 as of the rename; a few smoke/validation
+runs are `meta.study="adhoc"` or unset). Filter by W&B **project**, not `meta.study`.*
+
+**Question.** The `01-gru-scaling-law` study showed per-trial **L/R choice** likelihood is
 near a *predictability ceiling* — data-scaling is real but saturates by ~100 mice and the
 absolute headroom is small. This study tests a **headroom-ier target**: add the *ignored /
 disengaged* trial as a third output class (`output_size` 2→3, L/R/ignore). Engagement is

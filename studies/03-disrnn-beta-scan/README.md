@@ -1,5 +1,10 @@
 # Study: update-net-ratio β-scan (disRNN interaction sparsity at 100 mice)
 
+*Folder `03-disrnn-beta-scan` — formerly `beta-scan`. W&B project
+`disrnn_updnet_bottleneck_ratio_100mice`; runs logged before the 2026-07-11 rename
+carry `meta.study="beta-scan"` (uniform across the sampled runs, but filter by W&B
+**project** rather than `meta.study` to be safe).*
+
 **Question.** When many mice are trained together, the disRNN's **interaction
 bottleneck** (the update-net's latent×latent gate) does not sparsify as much as
 we want — it stays open even after regularization, hurting interpretability.
