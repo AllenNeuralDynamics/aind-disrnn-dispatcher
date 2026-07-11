@@ -1,100 +1,112 @@
-# Study: disRNN bottleneck-β scan (update-net ratio at large cohort)
+# Study: update-net-ratio β-scan (disRNN interaction sparsity at 100 mice)
 
-**Question.** In the disRNN, the *interaction* (update-net) bottleneck does **not stay as
-sparse as we want when the number of training mice is large**. A sparse update-net is what
-makes the recovered dynamics interpretable (few active interaction channels), so losing
-sparsity at scale defeats the purpose of the model. This study asks: **can a harder,
-*asymmetric* penalty on the update-net latent channel restore interaction sparsity at 100
-mice, without giving up choice-prediction fit?**
+**Question.** When many mice are trained together, the disRNN's **interaction
+bottleneck** (the update-net's latent×latent gate) does not sparsify as much as
+we want — it stays open even after regularization, hurting interpretability.
+One hypothesis (Kevin, via Po-Chen) is that the fix is a *separate, stronger*
+penalty on that specific gate relative to the base β that regularizes every other
+bottleneck. The dispatcher exposes this as `update_net_latent_penalty_multiplier`
+(effective multiplier = `update_net_latent_penalty / beta`). This study asks, at
+a fixed 100-mouse cohort: **does raising the multiplier actually sparsify the
+interaction bottleneck, at what collateral cost to the other bottlenecks, and does
+any of it cost held-out-mouse transfer?**
 
-**Hypothesis (Kevin, relayed via Po-Chen).** Penalize the **update (interaction) network's
-latent input harder than the other bottlenecks**, via the existing
-`update_net_latent_penalty_multiplier`, while keeping the **decision (choice) network a pure
-linear readout** (`choice_net_n_layers=0`). Rationale:
-- The multiplier scales *only* the update-net latent penalty
-  (`resolve_disrnn_penalties`: `resolved[update_net_latent_penalty] = beta × multiplier`),
-  so raising it squeezes the interaction bottleneck specifically — the exact channel whose
-  non-sparsity is the problem — rather than the whole model uniformly.
-- A **linear** choice net (no hidden layer) keeps the latent→policy map a single weight per
-  latent, so the interpretability gain from a sparse interaction net isn't laundered back
-  through a nonlinear readout. (This is Kevin Miller's `disentangled_rnns`; `n_layers=0` ⇒
-  empty `choice_mlp_shape` ⇒ linear readout. Validated: **68 of Po-Chen's prior disRNN runs**
-  already trained with `choice_net_n_layers=0`.)
+**The one real knob** is the multiplier. Everything else is held identical to the
+`data-scaling-law` D=100 GRU arm so the held-out numbers are comparable:
+2-way output (`ignore_policy=exclude`), **linear choice net** (`choice_net_n_layers=0`,
+Kevin's interpretability request), `latent_size=5`, update-net 5×16, scalar session
+conditioning, `batch_mode=random`/`batch_size=2048`, length bucketing on,
+`snapshot=20260603`, 100 mice (`subject_ratio=0.163`).
 
-**The coverage gap this closes.** Po-Chen *did* scan `update_net_latent_penalty_multiplier`
-at **{2, 5, 10}× base — but only at ≤10 mice** (24 diverging 10-mice disRNN runs: 12 in
-`mice_multisubject_train10_update_net_latent_penalty_multiplier` at 2/5/10×, + 12 in
-`mice_multisubject_train10` at a fixed 5×). At the large cohort we actually care about
-(100 mice), **no disRNN β/ratio scan was ever run** — `mice_multisubject_train100` is a GRU,
-with no penalty block at all. So the knob most likely to fix large-N sparsity has never been
-tested at large N. This study runs it at **100 mice** (`subject_ratio=0.163`, the same cohort
-as the `data-scaling-law` / `ignore-trials` D=100 arm).
+> **Metric caveat (carry into every report).** Bottleneck openness is reported as
+> **`total_openness` = Σ(1−σ)** (absolute open capacity; ~0 = fully closed), *not*
+> `n_eff_open_frac`. The participation-ratio `n_eff_open_frac` is scale-invariant
+> and reports a spuriously high value even when a bottleneck is fully shut — on
+> this grid it mis-ranked 19/43 runs and manufactured a false U-shape on the
+> multiplier axis. See [`analysis/reports/INDEX.md`](analysis/reports/INDEX.md)
+> and [`analysis/provenance/metric_caveat.md`](analysis/provenance/metric_caveat.md).
 
-> **Metric note.** Bottleneck sparsity was previously only visible as the `fig/bottlenecks`
-> *image*. This study adds **real-time scalar** sparsity logging to the wrapper
-> (`bottlenecks/*` per checkpoint, `final/bottlenecks/*` in `wandb.summary`), including an
-> **isolated `update_net_latent`** breakout — mean/min sigma, `n_open`, `n_closed`,
-> `frac_open` — which is the direct readout for this hypothesis (the library's aggregate
-> `update_bottlenecks_open` mixes subj+obs+latent and hides it).
-> Wrapper branch `feat/bottleneck-sparsity-logging` (HEAD `87d93f8c` = sparsity logging +
-> length bucketing + extend-later restore; docs at `842f6e5`).
+## Verdict (2026-07-11 — grid complete, 43/48 clean + 9-run mult=10 supplement)
+
+Full results in [`analysis/reports/`](analysis/reports/INDEX.md) (r1 sparsity, r2
+transfer); curated numbers in [`analysis/beta_scan_summary.json`](analysis/beta_scan_summary.json)
+and the two figures.
+
+1. **The multiplier works: it monotonically closes its target.** Interaction
+   (update←latent) openness Σ(1−σ) falls **3.11 → 1.16 → 0.11 → 0.00** across
+   mult=1→2→5→10 at weak β=3e-4 (and 1.60→0.81→0→0 at β=1e-3). Monotone, not
+   U-shaped — the earlier U-shape was a `n_eff_open_frac` artifact (see caveat).
+2. **Strong β=3e-3 is already fully closed at every multiplier**, so the multiplier
+   only has leverage at weak/moderate β.
+3. **The model compensates — capacity is conserved, not removed.** As the multiplier
+   squeezes update←latent, `update←subject` and `choice←latent` *open* (information
+   reroutes), the recurrent `latent` closes as collateral, `update←obs`
+   (prev choice+reward) stays the most open, and `choice←subject` is shut throughout.
+4. **Held-out transfer is flat across the multiplier** (~0.008 LL full range across
+   all 12 cells). Sparsifying the interaction bottleneck is essentially free; what
+   little variation exists tracks base β (weak/moderate ≈0.716, strong β=3e-3 ≈0.709).
+5. **Recommended operating point: mult=2 at weak/moderate β.** It compresses the
+   interaction ~2.7× while keeping ~1 functional open channel to interpret, at no
+   held-out cost. mult=5/10 collapse the gate to *zero* open channels (nothing left
+   to read) and leak the representation into the compensating gates.
+
+> **Stability note.** The `mult=10` corner is NaN-prone at `lr=5e-3, seed=0`
+> (2 deterministic divergences at β=3e-4). Those cells carry no usable metrics; the
+> (mult=10, β) cells are still covered by 3 clean runs each from other seeds/lr.
+> See [`analysis/provenance/launched.json`](analysis/provenance/launched.json).
 
 ## Variants
 
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`updnet-ratio-100mice`](variants/updnet-ratio-100mice/notes.md) | 1D update-net-ratio scan (× base β × lr × seed) at 100 mice, linear choice net | ▶ **running** (short-horizon 60k, length-bucketed) | `updnet-ratio-100mice@20260703-200122` | `01KWNH6J6YV382HH35GSDWNJAE` |
+| [`smoke`](variants/smoke/notes.md) | 1-task length-bucketing + resumability proof, short `n_steps` | ✅ done | `smoke@20260703-191003` | — |
+| [`updnet-ratio-100mice`](variants/updnet-ratio-100mice/notes.md) | the grid: mult{1,2,5,10} × β{3e-4,1e-3,3e-3} × lr{1e-3,5e-3} × seed{0,1} = 48 | ✅ done — 43/48 clean ([results](variants/updnet-ratio-100mice/launch_record/results.md)) | `updnet-ratio-100mice@20260703-200122` | [`01KWNH6J6YV382HH35GSDWNJAE`](https://beaker.org/ex/01KWNH6J6YV382HH35GSDWNJAE) |
+| [`updnet-ratio-100mice-mult10-supp`](variants/updnet-ratio-100mice-mult10-supp/notes.md) | mult=10 supplement on free H200/L40S capacity (9 clean, 2 NaN, 1 OOM) | ✅ done ([results](variants/updnet-ratio-100mice-mult10-supp/launch_record/results.md)) | `updnet-ratio-100mice-mult10-supp@20260706-093606` | [`01KWW4K1BVG07223K9SMJAHPP3`](https://beaker.org/ex/01KWW4K1BVG07223K9SMJAHPP3) |
+| [`updnet-ratio-100mice-mult10-oomretry`](variants/updnet-ratio-100mice-mult10-oomretry/notes.md) | OOM-retry of one mult=10 cell (h200→g6e) | ✅ done | `updnet-ratio-100mice-mult10-oomretry@20260706-172047` | [`01KWWZ5WXRD8B0AXYC81T1D7SB`](https://beaker.org/ex/01KWWZ5WXRD8B0AXYC81T1D7SB) |
+| [`updnet-ratio-100mice-ruleplot-3dcb9217`](variants/updnet-ratio-100mice-ruleplot-3dcb9217/notes.md) | no-retrain restore of the sparse best run to emit choice/update-rule figures | ✅ done | `updnet-ratio-100mice-ruleplot-3dcb9217@20260710-234714` | [`01KX7YWA6ZWYCF474NWQK7J5ZV`](https://beaker.org/ex/01KX7YWA6ZWYCF474NWQK7J5ZV) |
+| [`updnet-ratio-100mice-ruleplot-45646c46`](variants/updnet-ratio-100mice-ruleplot-45646c46/notes.md) | same for the least-sparse (by openness) run | ✅ done | `updnet-ratio-100mice-ruleplot-45646c46@20260710-234908` | [`01KX7YZSF25GNZJWFM0SJEBEV3`](https://beaker.org/ex/01KX7YZSF25GNZJWFM0SJEBEV3) |
 
 W&B project: **`disrnn_updnet_bottleneck_ratio_100mice`** (one project per study; one group per launch).
 
 ## Design (updnet-ratio-100mice)
 
-- **Grid (48 tasks):**
-  `update_net_latent_penalty_multiplier ∈ {1, 2, 5, 10}` ×
-  `base beta ∈ {3e-4, 1e-3, 3e-3}` ×
-  `lr ∈ {1e-3, 5e-3}` ×
-  `seed ∈ {0, 1}`.
-  - The multiplier is the primary axis (Kevin's knob); base β sets the overall bottleneck
-    pressure the multiplier scales from; lr is included because the disRNN lr at 100 mice
-    was **never characterized** (Po-Chen's disRNN lr ∈ {1e-4…1e-2} only at ≤10 mice; the
-    large-N GRU used lr=1e-5) and lr interacts with how fast the sigmas open/close.
-- **Fixed:** 100 mice (`subject_ratio=0.163`); **2-way** L/R (`ignore_policy=exclude`) to stay
-  comparable to the `data-scaling-law` baseline; disRNN defaults (`latent_size=5`, update-net
-  16×5) **except `choice_net_n_layers=0`** (linear choice net); scalar session conditioning
-  (pretrain 30k, warmup 20k); disRNN penalty warmup `n_warmup_steps=7500`;
-  `checkpoint_every_n_steps=10000`; `snapshot=20260603`; batch `random`/2048 (inherited from
-  `data=mice_snapshot_scaling`).
-- **Staged horizon (this round): `n_steps=60000`** (not 150k). Rationale: get all four
-  multipliers past their bottleneck-sparsification transition to a comparable, interpretable
-  point *fast* (first full results in ~1 day, not ~3.5). `checkpoint_every_n_steps` is kept
-  small so the full resumable state uploads per run; promising cells can be **extended later**
-  to a longer horizon via `model.training.restore_from_run_id` (continues from the short run's
-  checkpoint, skips warmup — see wrapper `beaker/README.md` §3b) instead of restarting.
-- **Length-bucketed batching ON** (`model.training.length_bucketing=true`,
-  `length_bucket_grid=128`): trims each `random`-mode batch's unroll from the global
-  `T_max`≈1488 to the batch's own session length. **Measured ~1.86× throughput** on this
-  workload (2015→1083 ms/step, matched config). The disRNN trainer now supports this (wired to
-  the shared `_sample_batch`, mirroring `gru_trainer`); the disRNN config declares the keys so
-  the sweep override resolves.
-- **disRNN-trainer caveat (baked into `sweep.yaml`):** the disRNN trainer still has **no**
-  `early_stopping` (that is `gru_trainer`-only). The sweep command omits it — do **not** copy
-  the `gru_scaling` sweeps verbatim. (`length_bucketing`, formerly GRU-only, is now supported.)
+- **Grid:** `update_net_latent_penalty_multiplier ∈ {1,2,5,10}` × base `β ∈ {3e-4,1e-3,3e-3}`
+  × `lr ∈ {1e-3,5e-3}` × `seed ∈ {0,1}` = **48 tasks**. Effective multiplier is
+  recovered post-hoc as `round(update_net_latent_penalty / beta)` (the dispatcher
+  consumes and drops the multiplier field before training).
+- **Fixed:** 2-way (`ignore_policy=exclude`); linear choice net (`choice_net_n_layers=0`);
+  `latent_size=5`; update-net 5 layers × 16 units; scalar session conditioning
+  (pretrain 30k, warmup 20k); `n_warmup_steps=7500` (disRNN penalty ramp — NOT
+  early-stopping; disRNN has none); `n_steps=60000` (staged short horizon,
+  resumable/extendable); `batch_mode=random`, `batch_size=2048`; length bucketing on;
+  `snapshot=20260603`; 100 mice (`subject_ratio=0.163`).
+- **y-axis:** held-out-mouse likelihood from the final `auto_heldout_finetune`
+  (fine-tune subject embedding only), same protocol as `data-scaling-law`.
 
-## Readouts (see `analysis/`)
+## Analysis
 
-1. **Sparsity vs multiplier** (faceted by lr) — does a harder update-net ratio ⇒ fewer open
-   `update_net_latent` bottlenecks at 100 mice? (the core test.)
-2. **Test likelihood vs multiplier** — does squeezing the interaction net cost fit?
-3. **Tradeoff scatter** (sparsity vs likelihood, colored by multiplier, marker by lr) — find
-   the ratio that keeps the interaction sparse without losing choice-prediction accuracy.
+Run `make -C studies/beta-scan` (needs `WANDB_API_KEY` only if re-pulling the grid;
+the committed `analysis/beta_scan_final_grid.csv` is the source of truth). The single
+producer `analysis/beta_scan_report.py` writes `beta_scan_summary.{json,csv}` + the
+two figures, then rewrites the report blocks. Reports:
+[`analysis/reports/INDEX.md`](analysis/reports/INDEX.md).
 
-## Launch (render-first)
-
-Always render `--no-submit` and inspect `launch_record/experiment_resumable_submitted.yaml`
-before a real submit. See the variant `notes.md` for the exact command.
+- ✅ **Sparsity (r1):** six-family openness vs multiplier, by base β.
+- ✅ **Transfer (r2):** interaction openness + held-out likelihood vs multiplier.
+- Legacy exploratory script `analysis/beta_scan_analysis.py` (old σ<0.1 `frac_open`
+  metric, pre-correction) is retained but **superseded** by `beta_scan_report.py`.
+- Backfill producers (`analysis/backfill_sparsity_metrics.py`,
+  `backfill_sparsity_metrics_stepwise.py`) document how the threshold-free metrics
+  were computed offline from checkpoints and pushed to W&B.
 
 ## Provenance
-
-Addresses the HP-sweep item (roadmap **#18**) and the interpretability/mechanism angle
-(linear choice net + sparse interaction). Prior scan history and the coverage-gap figure:
-project artifacts `pochen_scan_coverage.png`, `pochen_disrnn_beta_scans.csv`.
+- **Dispatcher branch:** `pr/beta-scan-clean` (→ PR #39, base `ai_hub_pck_integration`).
+  **Wrapper:** metrics-producing commit pinned in [`environment.lock`](environment.lock)
+  and stamped into `beta_scan_summary.json` as `_meta.wrapper_git_sha`.
+- **Beaker image:** `han-hou/disrnn-wrapper-pck-integration-20260630` (entrypoint
+  refreshes `WRAPPER_REF`/`DISPATCHER_REF` at container start — no rebuild for code changes).
+- **Layout:** `analysis/` (code + curated JSON/CSV/figures + `reports/` + `provenance/`),
+  shared helpers in `../util/` (`_meta.py`, `plot_style.py`); follows
+  `docs/study-organization.md` + `docs/posthoc-analysis.md`. Derived outputs are
+  committed so results render in-repo; only caches + `__pycache__` are gitignored.
+- **Changelog:** [`CHANGELOG.md`](CHANGELOG.md).
