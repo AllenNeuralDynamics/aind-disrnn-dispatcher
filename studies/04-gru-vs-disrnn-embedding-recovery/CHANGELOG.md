@@ -1,0 +1,28 @@
+# Changelog — 04-gru-vs-disrnn-embedding-recovery
+
+All notable changes to this study folder. Dates in America/Los_Angeles.
+
+## 2026-07-11 — Normalization + disRNN Stage-4a
+
+### Changed
+- **Renamed** `studies/embedding-recovery/` → `studies/04-gru-vs-disrnn-embedding-recovery/`
+  (NN-{model}-{purpose} convention; accession 04, cross-model). W&B project
+  (`embedding_recovery`) and historical launch records unchanged; `formerly:` note
+  added to README.
+- Normalized to the posthoc-reporting layout: single producer
+  `analysis/recovery_report.py` → `recovery_summary.{json,csv}` + three figures +
+  regenerated report blocks; added `Makefile`, `environment.lock`, `.gitignore`,
+  `analysis/wandb_keys.py`, `analysis/reports/{INDEX,r1,r2}.md`, `provenance/`.
+- README rewritten with a **Verdict** section and the full 19-variant index.
+
+### Added
+- **disRNN Stage-4a replication** (`disrnn-stage4a`, sweep `w2628h00`): family
+  decoding 0.95–0.98 (scalar) / 0.75–0.90 (none); rel-LL ~0.94 (~4–6 pts below
+  GRU). Trained on octo-hub-onprem-h200 after AWS p5en preemption.
+- Per-variant `notes.md` + `launch_record/results.md`; loose disRNN sweep configs
+  tucked under `variants/disrnn-stage4a/launch_record/_sweeps/`.
+
+## Earlier (pre-normalization, see git history)
+- Stages 1 → 4b GRU ladder + correct-model baselines; the baseline-flip result
+  (S2b) and the mixture recovery results (S3/S4). Built under the old
+  `embedding-recovery` folder name.
