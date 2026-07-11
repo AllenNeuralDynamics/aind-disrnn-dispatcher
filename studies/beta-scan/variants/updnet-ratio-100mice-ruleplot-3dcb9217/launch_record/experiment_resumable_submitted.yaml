@@ -1,8 +1,8 @@
 version: v2
-description: "updnet-ratio-100mice-ruleplot-3dcb9217@20260710-234504 \u2014 1 resumable\
+description: "updnet-ratio-100mice-ruleplot-3dcb9217@20260710-234714 \u2014 1 resumable\
   \ grid tasks (autoResume)"
 tasks:
-- name: updnet-ratio-100mice-ruleplot-3dcb9217-20260710-234504-000
+- name: updnet-ratio-100mice-ruleplot-3dcb9217-20260710-234714-000
   image:
     beaker: han-hou/disrnn-wrapper-pck-integration-20260630
   command:
@@ -39,7 +39,7 @@ tasks:
   - seed=1
   constraints:
     cluster:
-    - ai1/octo.ai-aws-g6e
+    - ai1/octo-hub-onprem-h200
   resources:
     gpuCount: 1
     cpuCount: 12
@@ -54,23 +54,23 @@ tasks:
   - name: DISRNN_RESUMABLE_OUTPUT_DIR
     value: /results/run
   - name: WANDB_RUN_ID
-    value: updnet-ratio-100mice-ruleplot-3dcb9217-20260710-234504-6e8ebe4a
+    value: updnet-ratio-100mice-ruleplot-3dcb9217-20260710-234714-185c162a
   - name: WANDB_RESUME
     value: allow
   - name: WANDB_RUN_GROUP
-    value: updnet-ratio-100mice-ruleplot-3dcb9217@20260710-234504
+    value: updnet-ratio-100mice-ruleplot-3dcb9217@20260710-234714
   - name: DISRNN_META_STUDY
     value: beta-scan
   - name: DISRNN_META_VARIANT
     value: updnet-ratio-100mice-ruleplot-3dcb9217
   - name: DISRNN_META_LAUNCH_ID
-    value: 20260710-234504
+    value: 20260710-234714
   - name: DISRNN_META_CONFIG_HASH
     value: 80bd90b7
   - name: DISRNN_META_LABEL
     value: updnet-ratio-100mice-ruleplot
   - name: DISRNN_META_NOTE
-    value: 'rule-plot rerun: restore best interpretable run 3dcb9217 (mult=2,b=3e-4,lr=1e-3,seed=1),
+    value: 'rule-plot rerun (h200): restore best interpretable run 3dcb9217 (mult=2,b=3e-4,lr=1e-3,seed=1),
       n_steps=60000 no-retrain, regenerate update/choice-rule figures'
   result:
     path: /results
