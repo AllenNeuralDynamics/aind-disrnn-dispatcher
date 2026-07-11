@@ -78,8 +78,8 @@ training:
   checkpoint_include_final_in_heldout: true
   initialization_eval_before_warmup: true
   initialization_eval_after_warmup: true
-  plot_choice_rule: false
-  plot_update_rules: false
+  plot_choice_rule: true    # end-of-run choice-rule figure (fig/choice_rule)
+  plot_update_rules: true   # end-of-run update-rule figures (fig/update_rule_*)
   plot_subject_index: 0   # which subject's embedding is used for rule plots
   session_conditioning_verbose_logging: true
   plot_session_context_state_space: true
