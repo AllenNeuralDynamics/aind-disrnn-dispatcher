@@ -13,6 +13,18 @@ the doc wins.**
 - A **study answers one scientific question**; its conditions are **variants**, not new
   studies. New top-level `studies/<name>/` only for a genuinely different question
   (different model family, metric, or task).
+- **Study folder name = `NN-{model}-{purpose}`**, kebab-case, no dates. `NN` is a
+  zero-padded 2-digit **accession number** (stable creation-order id, assigned at
+  creation from the next free number — NOT an execution order; never renumber or
+  reuse). `{model}` is the model family (`gru`, `disrnn`; use `gru-vs-disrnn` for a
+  cross-model comparison study). `{purpose}` is the question
+  (`scaling-law`, `scaling-law-ignore`, `beta-scan`). Examples: `01-gru-scaling-law`,
+  `02-gru-scaling-law-ignore`, `03-disrnn-beta-scan`. The folder name is independent
+  of the W&B **project** name (e.g. folder `02-gru-scaling-law-ignore` ↔ project
+  `mice_ignore_scaling`) and of the immutable `meta.study` stamped on already-logged
+  runs — when renaming an existing study, note `formerly: <old-name>` in its README so
+  the folder ↔ run-stamp mapping stays explicit, and leave historical launch records
+  (which record the path used at launch time) unrewritten.
 - **One folder per study**: `studies/<study>/` — shared analysis scripts, reusable
   configs, and a README with a **Variants index** table (what differs, status, W&B
   group, Beaker experiment id) at the study root.

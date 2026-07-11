@@ -16,7 +16,7 @@ The 3-way grid lives in W&B project mice_ignore_scaling across these sweeps:
     9iu2rcap  wide    H256
     95br9evz  rerun   H16/D10/seed2  (collision-replacement)
     4aq30mvb  rerun   H256/D614      (256G OOM-replacement)
-The 2-way reference grid is data-scaling-law/analysis/nxd_scaling.json
+The 2-way reference grid is 01-gru-scaling-law/analysis/nxd_scaling.json
 (metric heldout/final/eval_likelihood, same fixed held-out set, same D×H layout).
 """
 import os, sys, json, base64, urllib.request
@@ -27,9 +27,9 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-HERE = Path(__file__).resolve().parent                 # studies/ignore-trials-scaling/analysis
-STUDY = HERE.parent                                     # studies/ignore-trials-scaling
-TWO_WAY_JSON = STUDY.parent / "data-scaling-law" / "analysis" / "nxd_scaling.json"
+HERE = Path(__file__).resolve().parent                 # studies/02-gru-scaling-law-ignore/analysis
+STUDY = HERE.parent                                     # studies/02-gru-scaling-law-ignore
+TWO_WAY_JSON = STUDY.parent / "01-gru-scaling-law" / "analysis" / "nxd_scaling.json"
 sys.path.insert(0, str(HERE))                           # for wandb_keys / update_reports
 sys.path.insert(0, str(STUDY.parent / "util"))          # shared studies/util/_meta.py
 from _meta import build_meta                            # noqa: E402

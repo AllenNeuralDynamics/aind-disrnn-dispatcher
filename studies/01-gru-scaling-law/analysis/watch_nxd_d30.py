@@ -79,12 +79,12 @@ def poll(api: wandb.Api) -> tuple[bool, str]:
 
 def regenerate() -> None:
     commands = [
-        [sys.executable, "studies/data-scaling-law/analysis/nxd_scaling.py"],
+        [sys.executable, "studies/01-gru-scaling-law/analysis/nxd_scaling.py"],
         # rl_baseline.py reads the freshly-written nxd_scaling.json and
         # overlays the RL reference band on fig_nxd_scaling.png; without
         # this step the figure loses the dashed line referenced in Result 7.
-        [sys.executable, "studies/data-scaling-law/analysis/rl_baseline.py"],
-        [sys.executable, "studies/data-scaling-law/analysis/update_final_report_nxd.py"],
+        [sys.executable, "studies/01-gru-scaling-law/analysis/rl_baseline.py"],
+        [sys.executable, "studies/01-gru-scaling-law/analysis/update_final_report_nxd.py"],
     ]
     for command in commands:
         print(f"{stamp()} running: {' '.join(command)}", flush=True)

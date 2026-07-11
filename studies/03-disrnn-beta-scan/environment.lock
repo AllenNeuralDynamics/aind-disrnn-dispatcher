@@ -1,4 +1,4 @@
-# Pinned analysis env for studies/beta-scan/ per docs/posthoc-analysis.md.
+# Pinned analysis env for studies/03-disrnn-beta-scan/ per docs/posthoc-analysis.md.
 #
 # The one line the analysis provenance depends on is the wrapper pin below:
 # _meta.build_meta() parses `aind-disrnn-wrapper.git@<sha>` from this file and

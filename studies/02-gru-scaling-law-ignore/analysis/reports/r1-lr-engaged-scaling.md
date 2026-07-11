@@ -56,7 +56,7 @@ Source W&B groups: `nxd-3way@20260704-205230`, `nxd-3way@20260704-205239`, `nxd-
 
 ## Discussion
 
-The like-for-like question against `data-scaling-law` r7: does adding the ignore
+The like-for-like question against `01-gru-scaling-law` r7: does adding the ignore
 class as a third output degrade L/R choice prediction, and does the choice metric
 still scale with D? Scoring the conditional L/R likelihood on **engaged trials**
 (chance 1/2, matching the 2-way support) isolates this from the ignore-class
@@ -72,4 +72,4 @@ conditional instead.
 ## Related
 
 - [[r2-ignore-detection-scaling]] — the ignore-class detection metric on the same grid.
-- `../../../data-scaling-law/analysis/reports/r7-nxd-joint-scaling-grid.md` — the 2-way N×D grid this mirrors.
+- `../../../01-gru-scaling-law/analysis/reports/r7-nxd-joint-scaling-grid.md` — the 2-way N×D grid this mirrors.

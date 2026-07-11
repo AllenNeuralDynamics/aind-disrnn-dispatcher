@@ -38,7 +38,7 @@ def _block_r1(data):
         "",
         "*Held-out conditional L/R likelihood on **engaged trials** vs # training mice (D), "
         "per hidden size H. Solid = 3-way (L/R/ignore) model; faded dashed = 2-way "
-        "reference from `data-scaling-law`. Error bars: SEM (n=3 seeds/cell).*",
+        "reference from `01-gru-scaling-law`. Error bars: SEM (n=3 seeds/cell).*",
         "",
         "Mean held-out L/R-engaged likelihood (3-way model):",
         "",
