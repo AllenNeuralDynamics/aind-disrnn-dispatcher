@@ -34,6 +34,7 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
 
 ## Doc index (canonical — these win over any skill summary)
 
+- `../aind-disrnn-wrapper/code/TRAINING.md` **§1.5 "Run lifecycle & key switches (read first)"** — the four run phases (warmup → main → artifact upload → held-out fine-tune), the `_step` warmup offset, the **two different held-out switches** (`checkpoint_run_heldout_eval` = per-checkpoint eval vs `auto_heldout_finetune.enabled` = the real end-of-training figure of merit), and checkpoints/resumability/extendability. **Read before interpreting any run's logs or metrics** — the *"Skipping held-out evaluation … seen-subject personalization only"* log line does NOT mean "no held-out numbers"; it only turns off the per-checkpoint eval, and the end-of-training held-out fine-tune still runs.
 - `docs/beaker-playbook.md` — cluster allowlist, scheduling, GPU-bundle sizing. **Read before any non-trivial Beaker launch.**
 - `docs/study-organization.md` — studies/variants layout, W&B group naming, `meta` provenance.
 - `docs/posthoc-analysis.md` — report/JSON contracts, Makefile, regeneration rules.
