@@ -186,7 +186,11 @@ def fig_bottlenecks_by_mult(betas, cells):
     axes[0, 2].legend(title="base \u03b2", frameon=False, loc="upper right")
     fig.suptitle("Bottleneck openness vs multiplier, by base \u03b2 (mean\u00b1SEM over seeds/lr)",
                  fontsize=15, x=0.02, ha="left")
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    fig.text(0.02, 0.005,
+             "Error bars: SEM. n = 3\u20137 replicates per point (seeds \u00d7 lr; mult=10 pools "
+             "the mult10-supp launch). openness = \u03a3(1\u2212\u03c3); n_eff_open_frac deliberately not used.",
+             fontsize=9, color="0.35", ha="left")
     fig.savefig(HERE / "fig_bottlenecks_by_mult.png", bbox_inches="tight")
     plt.close(fig)
 
@@ -215,7 +219,11 @@ def fig_mult_axis_heldout(betas, cells):
     ax1.legend(title="base \u03b2", frameon=False, loc="upper right")
     fig.suptitle("Multiplier monotonically closes the interaction bottleneck;\nheld-out transfer is flat (set by \u03b2, not multiplier)",
                  fontsize=14, x=0.02, ha="left")
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    fig.text(0.02, 0.005,
+             "Error bars: SEM. n = 3\u20137 replicates per point (seeds \u00d7 lr; mult=10 pools "
+             "the mult10-supp launch).",
+             fontsize=9, color="0.35", ha="left")
     fig.savefig(HERE / "fig_mult_axis_heldout.png", bbox_inches="tight")
     plt.close(fig)
 
