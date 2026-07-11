@@ -158,13 +158,38 @@ def _bcolors(betas):
     return {b: c for b, c in zip(betas, plt.cm.viridis(np.linspace(0.15, 0.82, len(betas))))}
 
 
-def fig_bottlenecks_by_mult(betas, cells):
+def _raw(rows, m, b, col):
+    """Per-run values for a (mult, beta) cell and a grid CSV column."""
+    return [_f(r[col]) for r in rows
+            if _f(r["mult"]) == m and _f(r["beta"]) == b and _f(r[col]) is not None]
+
+
+# horizontal offset (in x-index units) applied per beta so each beta's raw dots
+# sit just to the right of its shrunk mean marker, with a little jitter.
+_RAW_DX = 0.10
+_RAW_JIT = 0.025
+
+
+def _overlay_raw(ax, rows, betas, bc, xpos, col):
+    rng = np.random.default_rng(0)
+    for i, b in enumerate(betas):
+        dx = _RAW_DX + i * 0.0  # same side for all betas; color disambiguates
+        for m in MULTS:
+            vals = _raw(rows, m, b, col)
+            if not vals:
+                continue
+            xj = xpos[m] + dx + rng.uniform(-_RAW_JIT, _RAW_JIT, size=len(vals))
+            ax.scatter(xj, vals, s=13, color=bc[b], alpha=0.35, edgecolors="none", zorder=1)
+
+
+def fig_bottlenecks_by_mult(betas, cells, rows):
     """6-family openness vs multiplier, one panel per family, lines by base beta."""
     apply_presentation_style()
     bc = _bcolors(betas)
     xpos = {m: i for i, m in enumerate(MULTS)}
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 8.0))
     for ax, (fam, lbl, N) in zip(axes.ravel(), FAMILIES):
+        _overlay_raw(ax, rows, betas, bc, xpos, f"{fam}.total_openness")
         for b in betas:
             xs, ms, es = [], [], []
             for m in MULTS:
@@ -172,8 +197,8 @@ def fig_bottlenecks_by_mult(betas, cells):
                 if not c or c[f"{fam}_openness"]["mean"] is None:
                     continue
                 xs.append(xpos[m]); ms.append(c[f"{fam}_openness"]["mean"]); es.append(c[f"{fam}_openness"]["sem"])
-            ax.errorbar(xs, ms, yerr=es, fmt="o-", ms=6, color=bc[b], mfc="white", mec=bc[b],
-                        ecolor=bc[b], elinewidth=1.4, capsize=3, lw=2.0, label=f"\u03b2={b:g}")
+            ax.errorbar(xs, ms, yerr=es, fmt="o-", ms=5, color=bc[b], mfc="white", mec=bc[b],
+                        ecolor=bc[b], elinewidth=1.4, capsize=3, lw=2.0, zorder=3, label=f"\u03b2={b:g}")
         tag = "  \u2190 multiplier target" if fam == "update_net_latent" else ""
         ax.set_title(f"{lbl}{tag}  (N={N})", fontsize=13)
         ax.set_xticks(list(xpos.values())); ax.set_xticklabels(MULTS)
@@ -188,19 +213,22 @@ def fig_bottlenecks_by_mult(betas, cells):
                  fontsize=15, x=0.02, ha="left")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.text(0.02, 0.005,
-             "Error bars: SEM. n = 3\u20137 replicates per point (seeds \u00d7 lr; mult=10 pools "
-             "the mult10-supp launch). openness = \u03a3(1\u2212\u03c3); n_eff_open_frac deliberately not used.",
+             "Markers: mean \u00b1 SEM. Faded dots: individual runs (jittered, offset right of the mean). "
+             "n = 3\u20137 per point (seeds \u00d7 lr; mult=10 pools the mult10-supp launch). "
+             "openness = \u03a3(1\u2212\u03c3); n_eff_open_frac deliberately not used.",
              fontsize=9, color="0.35", ha="left")
     fig.savefig(HERE / "fig_bottlenecks_by_mult.png", bbox_inches="tight")
     plt.close(fig)
 
 
-def fig_mult_axis_heldout(betas, cells):
+def fig_mult_axis_heldout(betas, cells, rows):
     """Two-panel: update-net-latent openness (top) + held-out LL (bottom) vs multiplier."""
     apply_presentation_style()
     bc = _bcolors(betas)
     xpos = {m: i for i, m in enumerate(MULTS)}
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8.5, 8.5), sharex=True)
+    _overlay_raw(ax1, rows, betas, bc, xpos, "update_net_latent.total_openness")
+    _overlay_raw(ax2, rows, betas, bc, xpos, "heldout_eval_ll")
     for b in betas:
         for ax, key in [(ax1, "update_net_latent_openness"), (ax2, "heldout_ll")]:
             xs, ms, es = [], [], []
@@ -209,8 +237,8 @@ def fig_mult_axis_heldout(betas, cells):
                 if not c or c[key]["mean"] is None:
                     continue
                 xs.append(xpos[m]); ms.append(c[key]["mean"]); es.append(c[key]["sem"])
-            ax.errorbar(xs, ms, yerr=es, fmt="o-", ms=6, color=bc[b], mfc="white", mec=bc[b],
-                        ecolor=bc[b], elinewidth=1.4, capsize=3, lw=2.0, label=f"\u03b2={b:g}")
+            ax.errorbar(xs, ms, yerr=es, fmt="o-", ms=5, color=bc[b], mfc="white", mec=bc[b],
+                        ecolor=bc[b], elinewidth=1.4, capsize=3, lw=2.0, zorder=3, label=f"\u03b2={b:g}")
     ax1.set_ylabel("interaction openness\n\u03a3(1\u2212\u03c3)  (update\u2190latent)")
     ax1.axhline(0.05, color="0.8", ls=":", lw=1.0)
     ax2.set_ylabel("held-out mouse\ntransfer likelihood")
@@ -221,8 +249,8 @@ def fig_mult_axis_heldout(betas, cells):
                  fontsize=14, x=0.02, ha="left")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.text(0.02, 0.005,
-             "Error bars: SEM. n = 3\u20137 replicates per point (seeds \u00d7 lr; mult=10 pools "
-             "the mult10-supp launch).",
+             "Markers: mean \u00b1 SEM. Faded dots: individual runs (jittered, offset right of the mean). "
+             "n = 3\u20137 per point (seeds \u00d7 lr; mult=10 pools the mult10-supp launch).",
              fontsize=9, color="0.35", ha="left")
     fig.savefig(HERE / "fig_mult_axis_heldout.png", bbox_inches="tight")
     plt.close(fig)
@@ -232,8 +260,8 @@ def main():
     rows = _read_grid()
     betas, cells = summarize(rows)
     write_json_csv(betas, cells)
-    fig_bottlenecks_by_mult(betas, cells)
-    fig_mult_axis_heldout(betas, cells)
+    fig_bottlenecks_by_mult(betas, cells, rows)
+    fig_mult_axis_heldout(betas, cells, rows)
     import update_reports
     data = json.loads((HERE / "beta_scan_summary.json").read_text())
     updated = update_reports.run(data)
