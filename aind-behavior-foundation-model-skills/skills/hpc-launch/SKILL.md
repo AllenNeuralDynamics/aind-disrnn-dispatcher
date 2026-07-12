@@ -19,6 +19,9 @@ README wins.**
    (`../aind-disrnn-wrapper`); override with `--wrapper-root`.
 4. One-time setup per user: `cp code/hpc/slurm/user.env.example code/hpc/slurm/user.env`
    and edit (`SBATCH_*` vars for sbatch, `CONDA_SH` for env activation).
+5. Credentials on HPC live in files, not the env: W&B in `~/.netrc` (the SDK reads it;
+   producers using the GraphQL route need `WANDB_API_KEY` exported — see the
+   posthoc-reporting skill) and Beaker in `~/.beaker/config.yml`.
 
 ## Check available resources FIRST (mandatory for large jobs)
 

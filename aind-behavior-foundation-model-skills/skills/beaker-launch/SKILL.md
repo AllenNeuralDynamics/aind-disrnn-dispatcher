@@ -21,7 +21,18 @@ resumable mechanics).
    (it only submits), the training is not.
 3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
    `conda activate disrnn-cpu` (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`).
+   **It needs `beaker-py<2`** — the launchers and `check_gpu_availability.py` do
+   `from beaker import Beaker, Config`, and beaker-py 2.x dropped the `Config`
+   export (`ImportError: cannot import name 'Config'`). If beaker-py is missing
+   entirely (it was on HPC until 2026-07-11), `pip install "beaker-py<2"`.
+   The `beaker` CLI is not a substitute: the launchers use beaker-py directly so
+   the same code path works in the Mac sandbox, which has no CLI.
 4. Workspace/budget: `WS=ai1/aind-dynamic-foraging-foundation-model`.
+5. From HPC/sandbox, **pass `--output-dir`** to the launchers (or rely on the
+   repo-local `results/` fallback) — `/results` is the Code Ocean path.
+   Credentials on HPC: `BEAKER_TOKEN` is *not* in the env; read it from
+   `~/.beaker/config.yml` (`user_token`). `WANDB_API_KEY` likewise comes from
+   `~/.netrc`.
 
 ## Check available resources FIRST (mandatory for large jobs)
 
