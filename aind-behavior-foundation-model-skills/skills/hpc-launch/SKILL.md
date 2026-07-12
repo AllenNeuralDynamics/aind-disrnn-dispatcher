@@ -1,6 +1,6 @@
 ---
 name: hpc-launch
-description: Launch and monitor disRNN training on the Allen on-premise SLURM HPC (AI1) — launch_hpc.py W&B sweep arrays, manual sbatch/Hydra multirun, dry-run/smoke-test patterns, GPU tiers, squeue/sacct monitoring. Use whenever running jobs on the Allen cluster via srun/sbatch rather than Beaker.
+description: Launch and monitor disRNN training on the Allen on-premise SLURM HPC (AI1) — launch_hpc.py W&B sweep arrays, manual sbatch/Hydra multirun, dry-run/smoke-test patterns, GPU tiers, extend/restore and held-out re-scoring, squeue/sacct monitoring. Use whenever running jobs on the Allen cluster via srun/sbatch rather than Beaker.
 ---
 
 # Launching on Allen on-prem HPC (SLURM)
@@ -85,6 +85,27 @@ sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
 sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
   code/hpc/slurm/hydra_multirun_gpu.slurm   # or _cpu.slurm
 ```
+
+## Resuming, extending & re-scoring runs
+
+HPC `aind` jobs are **not preempted** (queue / fair-share scheduling, not Beaker's
+preemptible-priority tiers), so the "resume after preemption" scenario does not arise
+here — that mechanism is Beaker-only. The other two work the same as on Beaker (full
+detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
+
+- **Extend a finished run to a longer horizon.** Set
+  `model.training.restore_from_run_id=<source W&B run name>` (or env
+  `DISRNN_RESTORE_FROM_RUN_ID`) and a **larger** `n_steps`. `run_hpc.py` downloads the
+  source run's `<mtype>-output-<run_id>` artifact (`mtype` ∈ {`disrnn`,`gru`}) into
+  `outputs/` before training, so it resumes from the checkpoint and skips warmup.
+  Trainer-agnostic. Prereq: the source run must have FINISHED (its `training-output`
+  artifact is COMMITTED).
+- **Re-score a finished run's held-out stage only — no re-training.** Runs the held-out
+  fine-tune off the existing checkpoint and re-injects `heldout/*` into the original
+  W&B run — used to backfill metrics added *after* a run trained. The committed
+  reference implementation is the wrapper's Beaker port `resume_heldout_beaker.py`
+  (`--run-id <wandb_run_id>`, inside a container reaching GCS + W&B); an HPC-side ad-hoc
+  variant (`resume_heldout.py`) has been used but is not yet committed to the repo.
 
 ## Monitoring
 
