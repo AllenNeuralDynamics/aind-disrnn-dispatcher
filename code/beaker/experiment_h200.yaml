@@ -12,7 +12,7 @@ description: disRNN T4-match benchmark on one H200
 tasks:
   - name: disrnn-h200
     image:
-      beaker: han-hou/disrnn-wrapper
+      beaker: han-hou/disrnn-wrapper-pck-integration   # current image; list live: beaker workspace images ai1/aind-dynamic-foraging-foundation-model
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh

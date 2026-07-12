@@ -1,0 +1,66 @@
+# Hierarchical Q-learning agent for embedding-recovery studies (STAGE 2: drift ON).
+# See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
+#
+# Each subject occupies a distinct SUBREGION of Q-learning parameter space
+# (its centroid is drawn from `subject_param_dist`). With `drift` empty the
+# subject is STATIC across sessions (Stage 1: pure between-subject recovery);
+# populate `drift` to add within-subject across-session trajectories (Stage 2).
+type: ${.agent_class}
+
+loader_target: data_loaders.hierarchical_synthetic.HierarchicalCognitiveAgents
+
+agent_class: "ForagerQLearning"
+
+# GENERATOR structure: single learning rate, no forget, no choice kernel,
+# softmax action selection. NOTE: config/model/baseline_rl.yaml's default fitter
+# uses a DIFFERENT (richer) structure (number_of_forget_rate:1,
+# choice_kernel:"one_step"). For baseline_rl to be a CORRECTLY-SPECIFIED recovery
+# reference (likelihood ceiling ~1.0, matched parametric recovery), the
+# baseline_rl run must OVERRIDE its agent_kwargs to match these values
+# (number_of_forget_rate=0, choice_kernel=none) -- see the recovery study README /
+# baseline_rl sweep. A mismatched (over-parameterized) fitter would still fit well
+# but its recovered params would not align 1:1 with the generator's params.
+agent_kwargs:
+  number_of_learning_rate: 1
+  number_of_forget_rate: 0
+  choice_kernel: "none"
+  action_selection: "softmax"
+
+# Base params applied to every subject before the centroid governs a param.
+# (Any param NOT in subject_param_dist stays fixed at its base value.)
+agent_params: {}
+
+# --- Between-subject structure: each subject's centroid (subregion) ---
+# Population distributions the per-subject centroids are drawn from. These
+# three params ARE the recoverable ground-truth embedding (dim = 3 here).
+subject_param_dist:
+  learn_rate:
+    type: "uniform"
+    min: 0.1
+    max: 0.9
+  biasL:
+    type: "uniform"
+    min: -1.5
+    max: 1.5
+  softmax_inverse_temperature:
+    type: "uniform"
+    min: 2.0
+    max: 15.0
+
+# --- Within-subject structure across sessions (Stage 2: classic learning
+# trajectory, confirmed with Han 2026-07-05). Over a subject's sessions:
+#   learn_rate rises (+0.3 linear), |biasL| shrinks toward 0 (frac 0.8 = by 80%),
+#   softmax inverse temperature sharpens (x1.5 multiplicative).
+# frac in [0,1] runs 0 at first session -> 1 at last. The subject CENTROID is
+# the START of the trajectory; drift moves each session away from it. The
+# ground-truth table records the per-session (drifted) params + session_frac,
+# so session-level recovery is scorable directly. ---
+drift:
+  learn_rate: {mode: linear, delta: 0.3}
+  biasL: {mode: toward_zero, frac: 0.8}
+  softmax_inverse_temperature: {mode: multiplicative, rel: 0.5}
+
+# --- Optional per-session Gaussian jitter around the (drifted) centroid ---
+session_noise: {}
+
+seed: ${seed}
