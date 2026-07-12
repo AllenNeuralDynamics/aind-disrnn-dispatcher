@@ -253,3 +253,51 @@ W&B continuity across the restart is preserved by a deterministic, per-grid-poin
 
 Only `method: grid` sweeps are supported — the trial set must be enumerable up
 front, since there is no sweep controller to ask for the next point.
+
+### From the Claude Science Mac sandbox (no CLI, no HPC hop)
+
+The launchers are **sandbox-safe** and replace the two CLI steps above:
+`create_wandb_sweep()` uses the W&B GraphQL API directly (no `wandb-core`
+subprocess), and `get_beaker_client()` builds `beaker.Beaker` from
+`Config(user_token=os.environ["BEAKER_TOKEN"])` directly (no `~/.beaker/config.yml`).
+Creds `BEAKER_TOKEN` + `WANDB_API_KEY` are in the sandbox env; `beaker.org` and
+`api.wandb.ai` each need a one-time `request_network_access` grant.
+
+```bash
+cd code
+# PYTHONSAFEPATH=1 in the sandbox drops the script dir from sys.path, so put
+# code/ on PYTHONPATH or the sibling imports fail with ModuleNotFoundError.
+PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
+  --sweep beaker/sweep_mvp.yaml --experiment beaker/experiment_mvp.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir ./out --label <label> --note "why" \
+  --no-submit    # dry-run: makes the sweep + renders the spec, does NOT submit
+```
+
+Drop `--no-submit` to actually submit. Full recipe (incl. resumable launcher):
+`docs/claude-science-workflow.md` → "Mac → Beaker launch".
+
+## Transient node failures (resubmit, don't debug)
+
+Not every early failure is a code bug. A GPU job can die in ~5 s with
+`status.message: "no space left on device"` and `started=None` — the node's NVMe
+filled while creating the dataset dir (seen on `gcp-h100`). This is a per-node
+infra failure; **just resubmit** and it lands on a healthy node. Check the
+signature with `beaker job get <id> --format json` (look at `status.message` /
+`status.started`) before touching training code.
+
+Before a large fan-out (>4 GPUs / >4 concurrent tasks), run the schedulable-GPU
+probe `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) — it counts
+GPUs that are free *and* not on a cordoned node, by type. It lands with the
+`feat/ignore-trials-scaling` merge; until then use `beaker cluster list ai1`.
+
+**Image names go stale — verify before launching.** Old example specs referenced
+`beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
+The current image for the `ai_hub_pck_integration` line is
+`han-hou/disrnn-wrapper-pck-integration`. List live images and point the spec's
+`image.beaker` at one that exists:
+`beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
+Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
+Because code is pulled fresh at startup, a stale image is the only thing here that
+needs fixing before launch — you almost never rebuild for a code change.
+

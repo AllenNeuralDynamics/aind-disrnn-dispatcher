@@ -1,0 +1,26 @@
+# Baseline fitter -- Hattori 2019 (ForagerQLearning L2 F1, no choice kernel, softmax).
+# One of THREE FIXED baselines (Bari/Hattori/CTT). STANDALONE config (no merge).
+type: baseline_rl
+
+agent_class: ForagerQLearning
+agent_kwargs:
+  number_of_learning_rate: 2
+  number_of_forget_rate: 1
+  choice_kernel: none
+  action_selection: softmax
+run_name_component: baseline_hattori
+_target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
+
+architecture:
+  multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+multisubject_subject_workers: 6
+fit_bounds_override: {}
+clamp_params: {}
+DE_kwargs:
+  polish: true
+heldout_refit:
+  enabled: false
+  skip_train_fit: false
+
+seed: ${seed}
