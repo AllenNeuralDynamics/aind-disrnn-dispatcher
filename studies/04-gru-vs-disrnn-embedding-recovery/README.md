@@ -128,7 +128,8 @@ studies/04-gru-vs-disrnn-embedding-recovery/
     wandb_keys.py        # comment-only W&B summary-key contract
     ladder_results.csv, stage4b_recovery_grid.csv, disrnn_stage4a_recovery_grid.csv  # committed inputs
     recovery_summary.{json,csv}, fig_*.png                                            # committed outputs
-    reports/{INDEX.md, r1-gru-ladder.md, r2-disrnn-replication.md}
+    figures/             # 13 canonical per-stage recovery + embedding-space figures
+    reports/{INDEX.md, r1-gru-ladder.md, r2-disrnn-replication.md}  # results; per-stage figs embedded inline in r1
     provenance/wandb_project_url.txt
   variants/<variant>/{sweep.yaml, notes.md, launch_record/{results.md, _sweeps/…}}
 ```

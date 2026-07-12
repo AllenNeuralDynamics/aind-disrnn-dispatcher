@@ -197,7 +197,49 @@ def _update_reports(ladder, s4b, dis):
              "- **Stage-4b** (per-session family switching): recovery lives at the SUBJECT level "
              "(mixture-weight R\u00b2 0.55 @D16), not the session level \u2014 session-conditioning adds "
              "nothing over subject identity for decoding a session's family (0.62 vs 0.63), because "
-             "Dirichlet(0.5) subjects are concentrated (mean dominant weight 0.70).")
+             "Dirichlet(0.5) subjects are concentrated (mean dominant weight 0.70).\n")
+    # Per-stage recovery / parameter-recovery / embedding-space figures, embedded in
+    # order. The S3/S4a "combined" figures already carry the embedding-space PCA
+    # panels (colored by true type/family + key params); the S3 standalone
+    # embedding-space and baseline-confusion figures remain in figures/ as subsets.
+    stage_figs = [
+        ("recovery_ground_truth_schematic.png",
+         "**Setup.** Each subject occupies a parameter subregion; sessions drift within it. "
+         "The model must recover the subject-embedding table (between-subject) and the "
+         "session-conditioning MLP (within-subject drift)."),
+        ("stage1_recovery_vs_baseline.png",
+         "**Stage 1 — static.** Parameter recovery R² vs #subjects (a), fit quality at "
+         "ceiling (b), per-parameter R² (c). Embedding size, not network width, is the knob."),
+        ("stage2_recovery.png",
+         "**Stage 2 — mild drift.** Subject-level parameter recovery R² vs #subjects."),
+        ("stage2_likelihood_comparison.png",
+         "**Stage 2.** All models sit near the ceiling — likelihood cannot separate them, "
+         "which is what motivates the recovery axis."),
+        ("stage2_session_trajectory.png",
+         "**Stage 2.** Only the session-conditioning MLP encodes drift position "
+         "(subject-only delta-zeroed = R² 0.00 by construction); (c) each subject traces a "
+         "drift path in embedding space."),
+        ("stage2b_likelihood_flip.png",
+         "**Stage 2b — the baseline flip.** Static Q-learning collapses (0.939) under "
+         "extrapolation while both GRUs stay >0.987 (a); (b) where model separation now lives."),
+        ("stage2b_session_trajectory.png",
+         "**Stage 2b.** Stronger, non-monotonic drift: session position is harder to recover "
+         "(0.94→0.47) but the session delta still carries it; (c) drift paths."),
+        ("stage3_recovery_combined.png",
+         "**Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL "
+         "(b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family "
+         "parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within."),
+        ("stage4a_recovery_combined.png",
+         "**Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); "
+         "GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d)."),
+        ("stage4b_recovery.png",
+         "**Stage 4b — per-session family switching.** Mixture-weight recovery vs embedding size "
+         "(a); subject-vs-session dissociation null (b); per-session family confusion (c)."),
+    ]
+    gallery = "\n### Per-stage figures\n\n"
+    for fn, cap in stage_figs:
+        gallery += f"![{fn}](../figures/{fn})\n\n*{cap}*\n\n"
+    body1 = body1 + gallery.rstrip("\n")
     r1.write_text(_replace_block(r1.read_text(), 1, body1))
     # r2 — disRNN replication
     r2 = HERE / "reports" / "r2-disrnn-replication.md"
