@@ -38,6 +38,7 @@ import argparse
 import copy
 import hashlib
 import itertools
+import os
 import json
 import re
 import shutil
@@ -54,7 +55,11 @@ import yaml
 from beaker_client import submit_beaker_experiment
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-RESULTS = Path("/results")
+# Where the launch record is written. /results is the Code Ocean capsule path; it does not
+# exist (and is not writable) on the HPC login node or the Claude Science Mac sandbox, where
+# the launcher also runs, so fall back to a repo-local dir there instead of dying with
+# PermissionError: [Errno 13] '/results'. Override with --output-dir.
+RESULTS = Path("/results") if os.access("/results", os.W_OK) else REPO_ROOT / "results"
 
 # Stable path (per task's own /results dataset) where run_hpc anchors outputs so
 # autoResume restarts re-find their checkpoints. See run_hpc.py.

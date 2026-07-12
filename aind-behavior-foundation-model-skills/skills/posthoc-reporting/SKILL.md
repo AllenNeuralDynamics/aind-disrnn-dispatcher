@@ -18,7 +18,39 @@ than inventing layout.
 3. **Caches are `.gitignore`'d** — anything re-derivable from W&B (per-subject pulls,
    `analysis/_cache_*.json`). Curated summary JSON and reports/figures are committed.
 4. **Provenance lives inside the artifact** — JSON `_meta`, report frontmatter.
-5. **Idempotent regeneration** — `make r<n>` twice produces identical files.
+5. **Idempotent regeneration** — `make r<n>` twice produces identical files
+   (see the caveats below: `_meta` timestamps and cross-machine figure bytes).
+
+## Pin the W&B groups — never discover them live (hard rule)
+
+A producer MUST read runs from a **declared allowlist** of W&B groups
+(`WANDB_GROUPS = [...]` at module level, queried per group, as in
+`studies/01-gru-scaling-law/analysis/nxd_scaling.py`). It must NOT query the whole
+project and keep whatever matches its grid.
+
+Why: a project-wide query silently absorbs **any** new run that happens to fit the
+cell definition, so a report's numbers change when someone launches something
+unrelated. This actually happened — `02-gru-scaling-law-ignore/analysis/scaling.py`
+globbed the project, and a 200-step validation smoke run moved its published H16
+mean from 0.71635 to 0.70348 (SEM 5.3e-5 → 1.3e-2) with no code change. Pinned
+producers (studies 01/03/04) ignored the same run and reproduced exactly.
+
+`_meta.wandb_groups` must be a subset of the declared allowlist — never a set
+discovered from whatever the query returned, which makes a contaminated pull look
+self-consistent.
+
+## What "reproducible" actually means here (verified 2026-07-11)
+
+- **Data (curated JSON/CSV) is exactly reproducible** — a re-run changes nothing but
+  `_meta`. This is the thing to check: `git diff` the JSON, ignore `_meta`, expect zero.
+- **`_meta.produced_at_pt` (and `dispatcher_git_sha`) change every run**, so
+  regeneration always dirties the tree. A CI check cannot be a bare
+  `git diff --exit-code` — it must ignore `_meta`.
+- **Figure PNGs are bit-identical only on the same machine.** Across machines the
+  bytes (and ~6% of pixels — text/AA rendering) differ, because the *plotting* env
+  is not pinned: `environment.lock` pins the wrapper commit that produced the
+  *metrics*, not matplotlib/freetype. A PNG diff after regenerating on a different
+  box is expected and is **not** evidence that results changed — confirm via the JSON.
 
 ## Layout (per study)
 
