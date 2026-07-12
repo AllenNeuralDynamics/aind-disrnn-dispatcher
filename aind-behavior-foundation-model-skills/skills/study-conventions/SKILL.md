@@ -100,19 +100,42 @@ then show the classified keep/delete list and get explicit confirmation before
 deleting. (GraphQL `deleteRun` payload has `clientMutationId` + `numDeleted`, not
 `success` — selecting `success` returns HTTP 400.)
 
-### 4. PR to the integration branch
-Open the study PR toward the integration branch (`ai_hub_pck_integration`). If the
-study branch has commits from another study interleaved, build a **clean squash**
-directly off the target base containing only this study's + shared files (drop the
-other study's paths; revert any of its config default-flips). Merge dependency
-order: **wrapper PR first** (its commit is pinned in `environment.lock`), then
-dispatcher. Update the relevant roadmap issue with the verdict + PR links.
+### 4. PR to the integration branch (BOTH repos)
+A study is a **two-repo deliverable**: the dispatcher carries `studies/<study>/`
+(control plane), and the **wrapper** carries the study's *training payload* — the
+data loader, its tests, and any model-agnostic analysis script the study added
+(e.g. `code/data_loaders/<gen>.py`, `code/analysis/<study>_recovery.py`, plus any
+`run_hpc.py` change). **Both need a PR to `ai_hub_pck_integration`**, and the
+dispatcher's `environment.lock` pins a wrapper commit, so the wrapper payload must
+land too — don't stop at the dispatcher.
+
+**Never squash — preserve the stage-by-stage history.** To bring a diverged study
+branch up to base and open a history-preserving PR:
+1. Merge the base INTO the study branch: create a merge commit whose parents are
+   `[study_head, base_head]` and whose tree is the conflict-resolved content
+   (reuse the study branch's blob shas for its own files; take the base blob for a
+   file the base evolved independently that you didn't mean to change; omit
+   session-scratch files). The branch is then N-ahead / 0-behind with full history.
+2. Resolve conflicts deliberately: if a "conflicting" file's change is **already
+   upstream** on the base (byte-identical), take the base version — not a real
+   conflict. Drop throwaway scratch (per-run inventory JSONs, empty writes) that
+   the committed analysis reads from `argv`, not from a committed file.
+3. Open the PR as a normal merge; put **"merge, do not squash"** in the PR body.
+
+Merge dependency order: **wrapper PR first** (its commit is pinned in the study's
+`environment.lock`), then dispatcher. The `environment.lock` pin stays the payload
+commit that *produced* the metrics — after the merge that commit is the merge's
+first parent and remains reachable, so no pin update is needed. If a study branch
+has commits from another study interleaved, keep only this study's + shared files
+(drop the other study's paths; revert any of its config default-flips). Update the
+relevant roadmap issue with the verdict + PR links.
 
 ### 5. Retire the branch (only after content is captured)
 Verify the branch is fully captured with a **two-dot** content diff
 (`git diff --name-only <base> <branch>` on the study/shared paths — zero diff =
-captured), **NOT** GitHub's three-dot compare (diffs from the merge-base, always
-shows divergence after a squash). Any sibling docs commit merged ONTO the branch
+captured; via the API, diff the branch tree's blob shas against the base tree's),
+**NOT** GitHub's three-dot compare (diffs from the merge-base — it shows a stale
+"N behind" after a real merge commit too, not only after a squash). Any sibling docs commit merged ONTO the branch
 after the squash must be PR'd up separately first, or it orphans. `git branch -d`
 refuses a squash-merged branch — use `-D` once the two-dot diff confirms capture.
 Record the tip SHA before deleting (recoverable). Branches with unmerged unique
