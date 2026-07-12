@@ -118,6 +118,27 @@ provenance (see the study-conventions skill). Requires
 > `command:` list, next to `wandb.tags`. The sweep's top-level `project:` field is read
 > only by the native sweep controller, NOT by the resumable launcher.
 
+> **⚠️ Pin `WRAPPER_REF`/`DISPATCHER_REF` to a full commit SHA, not a branch, for
+> resumable/preemptible launches.** A preempted task auto-resumes by re-running
+> `entrypoint.sh`, which re-checks-out the ref. A branch ref is mutable, so a resume can:
+> (1) **fail** if the branch was deleted meanwhile — e.g. GitHub auto-deletes it on PR
+> merge, so merging the fix branch mid-run breaks every resume; or (2) **silently run
+> different code** than the first attempt if the branch advanced — the second half of a
+> preempted run executes the new tip. A SHA is immutable: the resume re-checks-out the
+> *same* commit, always resolvable. The launch record logs the commit for provenance, but
+> that records *intent* — only pinning the ref to a SHA makes the *executed* code match it.
+> The entrypoint already accepts a SHA (`git fetch --depth 1 origin <sha>`). Grab it at
+> launch time from the branch you're about to run:
+>
+> ```bash
+> git ls-remote origin <branch> | cut -f1   # -> the SHA to paste as WRAPPER_REF/DISPATCHER_REF
+> ```
+>
+> (Resolve against the **remote** — the SHA must be pushed, since the container fetches
+> from origin.) A branch ref is fine only for one-shot, non-resumable jobs (no resume
+> window). If branch-pinning ever recurs as a footgun, teach the launcher to resolve the
+> branch→SHA at submit time so you keep typing branch names but the task spec pins the SHA.
+
 Native alternative (real `wandb agent` sweep, not preemption-resilient):
 `python code/launch_beaker.py --sweep <sweep.yaml> --experiment <experiment.yaml>`.
 
