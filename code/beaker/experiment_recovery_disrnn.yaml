@@ -1,7 +1,7 @@
 ## Beaker spec — embedding-recovery disRNN grid on ai1/octo.ai-aws-p5en (H100).
 ## N wandb-agent replicas drain one shared sweep (the disrnn-stage4a 6-cell grid).
-## The entrypoint refreshes both repos to the refs below at container startup, so pushing
-## feat/embedding-recovery is enough (no image rebuild for code/config).
+## The entrypoint refreshes both repos to the merged main SHAs below at container startup,
+## so code/config changes need no image rebuild.
 ## The launcher renders <SWEEP_ID> at submit.
 ##
 ## IMPORTANT image note: use the 20260630 image — the older han-hou/disrnn-wrapper-pck-integration
@@ -34,8 +34,8 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: feat/embedding-recovery
+        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c
       - name: DISPATCHER_REF
-        value: feat/embedding-recovery
+        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23
     result:
       path: /results

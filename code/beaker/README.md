@@ -113,7 +113,7 @@ the AI Hub `getting-started/budgets.md`.
 
 Large multisubject mice cohorts (`mice_snapshot_scaling`: ~600 subjects, ~18k
 sessions, ~9.7M trials) hit three distinct memory walls. All are fixed in the
-wrapper (branch `ai_hub_pck_integration`); notes here so they don't resurface.
+wrapper `main`; notes here so they don't resurface.
 
 1. **Slow load (host CPU), ~6–7 min.** `_build_multisubject_bundle` filtered
    `df[df["subject_id"] == sid]` once per subject over an object-dtype column —
@@ -296,7 +296,7 @@ GPUs that are free *and* not on a cordoned node, by type.
 
 **Image names go stale — verify before launching.** Old example specs referenced
 `beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
-The current image for the `ai_hub_pck_integration` line is
+The current image for the `main` line is
 `han-hou/disrnn-wrapper-pck-integration-20260630` (see "Available images" above —
 the older `...-pck-integration` lacks `select_sessions(snapshot=...)`). List live
 images and point the spec's `image.beaker` at one that exists:
@@ -304,4 +304,3 @@ images and point the spec's `image.beaker` at one that exists:
 Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
 Because code is pulled fresh at startup, a stale image is the only thing here that
 needs fixing before launch — you almost never rebuild for a code change.
-

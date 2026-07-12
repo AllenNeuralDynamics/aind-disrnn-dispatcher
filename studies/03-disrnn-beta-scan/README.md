@@ -105,7 +105,8 @@ two figures, then rewrites the report blocks. Reports:
   were computed offline from checkpoints and pushed to W&B.
 
 ## Provenance
-- **Dispatcher branch:** `pr/beta-scan-clean` (→ PR #39, base `ai_hub_pck_integration`).
+- **Dispatcher branch:** `pr/beta-scan-clean` (PR #39, originally based on the
+  integration line; now contained in `main` through PR #53).
   **Wrapper:** metrics-producing commit pinned in [`environment.lock`](environment.lock)
   and stamped into `beta_scan_summary.json` as `_meta.wrapper_git_sha`.
 - **Beaker image:** `han-hou/disrnn-wrapper-pck-integration-20260630` (entrypoint

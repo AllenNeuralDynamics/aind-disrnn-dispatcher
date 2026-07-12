@@ -47,6 +47,6 @@ tasks:
         # per-subject split-example build + load groupby + eval GPU chunking.
         value: 57dcd3a0ba68b2093a02078a3d83e4d12b2facf2
       - name: DISPATCHER_REF
-        value: ai_hub_pck_integration
+        value: main
     result:
       path: /results

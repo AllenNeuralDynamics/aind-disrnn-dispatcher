@@ -1,7 +1,7 @@
 ## Beaker spec — embedding-recovery SMOKE on one gcp-h100 GPU.
 ## Validates the hierarchical-synthetic -> multisubject-GRU -> recovery path.
 ## The entrypoint refreshes both repos to the refs below at container startup,
-## so pushing feat/embedding-recovery is enough (no image rebuild for code/config).
+## so code/config changes need no image rebuild.
 ## The launcher renders <SWEEP_ID> at submit.
 ##
 ## Launch (from hpc-code login node, dispatcher repo root):
@@ -15,7 +15,7 @@ description: embedding-recovery smoke (hierarchical synthetic + multisubject GRU
 tasks:
   - name: recovery-smoke-gru
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration  # current image for the ai_hub_pck_integration line
+      beaker: han-hou/disrnn-wrapper-pck-integration  # current image for the main line
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -38,8 +38,8 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: feat/embedding-recovery
+        value: main
       - name: DISPATCHER_REF
-        value: feat/embedding-recovery
+        value: main
     result:
       path: /results
