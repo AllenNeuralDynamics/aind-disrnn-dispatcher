@@ -1,0 +1,9 @@
+{
+  "mode": "resumable-grid",
+  "n_tasks": 16,
+  "experiment_id": "01KXB63DPW7SMKJ35D215MSGS8",
+  "experiment_url": "https://beaker.org/ex/01KXB63DPW7SMKJ35D215MSGS8",
+  "dispatcher_commit": "23022e4eaf9c6c53aa7823618d9b3e0b56e0fb1e",
+  "sweep_file": "../studies/04-gru-vs-disrnn-embedding-recovery/variants/gru-stage4b-concentration/sweep.yaml",
+  "created_utc": "2026-07-12T12:51:14.119313+00:00"
+}

@@ -1,0 +1,1122 @@
+version: v2
+description: "gru-stage4b-concentration@20260712-055109 \u2014 16 resumable grid tasks\
+  \ (autoResume)"
+tasks:
+- name: gru-stage4b-concentration-20260712-055109-000
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=0.5
+  - model.architecture.session_encoding_type=none
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-69ec6f36
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - &id001
+    name: DISRNN_META_STUDY
+    value: 04-gru-vs-disrnn-embedding-recovery
+  - &id002
+    name: DISRNN_META_VARIANT
+    value: gru-stage4b-concentration
+  - &id003
+    name: DISRNN_META_LAUNCH_ID
+    value: 20260712-055109
+  - &id004
+    name: DISRNN_META_CONFIG_HASH
+    value: e412e85a
+  - &id005
+    name: DISRNN_META_LABEL
+    value: conc-scan
+  - &id006
+    name: DISRNN_META_NOTE
+    value: 'Stage-4b Dirichlet-concentration sweep: does session-conditioning recovery
+      benefit rise with within-subject family mixing? Resolves the confounded gru-stage4b
+      null (alpha=0.5 too sparse). [relaunch: fixed wandb.project=embedding_recovery]'
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-001
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=0.5
+  - model.architecture.session_encoding_type=none
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-f1e66768
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-002
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=0.5
+  - model.architecture.session_encoding_type=scalar
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-5cfa9f94
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-003
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=0.5
+  - model.architecture.session_encoding_type=scalar
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-be7cc79b
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-004
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=1.0
+  - model.architecture.session_encoding_type=none
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-cf5d045c
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-005
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=1.0
+  - model.architecture.session_encoding_type=none
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-68e7b031
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-006
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=1.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-8f4aad18
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-007
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=1.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-76e65e4d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-008
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=2.0
+  - model.architecture.session_encoding_type=none
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-08ef6598
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-009
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=2.0
+  - model.architecture.session_encoding_type=none
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-7d0bb759
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-010
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=2.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-333abc7d
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-011
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=2.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-40802e7b
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-012
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=5.0
+  - model.architecture.session_encoding_type=none
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-ad5731ac
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-013
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=5.0
+  - model.architecture.session_encoding_type=none
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-c4cfa556
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-014
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=5.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=42
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-8e39ee09
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
+- name: gru-stage4b-concentration-20260712-055109-015
+  image:
+    beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+  command:
+  - bash
+  - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic_hierarchical
+  - data/agent=hierarchical_rl_stage4b
+  - model=gru
+  - data.num_subjects=200
+  - data.num_sessions_per_subject=40
+  - data.num_trials=650
+  - data.batch_size=512
+  - data.eval_every_n=2
+  - data.heldout_session_mode=tail
+  - data.heldout_frac=0.2
+  - data/task=random_walk
+  - data.task.reward_baiting=false
+  - model.architecture.multisubject=true
+  - model.architecture.hidden_size=32
+  - model.architecture.subject_embedding_size=16
+  - model.training.lambda_reg_session=1.0
+  - model.training.n_steps=50000
+  - model.training.lr=0.001
+  - model.training.checkpoint_every_n_steps=5000
+  - model.training.auto_heldout_finetune.enabled=false
+  - wandb.project=embedding_recovery
+  - wandb.entity=AIND-disRNN
+  - wandb.tags=[embedding-recovery,stage4b,gru,mixture_family_switching,concentration_scan]
+  - data.agent.subject_presets.session_switching.concentration=5.0
+  - model.architecture.session_encoding_type=scalar
+  - seed=43
+  context:
+    priority: low
+    preemptible: true
+  constraints:
+    cluster:
+    - ai1/octo-hub-aws-h200
+    - ai1/octo-hub-onprem-h200
+  resources:
+    gpuCount: 1
+  envVars:
+  - name: WANDB_API_KEY
+    secret: han-wandb-api-key
+  - name: DISRNN_OUTPUT_DIR
+    value: /results
+  - name: WRAPPER_REF
+    value: ai_hub_pck_integration
+  - name: DISPATCHER_REF
+    value: ai_hub_pck_integration
+  - name: DISRNN_RESUMABLE_OUTPUT_DIR
+    value: /results/run
+  - name: WANDB_RUN_ID
+    value: gru-stage4b-concentration-20260712-055109-d8fb0a5b
+  - name: WANDB_RESUME
+    value: allow
+  - name: WANDB_RUN_GROUP
+    value: gru-stage4b-concentration@20260712-055109
+  - *id001
+  - *id002
+  - *id003
+  - *id004
+  - *id005
+  - *id006
+  result:
+    path: /results
