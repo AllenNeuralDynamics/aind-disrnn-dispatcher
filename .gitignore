@@ -170,3 +170,6 @@ studies/data-scaling-law/variants/*/launch_record*/watch_*.pid
 # tables); fully reproducible from W&B, never committed.
 wandb/
 artifacts/
+
+# Claude Code per-user/per-machine settings (shared settings.json stays tracked)
+.claude/settings.local.json
