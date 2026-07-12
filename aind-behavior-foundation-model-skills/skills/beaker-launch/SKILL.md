@@ -109,6 +109,15 @@ It sets the W&B group to `<variant>@<launch_id>` and injects `DISRNN_META_*`
 provenance (see the study-conventions skill). Requires
 `training.checkpoint_every_n_steps > 0` for resume to work.
 
+> **⚠️ Set `wandb.project=` in the sweep `command:` for resumable launches.** Unlike
+> the native launcher (whose `wandb agent` sweep controller owns the project), the
+> resumable launcher sets only the W&B **group**, not the project — each task runs
+> `run_hpc` directly, so the project comes from Hydra's `wandb.project`, which
+> **defaults to `test`**. Omitting it silently lands every run in the `test` project.
+> Add `wandb.project=<study_project>` (and `wandb.entity=AIND-disRNN`) to the sweep's
+> `command:` list, next to `wandb.tags`. The sweep's top-level `project:` field is read
+> only by the native sweep controller, NOT by the resumable launcher.
+
 Native alternative (real `wandb agent` sweep, not preemption-resilient):
 `python code/launch_beaker.py --sweep <sweep.yaml> --experiment <experiment.yaml>`.
 
