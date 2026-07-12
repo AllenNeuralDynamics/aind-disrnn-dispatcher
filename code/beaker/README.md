@@ -275,7 +275,7 @@ PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
 ```
 
 Drop `--no-submit` to actually submit. Full recipe (incl. resumable launcher):
-`docs/claude-science-workflow.md` → "Mac → Beaker launch".
+the `beaker-launch` skill, `references/sandbox-launch.md`.
 
 ## Transient node failures (resubmit, don't debug)
 
@@ -288,14 +288,14 @@ signature with `beaker job get <id> --format json` (look at `status.message` /
 
 Before a large fan-out (>4 GPUs / >4 concurrent tasks), run the schedulable-GPU
 probe `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) — it counts
-GPUs that are free *and* not on a cordoned node, by type. It lands with the
-`feat/ignore-trials-scaling` merge; until then use `beaker cluster list ai1`.
+GPUs that are free *and* not on a cordoned node, by type.
 
 **Image names go stale — verify before launching.** Old example specs referenced
 `beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
 The current image for the `ai_hub_pck_integration` line is
-`han-hou/disrnn-wrapper-pck-integration`. List live images and point the spec's
-`image.beaker` at one that exists:
+`han-hou/disrnn-wrapper-pck-integration-20260630` (see "Available images" above —
+the older `...-pck-integration` lacks `select_sessions(snapshot=...)`). List live
+images and point the spec's `image.beaker` at one that exists:
 `beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
 Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
 Because code is pulled fresh at startup, a stale image is the only thing here that
