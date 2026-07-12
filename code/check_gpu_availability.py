@@ -53,6 +53,8 @@ BEAKER_HUB_CLUSTERS = [
     "ai1/octo.ai-aws-g6e",       # L40S 48GB — low/preemptible-only (verified exception)
     "ai1/octo-hub-aws-l40s",     # L40S 48GB
     "ai1/octo-hub-onprem-h200",  # H200 141GB — needed only for wide H256 (memory, not speed)
+    "ai1/octo-hub-aws-h200",     # H200 141GB — hub; was missing here, so the check
+                                 # under-reported capacity (31 free slots unseen 2026-07-11)
 ]
 HPC_GPU_PARTITION = "aind"
 
