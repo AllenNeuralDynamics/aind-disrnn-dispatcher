@@ -133,7 +133,7 @@ Three distinct mechanisms — don't conflate them (full lifecycle detail: wrappe
    so in-progress runs cannot be extended. Fails **loudly** if the artifact is missing —
    never silently restarts from scratch.
 3. **Re-score a finished run's held-out stage only — no re-training.**
-   `python resume_heldout_beaker.py --run-id <wandb_run_id>` (wrapper repo root, inside
+   `python code/resume_heldout_beaker.py --run-id <wandb_run_id>` (from the wrapper repo, inside
    a Beaker container that reaches GCS + W&B). Runs the held-out fine-tune ONLY off the
    downloaded checkpoint tree, reads every knob (seed, `checkpoint_policy`, held-out set,
    finetune `n_steps`/`lr`) from the SOURCE run's own config, and re-injects `heldout/*`
@@ -142,7 +142,7 @@ Three distinct mechanisms — don't conflate them (full lifecycle detail: wrappe
    **exact-reproduction** path: unlike (2)'s restore — which resumes the training
    entrypoint and redraws a fresh held-out set off the restored checkpoints — this
    reproduces the source run's original held-out numbers. (Beaker port of the HPC
-   `resume_heldout.py`.)
+   `code/resume_heldout.py`; both now live under `code/`.)
 
 ## Validate, then fan out
 

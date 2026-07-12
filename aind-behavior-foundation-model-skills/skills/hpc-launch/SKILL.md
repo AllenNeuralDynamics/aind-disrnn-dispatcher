@@ -103,9 +103,10 @@ detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
 - **Re-score a finished run's held-out stage only — no re-training.** Runs the held-out
   fine-tune off the existing checkpoint and re-injects `heldout/*` into the original
   W&B run — used to backfill metrics added *after* a run trained. The committed
-  reference implementation is the wrapper's Beaker port `resume_heldout_beaker.py`
-  (`--run-id <wandb_run_id>`, inside a container reaching GCS + W&B); an HPC-side ad-hoc
-  variant (`resume_heldout.py`) has been used but is not yet committed to the repo.
+  reference implementations both live under the wrapper's `code/`: the Beaker port
+  `code/resume_heldout_beaker.py` (`--run-id <wandb_run_id>`, inside a container reaching
+  GCS + W&B) and the HPC original `code/resume_heldout.py` (`--model-dir <dir> --wandb-run-id
+  <id>`, run on a compute node that can read the checkpoint tree + reach W&B).
 
 ## Monitoring
 
