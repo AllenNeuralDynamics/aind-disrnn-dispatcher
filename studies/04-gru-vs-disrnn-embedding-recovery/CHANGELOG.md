@@ -30,7 +30,7 @@ All notable changes to this study folder. Dates in America/Los_Angeles.
 - **disRNN Stage-4a replication** (`disrnn-stage4a`, sweep `w2628h00`): family
   decoding 0.95–0.98 (scalar) / 0.75–0.90 (none); rel-LL ~0.94 (~4–6 pts below
   GRU). Trained on octo-hub-onprem-h200 after AWS p5en preemption.
-- **Full stage-1→4 figure set committed** under `analysis/figures/` (13 canonical
+- **Full stage-1→4 figure set committed** under `analysis/figures/` (10
   figures: parameter recovery, session-trajectory, likelihood flip, and the
   embedding-space PCA panels for Stages 3/4a), embedded inline in the r1 report's
   result block (not a separate gallery file).
