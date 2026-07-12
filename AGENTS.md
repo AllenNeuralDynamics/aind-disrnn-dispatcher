@@ -118,7 +118,8 @@ status logs, run reports, PR/commit notes), make it directly readable for the us
 One folder per study under `studies/<name>/`; variants as self-contained subfolders
 `variants/<variant>/`; one W&B project per study, one group per variant
 (`<variant>@<launch_id>`). A study answers one scientific question — variants are not
-separate studies. Full conventions + the provenance/`meta` scheme: **`docs/study-organization.md`**.
+separate studies. Full conventions + the provenance/`meta` scheme: the
+**`study-conventions` skill** (`aind-behavior-foundation-model-skills/skills/study-conventions/`).
 
 ## 9. Merging Pull Requests
 
@@ -150,8 +151,9 @@ and is not allowed.
   is the GPU overflow — check it with `--hpc` and launch there (§13 load-balancing).
 - Heavy work never on the login node (see §5).
 - Scheduling detail — priority/bursting, GPU-bundle sizing (`--memory 90GiB --cpu 12` = 1 L40s
-  GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
-  **`docs/beaker-playbook.md`** (read before any non-trivial launch).
+  GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation: the
+  **`beaker-launch` skill** (`aind-behavior-foundation-model-skills/skills/beaker-launch/`,
+  read before any non-trivial launch).
 
 ## 11. Verify Mechanisms With Data Before Asserting
 
@@ -159,7 +161,7 @@ When explaining *why* infra/scheduling/quota behaves a certain way, **pull the a
 first** (`beaker ... --format json`, `cluster get`, the W&B API) and cite the field. Label
 observed fact ("verified: …") vs inference ("likely, unconfirmed: …"); don't present a
 hypothesis as a conclusion; isolate variables before attributing cause. Worked examples:
-`docs/beaker-playbook.md`.
+the `beaker-launch` skill, `references/scheduling-lessons.md`.
 
 ## 12. Post-hoc Analysis & Reporting
 
@@ -168,9 +170,9 @@ carries a `_meta` block; every report file under `studies/<study>/analysis/repor
 has YAML frontmatter (`id`, `status`, `wandb_groups`, `inputs`, `reproduce`) and uses
 `<!-- BEGIN result-N -->` / `<!-- END result-N -->` markers around any region a script
 regenerates. W&B pull caches are `.gitignore`'d. Full conventions — folder layout, file
-contracts, `Makefile` convention, enforcement layers (pre-commit + CI), multi-agent
-collaboration rules, open questions: **`docs/posthoc-analysis.md`** (target spec; current
-`studies/data-scaling-law/` is mid-migration).
+contracts, `Makefile` convention, enforcement layers, multi-agent collaboration rules: the
+**`posthoc-reporting` skill** (`aind-behavior-foundation-model-skills/skills/posthoc-reporting/`);
+mirror a normalized study (e.g. `studies/01-gru-scaling-law/`).
 
 ## 13. Claude Science Workflow
 
@@ -180,8 +182,8 @@ and the HPC login node (`/home/han.hou/code/...`, pull-only runtime). Load balan
 CPU jobs → HPC SLURM, GPU jobs → Beaker — both launchers live here and only submit, so
 one repo drives both. The sandbox cannot create a `.git` dir in a granted path, so the
 user owns cloning (and SSO auth); the agent edits/commits/pushes into existing checkouts.
-Full scheme — task-to-host table, W&B-from-sandbox access, credentials:
-**`docs/claude-science-workflow.md`**.
+Full scheme — task-to-host table, W&B-from-sandbox access, credentials: the
+**`codebase-map` skill**, `references/claude-science-workflow.md`.
 
 - **Launching from the Claude Science Mac sandbox** (no HPC hop): the launchers
   (`code/launch_beaker.py`, `beaker_client.py`, `launch_beaker_resumable.py`) are
@@ -189,16 +191,17 @@ Full scheme — task-to-host table, W&B-from-sandbox access, credentials:
   `code/` as `PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py ... --no-submit`
   (`PYTHONSAFEPATH=1` in the sandbox breaks sibling imports otherwise; `--no-submit`
   is the safe dry-run). `beaker.org` + `api.wandb.ai` each need a one-time
-  `request_network_access` grant. Full recipe: `docs/claude-science-workflow.md`.
+  `request_network_access` grant. Full recipe: the `beaker-launch` skill,
+  `references/sandbox-launch.md`.
 - **Verify the image name before submitting.** Old example specs
   (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
-  which no longer exists (→ `ImageNotFound`/404). Use the current
-  `han-hou/disrnn-wrapper-pck-integration`; list live images with
+  which no longer exists (→ `ImageNotFound`/404). Current:
+  `han-hou/disrnn-wrapper-pck-integration-20260630` (the older `...-pck-integration`
+  lacks `select_sessions(snapshot=...)` — see `code/beaker/README.md` "Available
+  images"); list live images with
   `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
   pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
   so code/config edits need **no** rebuild — only a stale image or changed deps do.
 - **Transient node failure ≠ code bug.** A job dying in ~5 s with
   `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
   resubmit (lands elsewhere) instead of debugging training code.
-
-**`docs/claude-science-workflow.md`**. That doc also carries the copy-paste **Mac → Beaker launch recipe** (sandbox-safe launchers, the `PYTHONPATH`/`PYTHONSAFEPATH` quirk, the stale-image trap, and the disk-full transient failure).
