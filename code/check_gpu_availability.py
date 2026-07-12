@@ -48,13 +48,18 @@ import shutil
 import subprocess
 import sys
 
-# Beaker hub clusters we are allowed to use (see beaker-launch skill).
+# Beaker hub clusters we are allowed to use (see beaker-launch skill / AGENTS.md §10).
+# All known hub pools + the one verified non-hub exception. Dev pools
+# (octo-hub-aws-l40s-dev, aihub-dev-aws) are intentionally omitted — we never
+# submit to them (AGENTS.md §10).
 BEAKER_HUB_CLUSTERS = [
-    "ai1/octo.ai-aws-g6e",       # L40S 48GB — low/preemptible-only (verified exception)
+    "ai1/octo.ai-aws-g6e",       # L40S 48GB  — non-hub; low/preemptible-only (verified exception)
+    "ai1/octo.ai-aws-p5en",      # H200 141GB — non-hub; low/preemptible-only (verified exception)
     "ai1/octo-hub-aws-l40s",     # L40S 48GB
-    "ai1/octo-hub-onprem-h200",  # H200 141GB — needed only for wide H256 (memory, not speed)
-    "ai1/octo-hub-aws-h200",     # H200 141GB — hub; was missing here, so the check
-                                 # under-reported capacity (31 free slots unseen 2026-07-11)
+    "ai1/octo-hub-aws-h200",     # H200 141GB
+    "ai1/octo-hub-gcp-h100",     # H100 80GB
+    "ai1/octo-hub-onprem-h200",  # H200 141GB — needed for wide H256 (memory, not speed)
+    "ai1/octo.hub-gcp-h200",     # H200 141GB
 ]
 HPC_GPU_PARTITION = "aind"
 

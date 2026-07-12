@@ -67,8 +67,8 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
 ## Non-negotiable rules (from AGENTS.md)
 
 - **Never run heavy work on the login node** — always `srun`/`sbatch` (HPC) or Beaker.
-- Beaker: **submit only to `hub` clusters** (+ the one verified `octo.ai-aws-g6e`
-  low/preemptible exception) — see the beaker-launch skill.
+- Beaker: **submit only to `hub` clusters** (+ the verified `octo.ai-aws-g6e` and
+  `octo.ai-aws-p5en` low/preemptible exceptions) — see the beaker-launch skill.
 - **Check schedulable capacity before any large launch** (> 4 GPUs / > 4 concurrent
   tasks): `python code/check_gpu_availability.py` — raw `beaker cluster list`/`sinfo`
   counts include cordoned/drained nodes and lie.
