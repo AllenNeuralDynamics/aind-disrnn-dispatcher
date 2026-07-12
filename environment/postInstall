@@ -36,6 +36,7 @@ if code-server --disable-telemetry --version; then
         ms-python.black-formatter
         eamodio.gitlens
         ryanluker.vscode-coverage-gutters
+        anthropic.claude-code
     )
 
     for EXT in "${EXTENSIONS[@]}"; do

@@ -1,0 +1,67 @@
+# GRU model config. Values mirror the wrapper pck_dev source of truth
+# (aind-disrnn-wrapper@a790cc0 code/configs/config_gru.yaml, "gru, multi-subject").
+type: gru
+
+_target_: model_trainers.gru_trainer.GruTrainer
+
+architecture:
+  multisubject: true
+  hidden_size: 16
+  num_layers: 1
+  subject_embedding_size: 4
+  subject_embedding_init: zeros   # zeros | small_random | subject_count_scaled_random
+  session_encoding_type: none      # none | scalar | fourier
+  session_integration_type: direct # direct | pre_mlp
+  session_fourier_k: 4             # used only for fourier
+  session_delta_n_layers: 3
+  session_delta_hidden_size: 16
+  session_n_pretrain_steps: null   # null => resolve to ~30% of total training steps
+  session_n_warmup_steps: null     # null => resolve to ~20% of total training steps
+
+training:
+  lr: 0.001
+  n_steps: 20
+  loss: categorical
+  loss_param: 1
+  max_grad_norm: 1.0
+  lambda_reg_session: 0.0   # 0 disables zero-mean session-delta regularization; try 1.0
+  checkpoint_every_n_steps: 10
+  checkpoint_eval_on_train_split: true
+  checkpoint_eval_on_eval_split: true
+  checkpoint_log_train_to_wandb: true
+  checkpoint_log_eval_to_wandb: true
+  checkpoint_plot_split_examples_every_n: 10
+  checkpoint_save_output_df_every_n: 0
+  checkpoint_log_split_examples_to_wandb: true
+  checkpoint_keep_media_files: true
+  checkpoint_run_heldout_eval: true
+  checkpoint_include_final_in_heldout: true
+  initialization_eval_before_training: true  # run/log checkpoint-style eval before training
+  session_conditioning_verbose_logging: true
+  plot_session_context_state_space: true
+  session_context_plot_max_subjects: 3
+  session_context_plot_subject_indices: null
+  save_output_df: false
+  auto_heldout_finetune:    # auto-run held-out-subject finetuning after training
+    enabled: true
+    checkpoint_policy: final
+    n_steps: 50
+    lr: 0.01
+    checkpoint_every_n_steps: 10
+    checkpoint_plot_split_examples_every_n: 10
+    checkpoint_save_output_df_every_n: 0
+    batch_size: null
+    batch_mode: single
+    keep_media_files: true
+    train_example_sessions_per_subject: 1
+    eval_example_sessions_per_subject: 1
+    example_max_subjects: 6
+    output_root: /results/heldout_subject_finetuning
+    run_name_suffix: null
+
+seed: ${seed}  # Seed for model trainer (dispatcher wiring; wrapper relies on global seed)
+
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # will be overridden with wandb run folder
+
+# Your template for the model part of the run name
+run_name_component: gru_H${.architecture.hidden_size}

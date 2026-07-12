@@ -1,0 +1,34 @@
+# Task template for variant validation-2way-vs-3way (consumed by launch_beaker_resumable.py).
+# Smoke/first-look: 2 grid tasks (ignore_policy = exclude | include). g6e L40S, one GPU bundle
+# (90GiB / 12 CPU); H128 fits easily on a 48GB L40S. WRAPPER_REF 4f29680 carries the output_size=3
+# (3-way) support + the offline-heldout / few-shot knobs used by data-scaling-law's g6e runs.
+# DISPATCHER_REF study/data-scaling-law supplies code/config (mice_snapshot_scaling has an
+# overridable ignore_policy field) — the ONLY change vs data-scaling-law is the swept
+# data.ignore_policy override injected by the sweep.
+version: v2
+description: ignore-trials validation template — 2-way vs 3-way smoke (one autoResume task per grid point)
+tasks:
+  - name: ignore-validation-template
+    image:
+      beaker: han-hou/disrnn-wrapper-pck-integration
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+    constraints:
+      cluster:
+        - ai1/octo.ai-aws-g6e
+    resources:
+      gpuCount: 1
+      cpuCount: 12
+      memory: 90GiB
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: WRAPPER_REF
+        value: 4f296807f4ea06f9a58afa4eeb0553c220db4726   # output_size=3 (3-way) + offline-heldout/few-shot knobs
+      - name: DISPATCHER_REF
+        value: study/data-scaling-law                       # code/config source (overridable ignore_policy)
+    result:
+      path: /results

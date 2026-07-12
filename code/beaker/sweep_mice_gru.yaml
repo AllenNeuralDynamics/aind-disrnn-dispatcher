@@ -1,0 +1,37 @@
+# Mice-snapshot multisubject GRU sweep (AI Hub / Beaker).
+#
+# Trains a multisubject GRU on the database-backed mice snapshot, then (per the
+# gru config) auto-runs held-out-subject fine-tuning + evaluation. See
+# sweep_mice_disrnn.yaml for the mechanism.
+#
+#   data=mice_snapshot -> MiceSnapshotDatasetLoader (public DuckDB/parquet DB)
+#   model=gru          -> multisubject GRU (architecture.multisubject: true)
+#
+# n_steps overrides the config's smoke-test default (20) with a production
+# starting point — tune per experiment.
+#
+# Create the sweep, then put the returned SWEEP_ID in an experiment_*.yaml:
+#   wandb sweep code/beaker/sweep_mice_gru.yaml
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: mice-multisubject-gru
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot
+  - model=gru
+  - model.training.n_steps=3000
+  - "wandb.tags=[beaker,mice,gru]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]

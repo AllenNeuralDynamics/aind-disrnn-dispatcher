@@ -1,0 +1,29 @@
+# Baseline fitter -- Bari 2019 (ForagerQLearning L1 F1 + one-step choice kernel, softmax).
+# One of THREE FIXED baselines (Bari/Hattori/CTT) for the Stage-3/4 mixture study: each is
+# fit as a SINGLE model type over ALL subjects (one fit per subject); model-selection over
+# the three assigns each subject's family. STANDALONE config (no baseline_rl merge) so the
+# agent_kwargs dict is exactly this class's structure, not a deep-merge of another class's.
+type: baseline_rl
+
+agent_class: ForagerQLearning
+agent_kwargs:
+  number_of_learning_rate: 1
+  number_of_forget_rate: 1
+  choice_kernel: one_step
+  action_selection: softmax
+run_name_component: baseline_bari
+_target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
+
+architecture:
+  multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+multisubject_subject_workers: 6
+fit_bounds_override: {}
+clamp_params: {}
+DE_kwargs:
+  polish: true
+heldout_refit:
+  enabled: false
+  skip_train_fit: false
+
+seed: ${seed}

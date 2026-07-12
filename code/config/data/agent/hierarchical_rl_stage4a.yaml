@@ -1,0 +1,96 @@
+# Hierarchical MIXTURE-OF-MODEL-FAMILIES agent (STAGE 4a, Han 2026-07-06).
+#
+# Stage 4a raises the mixture axis from "which Q-learning VARIANT" (Stage 3) to
+# "which algorithm FAMILY". Each subject is assigned ONE of three GENUINELY DIFFERENT
+# base classes for its whole lifetime (family switching per-session is the separate
+# Stage-4b axis):
+#
+#   * QLearning (Bari-style)  -- value learning: Q-values + forget + one-step choice
+#                                kernel, softmax. (ForagerQLearning)
+#   * CompareToThreshold      -- compares local income to a learned threshold; NOT a
+#                                Q-value model. (ForagerCompareThreshold)
+#   * LossCounting            -- rule-based lose-shift: switch after N consecutive
+#                                losses (N ~ threshold_mean); no value learning at all.
+#                                WSLS is the N=1 special case. (ForagerLossCounting)
+#
+# Because the families are computationally distinct, within-family parameter R2 is NOT
+# cross-comparable (LossCounting has no "learning rate"), so the PRIMARY recovery axis
+# becomes FAMILY decoding/clustering from the subject embedding + a confusion matrix.
+# Baseline = the three FIXED baselines (Bari/CTT + a LossCounting fitter) fit one model
+# per subject; model-selection over them recovers each subject's family (and here CTT/
+# LossCounting are CORRECT for the subjects they generated, unlike in Stage 3).
+#
+# Parameter diversity is RETAINED WITHIN each family (per-subject centroids from that
+# family's subject_param_dist). Each family carries Stage-2b-style drift on the params
+# it actually has, so the held-out-tail extrapolation split stays the sensitive split.
+type: "mixture_family"
+
+loader_target: data_loaders.hierarchical_synthetic.HierarchicalCognitiveAgents
+
+session_noise:
+  biasL: 0.15
+
+subject_presets:
+  assignment: "balanced"
+  presets:
+    # ---------------- QLearning family (Bari 2019) ----------------
+    - name: "QLearning"
+      agent_class: "ForagerQLearning"
+      agent_kwargs:
+        number_of_learning_rate: 1
+        number_of_forget_rate: 1
+        choice_kernel: "one_step"
+        action_selection: "softmax"
+      agent_params: {}
+      subject_param_dist:
+        learn_rate: {type: uniform, min: 0.1, max: 0.9}
+        forget_rate_unchosen: {type: uniform, min: 0.0, max: 0.4}
+        choice_kernel_relative_weight: {type: uniform, min: 0.0, max: 0.5}
+        biasL: {type: uniform, min: -1.5, max: 1.5}
+        softmax_inverse_temperature: {type: uniform, min: 2.0, max: 15.0}
+      drift:
+        learn_rate: {mode: linear, delta: 0.6}
+        biasL: {mode: toward_zero, frac: 0.8}
+        softmax_inverse_temperature: {mode: sinusoidal, amp: 4.0, cycles: 1.0}
+      session_noise:
+        learn_rate: 0.05
+        biasL: 0.15
+        softmax_inverse_temperature: 1.5
+    # ---------------- CompareToThreshold family ----------------
+    - name: "CompareToThreshold"
+      agent_class: "ForagerCompareThreshold"
+      agent_kwargs:
+        choice_kernel: "none"
+      agent_params: {}
+      subject_param_dist:
+        learn_rate: {type: uniform, min: 0.1, max: 0.9}
+        threshold: {type: uniform, min: 0.2, max: 0.6}
+        softmax_inverse_temperature: {type: uniform, min: 2.0, max: 15.0}
+        biasL: {type: uniform, min: -1.5, max: 1.5}
+      drift:
+        learn_rate: {mode: linear, delta: 0.6}
+        biasL: {mode: toward_zero, frac: 0.8}
+        softmax_inverse_temperature: {mode: sinusoidal, amp: 4.0, cycles: 1.0}
+      session_noise:
+        learn_rate: 0.05
+        threshold: 0.03
+        biasL: 0.15
+        softmax_inverse_temperature: 1.5
+    # ---------------- LossCounting family (lose-shift; WSLS = N=1 special case) ----------------
+    - name: "LossCounting"
+      agent_class: "ForagerLossCounting"
+      agent_kwargs: {}
+      agent_params: {}
+      # biasL is bounded [-1, 1] for this class (tighter than QL); keep draws + drift inside.
+      subject_param_dist:
+        loss_count_threshold_mean: {type: uniform, min: 1.0, max: 6.0}
+        loss_count_threshold_std: {type: uniform, min: 0.2, max: 2.0}
+        biasL: {type: uniform, min: -0.6, max: 0.6}   # model bound is [-1,1]; keep draws+noise inside
+      drift:
+        loss_count_threshold_mean: {mode: linear, delta: 1.5}
+        biasL: {mode: toward_zero, frac: 0.8}          # toward_zero only shrinks |biasL|
+      session_noise:
+        loss_count_threshold_mean: 0.3
+        biasL: 0.08
+
+seed: ${seed}

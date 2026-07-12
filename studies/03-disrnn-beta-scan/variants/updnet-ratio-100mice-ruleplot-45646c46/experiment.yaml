@@ -1,0 +1,43 @@
+# Task template for variant updnet-ratio-100mice (consumed by launch_beaker_resumable.py).
+# The launcher expands the sweep grid into one autoResume task per
+# (multiplier × base beta × lr × seed) point = 48 tasks.
+#
+# COMPUTE: this is a SMALL disRNN (latent_size=5, update-net 16×5, LINEAR choice net) —
+# nothing like the wide GRU H256 that needs H200's 141GB. It fits comfortably on a 48GB
+# L40S, so route to g6e (one 90GiB / 12-CPU bundle), NOT octo-hub-onprem-h200. Keeping it
+# off H200 also avoids contending with the running ignore-trials nxd-3way grid there.
+#
+# WRAPPER_REF is pinned to the bottleneck-sparsity-logging branch commit that carries:
+# real-time bottlenecks/* scalars (incl. the isolated update_net_latent channel), disRNN
+# length-bucketed batching, and the extend-later checkpoint-restore path. The entrypoint
+# git-pulls this at container startup — no image rebuild needed (code-only edits).
+version: v2
+description: >
+  beta-scan updnet-ratio-100mice — 48-task grid over update_net_latent_penalty_multiplier
+  × base beta × lr × seed at 100 mice, linear choice net, real-time sparsity logging.
+tasks:
+  - name: beta-scan-updnet-ratio-template
+    image:
+      beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+    constraints:
+      cluster:
+        - ai1/octo-hub-onprem-h200
+    resources:
+      gpuCount: 1
+      cpuCount: 12
+      memory: 90GiB
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: WRAPPER_REF
+        value: 87d93f8c989e2059b67c1e87c137f799103ada77   # + length bucketing + extend-later restore
+      - name: DISPATCHER_REF
+        value: feat/beta-scan                              # this study's code/config source
+      # (online by default; safeguard auto-falls-back to offline on a flaky init)
+    result:
+      path: /results

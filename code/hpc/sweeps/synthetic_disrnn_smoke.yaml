@@ -1,0 +1,54 @@
+# Minimal synthetic disRNN sweep for validating the dispatcher -> SLURM -> wrapper path.
+#
+# This is intentionally smaller than synthetic_num_sessions_disrnn.yaml. Use it
+# when you want to verify that W&B sweep creation, lineage injection, SLURM
+# submission, conda activation, and run_hpc all work end-to-end without spending
+# time on a scientific sweep point.
+#
+#     python code/launch_hpc.py \
+#       --sweep-yaml code/hpc/sweeps/synthetic_disrnn_smoke.yaml \
+#       --mode cpu \
+#       --sbatch-extra=--array=0-0 \
+#       --agent-count 1
+
+entity: AIND-disRNN
+project: hpc_test
+name: synthetic-disrnn-smoke
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=synthetic
+  - model=disrnn
+  - data.num_trials=80
+  - data.num_sessions=4
+  - data.batch_size=32
+  - data/task=random_walk
+  - data.task.reward_baiting=true
+  - model.architecture.multisubject=false
+  - model.architecture.update_net_n_units_per_layer=4
+  - model.architecture.update_net_n_layers=1
+  - model.architecture.choice_net_n_units_per_layer=4
+  - model.architecture.choice_net_n_layers=0
+  - model.training.n_warmup_steps=0
+  - model.training.n_steps=2
+  - model.training.checkpoint_every_n_steps=0
+  - model.training.checkpoint_plot_split_examples_every_n=0
+  - model.training.checkpoint_save_output_df_every_n=0
+  - model.training.checkpoint_log_split_examples_to_wandb=false
+  - model.training.checkpoint_run_heldout_eval=false
+  - model.training.initialization_eval_before_warmup=false
+  - model.training.initialization_eval_after_warmup=false
+  - model.training.auto_heldout_finetune.enabled=false
+  - "wandb.tags=[hpc,smoke]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]

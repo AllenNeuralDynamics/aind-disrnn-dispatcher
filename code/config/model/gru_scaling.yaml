@@ -1,0 +1,118 @@
+# Multisubject GRU config for the scaling study (W&B project: mice_scaling).
+# All fixed training values live here (readable) — the sweep only varies the grid
+# dimensions (see code/beaker/sweep_gru_scaling.yaml). Edit this file to change
+# the model/training side of the experiment.
+type: gru
+
+_target_: model_trainers.gru_trainer.GruTrainer
+
+architecture:
+  # ── Core ──────────────────────────────────────────────────────────────
+  multisubject: true
+  hidden_size: 128                 # SWEPT in sweep_gru_scaling.yaml ([128, 256])
+  num_layers: 1                    # only 1 supported
+  # output_size is auto-derived from data.ignore_policy (exclude->2, include->3)
+
+  # ── Per-subject embedding ────────────────────────────────────────────────
+  subject_embedding_size: 4
+  subject_embedding_init: zeros    # zeros | small_random | subject_count_scaled_random
+
+  # ── Session conditioning ─────────────────────────────────────────────────
+  session_encoding_type: scalar    # SWEPT in sweep_gru_scaling.yaml ([none, scalar])
+  session_integration_type: direct # direct | pre_mlp
+  session_fourier_k: 4             # used only when session_encoding_type == fourier
+  session_delta_n_layers: 3
+  session_delta_hidden_size: 16
+
+  # ── Session-conditioning curriculum (steps; resolved against n_steps) ─────
+  session_n_pretrain_steps: null   # null => ~30% of n_steps
+  session_n_warmup_steps: null     # null => ~20% of n_steps
+
+training:
+  # ── Optimization ──────────────────────────────────────────────────────────
+  lr: 1e-5                  # SWEPT in sweep_gru_scaling.yaml ([1e-5, 5e-6])
+  n_steps: 100000
+  loss: categorical
+  loss_param: 1
+  max_grad_norm: 1.0
+
+  # ── Session-delta regularization ──────────────────────────────────────────
+  lambda_reg_session: 1.0   # 0 disables zero-mean session-delta regularization
+
+  # ── Length-bucketed batching (opt-in; cuts session-padding compute) ──────
+  # Sessions are heavily right-skewed (median ~520 vs T_max ~1200+ trials), so
+  # padding every batch to the global max wastes ~50-75% of unroll compute.
+  # When enabled, each batch is drawn from one length bucket and the unroll is
+  # trimmed to that bucket's (grid-rounded) length — no data loss. Default off.
+  length_bucketing: false
+  length_bucket_grid: 128       # round session lengths up to this multiple
+
+  # ── Checkpoint cadence ──────────────────────────────────────────────────
+  checkpoint_every_n_steps: 10000
+
+  # ── Early stopping (opt-in; evaluated at each checkpoint) ────────────────
+  # When enabled, stop once `metric` hasn't improved by > min_delta for
+  # `patience` checkpoints (or drops > overfit_guard below the best). On stop
+  # the run still finalizes (writes config/index + runs held-out fine-tune),
+  # and best_eval is used downstream. Default off → train to n_steps.
+  early_stopping:
+    enabled: false
+    metric: eval_likelihood     # eval_likelihood | train_likelihood
+    min_delta: 0.003
+    patience: 2                 # checkpoints with no new best
+    overfit_guard: 0.01         # stop if metric falls this far below best
+    start_after_step: 0         # only arm once step >= this (0 = no gating); use to let
+                                # session conditioning reach lambda=1 + train before stopping
+
+  # ── Per-checkpoint likelihood eval + W&B logging ────────────────────────
+  checkpoint_eval_on_train_split: true
+  checkpoint_eval_on_eval_split: true
+  checkpoint_log_train_to_wandb: true
+  checkpoint_log_eval_to_wandb: true
+
+  # ── Per-checkpoint plotting / media ─────────────────────────────────────
+  checkpoint_plot_split_examples_every_n: 10000
+  checkpoint_save_output_df_every_n: 0
+  checkpoint_log_split_examples_to_wandb: true
+  checkpoint_keep_media_files: false
+
+  # ── Per-checkpoint held-out eval ────────────────────────────────────────
+  checkpoint_run_heldout_eval: true
+  checkpoint_include_final_in_heldout: true
+
+  # ── Initialization eval ─────────────────────────────────────────────────
+  initialization_eval_before_training: true
+
+  # ── Session-context logging / state-space plots ─────────────────────────
+  session_conditioning_verbose_logging: true
+  plot_session_context_state_space: true
+  session_context_plot_max_subjects: 1
+  session_context_plot_subject_indices: null
+
+  # ── Final outputs ────────────────────────────────────────────────────────
+  save_output_df: false
+
+  # ── Automatic held-out fine-tuning + evaluation (multisubject only) ──────
+  auto_heldout_finetune:
+    enabled: true
+    checkpoint_policy: best_eval     # final | best_eval | best_heldout
+    n_steps: 500
+    lr: 1e-3
+    checkpoint_every_n_steps: 100
+    checkpoint_plot_split_examples_every_n: 100
+    checkpoint_save_output_df_every_n: 0
+    batch_size: null                 # null -> inherit the source run's data batch_size
+    batch_mode: single
+    keep_media_files: true
+    train_example_sessions_per_subject: 1
+    eval_example_sessions_per_subject: 1
+    example_max_subjects: 1
+    output_root: /results/heldout_subject_finetuning
+    run_name_suffix: null
+
+seed: ${seed}
+
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # run_hpc overrides to <run>/outputs
+
+# Your template for the model part of the run name
+run_name_component: gru_H${.architecture.hidden_size}

@@ -1,0 +1,53 @@
+# Mice-snapshot data variant for the small-pool GRU experiment.
+# Same loader/pipeline as data/mice_snapshot.yaml but with a tiny training pool
+# (subject_ratio 1% per curriculum), all-stage trials (mature_only: false),
+# batch_size 1024, and a single example subject for plots.
+#
+# subject_ratio lives here (not as a sweep override) because Hydra cannot
+# CLI-override dict keys that contain spaces (the curriculum names).
+# Self-contained (no base@_here_ include) so batch_size is honored verbatim.
+type: mice_snapshot
+
+_target_: data_loaders.mice.MiceSnapshotDatasetLoader
+
+# ── Subject-selection pipeline ───────────────────────────────────────────
+split: train                  # "train" or "heldout"
+subject_ids: null             # non-null list bypasses the selection pipeline
+min_sessions: 10
+heldout_every_n: 5            # reserve every 5th ranked subject (~20%) as heldout
+subject_ratio:                # per-curriculum fraction of the ~80% train pool
+  Coupled Baiting: 0.01
+  Uncoupled Baiting: 0.01
+  Uncoupled Without Baiting: 0.01
+subject_sample_seed: ${seed}  # reproducible training-set subject sample
+
+# ── Held-out test subject evaluation ─────────────────────────────────────
+test_subject_ids: null
+heldout_example_sessions_per_subject: 1
+train_example_sessions_per_subject: 1
+eval_example_sessions_per_subject: 1
+example_max_subjects: 1
+
+# Pin reads to a dated database snapshot instead of the live (growing) database,
+# so the exact same sessions/subjects are selected on every run. null -> live.
+snapshot: "20260603"
+
+# ── Trial / feature processing ───────────────────────────────────────────
+mature_only: false            # all-stage trials (does NOT affect subject selection)
+curricula:
+  - Coupled Baiting
+  - Uncoupled Baiting
+  - Uncoupled Without Baiting
+ignore_policy: exclude
+features: null                # null -> library defaults (prev choice, prev reward)
+
+# ── Batching / splitting ─────────────────────────────────────────────────
+eval_every_n: 2
+batch_size: 1024
+batch_mode: random
+multisubject: true
+
+seed: ${seed}
+
+# Your template for the data part of the W&B run name
+run_name_component: mice_snapshot

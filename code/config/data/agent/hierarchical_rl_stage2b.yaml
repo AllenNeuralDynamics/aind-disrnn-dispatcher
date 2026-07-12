@@ -1,0 +1,71 @@
+# Hierarchical Q-learning agent for embedding-recovery studies (STAGE 2b: STRONGER + NON-MONOTONIC drift + session_noise).
+# See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
+#
+# Each subject occupies a distinct SUBREGION of Q-learning parameter space
+# (its centroid is drawn from `subject_param_dist`). With `drift` empty the
+# subject is STATIC across sessions (Stage 1: pure between-subject recovery);
+# populate `drift` to add within-subject across-session trajectories (Stage 2).
+type: ${.agent_class}
+
+loader_target: data_loaders.hierarchical_synthetic.HierarchicalCognitiveAgents
+
+agent_class: "ForagerQLearning"
+
+# GENERATOR structure: single learning rate, no forget, no choice kernel,
+# softmax action selection. NOTE: config/model/baseline_rl.yaml's default fitter
+# uses a DIFFERENT (richer) structure (number_of_forget_rate:1,
+# choice_kernel:"one_step"). For baseline_rl to be a CORRECTLY-SPECIFIED recovery
+# reference (likelihood ceiling ~1.0, matched parametric recovery), the
+# baseline_rl run must OVERRIDE its agent_kwargs to match these values
+# (number_of_forget_rate=0, choice_kernel=none) -- see the recovery study README /
+# baseline_rl sweep. A mismatched (over-parameterized) fitter would still fit well
+# but its recovered params would not align 1:1 with the generator's params.
+agent_kwargs:
+  number_of_learning_rate: 1
+  number_of_forget_rate: 0
+  choice_kernel: "none"
+  action_selection: "softmax"
+
+# Base params applied to every subject before the centroid governs a param.
+# (Any param NOT in subject_param_dist stays fixed at its base value.)
+agent_params: {}
+
+# --- Between-subject structure: each subject's centroid (subregion) ---
+# Population distributions the per-subject centroids are drawn from. These
+# three params ARE the recoverable ground-truth embedding (dim = 3 here).
+subject_param_dist:
+  learn_rate:
+    type: "uniform"
+    min: 0.1
+    max: 0.9
+  biasL:
+    type: "uniform"
+    min: -1.5
+    max: 1.5
+  softmax_inverse_temperature:
+    type: "uniform"
+    min: 2.0
+    max: 15.0
+
+# --- Within-subject structure (STAGE 2b: STRONGER + NON-MONOTONIC drift,
+# Han 2026-07-05). Stage-2 mild monotonic drift was near-invisible at the
+# likelihood level (a static per-subject fit absorbs a smooth ramp into its
+# session-average). Stage 2b attacks that three ways:
+#   (1) MAGNITUDE x2 vs Stage 2 (learn_rate +0.6, |biasL| shrink 0.8 unchanged
+#       since it is already near-full, softmax rel 1.0 = x2 sharpening);
+#   (2) NON-MONOTONIC softmax (sinusoidal, 1 cycle) -- a shape a static fit
+#       cannot average away, the sensitive stressor for session conditioning;
+#   (3) session_noise (below) -- per-session jitter a static fit cannot absorb.
+# frac in [0,1] over a subject's sessions. ---
+drift:
+  learn_rate: {mode: linear, delta: 0.6}
+  biasL: {mode: toward_zero, frac: 0.8}
+  softmax_inverse_temperature: {mode: sinusoidal, amp: 4.0, cycles: 1.0}
+
+# --- Optional per-session Gaussian jitter around the (drifted) centroid ---
+session_noise:
+  learn_rate: 0.05
+  biasL: 0.15
+  softmax_inverse_temperature: 1.5
+
+seed: ${seed}

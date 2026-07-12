@@ -1,0 +1,34 @@
+# Mice-snapshot multisubject baseline-RL sweep (AI Hub / Beaker).
+#
+# Fits a baseline Q-learning agent per subject (differential evolution) on the
+# database-backed mice snapshot, then (per the baseline_rl config's
+# heldout_refit.enabled) re-fits on the reserved held-out subjects. See
+# sweep_mice_disrnn.yaml for the mechanism.
+#
+#   data=mice_snapshot -> MiceSnapshotDatasetLoader (public DuckDB/parquet DB)
+#   model=baseline_rl  -> multisubject baseline RL (DE optimizer; no n_steps)
+#
+# Create the sweep, then put the returned SWEEP_ID in an experiment_*.yaml:
+#   wandb sweep code/beaker/sweep_mice_baseline_rl.yaml
+
+entity: AIND-disRNN
+project: ai_hub_test
+name: mice-multisubject-baseline-rl
+
+method: grid
+metric:
+  name: final/val_loss
+  goal: minimize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot
+  - model=baseline_rl
+  - "wandb.tags=[beaker,mice,baseline_rl]"
+  - ${args_no_hyphens}
+
+parameters:
+  seed:
+    values: [42]

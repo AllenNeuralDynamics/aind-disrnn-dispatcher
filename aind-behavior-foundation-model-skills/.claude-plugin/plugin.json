@@ -1,0 +1,9 @@
+{
+  "name": "aind-behavior-foundation-model-skills",
+  "description": "Agent Skills for the AIND behavior foundation model stack: codebase orientation for the disRNN dispatcher/wrapper repos, launching jobs on Beaker (AI Hub) and Allen on-prem SLURM HPC, study/variant organization, and post-hoc analysis reporting conventions.",
+  "version": "0.6.0",
+  "author": {
+    "name": "Han Hou",
+    "email": "houhan@gmail.com"
+  }
+}

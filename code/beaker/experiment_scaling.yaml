@@ -14,7 +14,7 @@ description: disRNN scaling — N wandb-agent replicas sharing one sweep
 tasks:
   - name: disrnn-scaling
     image:
-      beaker: han-hou/disrnn-wrapper
+      beaker: han-hou/disrnn-wrapper-pck-integration
     # No --count: each agent drains the sweep queue until the grid is
     # exhausted, then exits. With replicas=4 and 8 combos that's ~2 runs/GPU.
     command:
@@ -23,23 +23,30 @@ tasks:
       - wandb
       - agent
       - "<SWEEP_ID>"
-    replicas: 4                    # 4 agents across 4 L40s GPUs
+    replicas: 4                    # 4 agents drain the 8-combo grid (~2 runs each)
     context:
-      priority: low
-      preemptible: true
+      priority: high
+      preemptible: false
     constraints:
       cluster:
-        - ai1/octo-hub-aws-l40s
+        # onprem-H200 (141GB GPU, ~3.25TiB RAM, reaches AWS S3) runs every combo
+        # incl. wide H256 with headroom. L40s also works now (eval chunking) but
+        # its 48GB GPU / 373GiB node is tight — see beaker/README "Memory pitfalls".
+        - ai1/octo-hub-onprem-h200
     resources:
       gpuCount: 1                  # per replica
+      memory: 256GiB               # generous on the ~3.25TiB onprem-H200 nodes
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: ai_hub
+        # full SHA required: entrypoint does `git fetch origin <ref>`, which
+        # rejects short SHAs. 57dcd3a = session-reg fix + gru-eval defrag +
+        # per-subject split-example build + load groupby + eval GPU chunking.
+        value: 57dcd3a0ba68b2093a02078a3d83e4d12b2facf2
       - name: DISPATCHER_REF
-        value: ai_hub
+        value: ai_hub_pck_integration
     result:
       path: /results
