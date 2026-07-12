@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling.py",
-    "produced_at_pt": "2026-07-11T11:55:46-07:00",
-    "dispatcher_git_sha": "0c3e79615e70129540c5bc1a34a903d94bb91d70",
+    "produced_at_pt": "2026-07-12T13:41:59-07:00",
+    "dispatcher_git_sha": "8106160cb15ce128f8c4106a880a1f4599f62902",
     "wrapper_git_sha": "0a9141b0732d869ec312d4d15d7bcd1bc1eda933",
     "wandb_groups": [
       "nxd-3way@20260704-205230",

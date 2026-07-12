@@ -38,6 +38,30 @@ from _meta import build_meta                            # noqa: E402
 # we require the run to have a resolved (D,H,seed) + a finished held-out metric.
 SWEEPS = {"o9oq3j4y", "9iu2rcap", "95br9evz", "4aq30mvb"}
 ENTITY, PROJECT = "AIND-disRNN", "mice_ignore_scaling"
+
+# The W&B groups this study is built from. This allowlist is the ONLY source of
+# runs: a run outside it is ignored no matter how well it matches (D,H,seed).
+# Without it the project-wide query below silently absorbs ANY new run that
+# happens to fit the grid -- a 200-step smoke run moved the published H16 mean
+# from 0.71635 to 0.70348 (SEM 5.3e-5 -> 1.3e-2) during the 2026-07-11 skills
+# validation. Pinning here matches studies 01/03/04 and makes the report
+# reproducible from committed code + pinned groups. Add a group when a launch
+# legitimately extends the grid.
+WANDB_GROUPS = [
+    "nxd-3way@20260704-205230",
+    "nxd-3way@20260704-205239",
+    "nxd-3way@20260707-075359",
+    "nxd-3way@20260707-075401",
+    "nxd-3way@20260707-075406",
+    "nxd-3way@20260707-075412",
+    "nxd-3way@20260707-110227",
+    "nxd-3way@20260707-110245",
+    "nxd-3way@20260708-231204",
+    "nxd-3way@20260708-231938",
+    "nxd-3way@20260709-231516",
+    "rerun_H16D10s2@20260705-104925",
+    "sweep-validate-capnsteps@20260710-183333",
+]
 SR_TO_D = {0.016: 10, 0.049: 30, 0.163: 100, 1.0: 614}
 HS = [16, 64, 128, 256]
 
@@ -100,6 +124,8 @@ def fetch_3way(first=500):
     best = {}  # (D,H,seed) -> (step, {metric: value})
     for e in r["data"]["project"]["runs"]["edges"]:
         n = e["node"]
+        if n.get("group") not in WANDB_GROUPS:
+            continue  # pinned allowlist: never absorb runs this study didn't declare
         cfg = json.loads(n["config"] or "{}")
         sm = json.loads(n["summaryMetrics"] or "{}")
         H = _get_nested(cfg, "model.architecture.hidden_size")
@@ -280,6 +306,9 @@ def main():
                 "ignore_pr_auc": {"mean": pa, "sem": pas, "ci95": paci, "n": max(n_pa, n_rc)},
                 "ignore_recall": {"mean": rc, "sem": rcs, "ci95": rcci, "n": max(n_pa, n_rc)},
             }
+    # Report the groups that actually contributed a kept run. These are a subset of
+    # the pinned WANDB_GROUPS allowlist by construction, so _meta can never advertise
+    # a group the study never declared.
     groups = sorted(getattr(fetch_3way, "groups", set()))
     out = {
         "_meta": build_meta("analysis/scaling.py", groups, study_root=STUDY),
