@@ -36,7 +36,7 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 | 4a | family mixture (QL/CTT/LC) | 0.988–0.991 | 0.718–0.743 | family decoding (GRU) | 100% |
 | 4b | per-session family switching (Dirichlet 0.5) | 0.984–0.988 | ~0.706 (CTT) | mix-weight R² @D16 / per-session family | 0.55 / 0.62 |
 
-- **The baseline flip is the study's spine.** A correctly-specified baseline matches the GRU on stationary (S1) and interpolable (S2) data, then breaks under extrapolation (S2b: 0.94 vs GRU >0.99) and under mixed structure (S3 model-selection 47%, S4a 70%), while the GRU embedding recovers the true structure at 97.5–100%.
+- **The baseline flip is the study's spine.** A correctly-specified baseline matches the GRU on stationary (S1) and interpolable (S2) data, then breaks under extrapolation (S2b: 0.94 vs GRU >0.987) and under mixed structure (S3 model-selection 47%, S4a 70%), while the GRU embedding recovers the true structure at 97.5–100%.
 - **Embedding dimension is the identifiability knob** — recovery scales with D, not hidden-unit count; higher-diversity mixtures (S3/S4) need D=16.
 - **Stage-4b** (per-session family switching): recovery lives at the SUBJECT level (mixture-weight R² 0.55 @D16), not the session level — session-conditioning adds nothing over subject identity for decoding a session's family (0.62 vs 0.63), because Dirichlet(0.5) subjects are concentrated (mean dominant weight 0.70).
 <!-- END result-1 -->

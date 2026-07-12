@@ -190,7 +190,7 @@ def _update_reports(ladder, s4b, dis):
              "correct-model-class baseline across the ladder. N=200.*\n\n" + tbl +
              "\n- **The baseline flip is the study's spine.** A correctly-specified baseline matches the "
              "GRU on stationary (S1) and interpolable (S2) data, then breaks under extrapolation "
-             "(S2b: 0.94 vs GRU >0.99) and under mixed structure (S3 model-selection 47%, S4a 70%), "
+             "(S2b: 0.94 vs GRU >0.987) and under mixed structure (S3 model-selection 47%, S4a 70%), "
              "while the GRU embedding recovers the true structure at 97.5\u2013100%.\n"
              "- **Embedding dimension is the identifiability knob** \u2014 recovery scales with D, not "
              "hidden-unit count; higher-diversity mixtures (S3/S4) need D=16.\n"
