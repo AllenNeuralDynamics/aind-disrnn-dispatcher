@@ -16,7 +16,37 @@ assume guaranteed slots there. Other `octo.ai-*` / `aipbd-*` / `siti-*` clusters
 remain off-limits unless similarly verified (probe
 `beaker cluster get --format json` for `allowPreemptibleRestrictionExceptions`).
 
+## The verified p5en exception (2026-07-12)
+
+`ai1/octo.ai-aws-p5en` is the second non-hub `octo.ai-aws-*` cluster verified the
+same way: `beaker cluster get` reports `allowPreemptibleRestrictionExceptions:
+True` (identical to g6e), so **low-priority preemptible** jobs are admitted past
+its user-whitelist. It is **AWS** (reaches S3) with **NVIDIA H200 141 GB** GPUs,
+**3 nodes × 8 = 24 slots**. This is the **preemptible route to H200 memory** — use
+it for wide `hidden_size=256` (which OOMs a 48 GB L40S) when the on-prem H200 pool
+is full, as burst capacity only (never assume guaranteed slots). Bundle sizing is
+the H200 shape, not the L40S `--memory 90GiB --cpu 12` — size to one H200 bundle
+and confirm `BEAKER_ASSIGNED_GPU_COUNT=1`. As with g6e, H200 is chosen here for
+**memory, not speed**.
+
 ## Priority tiers (verified on onprem-H200 + aws-L40s, 2026-06-22)
+
+**Our workspace (`ai1/aind-dynamic-foraging-foundation-model`) has three tiers of
+job protection** — pick the tier by how much the job must resist eviction:
+
+| Tier | How to submit | Budget | Eviction |
+|---|---|---|---|
+| **1. Allocated / protected** | `{priority: normal or high, preemptible: false}` | **4 allocated slots** | never evicted (guaranteed) |
+| **2. Unallocated / preemptible-normal** | `{priority: normal/high, preemptible: true}` | **8 unallocated slots** (hard cap) | evicted under contention; auto-resumes |
+| **3. Low preemptible (burst)** | `{priority: low, preemptible: true}` | **~unlimited** (best-effort spare GPUs, *ignores* the 8-slot cap) | evicted first; auto-resumes |
+
+Rules of thumb: default fan-outs → **tier 3** (`priority: low`) for max throughput;
+a few must-finish runs → **tier 1** (4 protected slots); **tier 2** only when a job
+must resist eviction but you've exhausted the 4 allocated slots. `maxWorkloadPriority`
+for this workspace is `high` (verified 2026-07-12), so `high` is available above
+`normal`. The **4 / 8** budget figures are from the 2026-06-22 measurement (the beaker
+CLI does not expose the workspace's slot budget directly — re-derive by watching where
+`normal`-preemptible starts pending vs. bursting).
 
 - **Low-priority preemptible jobs burst onto spare idle GPUs *beyond* the
   workspace's unallocated-slot budget** (measured ~14 concurrent on H200), whereas

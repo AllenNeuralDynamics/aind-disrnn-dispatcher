@@ -12,6 +12,25 @@ directly (no `wandb-core` subprocess), and `get_beaker_client()` builds
 - Credentials already in the sandbox env: `BEAKER_TOKEN`, `WANDB_API_KEY`.
 - Network: `beaker.org` and `api.wandb.ai` each need a one-time
   `request_network_access` grant.
+- **`beaker-py` (the `beaker` Python SDK)** — required by `beaker_client.py` and
+  `code/check_gpu_availability.py`. The launch stack targets the **1.x** API
+  (`from beaker import Beaker, Config`); **`beaker-py` 2.x is a breaking rewrite
+  that drops that import — do NOT install 2.x.** The sandbox Python is
+  externally-managed (PEP 668) and its stdlib `venv` lacks `ensurepip`, so build
+  the venv with `uv`:
+
+  ```bash
+  uv venv ~/.venvs/beaker
+  uv pip install --python ~/.venvs/beaker/bin/python "beaker-py<2"
+  # run the checker / launchers with that interpreter:
+  BEAKER_TOKEN=$(grep -i user_token ~/.beaker/config.yml | sed 's/.*:[[:space:]]*//') \
+    ~/.venvs/beaker/bin/python code/check_gpu_availability.py --beaker
+  ```
+
+  1.x emits harmless `RuntimeWarning: Found unknown field ...` for newer Beaker
+  API fields it doesn't model; results are unaffected. `check_gpu_availability.py`
+  reads the token from `$BEAKER_TOKEN` (not `~/.beaker/config.yml`), so export it
+  as shown.
 
 **PYTHONPATH quirk (sandbox only):** `PYTHONSAFEPATH=1` drops the script dir from
 `sys.path`, so the launchers' sibling imports (`beaker_client`, ...) fail with

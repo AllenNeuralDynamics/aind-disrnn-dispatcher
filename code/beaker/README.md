@@ -78,7 +78,9 @@ Hub clusters — use these (resources measured 2026-06-21; re-check with
 
 Preferred order for known-good low/preemptible S3-backed jobs: `ai1/octo.ai-aws-g6e`
 first (verified exception; L40S has been faster than H200 for our current workloads and
-has many slots), then `ai1/octo-hub-onprem-h200`, then `ai1/octo-hub-aws-l40s`.
+has many slots), then `ai1/octo-hub-onprem-h200`, then `ai1/octo-hub-aws-l40s`. For jobs
+that need H200 memory (wide H256) preemptibly, `ai1/octo.ai-aws-p5en` is the second
+verified exception (H200 141 GB) when the on-prem H200 pool is full.
 
 | Cluster | GPU (mem) | Host RAM/node | Reaches DB? | Notes |
 |---|---|---|---|---|
@@ -86,6 +88,7 @@ has many slots), then `ai1/octo-hub-onprem-h200`, then `ai1/octo-hub-aws-l40s`.
 | `ai1/octo-hub-aws-l40s` | L40s (48 GB) | ~373 GiB (1 node, 4 slots) | ✅ AWS | default; fine for H128. 48 GB GPU OOMs a *wide* (hidden_size=256) full-cohort eval unless chunked |
 | `ai1/octo-hub-aws-h200` | H200 (141 GB) | large | ✅ AWS | large training; often full (32/32) |
 | `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem | large training; usually has free slots — best for wide H256 |
+| `ai1/octo.ai-aws-p5en` | H200 (141 GB) | large (8/node, 3 nodes = 24 slots) | ✅ AWS | **verified exception for low/preemptible jobs only**; the preemptible route to H200 memory when on-prem H200 is full |
 | `ai1/octo-hub-gcp-h100` | H100 (80 GB) | ~1.83 TiB | ❌ **cannot reach AWS S3 DB** | lots of free CPU/RAM, but DB reads fail (DNS / SSL-cert errors) — only for compute that doesn't touch the DB |
 | `ai1/octo.hub-gcp-h200` | H200 (141 GB) | large | ❌ GCP (S3 unreliable) | |
 | `ai1/octo-hub-aws-l40s-dev` | L40s (48 GB) | — | ✅ AWS | dev |
@@ -97,9 +100,10 @@ us-west-2); **GCP clusters cannot reliably read it** (intermittent
 `Could not resolve hostname` / `SSL CA cert` `IOException`s mid-fetch). The DB
 fetch itself is fast on AWS (~5 s for all ~12.5M trials; scales with CPU count).
 
-Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200`,
-`ai1/octo.ai-aws-p5en`, or other non-hub clusters. The sole current exception is
-`ai1/octo.ai-aws-g6e` for verified **low-priority preemptible** jobs.
+Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200` or other
+non-hub clusters. The current exceptions are `ai1/octo.ai-aws-g6e` (L40S) and
+`ai1/octo.ai-aws-p5en` (H200 141 GB) for verified **low-priority preemptible**
+jobs only — both report `allowPreemptibleRestrictionExceptions: True` and reach S3.
 
 Pick one with free slots (`beaker cluster list ai1`); a job queues if none are
 free. Slot caps (Allocated = non-preemptible, Unallocated = preemptible) are in
