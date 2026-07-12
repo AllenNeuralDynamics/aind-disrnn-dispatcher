@@ -107,7 +107,7 @@ split — a different mechanism, evaluated via the normal eval-likelihood path.)
 | `baseline-ctt-stage4b` | 4b | baseline CTT | per-session-switch reference | N=200 | `nrehx3ox` | done | eval-LL 0.706 |
 | `baseline-losscounting-stage4b` | 4b | baseline LC | per-session-switch reference | N=200 | `b3m2un3h` | done | reference |
 | `disrnn-stage4a` | 4a | **disRNN** | family mixture (replication) | embed{4,8,16}×{none,scalar} | `w2628h00` | done | family decode 0.95–0.98 scalar / 0.75–0.90 none; rel-LL ~0.94 |
-| `gru-stage4b-concentration` | 4b | GRU | per-session switching, **Dirichlet-concentration sweep** | conc{0.5,1,2,5}×{none,scalar}×seed{42,43} | grp `@20260712-055109` (resumable) | ⏸ blocked on [wrapper#52](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/52) | resolves the confounded `gru-stage4b` null: does scalar−none recovery gap grow with mixing? (launch exposed a high-conc LossCounting param-clamp bug; re-run after fix) |
+| `gru-stage4b-concentration` | 4b | GRU | per-session switching, **Dirichlet-concentration sweep** | conc{0.5,1,2,5}×{none,scalar}×seed{42,43} | grp `@20260712-060852` (resumable) | ▶ running (16/16; fix [wrapper#52](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/52) validated) | resolves the confounded `gru-stage4b` null: does scalar−none recovery gap grow with mixing? |
 
 ¹ `gru-stage4b` none-D8 crashed at ~90% (non-blocking; the other 5 cells + all 3
 baselines completed). disRNN Stage-4a was trained on `octo-hub-onprem-h200` after

@@ -43,7 +43,7 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: ai_hub_pck_integration
+        value: ai_hub_pck_integration   # carries the LossCounting param-clamp fix once wrapper#52 merges
       - name: DISPATCHER_REF
         value: ai_hub_pck_integration
     result:
