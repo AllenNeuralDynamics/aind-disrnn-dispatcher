@@ -19,7 +19,23 @@ compute runs the **wrapper** image, built and maintained in
 | Dispatcher (control) | composes Hydra config → job artifact | `wandb sweep` → **SWEEP_ID** → submit experiment |
 | Wrapper (compute) | runs `run_hpc` | image runs `wandb agent` → `run_hpc` |
 
+## Check schedulable capacity before large launches
+
+Before submitting any large job (**> 4 GPUs / > 4 concurrent tasks**), run:
+
+```bash
+python code/check_gpu_availability.py            # Beaker + HPC
+python code/check_gpu_availability.py --beaker   # Beaker only (no VPN)
+```
+
+It reports **schedulable** GPUs — free **and not on a cordoned node** (Beaker) or
+`CfgTRES−AllocTRES` on non-drained nodes (HPC `aind` partition). The raw counts from
+`beaker cluster list` / `sinfo` include cordoned/drained nodes and overstate what can
+actually launch. If all hub clusters read 0 schedulable, route to HPC (`--hpc`) or wait
+(preemptible jobs burst as nodes uncordon). See AGENTS.md §10 and the beaker-launch skill.
+
 ## Files
+- `check_gpu_availability.py` *(in `code/`)* — schedulable-GPU probe for Beaker + HPC (run before large launches).
 - `launch_beaker.py` *(in `code/`)* — the launcher invoked by a CO Reproducible Run:
   creates the sweep, saves a `/results` record, renders the SWEEP_ID, and submits.
 - `sweep_mvp.yaml` — 1-point W&B sweep (smoke / default single run).
@@ -48,29 +64,6 @@ beaker experiment create -w "$WS" code/beaker/experiment_mvp.yaml
 ```
 
 Monitor at `https://beaker.org/ex/<id>`; runs also appear in W&B `AIND-disRNN/ai_hub_test`.
-
-### From the Claude Science Mac sandbox (no CLI, no HPC hop)
-
-The launchers are **sandbox-safe** and replace the two CLI steps above:
-`create_wandb_sweep()` uses the W&B GraphQL API directly (no `wandb-core`
-subprocess), and `get_beaker_client()` builds `beaker.Beaker` from
-`Config(user_token=os.environ["BEAKER_TOKEN"])` directly (no `~/.beaker/config.yml`).
-Creds `BEAKER_TOKEN` + `WANDB_API_KEY` are in the sandbox env; `beaker.org` and
-`api.wandb.ai` each need a one-time `request_network_access` grant.
-
-```bash
-cd code
-# PYTHONSAFEPATH=1 in the sandbox drops the script dir from sys.path, so put
-# code/ on PYTHONPATH or the sibling imports fail with ModuleNotFoundError.
-PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
-  --sweep beaker/sweep_mvp.yaml --experiment beaker/experiment_mvp.yaml \
-  --workspace ai1/aind-dynamic-foraging-foundation-model \
-  --output-dir ./out --label <label> --note "why" \
-  --no-submit    # dry-run: makes the sweep + renders the spec, does NOT submit
-```
-
-Drop `--no-submit` to actually submit. Full recipe (incl. resumable launcher):
-`docs/claude-science-workflow.md` → "Mac → Beaker launch".
 
 ## Clusters
 
@@ -149,20 +142,6 @@ Cap co-location with `resources.memory` + `replicas` so concurrent runs don't
 exceed node RAM (≈ `373 GiB / replicas`). Wide (H256) runs: prefer an H200, or
 L40s with the eval chunking above and `replicas`≤2.
 
-## Transient node failures (resubmit, don't debug)
-
-Not every early failure is a code bug. A GPU job can die in ~5 s with
-`status.message: "no space left on device"` and `started=None` — the node's NVMe
-filled while creating the dataset dir (seen on `gcp-h100`). This is a per-node
-infra failure; **just resubmit** and it lands on a healthy node. Check the
-signature with `beaker job get <id> --format json` (look at `status.message` /
-`status.started`) before touching training code.
-
-Before a large fan-out (>4 GPUs / >4 concurrent tasks), run the schedulable-GPU
-probe `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) — it counts
-GPUs that are free *and* not on a cordoned node, by type. It lands with the
-`feat/ignore-trials-scaling` merge; until then use `beaker cluster list ai1`.
-
 ## Image & code version
 
 The image is built on a Mac and pushed to Beaker — see the wrapper's
@@ -170,15 +149,19 @@ The image is built on a Mac and pushed to Beaker — see the wrapper's
 rebuild**; control the branch/commit via `WRAPPER_REF` / `DISPATCHER_REF` in
 `experiment_mvp.yaml` (a branch name, or a SHA to pin a run).
 
-**Image names go stale — verify before launching.** Old example specs referenced
-`beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
-The current image for the `ai_hub_pck_integration` line is
-`han-hou/disrnn-wrapper-pck-integration`. List live images and point the spec's
-`image.beaker` at one that exists:
-`beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
-Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
-Because code is pulled fresh at startup, a stale image is the only thing here that
-needs fixing before launch — you almost never rebuild for a code change.
+**Rebuild is only needed for DEPENDENCY changes** (`pyproject.toml` / the pinned
+git deps). A code edit that starts calling a dependency with a *new* signature is
+effectively a dependency change: e.g. `load_mice_database.py` calling
+`select_sessions(snapshot=...)` requires a newer `aind-dynamic-foraging-database`
+than older images ship — an older image fails at data-load with
+`TypeError: select_sessions() got an unexpected keyword argument 'snapshot'`.
+
+### Available images (use the newest for new studies)
+
+| image | built | notes |
+|---|---|---|
+| `han-hou/disrnn-wrapper-pck-integration-20260630` | 2026-07-01 | **current — use this.** Ships the newer `aind-dynamic-foraging-database` with `select_sessions(snapshot=...)` support (the `mice_snapshot_scaling` data path). |
+| `han-hou/disrnn-wrapper-pck-integration` | 2026-06-18 | older; DB package predates `snapshot=` — fails on the snapshot data loader used by `data-scaling-law` / `ignore-trials` / `beta-scan`. Pin `WRAPPER_REF` to a commit whose `load_mice_database.py` calls `select_sessions` *without* `snapshot` (e.g. `4f296807`) if you must use it. |
 
 ## Scaling
 
@@ -270,3 +253,51 @@ W&B continuity across the restart is preserved by a deterministic, per-grid-poin
 
 Only `method: grid` sweeps are supported — the trial set must be enumerable up
 front, since there is no sweep controller to ask for the next point.
+
+### From the Claude Science Mac sandbox (no CLI, no HPC hop)
+
+The launchers are **sandbox-safe** and replace the two CLI steps above:
+`create_wandb_sweep()` uses the W&B GraphQL API directly (no `wandb-core`
+subprocess), and `get_beaker_client()` builds `beaker.Beaker` from
+`Config(user_token=os.environ["BEAKER_TOKEN"])` directly (no `~/.beaker/config.yml`).
+Creds `BEAKER_TOKEN` + `WANDB_API_KEY` are in the sandbox env; `beaker.org` and
+`api.wandb.ai` each need a one-time `request_network_access` grant.
+
+```bash
+cd code
+# PYTHONSAFEPATH=1 in the sandbox drops the script dir from sys.path, so put
+# code/ on PYTHONPATH or the sibling imports fail with ModuleNotFoundError.
+PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
+  --sweep beaker/sweep_mvp.yaml --experiment beaker/experiment_mvp.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir ./out --label <label> --note "why" \
+  --no-submit    # dry-run: makes the sweep + renders the spec, does NOT submit
+```
+
+Drop `--no-submit` to actually submit. Full recipe (incl. resumable launcher):
+`docs/claude-science-workflow.md` → "Mac → Beaker launch".
+
+## Transient node failures (resubmit, don't debug)
+
+Not every early failure is a code bug. A GPU job can die in ~5 s with
+`status.message: "no space left on device"` and `started=None` — the node's NVMe
+filled while creating the dataset dir (seen on `gcp-h100`). This is a per-node
+infra failure; **just resubmit** and it lands on a healthy node. Check the
+signature with `beaker job get <id> --format json` (look at `status.message` /
+`status.started`) before touching training code.
+
+Before a large fan-out (>4 GPUs / >4 concurrent tasks), run the schedulable-GPU
+probe `python code/check_gpu_availability.py --beaker` (AGENTS.md §10) — it counts
+GPUs that are free *and* not on a cordoned node, by type. It lands with the
+`feat/ignore-trials-scaling` merge; until then use `beaker cluster list ai1`.
+
+**Image names go stale — verify before launching.** Old example specs referenced
+`beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
+The current image for the `ai_hub_pck_integration` line is
+`han-hou/disrnn-wrapper-pck-integration`. List live images and point the spec's
+`image.beaker` at one that exists:
+`beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
+Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
+Because code is pulled fresh at startup, a stale image is the only thing here that
+needs fixing before launch — you almost never rebuild for a code change.
+

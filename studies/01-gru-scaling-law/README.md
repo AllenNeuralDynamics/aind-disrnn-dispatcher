@@ -1,5 +1,10 @@
 # Study: Mouse data-scaling law
 
+*Folder `01-gru-scaling-law` — formerly `data-scaling-law`. W&B projects `mice_scaling`
++ `mice_data_scaling`; runs logged before the 2026-07-11 rename carry
+`meta.study="data-scaling-law"` (uniform across the sampled runs, but filter by W&B
+**project** rather than `meta.study` to be safe).*
+
 **Question.** Does training a behavior foundation model on more mice improve
 prediction of mice it has *never seen*? Within-subject per-trial likelihood
 saturates (~0.73–0.75 flat across H128/H256, even H2–H4), so model size is not the

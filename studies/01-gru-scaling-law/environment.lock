@@ -1,4 +1,4 @@
-# Pinned analysis env for studies/data-scaling-law/ per docs/posthoc-analysis.md.
+# Pinned analysis env for studies/01-gru-scaling-law/ per docs/posthoc-analysis.md.
 # Captured via `pip freeze` in conda env `disrnn-cpu`
 # (/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu). 2026-06-25 PT.
 absl-py==2.4.0

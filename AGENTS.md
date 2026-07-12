@@ -136,31 +136,22 @@ and is not allowed.
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
   preemptible** jobs (AWS, reaches S3, L40S bundle).
-- Preferred cluster order for known-good low/preemptible S3-backed jobs: `ai1/octo.ai-aws-g6e`
-  first (L40S has been faster than H200 for our current workloads and has many slots), then
-  `ai1/octo-hub-onprem-h200` (many slots), then `ai1/octo-hub-aws-l40s`.
+- **Check schedulable capacity BEFORE launching any large job (> 4 GPUs / > 4 concurrent
+  tasks): `python code/check_gpu_availability.py`** (Beaker + HPC). Route to whichever backend
+  has room. "Free" is not "schedulable": Beaker reports GPUs on **cordoned** nodes as free
+  (unschedulable), and `sinfo` counts `drain`/`down` nodes — the script strips both. Do not
+  trust `beaker cluster list` / raw `sinfo` free counts, and never assume the cluster order
+  below has open slots.
+- Cluster choice: pick by **live schedulable capacity first**. `ai1/octo.ai-aws-g6e` (L40S,
+  low/preemptible-only exception) and `ai1/octo-hub-aws-l40s` (L40S) for general jobs;
+  `ai1/octo-hub-onprem-h200` **only when a task needs the 141 GB** (wide `hidden_size=256`
+  OOMs a 48 GB L40S). **H200 is not inherently faster than L40S/g6e** — do not prefer it on
+  speed grounds. When all Beaker clusters are saturated/cordoned, HPC SLURM (`aind` partition)
+  is the GPU overflow — check it with `--hpc` and launch there (§13 load-balancing).
 - Heavy work never on the login node (see §5).
 - Scheduling detail — priority/bursting, GPU-bundle sizing (`--memory 90GiB --cpu 12` = 1 L40s
   GPU), the g6e exception, cross-cloud S3 caveat, quota debugging, one-unit validation:
   **`docs/beaker-playbook.md`** (read before any non-trivial launch).
-
-- **Launching from the Claude Science Mac sandbox** (no HPC hop): the launchers
-  (`code/launch_beaker.py`, `beaker_client.py`, `launch_beaker_resumable.py`) are
-  sandbox-safe (W&B GraphQL + `Config(user_token=$BEAKER_TOKEN)` directly). Run from
-  `code/` as `PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py ... --no-submit`
-  (`PYTHONSAFEPATH=1` in the sandbox breaks sibling imports otherwise; `--no-submit`
-  is the safe dry-run). `beaker.org` + `api.wandb.ai` each need a one-time
-  `request_network_access` grant. Full recipe: `docs/claude-science-workflow.md`.
-- **Verify the image name before submitting.** Old example specs
-  (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
-  which no longer exists (→ `ImageNotFound`/404). Use the current
-  `han-hou/disrnn-wrapper-pck-integration`; list live images with
-  `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
-  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
-  so code/config edits need **no** rebuild — only a stale image or changed deps do.
-- **Transient node failure ≠ code bug.** A job dying in ~5 s with
-  `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
-  resubmit (lands elsewhere) instead of debugging training code.
 
 ## 11. Verify Mechanisms With Data Before Asserting
 
@@ -190,4 +181,24 @@ CPU jobs → HPC SLURM, GPU jobs → Beaker — both launchers live here and onl
 one repo drives both. The sandbox cannot create a `.git` dir in a granted path, so the
 user owns cloning (and SSO auth); the agent edits/commits/pushes into existing checkouts.
 Full scheme — task-to-host table, W&B-from-sandbox access, credentials:
+**`docs/claude-science-workflow.md`**.
+
+- **Launching from the Claude Science Mac sandbox** (no HPC hop): the launchers
+  (`code/launch_beaker.py`, `beaker_client.py`, `launch_beaker_resumable.py`) are
+  sandbox-safe (W&B GraphQL + `Config(user_token=$BEAKER_TOKEN)` directly). Run from
+  `code/` as `PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py ... --no-submit`
+  (`PYTHONSAFEPATH=1` in the sandbox breaks sibling imports otherwise; `--no-submit`
+  is the safe dry-run). `beaker.org` + `api.wandb.ai` each need a one-time
+  `request_network_access` grant. Full recipe: `docs/claude-science-workflow.md`.
+- **Verify the image name before submitting.** Old example specs
+  (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
+  which no longer exists (→ `ImageNotFound`/404). Use the current
+  `han-hou/disrnn-wrapper-pck-integration`; list live images with
+  `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
+  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
+  so code/config edits need **no** rebuild — only a stale image or changed deps do.
+- **Transient node failure ≠ code bug.** A job dying in ~5 s with
+  `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
+  resubmit (lands elsewhere) instead of debugging training code.
+
 **`docs/claude-science-workflow.md`**. That doc also carries the copy-paste **Mac → Beaker launch recipe** (sandbox-safe launchers, the `PYTHONPATH`/`PYTHONSAFEPATH` quirk, the stale-image trap, and the disk-full transient failure).

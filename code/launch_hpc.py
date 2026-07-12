@@ -222,6 +222,35 @@ def _study_variant(sweep_path: Path) -> tuple[str, str]:
     return study or "adhoc", variant or sweep_path.stem
 
 
+# Max characters for an injected +meta.* value. Long scalars written into a
+# run's inputs.yaml get FOLDED across lines by the YAML dumper; the wrapper's
+# post-training loader (_parse_simple_yaml) is a one-key-per-line parser that
+# RAISES "Unexpected indentation" on any continuation line, which aborts the
+# auto held-out fine-tuning step. Keeping every meta value on a single short
+# line (whitespace-collapsed, capped well under the ~80-col fold width incl.
+# indent) guarantees inputs.yaml stays reloadable. Full provenance still lives
+# in git (commit/branch), the committed sweep YAML, and shell history.
+_META_VALUE_MAX_LEN = 60
+
+
+def _meta_safe(value: object) -> str:
+    """Make an injected meta value safe to round-trip through inputs.yaml.
+
+    A YAML scalar only gets FOLDED across lines by the dumper when it contains
+    whitespace to break at; a long single-token value (e.g. a filesystem path)
+    is always emitted on one line. So we only need to truncate values that
+    both contain a space AND exceed the fold-safe width. Truncation uses an
+    ASCII marker ('...') because a truncated no-marker value could still be
+    fine, but the marker must never introduce a character Hydra's override
+    lexer rejects (a Unicode ellipsis does). Values with spaces are quoted by
+    _hydra_value for the CLI, so '...' inside them is harmless there too.
+    """
+    collapsed = " ".join(str(value).split())
+    if " " in collapsed and len(collapsed) > _META_VALUE_MAX_LEN:
+        collapsed = collapsed[: _META_VALUE_MAX_LEN - 3].rstrip() + "..."
+    return collapsed
+
+
 def _hydra_value(value: object) -> str:
     """Render a value for a Hydra CLI override."""
     sval = str(value)
@@ -248,7 +277,10 @@ def _inject_lineage_into_command(
         # `+meta.<key>=<value>` adds the field (won't error if missing in schema).
         # Quote values containing chars that Hydra's override parser rejects
         # (spaces, '=', commas, etc.) so they survive as plain strings.
-        cmd.append(f"+meta.{key}={_hydra_value(value)}")
+        # `_meta_safe` collapses whitespace + caps length so the value can't
+        # fold across lines in the run's inputs.yaml (which would break the
+        # post-training loader and abort auto held-out fine-tuning).
+        cmd.append(f"+meta.{key}={_hydra_value(_meta_safe(value))}")
     if group:
         # Also pass the group in config so wandb.init receives it directly.
         cmd.append(f"+wandb.group={_hydra_value(group)}")
