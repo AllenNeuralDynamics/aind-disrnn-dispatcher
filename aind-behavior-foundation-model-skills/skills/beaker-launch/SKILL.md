@@ -15,8 +15,9 @@ resumable mechanics).
 1. **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`).
    **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`)
    even if idle — they belong to other science units.
-   Sole verified exception: `ai1/octo.ai-aws-g6e` accepts our **low-priority
-   preemptible** jobs only (see `references/scheduling-lessons.md`).
+   Verified exceptions: `ai1/octo.ai-aws-g6e` (L40S) and `ai1/octo.ai-aws-p5en`
+   (H200 141 GB) accept our **low-priority preemptible** jobs only
+   (see `references/scheduling-lessons.md`).
 2. **Never run the launch's compute on the login node** — the launcher itself is fine
    (it only submits), the training is not.
 3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
@@ -46,12 +47,15 @@ only option (preemptible jobs burst as capacity frees / nodes uncordon).
 
 Pick by **live schedulable capacity first**, then by these properties:
 
-- `ai1/octo.ai-aws-g6e` — L40S 48GB, many slots; **low/preemptible only** (the
+- `ai1/octo.ai-aws-g6e` — L40S 48GB, many slots; **low/preemptible only** (a
   verified non-hub exception).
 - `ai1/octo-hub-aws-l40s` — L40S 48GB, same class.
 - `ai1/octo-hub-onprem-h200` — H200 141GB. **Use only when a task needs the memory**
   (wide `hidden_size=256` OOMs a 48GB L40S). **H200 is NOT inherently faster than
   L40S/g6e** for our workloads — do not prefer it on speed grounds.
+- `ai1/octo.ai-aws-p5en` — H200 141GB (8/node); **low/preemptible only** (the other
+  verified non-hub exception). The preemptible route to H200 memory when the on-prem
+  H200 pool is full.
 
 **GCP clusters cannot reach AWS S3** — never route DB/S3-backed jobs there.
 
