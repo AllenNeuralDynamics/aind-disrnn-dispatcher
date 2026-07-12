@@ -119,7 +119,8 @@ Three distinct mechanisms — don't conflate them (full lifecycle detail: wrappe
    "Priority & preemption" above: a preempted `preemptible: true` task restarts as
    the *same* task with the *same* `/results` dataset, re-finds its latest
    `checkpoints/step_<N>/train_state.pkl`, and continues (skipping warmup). Needs
-   `checkpoint_every_n_steps > 0` + `auto_resume` (default). No flags, no new
+   `checkpoint_every_n_steps > 0` + the trainer gate `training.auto_resume` (default; distinct
+   from Beaker's own `autoResume` spec field above). No flags, no new
    experiment.
 2. **Extend a finished run to a longer horizon — ACROSS experiments.** Launch a
    *new* experiment with `model.training.restore_from_run_id=<source W&B run name>`
