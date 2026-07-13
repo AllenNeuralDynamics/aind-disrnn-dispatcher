@@ -162,3 +162,16 @@ python code/launch_beaker_resumable.py \
     per-subject frames on demand); the optimization was never ported to disRNN. Fix + regression
     tests in aind-disrnn-wrapper `fix/disrnn-checkpoint-eval-cost`. It does **not** affect the
     running grid (tasks are pinned to their SHAs), so no restart.
+- 2026-07-13 12:39 PT: 27/27 alive, **56–91%** done, still **no NaNs** (all three `mult=10` cells
+  fine). No new failures since 09:35 — the two preemptions (exit 143) were both auto-resumed and
+  the lagging D=30 cell is catching up. ETAs: ~1–3 h (D≤100), ~5 h (D=300), **~9 h (D=614)** →
+  the grid completes around **21:00–22:00 PT tonight**.
+  - Wrapper PR [aind-disrnn-wrapper#56](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/56)
+    (the checkpoint whole-cohort-frame fix) is **merged**. It does not touch this grid — the 27
+    tasks are pinned to pre-merge SHAs — so the ~5 h/run saving lands on the *next* disRNN run.
+  - *Early read, not a result (within-subject eval LL, not the held-out y-axis; runs unfinished):*
+    at D=614 the eval LL tracks **base β** (β=3e-4 ≈ 0.724, β=1e-3 ≈ 0.722, β=3e-3 ≈ 0.713) and is
+    **flat across the multiplier** at fixed β (β=3e-4: 0.7236 / 0.7239 / 0.7257 / 0.7241 for
+    mult 1/2/5/10). That is the *shape* study 03 found at D=100 — but the real test is
+    `heldout/eval_likelihood` + Σ(1−σ) openness, which only exist once the runs finish. Do not
+    quote these numbers.
