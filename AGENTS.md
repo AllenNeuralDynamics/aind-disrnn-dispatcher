@@ -63,10 +63,22 @@ These guidelines are working when diffs contain fewer unnecessary changes, solut
 
 ## 5. HPC Execution Safety
 
-Never run computation-intensive work on the login node (where the agent runs).
+**Never run *any* Python on the login node (where the agent runs) — no exceptions.**
+This covers training, sweeps, analysis, synthetic data generation, and "quick" smoke
+tests or single-worker checks, whether run interactively or shipped ad-hoc via
+`call_command`/SSH.
 
-- Always use `srun` or `sbatch` for heavy workloads.
-- This includes training jobs, sweeps, and tests.
+- All workload Python goes through `srun`/`sbatch`/`salloc` onto a compute node.
+- The **only** Python permitted on the login node is a *submit-only launcher*
+  (`launch_hpc.py`, `launch_beaker*.py`, `check_gpu_availability.py`) that creates a
+  W&B sweep, submits jobs, or probes capacity and returns — it never imports the
+  wrapper data loader, model, or training code, and never starts a `multiprocessing`
+  Pool.
+- Why: even a "small" login-node job shares the node with every other user. A bug in
+  one — e.g. an unguarded `multiprocessing` spawn-Pool that re-imports its own script
+  as `__main__` and recursively forks without bound — can trigger a runaway
+  process-spawn cascade that hammers the whole node. (Real incident: an ad-hoc
+  data-gen smoke test left a 260 MB log with 65k+ process-spawn errors on hpc-code.)
 
 ## 6. Semantic Commit Messages
 
