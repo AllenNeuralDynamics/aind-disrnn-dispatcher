@@ -4,6 +4,56 @@ Per-study log per [`docs/posthoc-analysis.md`](../../docs/posthoc-analysis.md). 
 entry per merged PR (or coherent unreleased batch). Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — classical-RL baseline suite (Bari / Hattori / CTT)
+
+**2026-07-13.** Fit the full classical-RL baseline suite that issue #20 asks for, on the
+same fixed 149-mouse held-out cohort as the GRU. Three new variants
+(`rl-baseline-{bari,hattori,ctt}`), each run with `heldout_refit.skip_train_fit=false` so
+it fits **both** cohorts — 614 training mice *and* 149 held-out mice — in one run.
+
+### Added
+- `variants/rl-baseline-{bari,hattori,ctt}/` — sweeps + notes. Each selects a **standalone**
+  model config (`model=baseline_rl_<m>`), which is load-bearing for CTT:
+  `ForagerCompareThreshold.__init__` accepts only `(choice_kernel, params)` and the trainer
+  calls `agent_class_obj(**agent_kwargs, seed=seed)` **unfiltered**, so a deep-merged config
+  would hand it the Q-learning kwargs and `TypeError`.
+- `analysis/rl_baseline.py` — generalized from one model to the suite; pulls each model's
+  held-out per-subject table, computes paired GRU−RL per model, and identifies the
+  best-of-breed. Falls back to the run's output dir on `/allen` when the W&B artifact API
+  is unavailable (it intermittently is).
+- Per-subject fitted parameters for the **614 training mice** are now available for the
+  first time — the `model2` artifact the embedding analyses (#24 / #27) require. The old
+  `rl-baseline-simple` could not supply this: it ran `skip_train_fit=true` and only ever
+  touched held-out mice, so its parameters covered mice that have **no** subject embedding.
+
+### Changed — ⚠️ corrects a published number
+- **r8's headline margin was measured against the wrong baseline.** It reported the GRU
+  beating classical RL by **+0.0136**, fit against Bari alone. **Bari is not the strongest
+  classical model**: compare-to-threshold beats it (pooled 0.71704 vs 0.71491). Against the
+  *best* classical model the GRU's D=614 margin is **+0.0113** — the old figure overstated
+  the gap by ~20%. r8, the reports INDEX, and the study README are updated.
+  - The GRU still beats **all three** models in **every** (variant, D) cell, 100% of mice at
+    D≥30. The conclusion is unchanged; the claim is now "beats the best of three", which is
+    smaller but far harder to dismiss.
+  - **Reproduction check passed:** the new `bari` arm re-fits the same agent as the legacy
+    `rl-baseline-simple` (`cdq292n5`) and lands within **+0.00066** — DE noise. It also
+    reproduces the published +0.0136 (we get +0.01352), confirming the pipeline.
+- Results 1/4/5/7 keep their **Bari** reference band (`band_model` in `rl_baseline.json`),
+  since their prose was written against it. Flagged in r8 as a *historical* reference.
+  Re-basing those four figures onto CTT is deliberate follow-up, not done here.
+
+### Findings
+- **Hattori is the weakest of the three** (0.71267). Asymmetric learning rates (α⁺/α⁻) *hurt*
+  held-out generalization relative to a single rate plus a choice kernel — the extra
+  parameter buys nothing, and cost 6× CTT's compute to establish.
+- CTT is both the **strongest and the cheapest** (4 params, 30 min vs ~3 h).
+
+### Still open (#20)
+All three are fit **per-mouse independently** — no D-axis, no population sharing. The GRU's
+advantage remains partly a "population vs per-mouse" win by construction. The
+hierarchical-Bayes fit (and its VI counterpart, #57) is still the fair comparison, and is
+still unbuilt.
+
 ## [Unreleased] — posthoc-analysis standard-structure migration
 
 Brings the study folder into conformance with `docs/posthoc-analysis.md`. No

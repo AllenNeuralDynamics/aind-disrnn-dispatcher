@@ -48,8 +48,19 @@ sessions, so it's mostly *not* a curriculum-stage artifact. The population-mean
 per-mouse few-shot adaptation is **not** where scale pays off. Effects are tiny
 per-trial but, being consistent across ~149 mice, are real evidence (a +0.001
 per-trial-normalized LL ≈ ~2× per-session likelihood ratio). **The population GRU beats
-a per-mouse classical RL baseline (Bari L1F1_CK1) by +0.0136 at D=614 (100% of mice,
-Wilcoxon p~3e-26) — ~10× the SC effect and the dominant signal in this study** (r8).
+every per-mouse classical RL model we fit — Bari, Hattori, and compare-to-threshold — at
+every (variant, D). Against the *strongest* of them (compare-to-threshold) the margin at
+D=614 is +0.0113 (100% of mice, Wilcoxon p~1e-25) — ~8× the SC effect and the dominant
+signal in this study** (r8).
+
+> **Correction (2026-07-13).** This summary previously reported **+0.0136**, measured
+> against Bari alone. Bari is **not** the strongest classical model: compare-to-threshold
+> beats it (0.71704 vs 0.71491 pooled). Fitting the full suite (issue #20) shows the
+> honest best-of-breed margin is **+0.0113** — the old figure overstated the gap by ~20%.
+> The GRU still wins on every model and every cell, and the conclusion is unchanged; the
+> claim is now "beats the best of three" rather than "beats Bari", which is both smaller
+> and much harder to dismiss. Hattori is the *weakest* of the three: asymmetric learning
+> rates hurt held-out generalization here.
 
 **On effect sizes (Kevin Miller).** LL is per-trial-normalized (NL = exp(mean_t log p_t)).
 A *consistent* Δ=+0.001 ≈ +0.0014 nats/trial → ~0.7 nats over a ~500-trial session →
@@ -119,7 +130,10 @@ side-by-side; each launch is its own group (see Provenance below).
 |---|---|---|---|---|
 | [`v1-pretrain-phase`](variants/v1-pretrain-phase/notes.md) | early-stop fired ~40k (pretrain) → session conditioning never engaged | ✅ done | `mice-data-scaling-gru` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
 | [`v2-sc-active`](variants/v2-sc-active/notes.md) | λ forward (full SC @50k) + gated early-stop @70k; `n_steps=150k` | ✅ done | `v2-sc-active@20260622-144622` | `01KVRMSAAJTRSJMFV5JT7JAP6X` |
-| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; skips train fit and scores reserved held-out mice under `heldout/*` | ✅ done | `rl-baseline-simple@20260624-171829` | HPC CPU, run [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5) |
+| [`rl-baseline-simple`](variants/rl-baseline-simple/notes.md) | independent per-subject Bari RL; **skips the train fit** and scores reserved held-out mice under `heldout/*` | ✅ done (superseded by `rl-baseline-bari`) | `rl-baseline-simple@20260624-171829` | HPC CPU, run [`cdq292n5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/cdq292n5) |
+| [`rl-baseline-bari`](variants/rl-baseline-bari/notes.md) | Bari (`ForagerQLearning` L1F1_CK1). **Fits BOTH cohorts** (`skip_train_fit=false`): 614 train + 149 held-out | ✅ done | `rl-baseline-bari@20260713-005938` | HPC CPU, run [`bg3nzqz9`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/bg3nzqz9) |
+| [`rl-baseline-hattori`](variants/rl-baseline-hattori/notes.md) | Hattori (`ForagerQLearning` L2F1, asymmetric α⁺/α⁻). Both cohorts | ✅ done | `rl-baseline-hattori@20260713-005950` | HPC CPU, run [`unhmbrk4`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/unhmbrk4) |
+| [`rl-baseline-ctt`](variants/rl-baseline-ctt/notes.md) | Compare-to-threshold (`ForagerCompareThreshold`). Both cohorts. **Strongest classical model** | ✅ done | `rl-baseline-ctt@20260713-010000` | HPC CPU, run [`lmg1i9yd`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/lmg1i9yd) |
 
 ## Provenance & tracking (one launch = one "pseudo-sweep")
 

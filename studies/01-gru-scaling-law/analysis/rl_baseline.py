@@ -54,8 +54,48 @@ plt.rcParams.update({
 
 HERE = Path(__file__).parent
 PROJECT = "AIND-disRNN/mice_data_scaling"
-RL_RUN_NAME = "cdq292n5"
 GRU_CACHE = HERE / "gru_per_subject.json"
+
+# The classical-RL baseline suite (all fit on the SAME fixed 149 held-out mice as the
+# GRU, one differential-evolution fit per mouse on its own train sessions, scored on its
+# own eval sessions). `rl-baseline-simple` (cdq292n5) was the original Bari-only arm and
+# is kept as a REPRODUCTION CROSS-CHECK, not as a 4th model: `bari` below is the same
+# agent re-fit in the 2026-07-13 suite and should land within DE noise of it.
+RL_MODELS = {
+    "ctt": dict(
+        run_id="lmg1i9yd", group="rl-baseline-ctt@20260713-010000",
+        label="Compare-to-threshold",
+        agent="ForagerCompareThreshold (local income vs learned threshold)",
+        params="learn_rate, threshold, softmax_inverse_temperature, biasL",
+    ),
+    "bari": dict(
+        run_id="bg3nzqz9", group="rl-baseline-bari@20260713-005938",
+        label="Bari (L1F1_CK1)",
+        agent="ForagerQLearning — 1 learn-rate, 1 forget-rate, 1-step choice kernel, softmax",
+        params=("learn_rate, forget_rate_unchosen, choice_kernel_relative_weight, "
+                "choice_kernel_step_size, biasL, softmax_inverse_temperature"),
+    ),
+    "hattori": dict(
+        run_id="unhmbrk4", group="rl-baseline-hattori@20260713-005950",
+        label="Hattori (L2F1)",
+        agent="ForagerQLearning — 2 learn-rates (asymmetric α+/α−), 1 forget-rate, no choice kernel, softmax",
+        params="learn_rate_rew, learn_rate_unrew, forget_rate_unchosen, biasL, softmax_inverse_temperature",
+    ),
+}
+
+# The Bari-only predecessor. Reported in r8 purely as a reproduction check.
+LEGACY_BARI_RUN = "cdq292n5"
+
+# Which model backs the RL reference band on Results 1/4/5/7. Kept as `bari` so those
+# four figures keep the same reference they were written against; r8 reports the
+# best-of-breed margin separately. Changing this to `ctt` would silently shift four
+# other reports' figures away from the text that describes them.
+BAND_MODEL = "bari"
+
+# Per-subject tables live in each run's output dir on /allen (authoritative; the study
+# README notes these are independent of W&B). Used when the W&B artifact API is
+# unavailable, which it intermittently is.
+RUN_OUTPUT_ROOT = Path("/allen/aind/scratch/han.hou/outputs/disrnn/wandb")
 
 GRU_PREFIXES = ("heldout-rerun-v1@", "heldout-rerun-v1-retry@",
                 "heldout-rerun-v2@", "heldout-rerun-v2-retry@")
@@ -80,20 +120,62 @@ def _per_subject_df(run):
     raise ValueError("no per_subject_likelihood table")
 
 
-def pull_rl(api):
-    runs = list(api.runs(PROJECT, filters={"name": RL_RUN_NAME}))
-    if not runs:
-        raise RuntimeError(f"RL run {RL_RUN_NAME} not found in {PROJECT}")
-    r = runs[0]
-    art = next(a for a in r.logged_artifacts() if a.type == "run_table")
-    df = art.get(next(iter(art.manifest.entries))).get_dataframe()
+def _heldout_table_from_wandb(api, run_id):
+    """Held-out per-subject table from W&B.
+
+    The 2026-07-13 suite fits BOTH cohorts, so each run logs `subject_fit_metrics`
+    twice — 614 training mice and 149 held-out mice. We must take the HELD-OUT one
+    (the trainer logs it through a proxy that prefixes keys with `heldout/`). The
+    legacy Bari-only run logged a single table, so a lone table is unambiguous.
+    """
+    r = api.run(f"{PROJECT}/{run_id}")
+    tables = [(a, e) for a in r.logged_artifacts() if a.type == "run_table"
+              for e in a.manifest.entries]
+    if not tables:
+        raise ValueError("no run_table artifact")
+    heldout = [(a, e) for a, e in tables if "heldout" in str(e).lower()]
+    pick = heldout or ([tables[0]] if len(tables) == 1 else [])
+    if not pick:
+        raise ValueError(f"{len(tables)} tables and none marked heldout — refusing to guess")
+    a, e = pick[0]
+    return a.get(e).get_dataframe(), r.group
+
+
+def _heldout_table_from_disk(run_id):
+    """Fallback: the authoritative per-subject CSV in the run's output dir on /allen."""
+    dirs = sorted(RUN_OUTPUT_ROOT.glob(f"run-*-{run_id}"))
+    if not dirs:
+        raise FileNotFoundError(f"no run dir for {run_id} under {RUN_OUTPUT_ROOT}")
+    csv = dirs[-1] / "files" / "outputs" / "heldout_test" / "subject_fit_metrics.csv"
+    if not csv.exists():
+        raise FileNotFoundError(csv)
+    import pandas as pd
+    return pd.read_csv(csv), None
+
+
+def pull_rl(api, run_id, *, expect_n=None):
+    """Held-out per-subject stats for one classical-RL model."""
+    try:
+        df, group = _heldout_table_from_wandb(api, run_id)
+        source = "wandb"
+    except Exception as exc:                       # W&B artifact API is flaky
+        print(f"    W&B artifact pull failed ({type(exc).__name__}); "
+              f"falling back to run output dir on /allen")
+        df, group = _heldout_table_from_disk(run_id)
+        source = "disk"
+
     df["subject_id"] = df["subject_id"].astype(str)
+    if expect_n is not None and len(df) != expect_n:
+        raise ValueError(
+            f"{run_id}: expected {expect_n} held-out subjects, got {len(df)} — "
+            "this is probably the TRAINING table, not the held-out one")
     pooled_log = float(df["eval_total_log_likelihood"].sum() /
                        df["eval_total_trials"].sum())
     rl = dict(
-        run_id=r.id,
-        run_url=f"https://wandb.ai/{PROJECT}/runs/{r.id}",
-        group=r.group,
+        run_id=run_id,
+        run_url=f"https://wandb.ai/{PROJECT}/runs/{run_id}",
+        group=group,
+        source=source,
         n_subjects=int(len(df)),
         n_trials=int(df["eval_total_trials"].sum()),
         pooled_log_likelihood=pooled_log,
@@ -110,9 +192,31 @@ def pull_rl(api):
                 "std": float(g["eval_likelihood"].std(ddof=1)) if g.shape[0] > 1 else 0.0}
             for k, g in df.groupby("curriculum_name")},
     )
-    print(f"  RL: n={rl['n_subjects']} mice, pooled={rl['pooled_likelihood_trial_weighted']:.4f}, "
-          f"per-subj mean={rl['per_subject_mean_likelihood']:.4f}")
+    print(f"    n={rl['n_subjects']} mice, pooled={rl['pooled_likelihood_trial_weighted']:.4f}, "
+          f"per-subj mean={rl['per_subject_mean_likelihood']:.4f}  [{source}]")
     return rl
+
+
+def pull_all_rl(api):
+    """Pull every model in RL_MODELS + the legacy Bari run (reproduction check)."""
+    models = {}
+    for key, spec in RL_MODELS.items():
+        print(f"  {spec['label']} ({key})...")
+        m = pull_rl(api, spec["run_id"], expect_n=149)
+        m.update(label=spec["label"], agent=spec["agent"], params=spec["params"])
+        models[key] = m
+
+    print(f"  legacy rl-baseline-simple ({LEGACY_BARI_RUN}) — reproduction check...")
+    legacy = pull_rl(api, LEGACY_BARI_RUN, expect_n=149)
+
+    # The new `bari` arm is the same agent as the legacy run; they should agree to
+    # within differential-evolution stochasticity. Surface the delta rather than
+    # assuming it.
+    drift = (models["bari"]["pooled_likelihood_trial_weighted"]
+             - legacy["pooled_likelihood_trial_weighted"])
+    print(f"  reproduction check: new bari − legacy = {drift:+.5f} "
+          f"({'OK' if abs(drift) < 0.005 else 'INVESTIGATE'})")
+    return models, legacy, drift
 
 
 def list_gru_groups(api):
@@ -497,28 +601,52 @@ def write_verdict(rl, paired, out_md):
 
 def main():
     api = wandb.Api()
-    print("Pulling RL run...")
-    rl = pull_rl(api)
+    print("Pulling classical-RL baseline suite (Bari / Hattori / CTT)...")
+    models, legacy, drift = pull_all_rl(api)
+
+    # Best-of-breed = highest pooled (trial-weighted) held-out likelihood. This is the
+    # honest baseline for "does the GRU beat classical RL?" — r8 originally compared
+    # against Bari alone, which is NOT the strongest of the three.
+    best_key = max(models, key=lambda k: models[k]["pooled_likelihood_trial_weighted"])
+    print(f"  best classical model: {models[best_key]['label']} "
+          f"({models[best_key]['pooled_likelihood_trial_weighted']:.5f})")
 
     print("\nLoading GRU per-subject (cache-or-pull)...")
     gru_nested = load_or_pull_gru(api)
     gru_mean = gru_per_subject_means(gru_nested)
     print(f"  unique (variant,D,subject) means: {len(gru_mean)}")
 
-    print("\nPaired GRU vs RL per (variant, D)...")
-    paired = paired_vs_rl(gru_mean, rl["per_subject_likelihood"])
-    for cell, s in paired["per_cell"].items():
-        print(f"  {cell:>10} n={s['n']:>3} GRU={s['gru_mean']:.4f} RL={s['rl_mean']:.4f}  "
-              f"meanΔ={s['mean_delta']:+.5f} frac_GRU>RL={s['frac_gru_wins']:.2%} "
-              f"Wilcoxon p={s['wilcoxon_p']:.2e}")
+    print("\nPaired GRU vs each RL model per (variant, D)...")
+    paired_by_model = {}
+    for key, m in models.items():
+        paired_by_model[key] = paired_vs_rl(gru_mean, m["per_subject_likelihood"])
+        cell = paired_by_model[key]["per_cell"].get("v2_D614")
+        if cell:
+            print(f"  {m['label']:24} v2/D=614  GRU={cell['gru_mean']:.4f} "
+                  f"RL={cell['rl_mean']:.4f}  meanΔ={cell['mean_delta']:+.5f} "
+                  f"({cell['frac_gru_wins']*100:.0f}% mice, p={cell['wilcoxon_p']:.1e})")
+
+    # `rl` / `gru_vs_rl_paired` keep the BAND_MODEL, so Results 1/4/5/7 keep the same
+    # reference band they were written against (see BAND_MODEL comment).
+    rl = models[BAND_MODEL]
+    paired = paired_by_model[BAND_MODEL]
 
     out = {
         "_meta": build_meta(
             "analysis/rl_baseline.py",
-            [*list_gru_groups(api), rl["group"]],
+            [*list_gru_groups(api),
+             *[m["group"] or RL_MODELS[k]["group"] for k, m in models.items()],
+             legacy["group"] or "rl-baseline-simple@20260624-171829"],
         ),
         "rl": rl,
         "gru_vs_rl_paired": paired,
+        "band_model": BAND_MODEL,
+        "models": models,
+        "paired_by_model": paired_by_model,
+        "best_model": best_key,
+        "legacy_bari": {k: v for k, v in legacy.items()
+                        if k != "per_subject_likelihood"},
+        "legacy_reproduction_delta": drift,
     }
     json.dump(out, open(HERE / "rl_baseline.json", "w"), indent=2)
     print(f"\nwrote rl_baseline.json")
