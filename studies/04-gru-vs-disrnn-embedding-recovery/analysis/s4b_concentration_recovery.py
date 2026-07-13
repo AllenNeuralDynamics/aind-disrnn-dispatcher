@@ -187,12 +187,23 @@ def main() -> None:
 
     rec = json.load(open(args.recovery))
     inv = json.load(open(args.inventory))
-    pos_r2: dict[float, list[float]] = {}
-    if args.ctx_dir and Path(args.ctx_dir).is_dir():
+
+    # position-R² (mechanism): prefer the in-container metric emitted by the wrapper's
+    # stage4b_recovery.py (aind-disrnn-wrapper#57) — then the report is one-step
+    # reproducible from the JSON alone. Fall back to computing it from the ctx_*.csv
+    # session-embedding artifacts for recovery JSONs that predate that change.
+    pos_r2: dict[float, list[float]] = collections.defaultdict(list)
+    for rid, m in rec.items():
+        if m.get("enc") == "scalar" and m.get("position_r2_sessioncond") is not None:
+            pos_r2[_conc(inv[rid])].append(float(m["position_r2_sessioncond"]))
+    if pos_r2:
+        print("position-R² from recovery JSON (in-container)")
+    elif args.ctx_dir and Path(args.ctx_dir).is_dir():
         pos_r2 = _position_r2(Path(args.ctx_dir), inv)
-        print(f"position-R² from {sum(len(v) for v in pos_r2.values())} scalar ctx CSVs")
+        print(f"position-R² from {sum(len(v) for v in pos_r2.values())} scalar ctx CSVs (fallback)")
     else:
-        print("no --ctx-dir; skipping position-R² panel (mechanism)")
+        pos_r2 = {}
+        print("no in-JSON position-R² and no --ctx-dir; skipping mechanism panel")
 
     grid = build_grid(rec, inv, pos_r2)
     grid.to_csv(args.out_grid, index=False)
