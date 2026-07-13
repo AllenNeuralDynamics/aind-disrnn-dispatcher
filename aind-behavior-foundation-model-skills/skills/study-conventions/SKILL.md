@@ -65,5 +65,5 @@ in `AGENTS.md` §8).
 - `references/study-wrapup.md` — the verified end-to-end procedure for closing out
   a finished study: normalize the folder, clean launch records, clean stale W&B
   runs (irreversible — confirm first), the two-repo PR flow to
-  `ai_hub_pck_integration` (wrapper first, never squash), branch retirement, and
+  `main` (wrapper first, never squash), branch retirement, and
   the `git mv` re-staging trap.
