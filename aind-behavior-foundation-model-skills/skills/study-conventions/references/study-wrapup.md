@@ -1,7 +1,7 @@
 # Housekeeping: wrapping up a completed study
 
 When a study's experiments are done and results are settled: normalize the folder,
-clean up runs, and get the work onto the integration branch. Verified end-to-end
+clean up runs, and get the work onto `main`. Verified end-to-end
 procedure.
 
 ## 1. Normalize the study folder
@@ -42,7 +42,7 @@ then show the classified keep/delete list and get explicit confirmation before
 deleting. (GraphQL `deleteRun` payload has `clientMutationId` + `numDeleted`, not
 `success` — selecting `success` returns HTTP 400.)
 
-## 4. PR to the integration branch (BOTH repos)
+## 4. PR to `main` (BOTH repos)
 
 A study is a **two-repo deliverable**: the dispatcher carries `studies/<study>/`
 (control plane), and the **wrapper** carries the study's *training payload* — the

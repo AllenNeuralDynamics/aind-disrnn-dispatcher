@@ -9,7 +9,7 @@ description: ignore-trials nxd-3way template (one autoResume task per grid point
 tasks:
   - name: ignore-nxd-3way-template
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+      beaker: han-hou/disrnn-wrapper-main-20260712
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -26,8 +26,10 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: 4530d0439f929bb5809ed8bb1ee81d8192b3ff6c   # feat/ignore-engagement-metrics HEAD: 3-way + engage/ignore metrics + all bug fixes
+        value: main  # readable source ref; launcher submits the resolved SHA
       - name: DISPATCHER_REF
-        value: feat/ignore-trials-scaling                   # study configs (ignore_policy=include, sweep params)
+        value: main  # readable source ref; launcher submits the resolved SHA
+      - name: FORAGING_MODELS_REF
+        value: main  # readable source ref; launcher submits the resolved SHA
     result:
       path: /results

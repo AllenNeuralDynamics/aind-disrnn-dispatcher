@@ -34,6 +34,11 @@ resumable mechanics).
    Credentials on HPC: `BEAKER_TOKEN` is *not* in the env; read it from
    `~/.beaker/config.yml` (`user_token`). `WANDB_API_KEY` likewise comes from
    `~/.netrc`.
+6. **Scientific submissions use immutable refs.** Templates may retain readable
+   branch/tag values and inline comments, but the launchers require all three REF
+   variables and resolve them to full SHAs before W&B sweep creation or Beaker
+   submission. The rendered launch-record YAML is pinned. Mutable refs are only
+   for direct smoke/development jobs; pin manually when bypassing the launchers.
 
 ## Check available resources FIRST (mandatory for large jobs)
 

@@ -1,18 +1,17 @@
 ## Beaker spec — embedding-recovery disRNN grid on ai1/octo.ai-aws-p5en (H100).
 ## N wandb-agent replicas drain one shared sweep (the disrnn-stage4a 6-cell grid).
-## The entrypoint refreshes both repos to the refs below at container startup, so pushing
-## feat/embedding-recovery is enough (no image rebuild for code/config).
+## The entrypoint refreshes all three source repos to the SHAs below at container
+## startup, so code/config changes need no image rebuild.
 ## The launcher renders <SWEEP_ID> at submit.
 ##
-## IMPORTANT image note: use the 20260630 image — the older han-hou/disrnn-wrapper-pck-integration
-## (2026-06-18) bakes a stale aind_dynamic_foraging_database==0.0.5 that breaks data-load;
-## the entrypoint refreshes CODE but not pip deps, so the image must carry the fixed deps.
+## IMPORTANT image note: use the main-20260712 image, which carries the current
+## dependency environment and refreshes foraging-models source at startup.
 version: v2
 description: embedding-recovery disRNN stage4a (mixture of model families) — p5en H100
 tasks:
   - name: recovery-disrnn-stage4a
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration-20260630
+      beaker: han-hou/disrnn-wrapper-main-20260712
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -34,8 +33,10 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: feat/embedding-recovery
+        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c  # main
       - name: DISPATCHER_REF
-        value: feat/embedding-recovery
+        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23  # main
+      - name: FORAGING_MODELS_REF
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e  # main
     result:
       path: /results

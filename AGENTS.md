@@ -133,6 +133,13 @@ and is not allowed.
 - If you trigger jobs from Allen's HPC, use the `disrnn-cpu` conda env
   (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`), not base. Treat this as the
   launcher/control-plane environment for `wandb`, `beaker`, and YAML tooling.
+- **Scientific Beaker jobs must submit immutable source refs.** Source templates may
+  use readable branch/tag values with inline comments, but both Beaker launchers
+  resolve `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF` to full
+  40-character GitHub SHAs before creating a W&B sweep or submitting to Beaker; the
+  saved rendered YAML contains those SHAs. Mutable refs are only acceptable for
+  direct smoke/development jobs. If bypassing the launchers with
+  `beaker experiment create`, pin all three refs manually.
 - **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Verified exceptions (non-hub `octo.ai-aws-*`, but admit our
@@ -203,12 +210,12 @@ Full scheme — task-to-host table, W&B-from-sandbox access, credentials: the
 - **Verify the image name before submitting.** Old example specs
   (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
   which no longer exists (→ `ImageNotFound`/404). Current:
-  `han-hou/disrnn-wrapper-pck-integration-20260630` (the older `...-pck-integration`
-  lacks `select_sessions(snapshot=...)` — see `code/beaker/README.md` "Available
+  `han-hou/disrnn-wrapper-main-20260712` (see `code/beaker/README.md` "Available
   images"); list live images with
   `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
-  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
-  so code/config edits need **no** rebuild — only a stale image or changed deps do.
+  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`/
+  `FORAGING_MODELS_REF`), so code/config edits need **no** rebuild — only a stale
+  image or changed dependencies do.
 - **Transient node failure ≠ code bug.** A job dying in ~5 s with
   `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
   resubmit (lands elsewhere) instead of debugging training code.

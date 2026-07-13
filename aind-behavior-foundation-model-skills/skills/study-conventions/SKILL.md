@@ -46,18 +46,22 @@ in `AGENTS.md` §8).
 - **Always pass `--note`** ("why this run exists + what we want to learn") so the
   scientific intent is readable straight from the W&B record.
 - Platform-native ids are stamped alongside: `BEAKER_EXPERIMENT_ID`, `BEAKER_JOB_ID`,
-  `CO_COMPUTATION_ID`, plus `wrapper_commit` / `dispatcher_commit`. Both Beaker
-  launchers (`launch_beaker_resumable.py` and `launch_beaker.py`) implement this
-  identically.
+  `CO_COMPUTATION_ID`, plus `wrapper_commit`, `dispatcher_commit`, and
+  `foraging_models_commit`. Both Beaker launchers (`launch_beaker_resumable.py`
+  and `launch_beaker.py`) implement the portable launch metadata identically;
+  the wrapper records the resolved source commits.
 
 ## Checklist for a new variant launch
 
 1. Create `studies/<study>/variants/<variant>/` with `sweep.yaml` + `experiment.yaml`
    (copy the closest existing variant).
 2. Write `notes.md`: what differs from the sibling variants and what you expect.
-3. Launch via the beaker-launch or hpc-launch skill with `--label` and `--note`.
-4. Add a row to the study README's Variants index.
-5. After the group settles, write `launch_record_<label>/results.md`
+3. Include `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF` in the Beaker
+   YAML. Branch names may remain for readability; the launcher resolves all three
+   to full SHAs in the submitted launch record.
+4. Launch via the beaker-launch or hpc-launch skill with `--label` and `--note`.
+5. Add a row to the study README's Variants index.
+6. After the group settles, write `launch_record_<label>/results.md`
    (contract in the posthoc-reporting skill).
 
 ## References (read on demand)

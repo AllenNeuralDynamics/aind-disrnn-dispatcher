@@ -13,8 +13,8 @@ status: proposed
 # Repo-split plan: extract `studies/` into `aind-disrnn-studies`
 
 > **Status:** proposed, not executed. Delegated to a separate agent for execution.
-> Written after the `posthoc-analysis` standard-structure migration (branch
-> `ai_hub_pck_integration`, ending at commit `122abfd`).
+> Written after the `posthoc-analysis` standard-structure migration on the
+> integration line, ending at commit `122abfd` and later merged to `main`.
 
 ## TL;DR
 
@@ -106,10 +106,9 @@ whether or not analysis ever becomes its own repo.
 
 ## Prerequisites (do these before executing)
 
-1. **All in-flight PRs against dispatcher must be merged first.** As of writing,
-   branch `ai_hub_pck_integration` is 35 commits ahead of
-   `origin/ai_hub_pck_integration` (unpushed). Any commits not on `main`
-   at split time will be silently dropped from the studies extract.
+1. **All in-flight PRs against dispatcher must be merged first.** The integration
+   line is now merged to `main`; any commits not on `main` at split time will be
+   silently dropped from the studies extract.
    -> verify: `git log origin/main..HEAD -- studies/` prints nothing.
 2. **Snapshot AGENTS.md rev**, since content flows across both repos.
    -> verify: record `git log -1 --format=%H AGENTS.md` in the studies-repo

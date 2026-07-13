@@ -41,12 +41,21 @@ Mac/HPC/Beaker architecture this fits into.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 import yaml
 
 WANDB_GQL_URL = "https://api.wandb.ai/graphql"
+GITHUB_API_URL = "https://api.github.com"
+RUNTIME_REF_REPOSITORIES = {
+    "WRAPPER_REF": "aind-disrnn-wrapper",
+    "DISPATCHER_REF": "aind-disrnn-dispatcher",
+    "FORAGING_MODELS_REF": "aind-dynamic-foraging-models",
+}
+_FULL_GIT_SHA = re.compile(r"^[0-9a-fA-F]{40}$")
 
 _UPSERT_SWEEP_MUTATION = """
 mutation UpsertSweep(
@@ -81,6 +90,66 @@ mutation UpsertSweep(
     }
 }
 """
+
+
+def resolve_github_ref(repository: str, ref: str) -> str:
+    """Resolve a GitHub branch, tag, or commit to a full commit SHA."""
+    if _FULL_GIT_SHA.fullmatch(ref):
+        return ref.lower()
+
+    headers = {"Accept": "application/vnd.github+json"}
+    if token := os.environ.get("GITHUB_TOKEN"):
+        headers["Authorization"] = f"Bearer {token}"
+    url = (
+        f"{GITHUB_API_URL}/repos/AllenNeuralDynamics/{repository}/commits/"
+        f"{quote(ref, safe='')}"
+    )
+    try:
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"could not resolve AllenNeuralDynamics/{repository}@{ref}: {exc}"
+        ) from exc
+    sha = response.json().get("sha", "")
+    if not _FULL_GIT_SHA.fullmatch(sha):
+        raise RuntimeError(
+            f"GitHub returned an invalid commit for "
+            f"AllenNeuralDynamics/{repository}@{ref}: {sha!r}"
+        )
+    return sha.lower()
+
+
+def pin_runtime_refs(
+    spec: dict, cache: dict[tuple[str, str], str] | None = None
+) -> dict[tuple[str, str], str]:
+    """Replace runtime REF values in every task with full GitHub commit SHAs."""
+    resolved = cache if cache is not None else {}
+    for task in spec.get("tasks", []):
+        env_by_name = {
+            item.get("name"): item
+            for item in task.get("envVars", [])
+            if item.get("name") in RUNTIME_REF_REPOSITORIES
+        }
+        missing = set(RUNTIME_REF_REPOSITORIES) - set(env_by_name)
+        if missing:
+            names = ", ".join(sorted(missing))
+            raise ValueError(
+                f"task {task.get('name', '<unnamed>')!r} is missing runtime refs: {names}"
+            )
+        for name, repository in RUNTIME_REF_REPOSITORIES.items():
+            item = env_by_name[name]
+            ref = item.get("value")
+            if not isinstance(ref, str) or not ref:
+                raise ValueError(
+                    f"task {task.get('name', '<unnamed>')!r} has invalid {name}: {ref!r}"
+                )
+            key = (repository, ref)
+            if key not in resolved:
+                resolved[key] = resolve_github_ref(repository, ref)
+                print(f"[runtime-refs] {name}: {ref} -> {resolved[key]}")
+            item["value"] = resolved[key]
+    return resolved
 
 
 def create_wandb_sweep(sweep_file: str, wandb_api_key: str | None = None) -> str:

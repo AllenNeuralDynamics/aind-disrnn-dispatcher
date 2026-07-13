@@ -12,8 +12,9 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
   Code Ocean, Beaker (AI Hub), or Allen on-prem SLURM HPC.
 - **`aind-disrnn-wrapper`** (expected as a sibling checkout at
   `../aind-disrnn-wrapper`) is the *compute/runtime payload*: training code, the
-  Beaker image, `run_hpc`. Job containers pull code fresh at startup, so code edits
-  need **no image rebuild** (pin via `WRAPPER_REF` / `DISPATCHER_REF`).
+  Beaker image, `run_hpc`. Job containers refresh the wrapper, dispatcher, and
+  `aind-dynamic-foraging-models` sources at startup, so code edits need **no image
+  rebuild** (pin via `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF`).
 - W&B (`entity: AIND-disRNN`) is the experiment tracker across all backends.
 - **Claude Science layer** (AGENTS.md §13): the agent's persistent brain runs on the
   user's Mac; GitHub is the source of truth, tracked by the Mac authoring clone
