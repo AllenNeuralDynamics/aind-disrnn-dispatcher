@@ -175,3 +175,13 @@ python code/launch_beaker_resumable.py \
     mult 1/2/5/10). That is the *shape* study 03 found at D=100 — but the real test is
     `heldout/eval_likelihood` + Σ(1−σ) openness, which only exist once the runs finish. Do not
     quote these numbers.
+- 2026-07-13 15:39 PT: 27/27 alive, **no NaNs**, no new failures. **The first cells have finished
+  training and entered the held-out fine-tune**: five runs are past `n_steps=60000` (up to step
+  67505), which is the `auto_heldout_finetune` phase — the same ~7.5k extra steps study 03's runs
+  logged (they ended at 67556). `heldout/eval_likelihood` has not landed for any run yet; it is
+  written at the end of that phase, so the y-axis metric appears as each run closes out.
+  D=614 cells are at ~42k/60k with ~6.5 h to go → grid completes ~22:00 PT tonight, held-out
+  fine-tunes trailing behind.
+  - *Note on the ETA column:* runs past 60k show a negative ETA. That is an artifact of
+    extrapolating `(60000 − step)`, not a problem — those runs are in the fine-tune phase, which
+    the step-based ETA does not model.
