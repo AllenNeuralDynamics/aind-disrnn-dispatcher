@@ -120,3 +120,16 @@ python code/launch_beaker_resumable.py \
 - 2026-07-13 00:35 PT: both grids fired (27 tasks). 7 died pre-start on the bad node
   `aidc-h200-prd2`; re-submitted verbatim off that cluster (see Bad-node recovery above). All
   27/27 now running.
+- 2026-07-13 01:05 PT: **per-step cost confirmed D-independent** — the ~18 h/run budget holds.
+  Steady-state s/step, measured from W&B history *deltas* (not `runtime/step` from step 0):
+
+  | D | 10 | 29–30 | 99–101 | 300–301 | 614 |
+  |---|---|---|---|---|---|
+  | s/step | 0.70–0.82 | 0.79–0.81 | 0.82–0.86 | 0.85–0.93 | 0.99 |
+
+  Flat in D, as the fixed `batch_size=2048` predicts. An earlier apparent 3.4–7.7 s/step at
+  D≈300 was an artifact: `runtime/step` from step 0 is swamped by the one-off data-load cost
+  (~10–20 min at large D) when a run has only logged 80–230 steps. **Lesson: always take
+  steady-state throughput from a delta between two checkpoints, never `runtime/step`.**
+  Cohorts also confirmed nested and identical to study 01's GRU arm: D = 10/10/10, 29/30/30,
+  99/101/101, 300/300/301, 614/614/614 across seeds 0/1/2.
