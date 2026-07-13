@@ -33,10 +33,10 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c
+        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c  # main
       - name: DISPATCHER_REF
-        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23
+        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23  # main
       - name: FORAGING_MODELS_REF
-        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e  # main
     result:
       path: /results

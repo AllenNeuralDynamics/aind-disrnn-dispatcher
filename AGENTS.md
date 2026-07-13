@@ -133,6 +133,13 @@ and is not allowed.
 - If you trigger jobs from Allen's HPC, use the `disrnn-cpu` conda env
   (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`), not base. Treat this as the
   launcher/control-plane environment for `wandb`, `beaker`, and YAML tooling.
+- **Scientific Beaker jobs must submit immutable source refs.** Source templates may
+  use readable branch/tag values with inline comments, but both Beaker launchers
+  resolve `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF` to full
+  40-character GitHub SHAs before creating a W&B sweep or submitting to Beaker; the
+  saved rendered YAML contains those SHAs. Mutable refs are only acceptable for
+  direct smoke/development jobs. If bypassing the launchers with
+  `beaker experiment create`, pin all three refs manually.
 - **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
   — they're not ours. Verified exceptions (non-hub `octo.ai-aws-*`, but admit our

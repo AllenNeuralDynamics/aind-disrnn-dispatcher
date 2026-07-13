@@ -52,7 +52,7 @@ import yaml
 
 # Library-only Beaker client (beaker-py) -- no `beaker` CLI dependency; see
 # code/beaker_client.py docstring for why.
-from beaker_client import submit_beaker_experiment
+from beaker_client import pin_runtime_refs, submit_beaker_experiment
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Where the launch record is written. /results is the Code Ocean capsule path; it does not
@@ -281,6 +281,10 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     spec = build_spec(args.sweep, args.experiment, label=args.label, note=args.note)
+    try:
+        pin_runtime_refs(spec)
+    except (RuntimeError, ValueError) as exc:
+        sys.exit(f"[resumable] runtime ref resolution failed: {exc}")
     n_tasks = len(spec["tasks"])
     print(f"[resumable] expanded grid into {n_tasks} tasks")
 

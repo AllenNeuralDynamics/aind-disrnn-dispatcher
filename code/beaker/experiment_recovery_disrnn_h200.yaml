@@ -34,10 +34,10 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: main
+        value: main  # readable source ref; launcher submits the resolved SHA
       - name: DISPATCHER_REF
-        value: main
+        value: main  # readable source ref; launcher submits the resolved SHA
       - name: FORAGING_MODELS_REF
-        value: main
+        value: main  # readable source ref; launcher submits the resolved SHA
     result:
       path: /results

@@ -47,8 +47,8 @@ tasks:
         # per-subject split-example build + load groupby + eval GPU chunking.
         value: 57dcd3a0ba68b2093a02078a3d83e4d12b2facf2
       - name: DISPATCHER_REF
-        value: main
+        value: main  # readable source ref; launcher submits the resolved SHA
       - name: FORAGING_MODELS_REF
-        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e  # main
     result:
       path: /results

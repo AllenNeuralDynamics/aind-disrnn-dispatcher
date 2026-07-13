@@ -38,10 +38,10 @@ tasks:
       - name: DISRNN_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
-        value: main
+        value: main  # smoke may also be submitted directly with this mutable ref
       - name: DISPATCHER_REF
-        value: main
+        value: main  # smoke may also be submitted directly with this mutable ref
       - name: FORAGING_MODELS_REF
-        value: main
+        value: main  # smoke may also be submitted directly with this mutable ref
     result:
       path: /results

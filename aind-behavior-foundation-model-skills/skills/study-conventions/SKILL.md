@@ -56,9 +56,12 @@ in `AGENTS.md` §8).
 1. Create `studies/<study>/variants/<variant>/` with `sweep.yaml` + `experiment.yaml`
    (copy the closest existing variant).
 2. Write `notes.md`: what differs from the sibling variants and what you expect.
-3. Launch via the beaker-launch or hpc-launch skill with `--label` and `--note`.
-4. Add a row to the study README's Variants index.
-5. After the group settles, write `launch_record_<label>/results.md`
+3. Include `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF` in the Beaker
+   YAML. Branch names may remain for readability; the launcher resolves all three
+   to full SHAs in the submitted launch record.
+4. Launch via the beaker-launch or hpc-launch skill with `--label` and `--note`.
+5. Add a row to the study README's Variants index.
+6. After the group settles, write `launch_record_<label>/results.md`
    (contract in the posthoc-reporting skill).
 
 ## References (read on demand)

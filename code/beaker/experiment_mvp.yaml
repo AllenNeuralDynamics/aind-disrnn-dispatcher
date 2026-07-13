@@ -10,10 +10,8 @@
 ##   <SWEEP_ID>   e.g. AIND-disRNN/ai_hub_test/abc123
 ##                (from `wandb sweep code/beaker/sweep_mvp.yaml`)
 ##
-## Submit:
-##   beaker experiment create \
-##     -w ai1/aind-dynamic-foraging-foundation-model \
-##     code/beaker/experiment_mvp.yaml
+## Launch through `code/launch_beaker.py`; it renders <SWEEP_ID>, resolves all
+## runtime refs to full SHAs, saves the submitted spec, and submits to Beaker.
 
 version: v2
 description: disRNN MVP — synthetic-RL -> disRNN, one W&B sweep agent
@@ -47,10 +45,10 @@ tasks:
         value: /results
       # branch/tag/SHA to run; a SHA pins for reproducibility
       - name: WRAPPER_REF
-        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c
+        value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c  # main
       - name: DISPATCHER_REF
-        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23
+        value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23  # main
       - name: FORAGING_MODELS_REF
-        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e  # main
     result:
       path: /results

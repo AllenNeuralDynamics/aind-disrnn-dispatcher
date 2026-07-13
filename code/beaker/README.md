@@ -152,7 +152,12 @@ The image is built on a Mac and pushed to Beaker — see the wrapper's
 `beaker/README.md`. Code is pulled fresh at job startup, so **code edits need no
 rebuild**; control the branch/commit via `WRAPPER_REF`, `DISPATCHER_REF`, and
 `FORAGING_MODELS_REF` in `experiment_mvp.yaml` (a branch name, or a SHA to pin a
-run). The resolved commits are recorded in W&B run provenance.
+run). For scientific launches, keep readable branch names/comments in the source
+template if useful: both launchers resolve all three refs before creating the W&B
+sweep or submitting to Beaker, and save only full 40-character SHAs in the rendered
+`experiment*_submitted.yaml`. Direct smoke/development jobs may use mutable refs;
+pin all three manually if calling `beaker experiment create` for scientific work.
+The resolved commits are also recorded in W&B run provenance.
 
 **Rebuild is only needed for DEPENDENCY changes** (`pyproject.toml`, including new
 dependencies introduced by dynamic foraging-models source, or pinned git deps).
