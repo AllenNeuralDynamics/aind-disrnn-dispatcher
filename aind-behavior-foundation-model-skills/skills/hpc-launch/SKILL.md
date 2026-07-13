@@ -10,8 +10,15 @@ README wins.**
 
 ## Hard rules first
 
-1. **Never run computation on the login node** (where you run). Everything heavy goes
-   through `sbatch`/`srun` — including smoke tests.
+1. **Never run *any* Python on the login node** (where you run) — no exceptions.
+   Training, sweeps, analysis, synthetic data generation, and "quick" smoke tests or
+   single-worker checks all go through `sbatch`/`srun`/`salloc` onto a compute node,
+   whether run interactively or shipped ad-hoc via `call_command`/SSH. The **only**
+   Python allowed on the login node is a *submit-only launcher* (`launch_hpc.py`,
+   `launch_beaker*.py`, `check_gpu_availability.py`) — it creates a sweep / submits /
+   probes capacity and returns, never importing wrapper loader/model/training code or
+   starting a `multiprocessing` Pool. (An unguarded spawn-Pool on the login node once
+   recursively forked into a 260 MB / 65k-error process cascade.)
 2. Invoke the launcher from the `disrnn-cpu` conda env
    (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`). The SLURM script
    activates `disrnn-cpu` or `disrnn-gpu` on the compute node per `--mode`.
