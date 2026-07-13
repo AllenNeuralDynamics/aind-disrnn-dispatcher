@@ -133,3 +133,16 @@ python code/launch_beaker_resumable.py \
   steady-state throughput from a delta between two checkpoints, never `runtime/step`.**
   Cohorts also confirmed nested and identical to study 01's GRU arm: D = 10/10/10, 29/30/30,
   99/101/101, 300/300/301, 614/614/614 across seeds 0/1/2.
+- 2026-07-13 04:30 PT: 27/27 running, no NaNs — **including all three `mult=10` cells**
+  (eval LL 0.7319–0.7320), the corner that diverged in study 03. Within-subject eval likelihood
+  is 0.72–0.75 everywhere, tracking study 03's D=100 trajectory. Progress 18–31%.
+
+  **Wall-clock correction: ~18 h/run is too low at large D — expect ~22–24 h at D=614.** Per-step
+  *training* cost is D-independent (see above, unchanged), but **checkpoint *evaluation* cost
+  scales with D**: the eval scores the full train+eval splits over all resolved subjects, which
+  the smoke's log times at **~50 min per checkpoint at D=614** (09:55:07 → 10:48:45 for the step-2000
+  checkpoint) versus ~10 min at D=100. With 6 checkpoints (`checkpoint_every_n_steps=10000`) that
+  is ~5 h of eval on top of ~16.7 h of training. GPU-hours rise accordingly (~490 → ~560); the
+  budget is not threatened and no cell was changed. W&B-derived ETAs already absorb this because
+  they come from observed runtime. *If a future disRNN run wants this cheaper, set
+  `checkpoint_eval_on_train_split=false` (halves it) or checkpoint less often at large D.*
