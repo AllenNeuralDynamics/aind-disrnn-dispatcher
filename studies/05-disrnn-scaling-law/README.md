@@ -146,3 +146,19 @@ python code/launch_beaker_resumable.py \
   budget is not threatened and no cell was changed. W&B-derived ETAs already absorb this because
   they come from observed runtime. *If a future disRNN run wants this cheaper, set
   `checkpoint_eval_on_train_split=false` (halves it) or checkpoint less often at large D.*
+- 2026-07-13 09:35 PT: 27/27 alive, 44–71% done, **still no NaNs** (all three `mult=10` cells
+  healthy: eval LL 0.7215–0.7241). ETAs 3.7 h (D=10) → ~11.5 h (D=614).
+  - **`smoke-d614` FINISHED (exit 0)** — the full-cohort pipeline is validated end-to-end at
+    D=614: loader → 614-subject embedding → SC schedule → checkpoints → `auto_heldout_finetune`.
+  - One `dscan-mult2` job was **preempted** (exit 143 = SIGTERM) and `autoResume` restarted it in
+    place; it resumes from its last full-state checkpoint. This is tier-3 preemptible working as
+    designed — *not* the bad-node failure mode (which shows `started=None` and needs a manual
+    resubmit). Its W&B run briefly shows `crashed`, which is just how W&B records a SIGTERM.
+  - **Root cause of the checkpoint cost found — and it is not padding/eval-unroll.** At every
+    checkpoint the disRNN trainer called `dl.add_model_results` over the ENTIRE cohort (a
+    ~10M-row per-trial frame) plus a full-dataset forward pass with all hidden states — purely to
+    plot example sessions for **2 subjects**. `gru_trainer` already avoids this (builds the
+    whole-cohort frame only when it is actually persisted, and passes `raw_df` so plotting slices
+    per-subject frames on demand); the optimization was never ported to disRNN. Fix + regression
+    tests in aind-disrnn-wrapper `fix/disrnn-checkpoint-eval-cost`. It does **not** affect the
+    running grid (tasks are pinned to their SHAs), so no restart.
