@@ -1,6 +1,6 @@
 ## Beaker spec — embedding-recovery / gru-stage1 on gcp-h100.
 ## The launcher renders <SWEEP_ID> and injects provenance env at submit.
-## Entrypoint refreshes both repos to the refs below at container startup, so
+## Entrypoint refreshes all three repos to the refs below at container startup, so
 ## code/config changes need no image rebuild.
 ##
 ## To spread the 36-point grid across GPUs, launch with --count > 1 agents
@@ -12,7 +12,7 @@ description: embedding-recovery Stage-1 GRU subject-embedding recovery grid (gcp
 tasks:
   - name: recovery-gru-stage1
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration  # current image; verify with `beaker image list`
+      beaker: han-hou/disrnn-wrapper-main-20260712  # current image; verify with `beaker image list`
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
