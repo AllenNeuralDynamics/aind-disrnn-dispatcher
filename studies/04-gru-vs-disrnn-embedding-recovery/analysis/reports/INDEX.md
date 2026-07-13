@@ -15,6 +15,7 @@ Study cover (question, verdict, provenance): [../../README.md](../../README.md).
 |---|---|---|---|
 | [r1](r1-gru-ladder.md) | gru-ladder | live | GRU embedding recovers true structure (97.5–100%) exactly where the correct-model baseline flips (S2b 0.94, S3 47%, S4a 70%); embedding size is the identifiability knob |
 | [r2](r2-disrnn-replication.md) | disrnn-replication | live | interpretable disRNN decodes family at 0.95–0.98 (scalar) / 0.75–0.90 (none), nearly matching GRU's 100%, at a ~4–6 pt likelihood cost |
+| [r3](r3-stage4b-concentration.md) | stage4b-concentration | live | Stage-4b null is architectural, not sparsity: session conditioning adds ~0 to per-session family decoding at every mixing level — it encodes smooth session *position* (R²≈0.6), not the discrete family |
 
 
 > Per-stage recovery, parameter-recovery, and embedding-space figures are embedded **inline in the result blocks** of r1 (GRU ladder) and r2 (disRNN); the image files live in [`../figures/`](../figures/).
