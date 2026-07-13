@@ -46,9 +46,10 @@ in `AGENTS.md` §8).
 - **Always pass `--note`** ("why this run exists + what we want to learn") so the
   scientific intent is readable straight from the W&B record.
 - Platform-native ids are stamped alongside: `BEAKER_EXPERIMENT_ID`, `BEAKER_JOB_ID`,
-  `CO_COMPUTATION_ID`, plus `wrapper_commit` / `dispatcher_commit`. Both Beaker
-  launchers (`launch_beaker_resumable.py` and `launch_beaker.py`) implement this
-  identically.
+  `CO_COMPUTATION_ID`, plus `wrapper_commit`, `dispatcher_commit`, and
+  `foraging_models_commit`. Both Beaker launchers (`launch_beaker_resumable.py`
+  and `launch_beaker.py`) implement the portable launch metadata identically;
+  the wrapper records the resolved source commits.
 
 ## Checklist for a new variant launch
 

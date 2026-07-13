@@ -2,8 +2,9 @@
 ##
 ## Dispatcher control-plane artifact: the Beaker job the dispatcher launches.
 ## The image is built/maintained in the wrapper repo
-## (aind-disrnn-wrapper/beaker) and clones both repos at runtime, so this spec
-## never needs the image rebuilt for code changes.
+## (aind-disrnn-wrapper/beaker) and refreshes the wrapper, dispatcher, and
+## foraging-models repos at runtime, so this spec never needs the image rebuilt
+## for code changes.
 ##
 ## Fill before submitting:
 ##   <SWEEP_ID>   e.g. AIND-disRNN/ai_hub_test/abc123
@@ -19,9 +20,9 @@ description: disRNN MVP — synthetic-RL -> disRNN, one W&B sweep agent
 tasks:
   - name: disrnn-mvp
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration   # from `beaker image get disrnn-wrapper`
+      beaker: han-hou/disrnn-wrapper-main-20260712
     # entrypoint.sh pulls the latest code at container startup, then runs
-    # `wandb agent`. Control the code version via WRAPPER_REF/DISPATCHER_REF.
+    # `wandb agent`. Control source versions via the three REF variables below.
     command:
       - bash
       - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
@@ -49,5 +50,7 @@ tasks:
         value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c
       - name: DISPATCHER_REF
         value: 7c3ae59d6adaf1f16f9b9a50fda55cb286a9df23
+      - name: FORAGING_MODELS_REF
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e
     result:
       path: /results

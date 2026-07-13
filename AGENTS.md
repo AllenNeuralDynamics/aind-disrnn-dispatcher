@@ -203,12 +203,12 @@ Full scheme — task-to-host table, W&B-from-sandbox access, credentials: the
 - **Verify the image name before submitting.** Old example specs
   (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
   which no longer exists (→ `ImageNotFound`/404). Current:
-  `han-hou/disrnn-wrapper-pck-integration-20260630` (the older `...-pck-integration`
-  lacks `select_sessions(snapshot=...)` — see `code/beaker/README.md` "Available
+  `han-hou/disrnn-wrapper-main-20260712` (see `code/beaker/README.md` "Available
   images"); list live images with
   `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
-  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`),
-  so code/config edits need **no** rebuild — only a stale image or changed deps do.
+  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`/
+  `FORAGING_MODELS_REF`), so code/config edits need **no** rebuild — only a stale
+  image or changed dependencies do.
 - **Transient node failure ≠ code bug.** A job dying in ~5 s with
   `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
   resubmit (lands elsewhere) instead of debugging training code.

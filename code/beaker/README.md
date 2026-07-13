@@ -150,12 +150,14 @@ L40s with the eval chunking above and `replicas`≤2.
 
 The image is built on a Mac and pushed to Beaker — see the wrapper's
 `beaker/README.md`. Code is pulled fresh at job startup, so **code edits need no
-rebuild**; control the branch/commit via `WRAPPER_REF` / `DISPATCHER_REF` in
-`experiment_mvp.yaml` (a branch name, or a SHA to pin a run).
+rebuild**; control the branch/commit via `WRAPPER_REF`, `DISPATCHER_REF`, and
+`FORAGING_MODELS_REF` in `experiment_mvp.yaml` (a branch name, or a SHA to pin a
+run). The resolved commits are recorded in W&B run provenance.
 
-**Rebuild is only needed for DEPENDENCY changes** (`pyproject.toml` / the pinned
-git deps). A code edit that starts calling a dependency with a *new* signature is
-effectively a dependency change: e.g. `load_mice_database.py` calling
+**Rebuild is only needed for DEPENDENCY changes** (`pyproject.toml`, including new
+dependencies introduced by dynamic foraging-models source, or pinned git deps).
+A code edit that starts calling a dependency with a *new* signature is effectively
+a dependency change: e.g. `load_mice_database.py` calling
 `select_sessions(snapshot=...)` requires a newer `aind-dynamic-foraging-database`
 than older images ship — an older image fails at data-load with
 `TypeError: select_sessions() got an unexpected keyword argument 'snapshot'`.
@@ -164,7 +166,8 @@ than older images ship — an older image fails at data-load with
 
 | image | built | notes |
 |---|---|---|
-| `han-hou/disrnn-wrapper-pck-integration-20260630` | 2026-07-01 | **current — use this.** Ships the newer `aind-dynamic-foraging-database` with `select_sessions(snapshot=...)` support (the `mice_snapshot_scaling` data path). |
+| `han-hou/disrnn-wrapper-main-20260712` | 2026-07-12 | **current — use this.** Defaults all runtime refs to `main`, refreshes foraging-models source at startup, and records its resolved commit. |
+| `han-hou/disrnn-wrapper-pck-integration-20260630` | 2026-07-01 | Previous dependency image; supports `select_sessions(snapshot=...)` but does not refresh foraging-models source. |
 | `han-hou/disrnn-wrapper-pck-integration` | 2026-06-18 | older; DB package predates `snapshot=` — fails on the snapshot data loader used by `data-scaling-law` / `ignore-trials` / `beta-scan`. Pin `WRAPPER_REF` to a commit whose `load_mice_database.py` calls `select_sessions` *without* `snapshot` (e.g. `4f296807`) if you must use it. |
 
 ## Scaling
@@ -297,8 +300,7 @@ GPUs that are free *and* not on a cordoned node, by type.
 **Image names go stale — verify before launching.** Old example specs referenced
 `beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
 The current image for the `main` line is
-`han-hou/disrnn-wrapper-pck-integration-20260630` (see "Available images" above —
-the older `...-pck-integration` lacks `select_sessions(snapshot=...)`). List live
+`han-hou/disrnn-wrapper-main-20260712` (see "Available images" above). List live
 images and point the spec's `image.beaker` at one that exists:
 `beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
 Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.

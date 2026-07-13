@@ -14,7 +14,7 @@ description: disRNN scaling — N wandb-agent replicas sharing one sweep
 tasks:
   - name: disrnn-scaling
     image:
-      beaker: han-hou/disrnn-wrapper-pck-integration
+      beaker: han-hou/disrnn-wrapper-main-20260712
     # No --count: each agent drains the sweep queue until the grid is
     # exhausted, then exits. With replicas=4 and 8 combos that's ~2 runs/GPU.
     command:
@@ -48,5 +48,7 @@ tasks:
         value: 57dcd3a0ba68b2093a02078a3d83e4d12b2facf2
       - name: DISPATCHER_REF
         value: main
+      - name: FORAGING_MODELS_REF
+        value: b44b0912de8d5307debe9b3b1c570cfc6dad816e
     result:
       path: /results
