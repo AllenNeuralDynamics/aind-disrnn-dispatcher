@@ -21,8 +21,9 @@ Study cover (TL;DR, Design, Verdict, Status, Provenance): [../../README.md](../.
 | [r5](r5-fewshot-adaptation.md) | fewshot-adaptation | live | K=1 crater (~−0.02), recovers by K=4; D- and variant-independent (protocol artifact) |
 | [r6](r6-sc-stage-mature-only.md) | sc-stage-mature-only | live | ~¾ of SC gain persists on mature-only eval — not purely a curriculum-stage artifact |
 | [r7](r7-nxd-joint-scaling-grid.md) | nxd-joint-scaling-grid | live | 4×4 N × D grid; E=0.729, α=1.30 (N), β=0.56 (D); D saturates by ~100 at every N |
-| [r8](r8-gru-vs-rl-baseline.md) | gru-vs-rl-baseline | live | GRU beats per-mouse RL at every (variant, D); v2 D=614 +0.0136 (p~3e-26, 100% mice) |
+| [r8](r8-gru-vs-rl-baseline.md) | gru-vs-rl-baseline | live | GRU beats **all three** per-mouse RL models at every (variant, D); vs best (CTT) v2 D=614 **+0.0113** (100% mice) — the old Bari-only +0.0136 overstated it by 20% |
 | [r9](r9-generative-behavioral-match.md) | generative-behavioral-match | live | 2nd-order: switch-curve corr 0.96→0.98 vs D; 3-trial-back history corr 0.94→0.99 (detailed n=3); saturates by D≈100 |
+| [r10](r10-embedding-decodes-rl-params.md) | embedding-decodes-rl-params | live | **subject embedding decodes classical-RL params**: biasL R²≈0.72, learn_rate ≈0.66 — consistent across CTT *and* Bari; curriculum-only ≈0 (not a task artifact); near-blind to forget_rate (0.08) |
 
 ## Conventions
 
