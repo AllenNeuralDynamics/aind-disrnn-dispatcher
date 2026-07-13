@@ -47,9 +47,18 @@ Fixed in [aind-disrnn-wrapper#52](https://github.com/AllenNeuralDynamics/aind-di
 running.** Re-launched pinned to `WRAPPER_REF=fix/stage4b-losscounting-param-clamp`
 (see this run's `launch_record/`) to validate the fix pre-merge on the exact failing
 workload: the previously-crashing conc=5.0/scalar/seed=43 cell now generates all 200
-subjects cleanly and reached training. **16/16 tasks running** in `embedding_recovery`,
-0 failures. Once wrapper#52 merges, the committed template's `WRAPPER_REF=ai_hub_pck_integration`
-carries the fix, so future relaunches need no pin.
+subjects cleanly and reached training. **16/16 completed**, 0 failures.
+
+**Result (closed) — see [`analysis/reports/r3-stage4b-concentration.md`](../../analysis/reports/r3-stage4b-concentration.md).**
+The `gru-stage4b` null is **architectural, not a Dirichlet(0.5) artifact**: session
+conditioning adds ≈0 to per-session family decoding at **every** concentration (gap
+−0.001/+0.001/−0.004/0.000 for α=0.5/1/2/5). Mechanism: the session-conditioned embedding
+encodes smooth session **position** (R²≈0.6) but not the discrete per-session **family** —
+a continuous position code cannot represent a discrete regime draw. Recovering discrete
+regimes would need a content-inferred discrete session code / mixture-of-experts (design
+note `docs/design-hierarchical-vi-foundation-model.md`). Analysis producer:
+`analysis/s4b_concentration_recovery.py` → `s4b_concentration_grid.csv` +
+`figures/fig_s4b_concentration.png`.
 
 See the study README Variants index and `analysis/reports/INDEX.md` for the
 cross-variant synthesis.
