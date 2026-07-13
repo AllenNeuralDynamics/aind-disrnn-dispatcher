@@ -1,0 +1,122 @@
+# Study: disRNN data-scaling law (the disRNN half of issue #16)
+
+*Folder `05-disrnn-scaling-law`. W&B project
+[`disrnn_data_scaling`](https://wandb.ai/AIND-disRNN/disrnn_data_scaling).*
+
+**Question.** Does training the **disRNN** on more mice improve prediction of mice it has never
+seen — and does its interaction bottleneck stay interpretable as the cohort grows?
+
+This closes the gap logged on
+[issue #16](https://github.com/AllenNeuralDynamics/aind-disrnn-dispatcher/issues/16). The issue's
+scope is *"Both architectures: GRU and DisRNN"* at the full 600–800-mouse dataset. The GRU half is
+done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
+[`02`](../02-gru-scaling-law-ignore)). The disRNN had only ever been trained at a **fixed
+100-mouse cohort** ([`03-disrnn-beta-scan`](../03-disrnn-beta-scan)) and on synthetic populations
+([`04`](../04-gru-vs-disrnn-embedding-recovery)) — **never on the full dataset**.
+
+## Design
+
+One axis moves: **D**. Everything else is pinned to study 03's protocol at its recommended
+operating point, so this is study 03's model, scanned over cohort size.
+
+- **Swept:** `data.subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}` → D ≈ {10, 30, 100, 300, 614},
+  × `seed ∈ {0,1,2}` (seed drives *both* mouse selection and init → seed-averaging captures
+  sampling variability; cohorts are **nested** per seed by permutation-prefix sampling).
+- **Fixed (study 03's operating point):** `update_net_latent_penalty_multiplier=2`, base `β=1e-3`,
+  `lr=1e-3`, `latent_size=5`, update-net 5×16, **linear** choice net (`choice_net_n_layers=0`),
+  scalar session conditioning (pretrain 30k + warmup 20k → full SC at 50k), `n_steps=60000`
+  (penalty warmup 7500), `batch_mode=random` / `batch_size=2048`, length bucketing on,
+  `snapshot=20260603`, `ignore_policy=exclude` (2-way).
+- **y-axis:** `heldout/eval_likelihood` from the final `auto_heldout_finetune` (fine-tune the
+  subject embedding only on a held-out mouse's sessions, predict its other sessions). The held-out
+  cohort is **fixed** (`heldout_every_n=5`) and identical at every D and seed.
+- **Second y-axis (disRNN-only):** bottleneck openness **Σ(1−σ)** vs D — see the metric caveat below.
+
+**Comparability.** The D ladder, held-out cohort, snapshot, output target, batch size and metric key
+are all identical to [`01-gru-scaling-law`](../01-gru-scaling-law), so the disRNN curve **overlays
+the GRU curve** on the same axes and the two power-law fits (`L = E + (Dc/D)^α`) are directly
+comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=100 grid.
+
+> **Metric caveat (carried from study 03 — apply to every report).** Bottleneck openness is
+> **`total_openness` = Σ(1−σ)** (absolute open capacity; ~0 = fully closed), *not*
+> `n_eff_open_frac`. The participation-ratio metric is scale-invariant and reports a spuriously
+> high value even when a bottleneck is fully shut — on study 03's grid it mis-ranked 19/43 runs and
+> manufactured a false U-shape. See
+> [`../03-disrnn-beta-scan/analysis/provenance/metric_caveat.md`](../03-disrnn-beta-scan/analysis/provenance/metric_caveat.md).
+
+## Variants
+
+| variant | what differs | status | W&B group (launch) | Beaker exp |
+|---|---|---|---|---|
+| [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ⏳ running | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
+| [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ⏳ running 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
+| [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ⏳ running 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
+
+### Bad-node recovery (2026-07-13)
+
+7 of the 27 tasks (1 in `dscan-mult2`, 6 in `mult-beta-d614`) died pre-start on a single on-prem
+H200 node, **`aidc-h200-prd2`** (`01KPVKJYXNWNJCH7ZFK0TBXPW5`): `started=None`, and the missing
+image was `gcr.io/ai2-beaker-core/...` — **Beaker's own core sidecar image, not ours**. That node's
+Docker cannot pull the platform image, so anything scheduled on it dies before the training
+container starts. Not a code bug (AGENTS §10, "transient node failure ≠ code bug"), and autoResume
+does **not** cover it (it covers preemption, not a failed container start).
+
+Recovery: the 7 task definitions were re-submitted **verbatim** from the saved rendered specs —
+same `WANDB_RUN_ID` / `WANDB_RUN_GROUP` (so they stay in the original launch group, no
+fragmentation) and the same pinned SHAs — with only `ai1/octo-hub-onprem-h200` dropped from their
+cluster list, so they cannot land on the bad node again. Specs:
+`variants/*/launch_record/experiment_recovery_submitted.yaml`.
+
+## What each variant answers
+
+1. **`dscan-mult2` → the scaling law.** Held-out transfer vs D, plus bottleneck openness vs D. The
+   GRU saturates by ~100 mice (+0.005 LL total from D=10→614); if the disRNN does too, that
+   supports study 01's verdict that the *metric* is near a predictability ceiling rather than the
+   architecture being the bottleneck. If the disRNN keeps climbing, the saturation was
+   GRU-specific.
+2. **`mult-beta-d614` → is the D=100 interpretability verdict still valid at scale?** Study 03's
+   motivating premise is that the interaction bottleneck fails to sparsify *when many mice are
+   trained together* — yet it was only ever tested at D=100. This re-runs its grid at the cohort
+   size where the failure was supposed to appear (issue #16, need 3).
+
+**Known risk to watch:** `mult=10` was NaN-prone in study 03 at `lr=5e-3, seed=0`. Both grids pin
+`lr=1e-3` to avoid that corner; a divergence at D=614 anyway is a reportable result, not something
+to silently retry away.
+
+## Compute
+
+Small disRNN (latent 5, update-net 16×5, linear choice net) → one 48 GB **L40S** bundle
+(`ai1/octo.ai-aws-g6e`, 90GiB / 12 CPU / 1 GPU). *Not* H200: the 141 GB requirement in issue #16
+is about the wide **GRU** `hidden_size=256`, which this study does not use. Per-step cost is
+D-independent (fixed `batch_size=2048`), so the ~18 h/run measured on study 03's D=100 grid carries
+to every D — 15 + 12 tasks ≈ **490 GPU-h**, all low-priority preemptible (AGENTS §10 tier 3, bursts
+past the 8-slot cap; eviction recovered by autoResume + full-state checkpoints every 10k steps).
+
+## Launch
+
+```bash
+conda activate disrnn-cpu
+export BEAKER_TOKEN=$(python -c "import yaml;print(yaml.safe_load(open('$HOME/.beaker/config.yml'))['user_token'])")
+V=variants/dscan-mult2   # or variants/smoke-d614, variants/mult-beta-d614
+python code/launch_beaker_resumable.py \
+  --sweep studies/05-disrnn-scaling-law/$V/sweep.yaml \
+  --experiment studies/05-disrnn-scaling-law/$V/experiment.yaml \
+  --workspace ai1/aind-dynamic-foraging-foundation-model \
+  --output-dir studies/05-disrnn-scaling-law/$V/launch_record \
+  --label <short-label> --note "<why this run exists>"
+```
+
+`--no-submit` renders the spec without launching. The launcher sets the W&B group to
+`<variant>@<launch_id>`, injects `DISRNN_META_*` provenance, and resolves `WRAPPER_REF` /
+`DISPATCHER_REF` / `FORAGING_MODELS_REF` to immutable SHAs (AGENTS §10).
+
+## Status log
+
+- 2026-07-13 00:19 PT: study scaffolded (three variants); `smoke-d614` launched. It confirmed the
+  full-cohort path works: loader selects the whole train pool (618 subjects) and resolves
+  **D=614** after the post-fetch drop — *identical* to the GRU arm's D=614 at `ratio=1.0` (checked
+  against `mice_data_scaling`: every H128/H64/H16 run at ratio 1.0 also resolves 614). Bundle
+  sizing verified: exactly 1 GPU / 12 CPU / 93 GiB per task, no multi-GPU grab.
+- 2026-07-13 00:35 PT: both grids fired (27 tasks). 7 died pre-start on the bad node
+  `aidc-h200-prd2`; re-submitted verbatim off that cluster (see Bad-node recovery above). All
+  27/27 now running.
