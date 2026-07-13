@@ -55,8 +55,8 @@ PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
 
 Old example specs (`experiment_h100.yaml`, `experiment_h200.yaml`,
 `experiment_pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`, which **no
-longer exists** -> `ImageNotFound`/404. Current image for the
-`ai_hub_pck_integration` line: `han-hou/disrnn-wrapper-pck-integration-20260630` —
+longer exists** -> `ImageNotFound`/404. Current image:
+`han-hou/disrnn-wrapper-pck-integration-20260630` —
 it ships the newer `aind-dynamic-foraging-database` with
 `select_sessions(snapshot=...)` support; the older `...-pck-integration`
 (2026-06-18) fails on the `mice_snapshot_scaling` data path

@@ -48,7 +48,7 @@ A study is a **two-repo deliverable**: the dispatcher carries `studies/<study>/`
 (control plane), and the **wrapper** carries the study's *training payload* — the
 data loader, its tests, and any model-agnostic analysis script the study added
 (e.g. `code/data_loaders/<gen>.py`, `code/analysis/<study>_recovery.py`, plus any
-`run_hpc.py` change). **Both need a PR to `ai_hub_pck_integration`**, and the
+`run_hpc.py` change). **Both need a PR to `main`**, and the
 dispatcher's `environment.lock` pins a wrapper commit, so the wrapper payload must
 land too — don't stop at the dispatcher.
 
