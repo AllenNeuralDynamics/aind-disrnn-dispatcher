@@ -103,20 +103,18 @@ class, fit per subject. All runs are in W&B project `embedding_recovery` (entity
 1. **Fit** — `likelihood_relative_to_groundtruth` = model NL ÷ generating-policy NL
    (ceiling 1.0), pulled from W&B.
 2. **Recovery** — how well the learned subject-embedding table encodes the true
-   generating parameters (`biasL`, `learn_rate`, `softmax_inverse_temperature`). The
-   scorer reports two complementary metrics:
-   - **Ridge R²** (per parameter) — 5-fold cross-validated R² predicting one true
-     parameter from the standardized embedding (embedding → param, `Ridge(alpha=1)`).
-     The interpretable "can I read parameter X off the embedding?" score; robust to
-     embedding dim ≠ 3. **This is what the stage-1 figure plots** — panel a is the
-     per-parameter CV Ridge R² vs cohort size, panel b is the recovered-vs-true scatter
-     (annotated R² is the same Ridge fit).
-   - **CCA** (single summary) — canonical correlations between the embedding
-     (N × d_emb) and all three params jointly (N × 3); a scalar cross-check that the
-     embedding spans the parameter space, not plotted here.
-   Model-type / family recovery (Stages 3–4) is classification accuracy of a linear
-   decoder on the embedding; session-position recovery (Stages 2/2b) is
-   `GroupKFold`-CV LinearRegression R² of session phase, grouped by subject.
+   generating parameters (`biasL`, `learn_rate`, `softmax_inverse_temperature`),
+   scored as **cross-validated Ridge R²**: 5-fold CV R² predicting each true parameter
+   from the standardized embedding (embedding → param, `Ridge(alpha=1)`) — the
+   interpretable "can I read parameter X off the embedding?" score, robust to embedding
+   dim ≠ 3. The stage-1 figure plots this for all three parameters (panel a vs cohort
+   size; panel b recovered-vs-true, annotated R² is the same Ridge fit). Model-type /
+   family recovery (Stages 3–4) is classification accuracy of a linear decoder on the
+   embedding; session-position recovery (Stages 2/2b) is `GroupKFold`-CV
+   LinearRegression R² of session phase, grouped by subject. (`recovery_scoring.py`
+   also computes a canonical-correlation, CCA, summary as an internal cross-check that
+   the embedding spans the parameter space; it saturates and is not dimension-comparable
+   across embedding sizes, so it is neither reported nor plotted here.)
 
 **Per-stage configuration.**
 
