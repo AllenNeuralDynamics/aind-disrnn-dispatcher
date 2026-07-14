@@ -13,14 +13,19 @@
 # committed CSV is the default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 pull
+.PHONY: all r1 r2 r4 pull
 
-all: r1
+all: r1 r4
 
 # r1 and r2 are produced together by scaling_report.py (one figure set, both report blocks).
 # Listed separately for discoverability; both run the same command.
 r1 r2:
 	$(PY) analysis/scaling_report.py
+
+# r4 = generative behavioral match. Unlike r1/r2 this one reads W&B directly (the rollout
+# scalars are per-run summaries, not a committed grid), so it needs WANDB_API_KEY.
+r4:
+	$(PY) analysis/generative_match.py
 
 # Refresh analysis/grid.csv from W&B (needs WANDB_API_KEY). Not part of `all` — the
 # committed CSV is the source of truth so reports regenerate offline.

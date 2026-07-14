@@ -8,7 +8,8 @@ Regenerate everything with `make -C studies/05-disrnn-scaling-law`.
 |---|---|---|
 | [r1 — held-out scaling](r1-heldout-scaling.md) | Does the disRNN transfer better with more mice? | **No.** It peaks at D≈100 (0.7174) then **declines** (0.7154 at D=614) — not undertraining. It sits ~0.010 below the GRU at *every* D and, at the full cohort, below a per-mouse RL baseline. |
 | [r2 — sparsity & the multiplier](r2-sparsity-and-multiplier.md) | Does study 03's D=100 verdict hold at D=614? | **Half of it.** The multiplier still closes the gate monotonically, and "more mice ⇒ less sparse" is confirmed. But study 03's headline — *sparsity is free* — **breaks**: at D=614 sparsifying costs ~0.004 held-out, half the disRNN's gap to the GRU. |
-| r3 — subject capacity | Is per-subject capacity the transfer cap? | ⏳ pending — `subject-capacity` (18 tasks) still running. |
+| r3 — subject capacity | Is per-subject capacity the transfer cap? | ⏳ pending — `subject-capacity` (18 tasks) still running; no held-out numbers written yet. |
+| [r4 — generative match](r4-generative-behavioral-match.md) | Does the disRNN *behave* like a mouse? | **Less than the GRU does, at every D.** History-curve correlation trails by 0.02–0.03 — **10–20× the seed noise**. RMSE is comparable, so it gets the average switch level right and the *shape* wrong. The 2nd-order test discriminates where likelihood could not. |
 
 ## Metric caveat (carry into every report)
 

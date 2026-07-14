@@ -14,10 +14,13 @@ done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
 100-mouse cohort** ([`03-disrnn-beta-scan`](../03-disrnn-beta-scan)) and on synthetic populations
 ([`04`](../04-gru-vs-disrnn-embedding-recovery)) — **never on the full dataset**.
 
-## Verdict — waves 1 & 2 complete (2026-07-14)
+## Verdict — waves 1 & 2 + the generative rollouts complete (2026-07-14)
 
-> Wave 3 (`subject-capacity`) is still running. Numbers below are final for waves 1–2
-> (15/15 and 12/12 clean, no NaNs). Full report to follow in `analysis/reports/`.
+> Wave 3 (`subject-capacity`) is still running and has **no held-out numbers yet**. Numbers below
+> are final for waves 1–2 (15/15 and 12/12 clean, no NaNs) and for `generative-dscan` (15/15).
+> Reports: [r1](analysis/reports/r1-heldout-scaling.md),
+> [r2](analysis/reports/r2-sparsity-and-multiplier.md),
+> [r4](analysis/reports/r4-generative-behavioral-match.md).
 
 **1. The disRNN does not saturate like the GRU — it PEAKS at ~100 mice and then DECLINES.**
 
@@ -66,6 +69,27 @@ config (wave 1 seeds 0/1/2 → 0.7157 / 0.7153 / 0.7153, plus wave 2's own seed 
 multiplier effect (0.0039) is **~8.4× that noise**. Held-out is remarkably seed-stable even though
 openness is not.
 
+**5. And it does not BEHAVE like a mouse as well as the GRU does — at any D.**
+([r4](analysis/reports/r4-generative-behavioral-match.md), 15/15 rollouts.) Rolled out closed-loop
+as an agent, the disRNN's behavioral match to the real animal trails the GRU at *every* cohort size:
+
+| D | 10 | 30 | 100 | 300 | 614 |
+|---|---|---|---|---|---|
+| history-curve corr, disRNN | 0.9379 | 0.9424 | 0.9502 | 0.9631 | 0.9623 |
+| history-curve corr, GRU | 0.9619 | 0.9768 | 0.9819 | 0.9838 | 0.9841 |
+| gap | −0.024 | −0.035 | −0.032 | −0.021 | −0.022 |
+
+Seed SD on that curve is **0.0008–0.0020** at D ≥ 100, so the gap is **10–20× the noise**. And it
+fails in an informative way: **RMSE is comparable to the GRU's** (sometimes better), so the disRNN
+gets the average switch *level* right and the *shape* wrong — its curve is flatter than the animal's.
+That is what a model looks like when its bottlenecks have pruned history-dependence, and it is
+nearly invisible to a per-trial likelihood. **This is the value of the 2nd-order test: it
+discriminates where our headroom-poor first-order metric could not.**
+
+> ⚠️ The rollout matches the task **family**, not its **parameters** (gym defaults; `current_stage_actual`
+> is unused), so absolute "how mouse-like" claims are an upper bound on the model's true error.
+> Cross-D and disRNN-vs-GRU comparisons are unaffected — the handicap is identical in every cell.
+
 > **Claims made earlier in this study's status log that the data has since falsified.** Kept rather
 > than quietly deleted. (a) "The disRNN saturates by ~100 mice like the GRU" — it does not; it peaks
 > and declines. (b) "Interaction openness rises *monotonically* with D, so the multiplier must scale
@@ -112,8 +136,8 @@ comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=10
 | [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ⏳ running | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
 | [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ✅ done 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
 | [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ✅ done 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
-| [`generative-dscan`](variants/generative-dscan/notes.md) | **2nd-order validation**: roll each of the 15 `dscan-mult2` cells out as a generative agent and compare its behavior to the real mouse (study 01's r9, for the disRNN) | ⏳ running 15/15 | `generative-dscan-mult2@…` | [`01KXGA97R3JSCWES7KYPADEMJ7`](https://beaker.org/ex/01KXGA97R3JSCWES7KYPADEMJ7) |
-| [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ⏳ running 18/18 | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) |
+| [`generative-dscan`](variants/generative-dscan/notes.md) | **2nd-order validation**: roll each of the 15 `dscan-mult2` cells out as a generative agent and compare its behavior to the real mouse (study 01's r9, for the disRNN) | ✅ done 15/15 → [r4](analysis/reports/r4-generative-behavioral-match.md) | `generative-dscan-mult2@20260714-060524` | [`01KXGBPWPEDW5EC9X3V8YSM34C`](https://beaker.org/ex/01KXGBPWPEDW5EC9X3V8YSM34C) |
+| [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ⏳ 12/18 training (~42k/60k); 6 `embed=64` restarted after wrapper #61 | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) + embed64 recovery [`01KXGNW6ADG8NSR6R8XWH5NTSH`](https://beaker.org/ex/01KXGNW6ADG8NSR6R8XWH5NTSH) |
 
 ### Bad-node recovery (2026-07-13)
 
@@ -269,3 +293,29 @@ python code/launch_beaker_resumable.py \
   fine, which is what ruled out "bad spec" and pointed at size — but those slices were **real grid
   tasks**, and cancelling them still left 6 orphaned W&B runs to delete. Probe with **dummy** tasks,
   never with slices of the real grid.
+
+- 2026-07-14 09:42 PT: **`generative-dscan` complete (15/15) → [r4](analysis/reports/r4-generative-behavioral-match.md).
+  The disRNN behaves *less* like a mouse than the GRU at every D** — history-curve correlation trails
+  by 0.02–0.03, which is **10–20× the seed noise** (SD ≤ 0.002 at D ≥ 100). It fails informatively:
+  RMSE is comparable or better, so it gets the average switch *level* right and the *shape* wrong.
+  **This is the payoff of the 2nd-order test** — the likelihood gap (~0.010, r1) was real but hard to
+  read; the generative gap says *what* the disRNN is getting wrong, and says it well clear of noise.
+
+- 2026-07-14 07:5x PT: **the six `embed=64` cells died a second time — wrapper #58 was a half-fix.**
+  `disrnn_trainer` has two near-duplicate plotting blocks; #58 capped the dims and guarded
+  `wandb.Image()` in only one of them. The *session-context* plot still enumerated C(64,2)=**2016 raw
+  dim pairs per subject** → a **1.69 GP** figure (a strip ~756 ft tall), and the checkpoint block's
+  five `wandb.Image()` calls were unguarded — so PIL's `DecompressionBombError` killed the runs at
+  checkpoint step 10000, *again*, exactly the failure mode #58 was written to make impossible.
+  Fixed in wrapper [#61](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/61)
+  (`5cd8b5b`): guard every checkpoint image conversion, **and plot the leading 4 embedding PCs
+  instead of raw dim pairs** — C(4,2)=6 panels at *any* width (the same shape the raw grid gave at the
+  default embed=4), constant in dim, rotation-invariant, comparable across widths, and far lighter on
+  W&B storage. Relaunched: [`01KXGNW6ADG8NSR6R8XWH5NTSH`](https://beaker.org/ex/01KXGNW6ADG8NSR6R8XWH5NTSH).
+  **Bottleneck metrics were never at risk** — they come from `params`, not from these figures; the
+  cost was ~18 h of wall-clock, not validity.
+
+  **Lesson: guard the conversion, not just the plot.** A cosmetic diagnostic must never be able to
+  kill a training run. The dim cap is a nicety; the `try/except` around `wandb.Image()` is the thing
+  that makes the class of bug impossible — and #58 shipped the nicety to one code path while leaving
+  the actual crash site bare.
