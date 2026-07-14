@@ -11,7 +11,6 @@ Writes:
   - analysis/recovery_summary.csv
   - analysis/fig_ladder.png             (the baseline-flip ladder)
   - analysis/fig_disrnn_stage4a.png     (disRNN replication)
-  - analysis/fig_stage4b.png            (per-session family switching)
 and regenerates the <!-- BEGIN result-N --> / <!-- END result-N --> blocks in
 reports/r1-gru-ladder.md and reports/r2-disrnn-replication.md.
 
@@ -71,12 +70,10 @@ def main() -> None:
     _fig_ladder(ladder)
     # ---- Figure 2: disRNN Stage-4a replication ----
     _fig_disrnn(dis)
-    # ---- Figure 3: Stage-4b per-session family switching ----
-    _fig_stage4b(s4b)
 
     # ---- regenerate report blocks ----
     _update_reports(ladder, s4b, dis)
-    print("recovery_report: wrote summary + 3 figures + report blocks")
+    print("recovery_report: wrote summary + 2 figures + report blocks")
 
 
 def _fig_ladder(ladder):
@@ -159,18 +156,6 @@ def _fig_disrnn(dis):
     fig.tight_layout(); fig.savefig(HERE / "fig_disrnn_stage4a.png"); plt.close(fig)
 
 
-def _fig_stage4b(s4b):
-    fig, ax = plt.subplots(figsize=(6.4, 4.4))
-    mk = {"none": "o", "scalar": "s"}
-    for enc in ["none", "scalar"]:
-        sub = s4b[s4b.enc == enc].sort_values("embed")
-        ax.plot(sub.embed, sub.mix_R2_mean, marker=mk[enc], color="#4a4a4a", ms=9,
-                mfc="#4a4a4a" if enc == "scalar" else "white", mec="#4a4a4a", mew=1.6, label=f"{enc}")
-    ax.set_xticks([4, 8, 16]); ax.set_xlim(3.4, 17); ax.set_ylim(-0.02, 0.62)
-    ax.set_xlabel("subject embedding size"); ax.set_ylabel("mixture-weight recovery (R\u00b2)")
-    ax.set_title("Stage-4b: mixture-weight recovery\nneeds large embeddings", fontsize=12, loc="left")
-    ax.legend(frameon=False, title="session enc.")
-    fig.tight_layout(); fig.savefig(HERE / "fig_stage4b.png"); plt.close(fig)
 
 
 def _replace_block(text: str, n: int, body: str) -> str:
