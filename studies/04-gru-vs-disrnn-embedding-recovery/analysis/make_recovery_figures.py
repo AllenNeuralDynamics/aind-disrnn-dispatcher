@@ -25,7 +25,7 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 
 def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     gcol = {"h16e4": "#C44E52", "h64e4": "#8172B3", "e2": "#CCB974", "base": "#000000"}
-    fig = plt.figure(figsize=(12, 4.4)); gs = fig.add_gridspec(1, 3, wspace=0.34)
+    fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.34)
     axA, axB, axC = (fig.add_subplot(gs[0, i]) for i in range(3))
 
     def line(ax, d, x, y, **kw):
@@ -63,6 +63,8 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     axC.set_xticks(xpos); axC.set_xticklabels(PARAMS, fontsize=7); axC.set_ylabel("recovery R\u00b2")
     axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})"); axC.legend(fontsize=6, frameon=False, loc="lower left")
 
+    for ax in (axA, axB, axC):
+        ax.set_box_aspect(1)  # roughly square panels
     for ax, l in zip((axA, axB, axC), "abc"):
         ax.text(-0.12, 1.02, l, transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
     fig.savefig(out_png, dpi=200, bbox_inches="tight")
