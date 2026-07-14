@@ -22,7 +22,9 @@ import numpy as np, pandas as pd
 import matplotlib as mpl, matplotlib.pyplot as plt
 
 PARAMS = ["biasL", "learn_rate", "softmax_temp"]
-COL = {"none": "#7f7f7f", "scalar": "#1f77b4", "base": "black"}
+# House color convention (shared with stage 1): light blue = 4-d embedding subject-only
+# (session-blind), darker blue = 4-d embedding + session conditioning, black = baseline.
+COL = {"none": "#6baed6", "scalar": "#08519c", "base": "black"}
 
 
 def make_figure(lik, gru, baseline, out_png, focus_n=200):
@@ -34,8 +36,8 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
     # ---- a: fit quality (relative likelihood) ----
     s = lik.sort_values("N")
     axA.plot(s.N, s.baseline_rl, marker="s", color=COL["base"], label="baseline Q-learning")
-    axA.plot(s.N, s.GRU_none, marker="o", color=COL["none"], label="GRU session-blind")
-    axA.plot(s.N, s.GRU_scalar, marker="o", color=COL["scalar"], label="GRU session-cond.")
+    axA.plot(s.N, s.GRU_none, marker="o", color=COL["none"], label="GRU 4-d, session-blind")
+    axA.plot(s.N, s.GRU_scalar, marker="o", color=COL["scalar"], label="GRU 4-d + session cond.")
     axA.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axA.set_xlabel("# subjects"); axA.set_ylabel("likelihood relative to ground truth")
     axA.set_xticks([50, 100, 200, 300]); axA.set_title("Fit quality (all \u2248 ceiling)")
@@ -45,7 +47,7 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
     for enc, mk in [("none", "o"), ("scalar", "o")]:
         g = gru[gru.enc == enc].sort_values("num_subjects")
         axB.plot(g.num_subjects, g.R2_mean, marker=mk, color=COL[enc],
-                 label=f"GRU {'session-blind' if enc=='none' else 'session-cond.'}")
+                 label=f"GRU 4-d, {'session-blind' if enc=='none' else '+ session cond.'}")
     if baseline is not None and "r2_mean" in baseline:
         b = baseline.sort_values("num_subjects")
         axB.plot(b.num_subjects, b.r2_mean, marker="s", color=COL["base"], label="baseline_rl")
@@ -63,12 +65,12 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
         b200 = baseline[baseline.num_subjects == focus_n].iloc[0]
         w = 0.27
         axC.bar(xpos - w, [b200[f"r2_{p}"] for p in PARAMS], w, color=COL["base"], label="baseline_rl")
-        axC.bar(xpos, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU none")
-        axC.bar(xpos + w, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU scalar")
+        axC.bar(xpos, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU 4-d, session-blind")
+        axC.bar(xpos + w, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU 4-d + session cond.")
     else:
         w = 0.38
-        axC.bar(xpos - w / 2, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU none")
-        axC.bar(xpos + w / 2, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU scalar")
+        axC.bar(xpos - w / 2, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU 4-d, session-blind")
+        axC.bar(xpos + w / 2, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU 4-d + session cond.")
     axC.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axC.set_xticks(xpos); axC.set_xticklabels(["biasL", "learn\nrate", "softmax\ntemp"], fontsize=7)
     axC.set_ylabel("recovery R\u00b2"); axC.set_ylim(0, 1.05)
