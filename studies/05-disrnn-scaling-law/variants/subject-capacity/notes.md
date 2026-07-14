@@ -159,5 +159,43 @@ from `params`, never from these figures. The lost runs cost wall-clock, not vali
 > than their 12 siblings (`c1c4c81`). The difference is **plotting-only** — no training, eval, or
 > metric code is touched. Worth stating in the report rather than discovering later.
 
-**Status.** ⏳ 12/18 training (embed 4, 16 — at ~30k/60k steps); 6/18 `embed=64` restarted from
-scratch 2026-07-14 07:5x PT and now ~18 h behind their siblings.
+## …and the recovery poisoned its own W&B history (2026-07-14 12:42 PT)
+
+Recovery #2 fixed the crash, but I re-submitted it **reusing the dead runs' `WANDB_RUN_ID`s with
+`WANDB_RESUME=allow`** — correct for the earlier *bad-node* recovery (where nothing had been logged
+yet), **wrong here**, where the dead runs had already logged 17.5k steps.
+
+A new Beaker experiment gets an empty `/results`, so training restarted **from step 0** — but W&B's
+step counter was still at **17,502**, so everything the restarted run logged below that was silently
+thrown away:
+
+```
+wandb: WARNING Tried to log to step 13380 that is less than the current step 17502.
+               Steps must be monotonically increasing, so this data will be ignored.
+```
+
+**What that did and didn't break.** The numbers r3 needs (`heldout/eval_likelihood`,
+`final/bottlenecks/*_total_openness`) are written at ~67.5k steps, well above 17,502, so they *would*
+have logged correctly. The damage is to the **history**: the first 17.5k steps belong to a dead
+process, the restart's own early checkpoints were discarded, and until it passed 17,502 the run
+summary served **stale values from the dead run**. Each `embed=64` run would have been a
+Frankenstein whose checkpoint curve is two processes stitched together — not comparable to the 12
+narrow cells, and exactly the provenance rot that bites months later.
+
+Han's call (2026-07-14): **relaunch clean**, eating the ~4 h already burned.
+[`01KXH3DXG79JTPEZ959TWP02KQ`](https://beaker.org/ex/01KXH3DXG79JTPEZ959TWP02KQ), spec
+`launch_record/experiment_recovery3_embed64.yaml`: **fresh `WANDB_RUN_ID`s** and
+**`WANDB_RESUME=never`** (a fresh id must never latch onto an existing run); same group, same grid,
+same pinned SHAs.
+
+> **Lesson: reusing a `WANDB_RUN_ID` is only safe when the run has logged NOTHING.** For a bad-node
+> failure (`started=None`) it is right — it preserves the cell's identity. For a re-run of a job that
+> already logged steps it silently corrupts the history, because a fresh Beaker experiment restarts
+> training at step 0 while W&B's step counter does not rewind.
+
+> ⚠️ **Six zombie runs remain in the group** (ids ending `3ae4c9d1`, `0124c401`, `a17a696b`,
+> `09e5beea`, `75bde516`, `64435fb4`). They will never reach `finished`. Any producer reading this
+> group **must filter `state == "finished"`**, or it will see duplicate `(embed, penalty, seed)` cells.
+
+**Status.** ⏳ 12/18 training (embed 4, 16 — at ~50–55k/60k; several autoResume preemptions on the
+low-priority tier, no action needed); 6/18 `embed=64` restarted clean 2026-07-14 12:5x PT, ~18 h out.
