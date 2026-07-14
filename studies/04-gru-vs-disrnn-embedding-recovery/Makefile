@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery
 
-all: r1 stage1-prelim stage1-baseline
+all: r1 stage1-prelim stage1-baseline stage2-recovery
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -44,3 +44,16 @@ stage1-baseline:
 		--baseline-csv analysis/stage1_baseline_recovery.csv \
 		--gt-json analysis/stage1_gt_likelihood.json \
 		--out analysis/figures/stage1_recovery_vs_baseline.png
+
+# Stage-2 combined recovery figure (3 square panels; likelihood + subject-param
+# recovery + per-param bars), matching stage1_recovery_vs_baseline. Offline producer
+# reads three committed curated inputs (likelihood comparison, GRU recovery, baseline
+# recovery), each keyed by wandb_run_id. The baseline recovery CSV is produced OFF the
+# Claude Science sandbox (compute_stage2_baseline_recovery.py, needs W&B/GCS) — it is
+# committed here so `make` stays offline.
+stage2-recovery:
+	$(PY) analysis/stage2_recovery_figure.py \
+		--lik-csv analysis/stage2_likelihood_comparison.csv \
+		--gru-csv analysis/stage2_gru_recovery.csv \
+		--baseline-csv analysis/stage2_baseline_recovery.csv \
+		--out analysis/figures/stage2_recovery_vs_baseline.png
