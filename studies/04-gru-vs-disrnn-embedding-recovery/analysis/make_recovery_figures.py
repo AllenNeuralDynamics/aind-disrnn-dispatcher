@@ -37,8 +37,8 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
         line(axA, gru[(gru.hid == 64) & (gru.emb == 4)], "subj", "r2_r2_mean", color=gcol["h64e4"], label="GRU h64 e4")
     line(axA, gru[gru.emb == 2].groupby("subj", as_index=False).r2_r2_mean.mean(), "subj", "r2_r2_mean",
          color=gcol["e2"], ls="--", label="GRU e2 (mean)")
-    line(axA, baseline.rename(columns={"num_subjects": "subj"}), "subj", "r2_mean",
-         color=gcol["base"], lw=2.2, label="baseline_rl (correct model)")
+    _b = baseline.rename(columns={"num_subjects": "subj"}).sort_values("subj")
+    axA.plot(_b.subj, _b.r2_mean, marker="s", ms=6, color=gcol["base"], lw=2.2, label="baseline_rl (correct model)")
     axA.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axA.set_xlabel("# subjects"); axA.set_ylabel("mean recovery R\u00b2"); axA.set_xticks([50, 100, 200, 300])
     axA.set_ylim(0.2, 1.03); axA.set_title("Parameter recovery", fontsize=10)
