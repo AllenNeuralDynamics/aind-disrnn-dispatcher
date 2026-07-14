@@ -36,6 +36,34 @@ Full results: [`analysis/reports/INDEX.md`](analysis/reports/INDEX.md)
 (r1 = GRU ladder, r2 = disRNN replication). Regenerate everything with
 `make -C studies/04-gru-vs-disrnn-embedding-recovery`.
 
+## Stage ladder (proof of principle)
+
+![Model-recovery stage ladder](recovery_stages_schematic.png)
+
+*Conceptual schematic (hand-drawn, not produced by `recovery_report.py`): the
+generative ladder on synthetic ground truth, drawn in shared parameter-space
+coordinates. Filled points = observations, open circles = subject centroids,
+arrows = within-subject drift, colour = model class/family, dashed grey = held-out
+tail.*
+
+Each stage adds one piece of structure the embedding has to recover; the
+correctly-specified `baseline_rl` reference (not a competitor) marks the achievable
+ceiling and is where a fixed model stops being sufficient.
+
+| Stage | Structure added | Correct-model baseline | Embedding recovery |
+|---|---|---|---|
+| **1** | static subjects (fixed params) | ceiling (~1.0) | subject param R² 0.91–0.96; **embedding size, not width, is the knob** |
+| **2** | within-subject drift | rel-LL 0.993 (at ceiling) | subj R² 0.96 (scalar); session-fraction R² up to 0.94 |
+| **2b** | strong / non-monotonic drift + held-out tail | 0.939 (drops under extrapolation) | **baseline flip**: GRU >0.987 |
+| **3** | mixture of QL variants (Bari/Hattori/RW) | 47% model-selection | preset classification **97.5–99.5%** |
+| **4a** | mixture of families (QL/CTT/LossCounting) | 70% model-selection | GRU family decode 100%; **disRNN 0.95–0.98** (scalar), ~4–6 pt LL cost |
+| **4b** | per-session family switching | reference | null: recovery is **subject-level**; session code encodes *position* (R²≈0.6), not the discrete family |
+
+**Takeaway.** The data-driven embedding recovers generative structure exactly where
+a correctly-specified model breaks down — and Stage 4b pinpoints the one structure
+the current architecture cannot represent (a discrete per-session family draw),
+motivating the hierarchical-VI direction (`docs/design-hierarchical-vi-foundation-model.md`).
+
 ## Ground-truth generative model
 
 Data is produced on-the-fly by `HierarchicalCognitiveAgents`
