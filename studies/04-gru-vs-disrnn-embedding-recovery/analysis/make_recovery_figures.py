@@ -54,11 +54,13 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     axB.set_xticks([50, 100, 200, 300]); axB.set_ylim(0.96, 1.008)
     axB.set_title("Fit quality (all \u2248 ceiling)", fontsize=10); axB.legend(fontsize=6, frameon=False, loc="lower right")
 
-    xpos = np.arange(3); w = 0.35
+    xpos = np.arange(3); w = 0.27
     g200 = gru[(gru.hid == hid_focus) & (gru.emb == 4) & (gru.subj == focus_n)].iloc[0]
+    g200e2 = gru[(gru.hid == hid_focus) & (gru.emb == 2) & (gru.subj == focus_n)].iloc[0]
     b200 = baseline[baseline.num_subjects == focus_n].iloc[0]
-    axC.bar(xpos - w / 2, [g200[f"r2_{p}"] for p in PARAMS], w, color=gcol["h16e4"], label=f"GRU h{hid_focus} e4")
-    axC.bar(xpos + w / 2, [b200[f"r2_{p}"] for p in PARAMS], w, color="0.4", label="baseline_rl")
+    axC.bar(xpos - w, [g200[f"r2_{p}"] for p in PARAMS], w, color=gcol["h16e4"], label=f"GRU h{hid_focus} e4")
+    axC.bar(xpos, [g200e2[f"r2_{p}"] for p in PARAMS], w, color=gcol["e2"], label=f"GRU h{hid_focus} e2")
+    axC.bar(xpos + w, [b200[f"r2_{p}"] for p in PARAMS], w, color="0.4", label="baseline_rl")
     axC.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axC.set_xticks(xpos); axC.set_xticklabels(PARAMS, fontsize=7); axC.set_ylabel("recovery R\u00b2")
     axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})", fontsize=10); axC.legend(fontsize=6, frameon=False, loc="lower left")
