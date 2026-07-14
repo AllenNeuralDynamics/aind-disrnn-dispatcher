@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim
+.PHONY: all r1 r2 stage1-prelim stage1-baseline
 
-all: r1 stage1-prelim
+all: r1 stage1-prelim stage1-baseline
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -34,3 +34,13 @@ r1 r2:
 # posthoc-reporting 'freeze the numbers' rule.
 stage1-prelim:
 	$(PY) analysis/stage1_recovery_figure.py
+
+# Stage-1 GRU-vs-correct-model-baseline recovery figure (3 square panels). Offline
+# producer reads three committed curated inputs (GRU + baseline recovery scores,
+# gt-likelihood), each keyed by wandb_run_id per the 'freeze the numbers' rule.
+stage1-baseline:
+	$(PY) analysis/make_recovery_figures.py \
+		--gru-csv analysis/stage1_gru_recovery.csv \
+		--baseline-csv analysis/stage1_baseline_recovery.csv \
+		--gt-json analysis/stage1_gt_likelihood.json \
+		--out analysis/figures/stage1_recovery_vs_baseline.png

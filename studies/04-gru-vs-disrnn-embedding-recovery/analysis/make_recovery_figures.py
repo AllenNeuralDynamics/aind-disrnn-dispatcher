@@ -25,7 +25,7 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 
 def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     gcol = {"h16e4": "#C44E52", "h64e4": "#8172B3", "e2": "#CCB974", "base": "#000000"}
-    fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.34)
+    fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.42)
     axA, axB, axC = (fig.add_subplot(gs[0, i]) for i in range(3))
 
     def line(ax, d, x, y, **kw):
@@ -40,7 +40,7 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
          color=gcol["base"], lw=2.2, label="baseline_rl (correct model)")
     axA.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axA.set_xlabel("# subjects"); axA.set_ylabel("mean recovery R\u00b2"); axA.set_xticks([50, 100, 200, 300])
-    axA.set_ylim(0.2, 1.03); axA.set_title("Parameter recovery vs correct-model reference")
+    axA.set_ylim(0.2, 1.03); axA.set_title("Parameter recovery", fontsize=10)
     axA.legend(fontsize=6, frameon=False, loc="lower right")
 
     bl = baseline.copy(); bl["lik_rel"] = bl.apply(lambda r: r.eval_likelihood / gt_by_subj[int(r.num_subjects)], axis=1)
@@ -52,7 +52,7 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     axB.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axB.set_xlabel("# subjects"); axB.set_ylabel("likelihood relative to ground truth")
     axB.set_xticks([50, 100, 200, 300]); axB.set_ylim(0.96, 1.008)
-    axB.set_title("Fit quality: all at ceiling (\u22481.0)"); axB.legend(fontsize=6, frameon=False, loc="lower right")
+    axB.set_title("Fit quality (all \u2248 ceiling)", fontsize=10); axB.legend(fontsize=6, frameon=False, loc="lower right")
 
     xpos = np.arange(3); w = 0.35
     g200 = gru[(gru.hid == hid_focus) & (gru.emb == 4) & (gru.subj == focus_n)].iloc[0]
@@ -61,10 +61,11 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     axC.bar(xpos + w / 2, [b200[f"r2_{p}"] for p in PARAMS], w, color="0.4", label="baseline_rl")
     axC.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axC.set_xticks(xpos); axC.set_xticklabels(PARAMS, fontsize=7); axC.set_ylabel("recovery R\u00b2")
-    axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})"); axC.legend(fontsize=6, frameon=False, loc="lower left")
+    axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})", fontsize=10); axC.legend(fontsize=6, frameon=False, loc="lower left")
 
     for ax in (axA, axB, axC):
         ax.set_box_aspect(1)  # roughly square panels
+        ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     for ax, l in zip((axA, axB, axC), "abc"):
         ax.text(-0.12, 1.02, l, transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
     fig.savefig(out_png, dpi=200, bbox_inches="tight")
