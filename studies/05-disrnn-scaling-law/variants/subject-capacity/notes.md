@@ -84,4 +84,37 @@ file** — YAML aliasing collapses repeated env blocks in the file and understat
   + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) (tasks 9–17)
 - Specs: `launch_record/experiment_part{1,2}.yaml`
 
-**Status.** ⏳ running 18/18 (launched 2026-07-13 22:58 PT).
+## embed=64 failure and recovery (2026-07-14 00:42 PT)
+
+All six `subject_embedding_size=64` cells (every penalty, both seeds) died **deterministically**
+~11 min in — not a bad node, not preemption:
+
+```
+PIL.Image.DecompressionBombError: Image size (554400000 pixels) exceeds limit of 178956970 pixels
+```
+
+The subject-embedding **state-space plot** pairs up *every* combination of embedding dims:
+`C(64,2)` = 2016 panels → `ceil(2016/3)` = 672 rows → `figsize=(16.5, 3360)` in → **1650 × 336,000 px
+= 554,400,000 px**, matching the traceback to the digit. It is O(dim²) with no cap. (`embed=16` was
+already producing a wasteful 33 MP figure — it survived only by sitting under PIL's limit.)
+
+**The real defect was not the figure — it was that a cosmetic diagnostic could kill an 18-hour
+training run.** The plotting block is guarded by `try/except → warning`, but the `wandb.Image()`
+call sat *outside* it, and PIL raises while *opening* the file.
+
+Fixed in wrapper [#58](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/58)
+(`77af963`): cap the plot at the leading 6 dims (bounded 4.1 MP at any embedding width; `dim≤4`
+output byte-identical, so no prior study changes), and guard every `wandb.Image()` conversion.
+**Bottleneck metrics are unaffected** — `final/bottlenecks/*_total_openness` is computed from
+`params`, never from these figures.
+
+The six cells were re-submitted verbatim (same `WANDB_RUN_ID` / `WANDB_RUN_GROUP` / pinned
+`DISPATCHER_REF`) with only `WRAPPER_REF` repointed to the fix SHA:
+[`01KXFSM5E4AK6HGYREQG8B40K9`](https://beaker.org/ex/01KXFSM5E4AK6HGYREQG8B40K9). Spec:
+`launch_record/experiment_recovery_embed64.yaml`. Confirmed past the crash point and training.
+
+> **Carry into analysis:** the six `embed=64` runs execute a **different wrapper SHA** (`77af963`)
+> than their 12 siblings (`c1c4c81`). The difference is **plotting-only** — no training, eval, or
+> metric code is touched. Worth stating in the report rather than discovering later.
+
+**Status.** ⏳ running 18/18 (launched 2026-07-13 22:58 PT; embed=64 relaunched 2026-07-14 00:5x PT).
