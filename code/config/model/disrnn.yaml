@@ -31,9 +31,17 @@ penalties:
   update_net_obs_penalty: ${.beta}
   update_net_latent_penalty_multiplier: 1.0
   update_net_latent_penalty: ${.beta}
+  # The subject pathway has THREE bottlenecks (the global subject bottleneck, and the
+  # subject channels into the update net and the choice net). They are coupled to
+  # `subject_penalty` rather than to `beta` directly, so overriding `subject_penalty`
+  # relaxes the whole subject pathway with one knob. Pinning the downstream two to
+  # `beta` instead would leave them clamped when `subject_penalty` is swept, so the
+  # subject embedding would stay bottlenecked downstream and a capacity experiment
+  # would silently return a false negative. Default is unchanged (`subject_penalty`
+  # resolves to `beta`), so this is backward-compatible with studies 01-05.
   subject_penalty: ${.beta}
-  update_net_subject_penalty: ${.beta}
-  choice_net_subject_penalty: ${.beta}
+  update_net_subject_penalty: ${.subject_penalty}
+  choice_net_subject_penalty: ${.subject_penalty}
 
 distillation:
   enabled: false
