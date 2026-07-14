@@ -61,8 +61,9 @@ half the disRNN's entire gap to the GRU. At D=100 interpretability was free; at 
 
 **This one survives its noise check.** Wave 2 is single-seed *by design* (a mechanism check, not an
 effect-size estimate), so the claim was tested against the seed-to-seed SD measured at the same
-config from wave 1's three D=614 cells: **held-out SD = 0.0003** (0.7157 / 0.7153 / 0.7153). The
-multiplier effect (0.0039) is **~15× that noise**. Held-out is remarkably seed-stable even though
+config from wave 1's three D=614 cells: **held-out SD = 0.00046**, pooled over all four runs at that
+config (wave 1 seeds 0/1/2 → 0.7157 / 0.7153 / 0.7153, plus wave 2's own seed 42 → 0.7163). The
+multiplier effect (0.0039) is **~8.4× that noise**. Held-out is remarkably seed-stable even though
 openness is not.
 
 > **Claims made earlier in this study's status log that the data has since falsified.** Kept rather

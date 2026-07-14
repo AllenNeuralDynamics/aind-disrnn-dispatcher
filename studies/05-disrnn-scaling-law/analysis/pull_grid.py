@@ -54,7 +54,10 @@ def main() -> None:
                 "run_id": r.id,
                 "state": r.state,
                 "D": len(ids),                       # ACTUAL resolved D, never the nominal ratio
-                "seed": cfg.get("seed"),
+                # top-level `seed` is None (Hydra interpolates ${seed} into the sub-configs but
+                # does not log the root key) -- read it where it actually lands.
+                "seed": (model.get("seed") if model.get("seed") is not None
+                         else (cfg.get("data") or {}).get("seed")),
                 "beta": beta,
                 # effective multiplier is recovered post-hoc: the dispatcher consumes and drops
                 # the multiplier field before training

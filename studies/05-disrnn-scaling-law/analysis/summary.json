@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-07-14T04:05:36-07:00",
-    "dispatcher_git_sha": "1ae8823ad7677c075efabda67092c622fd22d86a",
+    "produced_at_pt": "2026-07-14T04:51:07-07:00",
+    "dispatcher_git_sha": "e5feba0c48ad15f78ea137a23b0b7d2294df5363",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "dscan-mult2@20260713-003428",
@@ -23,18 +23,27 @@
     "Hattori (L2F1)": 0.7127
   },
   "seed_noise_at_D614": {
-    "n_seeds": 3,
-    "heldout_sd": 0.0002540874139027579,
+    "n_seeds": 4,
+    "seeds": [
+      "0",
+      "1",
+      "2",
+      "42"
+    ],
+    "config": "D=614, mult=2, beta=1e-3 (pooled across variants)",
+    "heldout_sd": 0.0004634047993463679,
     "heldout_per_seed": [
       0.715731680393219,
       0.7152618169784546,
-      0.715329110622406
+      0.715329110622406,
+      0.7162696123123169
     ],
-    "interaction_openness_sd": 0.3839289702656639,
+    "interaction_openness_sd": 0.38334433375413207,
     "interaction_openness_per_seed": [
       1.1356840133666992,
       0.46696531772613525,
-      0.4744977355003357
+      0.4744977355003357,
+      1.1336770057678225
     ]
   },
   "wave1_curve_by_D": {

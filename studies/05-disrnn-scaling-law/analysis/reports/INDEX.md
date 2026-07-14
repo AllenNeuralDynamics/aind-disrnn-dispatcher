@@ -18,12 +18,12 @@ scale-invariant and reads high even for a fully shut bottleneck (it mis-ranked 1
 
 ## Noise caveat (learned the hard way here)
 
-**Held-out likelihood and bottleneck openness have wildly different seed stability.** Measured on
-wave 1's three D=614 cells (identical config, different seeds):
+**Held-out likelihood and bottleneck openness have wildly different seed stability.** Measured on all four runs at the same config (D=614, mult=2, β=1e-3; wave 1 seeds 0/1/2 plus
+wave 2's seed 42 — wave 2 never set `seed`, so it ran at Hydra's default 42, an independent 4th seed):
 
-- held-out LL: SD **0.0003** (0.7157 / 0.7153 / 0.7153) — rock steady
+- held-out LL: SD **0.00046** (seeds 0/1/2/42: 0.7157 / 0.7153 / 0.7153 / 0.7163) — steady
 - interaction openness: SD **0.384** (1.136 / 0.467 / 0.474) — enormous
 
-So a ~0.004 held-out effect is real (15× the noise), while a ~0.2 openness difference is **not**. An
+So a ~0.004 held-out effect is real (8.4× the noise), while a ~0.2 openness difference is **not**. An
 earlier draft of this study read a 3-seed openness *mean* as evidence of non-monotonicity vs D; that
 was noise and the claim was withdrawn. **Openness claims need seed replication.**

@@ -57,8 +57,8 @@ Bari 0.7149, Hattori 0.7127.
 
 ## Caveats
 
-- Held-out is remarkably **seed-stable**: SD at D=614 = 0.0003 (0.7157 / 0.7153 / 0.7153). The
-  curve's shape is not a seed artifact.
+- Held-out is **seed-stable**: SD at D=614 = 0.00046 across four seeds (0/1/2/42:
+  0.7157 / 0.7153 / 0.7153 / 0.7163). The curve's shape is not a seed artifact.
 - The y-axis is per-trial-normalised likelihood, which is **headroom-poor** (study 01: a new mouse
   is predicted to ~99.7% of its adapted likelihood from the population mean). Differences of 0.001
   are small per trial but compound across ~500-trial sessions.

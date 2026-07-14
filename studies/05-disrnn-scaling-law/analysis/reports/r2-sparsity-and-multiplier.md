@@ -97,7 +97,7 @@ were tested against the seed-to-seed SD measured *at the same config* from wave 
 
 | quantity | seed SD at D=614 | effect | ratio | verdict |
 |---|---|---|---|---|
-| held-out LL | **0.0003** | multiplier spread 0.0039 | **15×** | real |
+| held-out LL | **0.00046** | multiplier spread 0.0039 | **8.4×** | real |
 | interaction openness | **0.384** | D=300→614 diff ~0.23 | 0.6× | **noise** |
 
 Held-out likelihood is remarkably seed-stable; openness is not. Any future claim about openness

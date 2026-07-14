@@ -250,18 +250,24 @@ def fig_mult_axis_d614(cells):
 
 
 def seed_noise(rows):
-    """Seed-to-seed SD at the SAME config, measured from wave 1's three D=614 cells.
+    """Seed-to-seed SD at the SAME config (D=614, mult=2, beta=1e-3), across EVERY variant.
 
-    This is the yardstick for wave 2, which is single-seed BY DESIGN (a mechanism check, not an
-    effect-size estimate). Held-out is remarkably tight across seeds (SD ~0.0003) while the
-    interaction openness is NOT (SD ~0.38 — per-seed 1.136 / 0.467 / 0.474). So a multiplier effect
-    of ~0.004 on held-out is ~15x the noise and real, while fine structure in openness-vs-D above
-    D=100 is noise and must NOT be read as a trend.
+    This is the yardstick for wave 2, which is single-seed (it runs at the Hydra default seed=42
+    -- the sweep never set `seed`, so it is an INDEPENDENT 4th seed of wave 1's D=614 cell, not a
+    duplicate of seed 0). Pooling all four is the honest estimate: wave 1's three seeds alone give
+    SD 0.00025, but seed 42 lands 0.0009 above their mean, so the 3-seed SD understates.
+
+    Held-out is tight across seeds (SD ~0.0005) while interaction openness is NOT (SD ~0.38 --
+    per-seed 1.136 / 0.467 / 0.474). So a ~0.004 multiplier effect on held-out is ~8x the noise and
+    real, while fine structure in openness-vs-D above D=100 is noise and must NOT be read as a trend.
     """
-    d614 = [r for r in rows if r["variant"] == "dscan-mult2" and int(r["D"]) > 600]
+    d614 = [r for r in rows
+            if int(r["D"]) > 600 and r["mult"] == "2" and abs(_f(r["beta"]) - 1e-3) < 1e-9]
     hl = [_f(r["heldout_ll"]) for r in d614]
     op = [_f(r["open_update_net_latent"]) for r in d614]
     return {"n_seeds": len(hl),
+            "seeds": [r["seed"] for r in d614],
+            "config": "D=614, mult=2, beta=1e-3 (pooled across variants)",
             "heldout_sd": statistics.stdev(hl) if len(hl) > 1 else None,
             "heldout_per_seed": hl,
             "interaction_openness_sd": statistics.stdev(op) if len(op) > 1 else None,

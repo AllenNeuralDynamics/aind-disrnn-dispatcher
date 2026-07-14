@@ -14,8 +14,10 @@
 # two nuisance axes dropped:
 #   * KEPT:    multiplier {1,2,5,10} x base beta {3e-4, 1e-3, 3e-3}   = 12 cells
 #   * DROPPED: lr {1e-3,5e-3} -> pinned 1e-3 (both study-03 NaN divergences were at lr=5e-3)
-#              seed {0,1}     -> pinned 0 (this is a mechanism check, not an effect-size estimate;
-#                                the D=614 cell of dscan-mult2 supplies 3 seeds at mult=2)
+#              seed {0,1}     -> NOT swept, so every cell runs at Hydra's default seed=42. That is
+#                                an INDEPENDENT 4th seed vs dscan-mult2's D=614 cells (seeds 0/1/2),
+#                                not a duplicate of seed 0. Single-seed on purpose: this is a
+#                                mechanism check, not an effect-size estimate.
 # Everything else is byte-identical to study 03 so the two grids are directly comparable
 # cell-by-cell: same architecture, same SC schedule, same n_steps=60000, same snapshot, same
 # 2-way output. The comparison is D=100 (study 03) vs D=614 (here), one axis moved.

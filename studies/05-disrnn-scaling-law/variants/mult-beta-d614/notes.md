@@ -3,8 +3,10 @@
 **What differs.** Study 03's `updnet-ratio-100mice` grid, re-run at **D≈614** instead of D=100:
 `update_net_latent_penalty_multiplier ∈ {1,2,5,10}` × base `β ∈ {3e-4, 1e-3, 3e-3}` = **12 tasks**.
 The two nuisance axes of study 03 are dropped: `lr` pinned to 1e-3 (both of 03's NaN divergences
-were at 5e-3) and `seed` pinned to 0 (this is a mechanism check, not an effect-size estimate — the
-D=614 cell of [`dscan-mult2`](../dscan-mult2/notes.md) supplies 3 seeds at mult=2). Everything else
+were at 5e-3) and `seed` **not swept — so every cell runs at Hydra's default `seed=42`**. That makes
+it an *independent 4th seed* relative to [`dscan-mult2`](../dscan-mult2/notes.md)'s D=614 cells
+(seeds 0/1/2), not a duplicate of seed 0. Single-seed on purpose: a mechanism check, not an
+effect-size estimate. Everything else
 is byte-identical to study 03, so the grids compare cell-by-cell with exactly one axis moved.
 
 **Why it exists (issue #16, need 3).** Study 03's conclusions — multiplier monotonically closes the
