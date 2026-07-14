@@ -26,7 +26,8 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     gcol = {"h16e4": "#C44E52", "h64e4": "#8172B3", "e2": "#CCB974", "base": "#000000"}
     fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.42)
-    axA, axB, axC = (fig.add_subplot(gs[0, i]) for i in range(3))
+    # panel order (left->right): B fit quality, A parameter recovery, C per-parameter
+    axB = fig.add_subplot(gs[0, 0]); axA = fig.add_subplot(gs[0, 1]); axC = fig.add_subplot(gs[0, 2])
 
     def line(ax, d, x, y, **kw):
         s = d.sort_values(x); ax.plot(s[x], s[y], marker="o", ms=5, **kw)
@@ -58,17 +59,17 @@ def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
     g200 = gru[(gru.hid == hid_focus) & (gru.emb == 4) & (gru.subj == focus_n)].iloc[0]
     g200e2 = gru[(gru.hid == hid_focus) & (gru.emb == 2) & (gru.subj == focus_n)].iloc[0]
     b200 = baseline[baseline.num_subjects == focus_n].iloc[0]
-    axC.bar(xpos - w, [g200[f"r2_{p}"] for p in PARAMS], w, color=gcol["h16e4"], label=f"GRU h{hid_focus} e4")
+    axC.bar(xpos - w, [b200[f"r2_{p}"] for p in PARAMS], w, color="black", label="baseline_rl")
     axC.bar(xpos, [g200e2[f"r2_{p}"] for p in PARAMS], w, color=gcol["e2"], label=f"GRU h{hid_focus} e2")
-    axC.bar(xpos + w, [b200[f"r2_{p}"] for p in PARAMS], w, color="0.4", label="baseline_rl")
+    axC.bar(xpos + w, [g200[f"r2_{p}"] for p in PARAMS], w, color=gcol["h16e4"], label=f"GRU h{hid_focus} e4")
     axC.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axC.set_xticks(xpos); axC.set_xticklabels(PARAMS, fontsize=7); axC.set_ylabel("recovery R\u00b2")
-    axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})", fontsize=10); axC.legend(fontsize=6, frameon=False, loc="lower left")
+    axC.set_ylim(0, 1.05); axC.set_title(f"Per-parameter (n={focus_n})", fontsize=10)
 
     for ax in (axA, axB, axC):
         ax.set_box_aspect(1)  # roughly square panels
         ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    for ax, l in zip((axA, axB, axC), "abc"):
+    for ax, l in zip((axB, axA, axC), "abc"):
         ax.text(-0.12, 1.02, l, transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
     fig.savefig(out_png, dpi=200, bbox_inches="tight")
     return fig
