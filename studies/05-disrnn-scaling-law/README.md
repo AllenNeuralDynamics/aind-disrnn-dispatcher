@@ -51,6 +51,7 @@ comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=10
 | [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ⏳ running | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
 | [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ⏳ running 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
 | [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ⏳ running 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
+| [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ⏳ running 18/18 | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) |
 
 ### Bad-node recovery (2026-07-13)
 
@@ -185,3 +186,24 @@ python code/launch_beaker_resumable.py \
   - *Note on the ETA column:* runs past 60k show a negative ETA. That is an artifact of
     extrapolating `(60000 − step)`, not a problem — those runs are in the fine-tune phase, which
     the step-based ETA does not model.
+- 2026-07-13 22:58 PT: **`subject-capacity` launched (18 tasks).** The D≤301 cells finished and
+  produced the study's first real result — the disRNN abandons per-mouse personalisation as the
+  cohort grows (`update←subject` openness 0.85 → 0.64 across D=10→300; `choice←subject` shut
+  throughout) while the shared interaction gate opens 0.161 → 0.922. It sits ~0.010 below the GRU
+  at **every** D and merely ties the best per-mouse RL baseline. So the new variant asks whether
+  **per-subject capacity**, not the interaction bottleneck, is the transfer cap. Enabled by
+  dispatcher [#62](https://github.com/AllenNeuralDynamics/aind-disrnn-dispatcher/pull/62) (merged
+  `98343d9`), which couples the three subject penalties so one knob relaxes the whole subject
+  pathway — without it the grid would have been a false negative. Details:
+  [`variants/subject-capacity/notes.md`](variants/subject-capacity/notes.md).
+
+  **Infra lesson (cost us ~40 min): Beaker rejects an oversized experiment spec with a misleading
+  `[code=409] a retryable database conflict occurred`.** It is not retryable and not a conflict —
+  retrying forever gets nowhere. Measured: 12 tasks / 32.6 KB ✅, 15 / 40.4 KB ✅, 18 / **54.4 KB
+  ❌**. Ceiling is between 40 and 54 KB (likely 48 KiB). **Measure the resolved JSON payload, not
+  the YAML file** — YAML aliasing collapses repeated env blocks and understates the true payload by
+  ~30% (the file looked like 37 KB). Fix: split into two 9-task experiments sharing one
+  `WANDB_RUN_GROUP`. Diagnosis note: a 1-task and a 6-task slice of the *real* spec both submitted
+  fine, which is what ruled out "bad spec" and pointed at size — but those slices were **real grid
+  tasks**, and cancelling them still left 6 orphaned W&B runs to delete. Probe with **dummy** tasks,
+  never with slices of the real grid.
