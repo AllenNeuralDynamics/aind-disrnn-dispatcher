@@ -54,13 +54,9 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ***Stage 1 — embedding-size sweep.** Recovery R² vs cohort size for embedding size 4 (solid) vs 2 (dashed) at hidden_size=16 (a); recovered-vs-true scatter for the 200-subject / embed-4 cell, one square panel per parameter with the y=x identity line (b). Size-4 embeddings recover all three parameters near ceiling and are insensitive to network width; size-2 embeddings sit below the identifiability threshold. Single seed (42) per cell — no error bars. Produced offline by `analysis/stage1_recovery_figure.py` from committed CSVs.*
 
-![stage2_recovery.png](../figures/stage2_recovery.png)
+![stage2_recovery_vs_baseline.png](../figures/stage2_recovery_vs_baseline.png)
 
-***Stage 2 — mild drift.** Subject-level parameter recovery R² vs #subjects.*
-
-![stage2_likelihood_comparison.png](../figures/stage2_likelihood_comparison.png)
-
-***Stage 2.** All models sit near the ceiling — likelihood cannot separate them, which is what motivates the recovery axis.*
+***Stage 2 — mild drift.** Combined recovery in the stage-1 format: fit quality relative to ground truth (a, all near ceiling), mean subject-parameter recovery R² vs #subjects (b), and per-parameter recovery at n=200 (c) for baseline_rl, GRU session-blind, and GRU session-conditioned (markers: baseline = square, GRU = circle). baseline_rl softmax-temperature uses a ROBUST R² with fitted inverse-temperature winsorized at 20 (true ceiling ~18.6): 5–10 near-deterministic subjects per run have divergent per-subject β MLEs, so raw R² is negative while rank recovery stays high (Spearman 0.92–0.96). Single seed (42) per cell — no error bars.*
 
 ![stage2_session_trajectory.png](../figures/stage2_session_trajectory.png)
 

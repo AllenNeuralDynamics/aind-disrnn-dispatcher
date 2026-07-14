@@ -195,11 +195,8 @@ def _update_reports(ladder, s4b, dis):
         ("stage1_recovery_vs_baseline.png",
          "**Stage 1 — static.** Parameter recovery R² vs #subjects (a), fit quality at "
          "ceiling (b), per-parameter R² (c). Embedding size, not network width, is the knob."),
-        ("stage2_recovery.png",
-         "**Stage 2 — mild drift.** Subject-level parameter recovery R² vs #subjects."),
-        ("stage2_likelihood_comparison.png",
-         "**Stage 2.** All models sit near the ceiling — likelihood cannot separate them, "
-         "which is what motivates the recovery axis."),
+        ("stage2_recovery_vs_baseline.png",
+         "**Stage 2 — mild drift.** Combined recovery in the stage-1 format: fit quality relative to ground truth (a, all near ceiling), mean subject-parameter recovery R² vs #subjects (b), and per-parameter recovery at n=200 (c) for baseline_rl, GRU session-blind, and GRU session-conditioned (markers: baseline = square, GRU = circle). baseline_rl softmax-temperature uses a ROBUST R² with fitted inverse-temperature winsorized at 20 (true ceiling ~18.6): 5–10 near-deterministic subjects per run have divergent per-subject β MLEs, so raw R² is negative while rank recovery stays high (Spearman 0.92–0.96). Single seed (42) per cell — no error bars."),
         ("stage2_session_trajectory.png",
          "**Stage 2.** Only the session-conditioning MLP encodes drift position "
          "(subject-only delta-zeroed = R² 0.00 by construction); (c) each subject traces a "
