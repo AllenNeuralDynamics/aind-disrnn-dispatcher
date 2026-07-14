@@ -14,6 +14,60 @@ done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
 100-mouse cohort** ([`03-disrnn-beta-scan`](../03-disrnn-beta-scan)) and on synthetic populations
 ([`04`](../04-gru-vs-disrnn-embedding-recovery)) — **never on the full dataset**.
 
+## Verdict — waves 1 & 2 complete (2026-07-14)
+
+> Wave 3 (`subject-capacity`) is still running. Numbers below are final for waves 1–2
+> (15/15 and 12/12 clean, no NaNs). Full report to follow in `analysis/reports/`.
+
+**1. The disRNN does not saturate like the GRU — it PEAKS at ~100 mice and then DECLINES.**
+
+| D | 10 | 30 | 100 | 300 | 614 |
+|---|---|---|---|---|---|
+| held-out LL (3 seeds) | 0.7101 | 0.7147 | **0.7174** | 0.7165 | 0.7154 |
+| GRU (study 01) | 0.7219 | 0.7250 | 0.7262 | 0.7267 | 0.7268 |
+| gap | −0.0118 | −0.0103 | −0.0088 | −0.0102 | −0.0114 |
+
+**Not undertraining** — the confound was tested and ruled out: `checkpoint/eval_likelihood` is flat
+over the last checkpoints at both D=99 (Δ −0.0003) and D=614 (Δ +0.0002). D=614 actually fits
+*better* within-subject (0.7243 vs 0.7212) while transferring *worse*. More mice genuinely improve
+the fit and genuinely hurt transfer **at this operating point**.
+
+**At D=614 the disRNN (0.7154) is BELOW the best per-mouse classical RL baseline** (compare-to-
+threshold, 0.7170), which the GRU beats by +0.0098.
+
+**2. The operating point (mult=2, β=1e-3) is WRONG at large D — and that is what causes the
+decline.** Wave 2 finds that at D=614 the best cell is **mult=1, β=3e-4 → 0.7211**, which is
++0.0057 above the scaling curve's D=614 point (0.7154), beats the RL baseline, and closes most of
+the gap to the GRU. So the "decline with more mice" is *at least partly an artifact of holding a
+too-strong penalty fixed as the cohort grows*, not an intrinsic property of the disRNN.
+
+**3. "More mice ⇒ less sparse" is CONFIRMED at a fixed penalty** — interaction openness Σ(1−σ)
+at the same (mult, β) is systematically higher at D=614 than at D=100:
+
+| (mult, β) | D=100 (study 03) | D=614 (wave 2) |
+|---|---|---|
+| mult=1, β=3e-4 | 3.11 | **3.78** |
+| mult=2, β=3e-4 | 1.16 | **3.09** (2.7×) |
+| mult=2, β=1e-3 | 0.81 | **1.13** |
+
+The multiplier is still **monotone** at full cohort (β=3e-4: 3.78 → 3.09 → 0.011 → 0.004 for
+mult 1/2/5/10), so study 03's mechanism claim survives.
+
+**4. THE HEADLINE — sparsity is no longer free at scale.** Study 03's central selling point was
+that held-out transfer is *flat* across the multiplier, so sparsifying the interaction bottleneck
+costs nothing. **That breaks at D=614.** At β=3e-4, held-out LL falls
+**0.7211 → 0.7181 → 0.7173 → 0.7177** across mult 1/2/5/10 — sparsification now costs ~0.004,
+about half the disRNN's entire gap to the GRU. At D=100 interpretability was free; at the full
+cohort **interpretability and transfer are a genuine trade-off**.
+
+> **Two claims made earlier in this study's status log are now falsified by the D=614 data, and are
+> retained below rather than deleted, with corrections here.** (a) "The disRNN saturates by ~100
+> mice like the GRU" — it does not; it peaks and declines. (b) "Interaction openness rises
+> monotonically with D (0.161 → 0.481 → 0.774 → 0.922), so the multiplier must scale *up* with D" —
+> the D=614 point is **0.692**, *below* D=300, so openness-vs-D is **not monotone** at fixed
+> penalty, and the transfer data argues the penalty should go *down*, not up, at large D. Both
+> claims were extrapolations from D≤300 stated before the top of the curve existed.
+
 ## Design
 
 One axis moves: **D**. Everything else is pinned to study 03's protocol at its recommended
@@ -49,8 +103,8 @@ comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=10
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
 | [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ⏳ running | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
-| [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ⏳ running 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
-| [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ⏳ running 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
+| [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ✅ done 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
+| [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ✅ done 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
 | [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ⏳ running 18/18 | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) |
 
 ### Bad-node recovery (2026-07-13)
