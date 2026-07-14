@@ -39,6 +39,49 @@ producers (studies 01/03/04) ignored the same run and reproduced exactly.
 discovered from whatever the query returned, which makes a contaminated pull look
 self-consistent.
 
+## Freeze the numbers, key them by an immutable ID — never a live handle (hard rule)
+
+A committed figure/table MUST be built from **frozen values in a committed file**
+(CSV/JSON), read by an **offline** producer. The producer must NOT fetch from W&B,
+cloud storage, or any live API on the reproducible path — W&B is a live view, not a
+frozen store (runs get deleted, artifacts re-versioned, `:latest` re-pointed, tags
+edited). A query is reproducible only until someone touches the project.
+
+The run identifier is the provenance **key**, not the data. Record it *in the frozen
+file* so each row is auditable and deterministically regenerable — but the committed
+file, not the run, is the source of truth. Two columns per row:
+
+- `wandb_run_id` — the run whose config (n / hidden / embed / seed …) fully identifies
+  the cell. Human-readable, but a run alone is not enough: it can be deleted or its
+  output artifact re-versioned.
+- an **immutable digest** of the exact input used — the artifact `version_id` /
+  content digest that produced the number. This is the authoritative key; `:latest`,
+  a sweep-membership query, or a W&B group are NOT immutable and must never be the key.
+
+**Never key a value by an ambiguous or mutable handle.** Three that have burned us:
+- **Filename prefixes that look like IDs but aren't.** A producer hardcoded paths like
+  `.../v833ecb41_subject_embeddings.pkl`; the same logical run was re-saved many times
+  and the prefix->run mapping drifted, so re-running loaded *different data* — the figure
+  "totally changed" with no code edit. Fix: read by immutable `version_id`, resolved via
+  lineage, not by on-disk name.
+- **Content that omits the swept axis.** The stage-1 embedding pickle records
+  `n_subjects` + `embed_dim` but NOT `hidden_size`; the grid ran hidden {16,64}, so
+  `(n, embed)` was not a unique key and pooling "all copies of a cell" silently mixed
+  two widths — which manufactured a fake run-to-run "spread" (~0 for embed-4 where
+  recovery saturates; up to 0.76 for embed-2 below the identifiability threshold). If
+  content must be the key, ASSERT the discriminating config is present before trusting it.
+- **A mean over ambiguous copies wearing one run's ID.** Averaging those mixed-width
+  pickles and stamping the single canonical `run_id` on the mean implies run-specific
+  precision that doesn't exist. Freeze ONE deterministic value per cell, keyed to the
+  one immutable digest that produced it — don't average and relabel.
+
+**State the absence of replicates.** Single seed per cell => no run-to-run variance =>
+no error bars. Say so in the caption/Methods; never let a reader infer a band that was
+never measured.
+
+To refresh numbers: re-run extraction on an authenticated node and **overwrite the
+committed file** — the git diff is the audit trail. The offline producer never changes.
+
 ## What "reproducible" actually means here (verified 2026-07-11)
 
 - **Data (curated JSON/CSV) is exactly reproducible** — a re-run changes nothing but
