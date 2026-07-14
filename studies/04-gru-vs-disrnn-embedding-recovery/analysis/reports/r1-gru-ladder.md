@@ -94,20 +94,26 @@ All stages share one generator/estimator setup and differ only in the synthetic
 generating process. Data: 40 sessions/subject × 650 trials, two-armed foraging
 (random-walk reward probabilities, no baiting), single seed (42) per cell — so each
 grid cell is one run and the figures carry no seed error bars. Training: multisubject
-GRU, 50,000 steps, `lambda_reg_session=1.0`, checkpoint every 5,000 steps; the
-`baseline_rl` reference is the correctly-specified generating model class, fit per
-subject. All runs are in W&B project `embedding_recovery` (entity `AIND-disRNN`).
+GRU, 50,000 steps, checkpoint every 5,000 steps. Stages with session conditioning
+(2 onward) add `lambda_reg_session=1.0`; Stage 1 (`session_encoding_type=none`) has no
+session term. The `baseline_rl` reference is the correctly-specified generating model
+class, fit per subject. All runs are in W&B project `embedding_recovery` (entity `AIND-disRNN`).
 
 **Recovery scoring** (`analysis/recovery_scoring.py`, model-agnostic). Two axes:
 1. **Fit** — `likelihood_relative_to_groundtruth` = model NL ÷ generating-policy NL
    (ceiling 1.0), pulled from W&B.
 2. **Recovery** — how well the learned subject-embedding table encodes the true
-   generating parameters (`biasL`, `learn_rate`, `softmax_inverse_temperature`):
-   - **Ridge R²** — 5-fold cross-validated R² predicting each true parameter from the
-     standardized embedding (embedding → param, `Ridge(alpha=1)`). The interpretable
-     "can I read parameter X off the embedding?" score; robust to embedding dim ≠ 3.
-   - **CCA** — canonical correlations between the embedding (N × d_emb) and true
-     params (N × 3), mean and per-component canonical r.
+   generating parameters (`biasL`, `learn_rate`, `softmax_inverse_temperature`). The
+   scorer reports two complementary metrics:
+   - **Ridge R²** (per parameter) — 5-fold cross-validated R² predicting one true
+     parameter from the standardized embedding (embedding → param, `Ridge(alpha=1)`).
+     The interpretable "can I read parameter X off the embedding?" score; robust to
+     embedding dim ≠ 3. **This is what the stage-1 figure plots** — panel a is the
+     per-parameter CV Ridge R² vs cohort size, panel b is the recovered-vs-true scatter
+     (annotated R² is the same Ridge fit).
+   - **CCA** (single summary) — canonical correlations between the embedding
+     (N × d_emb) and all three params jointly (N × 3); a scalar cross-check that the
+     embedding spans the parameter space, not plotted here.
    Model-type / family recovery (Stages 3–4) is classification accuracy of a linear
    decoder on the embedding; session-position recovery (Stages 2/2b) is
    `GroupKFold`-CV LinearRegression R² of session phase, grouped by subject.
