@@ -24,7 +24,10 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 
 
 def make_figure(gru, baseline, gt_by_subj, out_png, focus_n=200, hid_focus=16):
-    gcol = {"h16e4": "#C44E52", "h64e4": "#8172B3", "e2": "#CCB974", "base": "#000000"}
+    # House convention: blue = properly-specified / enough-capacity GRU (embed-4),
+    # grey = degraded / under-capacity GRU (embed-2), black = baseline. Two blue shades
+    # distinguish the embed-4 width variants (h16 primary, h64 capacity check).
+    gcol = {"h16e4": "#1f77b4", "h64e4": "#5aa3d6", "e2": "#7f7f7f", "base": "#000000"}
     fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.42)
     # panel order (left->right): B fit quality, A parameter recovery, C per-parameter
     axB = fig.add_subplot(gs[0, 0]); axA = fig.add_subplot(gs[0, 1]); axC = fig.add_subplot(gs[0, 2])
