@@ -50,6 +50,10 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ***Stage 1 — static.** Parameter recovery R² vs #subjects (a), fit quality at ceiling (b), per-parameter R² (c). Embedding size, not network width, is the knob.*
 
+![stage1 embedding-size sweep](../figures/stage1_recovery_preliminary.png)
+
+***Stage 1 — embedding-size sweep.** Recovery R² vs cohort size for embedding size 4 (solid) vs 2 (dashed) at hidden_size=16 (a); recovered-vs-true scatter for the 200-subject / embed-4 cell, one square panel per parameter with the y=x identity line (b). Size-4 embeddings recover all three parameters near ceiling and are insensitive to network width; size-2 embeddings sit below the identifiability threshold. Single seed (42) per cell — no error bars. Produced offline by `analysis/stage1_recovery_figure.py` from committed CSVs.*
+
 ![stage2_recovery.png](../figures/stage2_recovery.png)
 
 ***Stage 2 — mild drift.** Subject-level parameter recovery R² vs #subjects.*
@@ -82,6 +86,47 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ***Stage 4b — per-session family switching.** Mixture-weight recovery vs embedding size (a); subject-vs-session dissociation null (b); per-session family confusion (c).*
 <!-- END result-1 -->
+
+
+## Methods
+
+All stages share one generator/estimator setup and differ only in the synthetic
+generating process. Data: 40 sessions/subject × 650 trials, two-armed foraging
+(random-walk reward probabilities, no baiting), single seed (42) per cell — so each
+grid cell is one run and the figures carry no seed error bars. Training: multisubject
+GRU, 50,000 steps, `lambda_reg_session=1.0`, checkpoint every 5,000 steps; the
+`baseline_rl` reference is the correctly-specified generating model class, fit per
+subject. All runs are in W&B project `embedding_recovery` (entity `AIND-disRNN`).
+
+**Recovery scoring** (`analysis/recovery_scoring.py`, model-agnostic). Two axes:
+1. **Fit** — `likelihood_relative_to_groundtruth` = model NL ÷ generating-policy NL
+   (ceiling 1.0), pulled from W&B.
+2. **Recovery** — how well the learned subject-embedding table encodes the true
+   generating parameters (`biasL`, `learn_rate`, `softmax_inverse_temperature`):
+   - **Ridge R²** — 5-fold cross-validated R² predicting each true parameter from the
+     standardized embedding (embedding → param, `Ridge(alpha=1)`). The interpretable
+     "can I read parameter X off the embedding?" score; robust to embedding dim ≠ 3.
+   - **CCA** — canonical correlations between the embedding (N × d_emb) and true
+     params (N × 3), mean and per-component canonical r.
+   Model-type / family recovery (Stages 3–4) is classification accuracy of a linear
+   decoder on the embedding; session-position recovery (Stages 2/2b) is
+   `GroupKFold`-CV LinearRegression R² of session phase, grouped by subject.
+
+**Per-stage configuration.**
+
+| stage | generator (`data/agent`) | between-subject structure | within-subject structure | GRU hidden / embedding sweep | session encoding |
+|---|---|---|---|---|---|
+| 1 | `hierarchical_rl_stage1` | static per-subject params | none | hidden {16,64,256} × embed {2,4,8}, N {50,100,200,300} | none |
+| 2 | `hierarchical_rl_stage2` | static params | mild monotonic drift | hidden 16, embed 4, N {50,100,200,300} | none vs scalar |
+| 2b | `hierarchical_rl_stage2b` | static params | strong, non-monotonic (sinusoidal) drift + noise, tail held out | hidden 16, embed 4, N=200 | none vs scalar |
+| 3 | `hierarchical_rl_stage3` | mixture of QL variants (Bari/Hattori/RW), one preset/subject | per-preset drift | hidden 32, embed {4,8,16}, N=200 | none vs scalar |
+| 4a | `hierarchical_rl_stage4a` | mixture of families (QL/CTT/LossCounting), one/subject | per-family drift | hidden 32, embed {4,8,16}, N=200 | none vs scalar |
+| 4b | `hierarchical_rl_stage4b` | per-session family switching (Dirichlet 0.5) | family drawn each session | hidden 32, embed {4,8,16}, N=200 | none vs scalar |
+
+Stage 1 settled the estimator config (hidden 16 / embed 4 recovers the static subject
+centroid at ceiling; wider networks add nothing), which Stages 2–2b then fix; the
+higher-diversity mixtures (Stages 3–4) sweep embedding size up to 16 because embedding
+dimension — not hidden-unit count — is the identifiability knob.
 
 ## Discussion
 
