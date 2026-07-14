@@ -48,7 +48,7 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ![stage1_recovery_vs_baseline.png](../figures/stage1_recovery_vs_baseline.png)
 
-***Stage 1 — static.** Parameter recovery R² vs #subjects (a), fit quality at ceiling (b), per-parameter R² (c). Embedding size, not network width, is the knob.*
+***Stage 1 — static.** Fit quality relative to ground truth, all near the ceiling (a); mean parameter-recovery R² vs #subjects (b); per-parameter recovery R² at n=200 (c), baseline_rl vs GRU embed-2 vs embed-4. Fit likelihood saturates regardless of embedding size, but recovery separates them: embed-4 matches the correct-model baseline while embed-2 is under-capacity — embedding size, not network width, is the identifiability knob.*
 
 ![stage1 embedding-size sweep](../figures/stage1_recovery_preliminary.png)
 
