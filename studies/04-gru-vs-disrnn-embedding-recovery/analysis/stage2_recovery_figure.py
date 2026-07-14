@@ -41,6 +41,7 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
     axA.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axA.set_xlabel("# subjects"); axA.set_ylabel("likelihood relative to ground truth")
     axA.set_xticks([50, 100, 200, 300]); axA.set_title("Fit quality (all \u2248 ceiling)")
+    axA.set_ylim(0.96, 1.008)  # shared with stage-1 panel a (same quantity) — see house convention
     axA.legend(frameon=False, loc="center right", fontsize=6)
 
     # ---- b: mean recovery R2 vs N ----
