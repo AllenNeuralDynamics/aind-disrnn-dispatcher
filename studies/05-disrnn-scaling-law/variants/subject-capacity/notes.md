@@ -193,9 +193,17 @@ same pinned SHAs.
 > already logged steps it silently corrupts the history, because a fresh Beaker experiment restarts
 > training at step 0 while W&B's step counter does not rewind.
 
-> ⚠️ **Six zombie runs remain in the group** (ids ending `3ae4c9d1`, `0124c401`, `a17a696b`,
-> `09e5beea`, `75bde516`, `64435fb4`). They will never reach `finished`. Any producer reading this
-> group **must filter `state == "finished"`**, or it will see duplicate `(embed, penalty, seed)` cells.
+The six zombie W&B runs left behind by recovery #2 (`3ae4c9d1`, `0124c401`, `a17a696b`, `09e5beea`,
+`75bde516`, `64435fb4`) were **deleted by id** once each had an exact live replacement at the same
+`(embed, penalty, seed)`. The group holds 18 runs / 18 distinct cells / no duplicates.
+
+> ⚠️ **Do NOT delete the wrapper branch [`pin/study05-embed64-wrapper`](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/tree/pin/study05-embed64-wrapper)
+> until these six runs finish.** They are pinned to `WRAPPER_REF=5cd8b5b`. Wrapper #61 was
+> **squash-merged** (→ `eb5a6bb` on `main`), so `5cd8b5b` is *not* an ancestor of `main`, and GitHub
+> auto-deleted the PR branch — leaving the SHA unreachable while six low-priority **preemptible** jobs
+> still need to `git checkout` it on every autoResume restart. That branch is the only thing keeping
+> it alive. The two commits are **tree-identical** (`git diff eb5a6bb 5cd8b5b` is empty), so the
+> science is unaffected; this is purely about the SHA staying fetchable.
 
 **Status.** ⏳ 12/18 training (embed 4, 16 — at ~50–55k/60k; several autoResume preemptions on the
 low-priority tier, no action needed); 6/18 `embed=64` restarted clean 2026-07-14 12:5x PT, ~18 h out.
