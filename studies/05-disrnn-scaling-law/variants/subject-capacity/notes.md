@@ -111,10 +111,53 @@ output byte-identical, so no prior study changes), and guard every `wandb.Image(
 The six cells were re-submitted verbatim (same `WANDB_RUN_ID` / `WANDB_RUN_GROUP` / pinned
 `DISPATCHER_REF`) with only `WRAPPER_REF` repointed to the fix SHA:
 [`01KXFSM5E4AK6HGYREQG8B40K9`](https://beaker.org/ex/01KXFSM5E4AK6HGYREQG8B40K9). Spec:
-`launch_record/experiment_recovery_embed64.yaml`. Confirmed past the crash point and training.
+`launch_record/experiment_recovery_embed64.yaml`.
 
-> **Carry into analysis:** the six `embed=64` runs execute a **different wrapper SHA** (`77af963`)
+## …and it died again. #58 was a half-fix (2026-07-14 06:42 PT)
+
+**That recovery also failed — all six, same exception, same checkpoint step.** #58 fixed *one* of
+two near-duplicate plotting blocks:
+
+| | dim handling | `wandb.Image` guarded |
+|---|---|---|
+| `_plot_subject_embedding_state_space` / stage block | ✅ capped by #58 | ✅ `_add_image` |
+| `_plot_subject_session_context_state_space` / **checkpoint block** | ❌ **uncapped** | ❌ **5 raw calls** |
+
+The *session-context* plot is the worse of the two — it repeats the whole pair grid **per subject**:
+
+```
+disrnn_trainer.py:1857 -> wandb.Image(str(checkpoint_subject_session_context))
+PIL.Image.DecompressionBombError: Image size (1687392000 pixels) exceeds limit of 178956970
+```
+
+**1.69 GP** — 3× the figure that motivated #58, a strip ~907,200 px (≈756 ft) tall. So the very
+defect #58 was written to make impossible (*a cosmetic plot must not kill training*) cost another
+six runs, because the guard was never applied to the block that actually crashed.
+
+Fixed properly in wrapper [#61](https://github.com/AllenNeuralDynamics/aind-disrnn-wrapper/pull/61)
+(`5cd8b5b`), which does two things:
+
+1. **Guards every checkpoint `wandb.Image()`** — the load-bearing half. A figure we cannot log is
+   now a warning, not a dead run, whatever a future plot does.
+2. **Plots the leading 4 embedding PCs instead of raw dim pairs**, at every width. `C(4,2)`=6
+   panels — exactly what the raw grid gave at the default `embed=4`, so the figure keeps its
+   familiar shape — but the panel count is now **constant in dim** (6 at 4, 16 *and* 64), the view
+   uses **every** dim instead of an arbitrary slice (the embedding is only defined up to rotation,
+   so "dim 3 vs dim 7" means nothing), runs at different widths become directly comparable, and far
+   less image data goes to W&B. The subject's base embedding (black star) is projected through the
+   **same basis**, not indexed by raw dim.
+
+Re-submitted a second time, again verbatim apart from `WRAPPER_REF`:
+[`01KXGNW6ADG8NSR6R8XWH5NTSH`](https://beaker.org/ex/01KXGNW6ADG8NSR6R8XWH5NTSH). Spec:
+`launch_record/experiment_recovery2_embed64.yaml`. (An interim submission on `e2e339b` — guard +
+dim cap, before the PCA rework — was stopped and superseded.)
+
+**Bottleneck metrics are unaffected throughout** — `final/bottlenecks/*_total_openness` is computed
+from `params`, never from these figures. The lost runs cost wall-clock, not validity.
+
+> **Carry into analysis:** the six `embed=64` runs execute a **different wrapper SHA** (`5cd8b5b`)
 > than their 12 siblings (`c1c4c81`). The difference is **plotting-only** — no training, eval, or
 > metric code is touched. Worth stating in the report rather than discovering later.
 
-**Status.** ⏳ running 18/18 (launched 2026-07-13 22:58 PT; embed=64 relaunched 2026-07-14 00:5x PT).
+**Status.** ⏳ 12/18 training (embed 4, 16 — at ~30k/60k steps); 6/18 `embed=64` restarted from
+scratch 2026-07-14 07:5x PT and now ~18 h behind their siblings.
