@@ -41,32 +41,38 @@ decline.** Wave 2 finds that at D=614 the best cell is **mult=1, β=3e-4 → 0.7
 the gap to the GRU. So the "decline with more mice" is *at least partly an artifact of holding a
 too-strong penalty fixed as the cohort grows*, not an intrinsic property of the disRNN.
 
-**3. "More mice ⇒ less sparse" is CONFIRMED at a fixed penalty** — interaction openness Σ(1−σ)
-at the same (mult, β) is systematically higher at D=614 than at D=100:
+**3. "More mice ⇒ less sparse" holds — but ONLY as a coarse trend.** At fixed mult=2/β=1e-3,
+interaction openness rises **0.161 (D=10) → 0.774 (D=100)**, a ~5× opening of the gate. Wave 2
+independently shows openness at the *same* (mult, β) is higher at D=614 than study 03's D=100
+(mult=2, β=3e-4: **1.16 → 3.09**). The multiplier is still **monotone** at full cohort (β=3e-4:
+3.78 → 3.09 → 0.011 → 0.004), so study 03's mechanism claim survives.
 
-| (mult, β) | D=100 (study 03) | D=614 (wave 2) |
-|---|---|---|
-| mult=1, β=3e-4 | 3.11 | **3.78** |
-| mult=2, β=3e-4 | 1.16 | **3.09** (2.7×) |
-| mult=2, β=1e-3 | 0.81 | **1.13** |
-
-The multiplier is still **monotone** at full cohort (β=3e-4: 3.78 → 3.09 → 0.011 → 0.004 for
-mult 1/2/5/10), so study 03's mechanism claim survives.
+> ⚠️ **Do not read fine structure into openness-vs-D above D≈100.** The seed-to-seed SD of the
+> interaction openness at D=614 is **0.384** (per-seed: 1.136 / 0.467 / 0.474) — it *swamps* the
+> D=300-vs-D=614 difference. Openness is an extremely seed-variable quantity at large cohort. Only
+> the coarse D=10 → D≈100 rise is above the noise.
 
 **4. THE HEADLINE — sparsity is no longer free at scale.** Study 03's central selling point was
 that held-out transfer is *flat* across the multiplier, so sparsifying the interaction bottleneck
 costs nothing. **That breaks at D=614.** At β=3e-4, held-out LL falls
-**0.7211 → 0.7181 → 0.7173 → 0.7177** across mult 1/2/5/10 — sparsification now costs ~0.004,
-about half the disRNN's entire gap to the GRU. At D=100 interpretability was free; at the full
-cohort **interpretability and transfer are a genuine trade-off**.
+**0.7211 → 0.7181 → 0.7173 → 0.7177** across mult 1/2/5/10 — sparsification costs ~0.004, about
+half the disRNN's entire gap to the GRU. At D=100 interpretability was free; at the full cohort
+**interpretability and transfer are a genuine trade-off**.
 
-> **Two claims made earlier in this study's status log are now falsified by the D=614 data, and are
-> retained below rather than deleted, with corrections here.** (a) "The disRNN saturates by ~100
-> mice like the GRU" — it does not; it peaks and declines. (b) "Interaction openness rises
-> monotonically with D (0.161 → 0.481 → 0.774 → 0.922), so the multiplier must scale *up* with D" —
-> the D=614 point is **0.692**, *below* D=300, so openness-vs-D is **not monotone** at fixed
-> penalty, and the transfer data argues the penalty should go *down*, not up, at large D. Both
-> claims were extrapolations from D≤300 stated before the top of the curve existed.
+**This one survives its noise check.** Wave 2 is single-seed *by design* (a mechanism check, not an
+effect-size estimate), so the claim was tested against the seed-to-seed SD measured at the same
+config from wave 1's three D=614 cells: **held-out SD = 0.0003** (0.7157 / 0.7153 / 0.7153). The
+multiplier effect (0.0039) is **~15× that noise**. Held-out is remarkably seed-stable even though
+openness is not.
+
+> **Claims made earlier in this study's status log that the data has since falsified.** Kept rather
+> than quietly deleted. (a) "The disRNN saturates by ~100 mice like the GRU" — it does not; it peaks
+> and declines. (b) "Interaction openness rises *monotonically* with D, so the multiplier must scale
+> *up* with D" — **wrong twice.** The monotonicity was an extrapolation from D≤300 made before the
+> top of the curve existed; and my first correction ("openness *falls* at D=614, so it is
+> non-monotone") was **also wrong** — that drop is inside the seed noise (SD 0.384). The honest
+> statement is (3) above: a coarse rise to D≈100, and nothing readable beyond it. Meanwhile the
+> *transfer* data argues the penalty should go **down** at large D, not up.
 
 ## Design
 
