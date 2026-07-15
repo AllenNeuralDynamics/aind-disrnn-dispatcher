@@ -21,7 +21,7 @@ reproduce: python studies/01-gru-scaling-law/analysis/generative_match.py
 
 Roll each trained GRU out as a generative agent on the curriculum task and compare two model-vs-animal behavioral curves to the real mouse. Headline = subject-mean Pearson correlation; companion = subject-balanced RMSE (√ of MSE over per-subject mean deltas). Both on the **combined** session partition. 30 runs = 5 D × 3 seeds × {v1 SC off, v2 SC active}. Source W&B groups `generative-v{1,2}@20260623-18074*`. Wrapper 916d3b4.
 
-**Added 2026-07-15:** three per-mouse classical RL baselines (compare-to-threshold, Bari, Hattori — the same fits behind study 05's r1 likelihood numbers), rolled out generatively under study 05's [`generative-rl-baseline`](../../../05-disrnn-scaling-law/variants/generative-rl-baseline/notes.md) variant through the identical task-construction code path, and plotted here as single reference points at D=614 (a per-subject fit over all 614 mice, not a D-sweep). See the ⚠️ caveat below on wrapper-version asymmetry before reading the absolute RL numbers.
+**Added 2026-07-15:** three per-mouse classical RL baselines (compare-to-threshold, Bari, Hattori — this study's own `rl-baseline-{bari,ctt,hattori}` fits, the same fits behind r8 and study 05's r1), rolled out generatively under study 05's [`generative-rl-baseline`](../../../05-disrnn-scaling-law/variants/generative-rl-baseline/notes.md) variant (which reads these fits cross-study) through the identical task-construction code path, and plotted here as single reference points at D=614 (a per-subject fit over all 614 mice, not a D-sweep). See the ⚠️ caveat below on wrapper-version asymmetry before reading the absolute RL numbers.
 
 ## Figures
 
@@ -92,7 +92,7 @@ so update them by hand when re-running produces new numbers]
 
 **D=10 → D=614 correlation gain (v1, headline metrics):** 4-bin switch curve +0.021; abstract n=3 (32 bins) +0.026; detailed n=1 (4 bins, WSLS-equivalent) +0.042; **detailed n=3 (64 bins) +0.051**. Fine-grained history metrics surface a ~2× larger D-scaling signal than the coarse 4-bin curve, while still saturating by D≈100.
 
-**(d) RL baselines at D=614 — switch-triggered curve** (per-subject fits from study 05's r1, rolled out through the same task construction; not a D-sweep — one row per model, fit on all 614 mice):
+**(d) RL baselines at D=614 — switch-triggered curve** (this study's own `rl-baseline-{bari,ctt,hattori}` fits — the same fits behind r8 — rolled out generatively through the same task construction; not a D-sweep — one row per model, fit on all 614 mice):
 
 | model | switch corr | switch RMSE |
 |---|---|---|

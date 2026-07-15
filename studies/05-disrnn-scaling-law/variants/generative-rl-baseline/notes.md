@@ -1,6 +1,7 @@
 # Variant: generative-rl-baseline — do the classical RL models behave more like a mouse than the disRNN?
 
-**What it is.** Not a training run. Roll each of r1's three per-mouse RL baselines out as a
+**What it is.** Not a training run. Roll each of study 01's three per-mouse RL baseline fits
+(`rl-baseline-{bari,ctt,hattori}`, the same fits behind study 01's r8 and this study's r1) out as a
 generative agent — same curves, same code path, same tasks as [`generative-dscan`](../generative-dscan/notes.md) —
 so [r4](../../analysis/reports/r4-generative-behavioral-match.md) can carry RL reference lines
 alongside the disRNN and the GRU.
@@ -34,9 +35,11 @@ silently diverge from the disRNN numbers it will sit next to.
 Po-Chen's engine expects the **per-session** fitting schema (`nwb_name`, `agent_alias`, `params` —
 the lab's canonical pipeline, where every session is fit independently).
 
-**But r1's baselines are per-SUBJECT fits**, from our own `baseline_rl` training runs — that is where
-`compare-to-threshold 0.7170 / bari 0.7149 / hattori 0.7127` actually come from
-(`rl-baseline-{ctt,bari,hattori}@20260713-0102*`).
+**But r1's baselines are per-SUBJECT fits**, from study 01's own `rl-baseline-{bari,ctt,hattori}`
+training runs (`rl-baseline-{ctt,bari,hattori}@20260713-0102*`, project `mice_data_scaling` — built
+there to extend r8 and feed the embedding-decoding analyses; study 05 only reads them, cross-study,
+the same way it reads study 01's GRU numbers) — that is where
+`compare-to-threshold 0.7170 / bari 0.7149 / hattori 0.7127` actually come from.
 
 These are **different models**. A per-session fit is a much stronger, more in-sample baseline. Feeding
 the engine its intended input would have put one RL baseline on r4's axes and a different one on

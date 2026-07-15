@@ -48,7 +48,7 @@ curves, and held-out cohort are identical, so the two models are directly compar
 | **disRNN RMSE** | 0.0247 | 0.0253 | 0.0228 | 0.0268 | 0.0249 |
 | **GRU RMSE** | 0.0279 | 0.0293 | 0.0240 | 0.0255 | 0.0255 |
 
-**(c) RL baselines at D=614** — per-subject fits (r1), rolled out through the SAME task construction as the disRNN/GRU rollouts (not a D-sweep: one fit per mouse, all 614 mice):
+**(c) RL baselines at D=614** — per-subject fits from study 01's `rl-baseline-{bari,ctt,hattori}` variant (same fits behind study 01's r8 and this study's r1), rolled out through the SAME task construction as the disRNN/GRU rollouts (not a D-sweep: one fit per mouse, all 614 mice):
 
 | model | switch corr | switch RMSE | history corr | history RMSE |
 |---|---|---|---|---|
