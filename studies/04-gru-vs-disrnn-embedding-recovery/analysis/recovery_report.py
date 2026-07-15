@@ -282,6 +282,20 @@ def _update_reports(ladder, s4b, dis):
          "Several parameters keep strong Spearman rank correlation even when R2 is negative "
          "(e.g. RW biasL rho=0.93 vs R2=-0.19, winsorized R2=0.33), pointing to a scale/"
          "calibration miscalibration rather than pure noise for those cases."),
+        ("stage3_gru_initial_param_scatter.png",
+         "**Stage 3 — GRU session-blind: true initial (session-0) parameter vs "
+         "within-family CV prediction.** Same session-0 true value as the baseline scatter "
+         "above, but the y-axis is GRU session-blind's held-out prediction (5-fold "
+         "GroupKFold over subjects -- every prediction comes from a fold that excluded that "
+         "subject) instead of baseline_rl's per-subject independent MLE. A different failure "
+         "mode from baseline_rl's ceiling-hugging degenerate fits: GRU predictions never "
+         "exceed the true plausible range for any parameter (no winsorization needed -- the "
+         "shared, jointly-trained readout regularizes away runaway individual-subject fits), "
+         "but two parameters (Bari and RescorlaWagner's learn_rate) show a genuine systematic "
+         "shrinkage bias instead (predictions run ~0.25 too high on average, compressed "
+         "variance) rather than outlier-driven negative R2. Bari's forget_rate_unchosen is "
+         "essentially unrecovered by either estimator (rho~0, R2<0 for both)."),
+
         ("stage3_trajectory_recovery.png",
          "**Stage 3 — true parameter drift vs baseline/GRU recovery, one representative "
          "subject per family.** Qualitative complement to the aggregate R2 numbers above: for "
