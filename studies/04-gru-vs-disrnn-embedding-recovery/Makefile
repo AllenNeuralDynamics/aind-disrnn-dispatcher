@@ -100,6 +100,9 @@ stage3-recovery:
 	$(PY) analysis/stage3_initial_param_scatter.py \
 		--scatter-csv analysis/stage3_baseline_initial_param_scatter.csv \
 		--out analysis/figures/stage3_baseline_initial_param_scatter.png
+	$(PY) analysis/stage3_gru_initial_param_scatter.py \
+		--scatter-csv analysis/stage3_gru_initial_param_scatter.csv \
+		--out analysis/figures/stage3_gru_initial_param_scatter.png
 	$(PY) analysis/stage3_trajectory_figure.py \
 		--trajectory-csv analysis/stage3_full_trajectory.csv \
 		--baseline-fits-json analysis/stage3_baseline_fits.json \
