@@ -120,11 +120,11 @@ baiting). For each subject:
 3. **Trial simulation.** For each (subject, session), a `ForagerQLearning` (or
    preset-family) agent is simulated against the task for 650 trials, using
    two independent deterministic seed streams — one for the agent's choice
-   sampling, one for the task's reward schedule — both offset by
-   `subject_idx * subject_seed_stride + session_idx`, so every row is
-   independently regenerable from `(config, seed)` alone with no frozen
-   dataset. Subject simulation is embarrassingly parallel and byte-identical
-   regardless of worker count.
+   sampling (`agent_base_seed + subject_idx * subject_seed_stride + 1 +
+   session_idx`), one for the task's reward schedule (same form, `task_base_seed`)
+   — so every row is independently regenerable from `(config, seed)` alone
+   with no frozen dataset. Subject simulation is embarrassingly parallel and
+   byte-identical regardless of worker count.
 4. **Ground truth emitted alongside training data.** The loader writes a
    per-(subject, session) ground-truth parameter table (CSV, the recovery
    target) and computes the *generating policy's* own likelihood on the same
