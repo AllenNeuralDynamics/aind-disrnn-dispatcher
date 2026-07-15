@@ -50,6 +50,10 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ***Stage 1 — static.** Fit quality relative to ground truth, all near the ceiling (a); mean parameter-recovery R² vs #subjects (b); per-parameter recovery R² at n=200 (c), baseline_rl vs GRU embed-2 vs embed-4. Fit likelihood saturates regardless of embedding size, but recovery separates them: embed-4 matches the correct-model baseline while embed-2 is under-capacity — embedding size, not network width, is the identifiability knob.*
 
+![stage1_recovery_rho.png](../figures/stage1_recovery_rho.png)
+
+***Stage 1 — rank-correlation companion to panel (c) above.** Same three bars (baseline_rl / GRU embed-2 / GRU embed-4) at n=200, reporting Spearman ρ instead of R². embed-4 and baseline_rl both sit at ρ≥0.98 for all three parameters, matching their near-ceiling R². embed-2's rank correlation (ρ=0.48–0.85) is consistently higher than its R² (0.20–0.69) — e.g. biasL goes from R²=0.20 to ρ=0.48 — so embed-2's under-capacity shows up more as an absolute-scale problem than a complete loss of subject ordering, though the ordering itself is also degraded relative to embed-4's ρ≥0.98.*
+
 ![stage1 embedding-size sweep](../figures/stage1_recovery_preliminary.png)
 
 ***Stage 1 — embedding-size sweep.** Recovery R² vs cohort size for embedding size 4 (solid) vs 2 (dashed) at hidden_size=16 (a); recovered-vs-true scatter for the 200-subject / embed-4 cell, one square panel per parameter with the y=x identity line (b). Size-4 embeddings recover all three parameters near ceiling and are insensitive to network width; size-2 embeddings sit below the identifiability threshold. Single seed (42) per cell — no error bars. Produced offline by `analysis/stage1_recovery_figure.py` from committed CSVs.*
@@ -57,6 +61,10 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 ![stage2_recovery_vs_baseline.png](../figures/stage2_recovery_vs_baseline.png)
 
 ***Stage 2 — mild drift.** Fit quality relative to ground truth (a, all near ceiling), and PER-SESSION parameter recovery R² — how well each model's per-session prediction tracks the true drifting parameter — as the mean over parameters vs #subjects (b) and per-parameter at n=200 (c), for baseline_rl, GRU session-blind, and GRU session-conditioned (markers: baseline = square, GRU = circle; color: light blue = 4-d subject-only, dark blue = 4-d + session conditioning, black = baseline). Fixed per-subject estimates (baseline, session-blind) are broadcast to every session; only the session-conditioned GRU predicts a per-session value, and it recovers best (0.84–0.91) while the two fixed models trail together (0.76–0.85) — all three are moderate-to-high because the per-session parameter is dominated by the subject centroid, so session conditioning adds the drift-tracking edge. (Recovery of the drift POSITION itself, where session-blind is 0 by construction, is a separate story — see stage2_session_trajectory.png.) baseline_rl softmax-temperature uses a ROBUST R² (fitted inverse-temperature winsorized at 20, true ceiling ~18.6; Spearman 0.89–0.93). Single seed (42) per cell — no error bars.*
+
+![stage2_recovery_rho.png](../figures/stage2_recovery_rho.png)
+
+***Stage 2 — rank-correlation companion to panel (c) above.** Same per-session, per-parameter grouping at n=200, Spearman ρ instead of R². All 9 cells sit in a tighter 0.92–0.99 band than the R² panel's 0.72–0.98 — softmax_temp in particular goes from baseline_rl's disclosed-robust R²=0.72 to ρ=0.92, confirming the winsorization was correcting a scale problem, not a ranking one.*
 
 ![stage2_session_trajectory.png](../figures/stage2_session_trajectory.png)
 
@@ -78,6 +86,10 @@ time, is what makes the likelihood axis discriminating below.*
 
 ***Stage 2b — session trajectory.** Per-session parameter recovery R² at Stage 2b (n=200) for baseline_rl / GRU session-blind / GRU session-conditioned (a) — the same 3-model, 3-bar format as the Stage-2 combined figure's panel c, for direct side-by-side comparison; session-position recovery, Stage 2 vs Stage 2b, subject-only vs session-conditioned (b) — subject-only is 0 by construction, and the session delta recovers position at 0.94 (S2) → 0.47 (S2b) as the drift turns non-monotonic (baseline_rl has no per-session position estimate, so it is not shown in b); embedding-space drift paths for 8 example subjects, colored by session position (c) — reconstructed via the training code's own `compute_session_conditioned_context_dataframe` (the same function (b) uses), frozen to CSV once. Color: black = baseline, light blue = session-blind/subject-only, dark blue = session-conditioned; in (b), stage is distinguished by saturation; in (c), viridis = session position. Offline from committed CSVs.*
 
+![stage2b_recovery_rho.png](../figures/stage2b_recovery_rho.png)
+
+***Stage 2b — rank-correlation companion to panel (a) above.** Same 3-model, 3-parameter bars at n=200, Spearman ρ instead of R². learn_rate and softmax_temp both sit above ρ=0.75 for every model despite panel (a)'s R² dropping as low as 0.32 (baseline_rl softmax_temp) — the non-monotonic S2b drift degrades absolute-scale tracking more than it degrades rank ordering.*
+
 ![stage3_recovery_combined.png](../figures/stage3_recovery_combined.png)
 
 ***Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL (b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within — but (b)/(c)'s within-cluster gradient strength is a 2D-PCA-projection artifact, not a measure of recovery quality: each type's true biasL-encoding direction in the full 4-d embedding aligns with the global top-2 PCA axes by chance (checked directly — RescorlaWagner's biasL direction is 82% aligned with local PC1, vs 7–11% for Bari/Hattori), so it looks clean for RescorlaWagner and scattered for Bari/Hattori despite (f)'s R² being uniformly high (0.89–0.96) for all three. (f) is the authoritative recovery number; (b)/(c) only show what any single 2D view happens to catch.*
@@ -89,6 +101,10 @@ time, is what makes the likelihood axis discriminating below.*
 ![stage3_recovery_vs_baseline.png](../figures/stage3_recovery_vs_baseline.png)
 
 ***Stage 3 — fit quality and per-session parameter recovery, baseline vs GRU.** Fills the same gap stages 2/2b already close: (a) relative held-out likelihood — the 6 GRU cells (0.978–0.990) vs baseline_rl's realistic best-of-4 model-selection likelihood (0.963, now including RescorlaWagner's own fitter) and its ceiling if the true model type were known (matched, now n=200 across all 3 families, 0.920). The matched ceiling DROPPED from 0.958 (n=134, Bari/Hattori only, RW excluded for lack of a fitter) to 0.920 once RW's own fitter is included — RW is fit-quality-poor even against its own true generative subjects (matched eval_likelihood 0.67 vs Bari/Hattori's 0.75–0.78), a weak-identifiability finding distinct from the earlier "RW has no fitter at all" gap; GRU still leads by a wide margin either way. (b,c) per-session parameter recovery (baseline_rl / GRU session-blind / GRU session-conditioned broadcasting a fixed per-subject estimate to every session, except session-conditioned which predicts a genuinely per-session value), mean over each family's own parameter set (b) and per-parameter (c). RescorlaWagner NOW has baseline_rl bars (RW's own fitter, wandb run `qy9lof3x`) and they are markedly negative (biasL/learn_rate/epsilon all R²<−1; Spearman rank correlation 0.26–0.88 remains positive, so subject ordering is partly preserved even though point estimates are off scale) — consistent with panel a's weak-identifiability finding, and a much worse per-session predictor than Bari/Hattori's fixed fits. Several baseline parameters (forget_rate_unchosen, learn_rate, learn_rate_rew, choice_kernel_relative_weight) show weak identifiability even after winsorizing near-degenerate MLE fits at the true parameter ceiling — consistent with this family's own previously-reported within-subject session-mean R² (forget_rate_unchosen was already negative there). GRU recovers every parameter session-conditioned > session-blind > baseline. Single seed (42) per cell — no error bars.*
+
+![stage3_recovery_rho.png](../figures/stage3_recovery_rho.png)
+
+***Stage 3 — rank-correlation companion to panel (c) above.** Same 12 family:parameter rows, Spearman ρ instead of R². All rows are positive (ρ=0.22–0.94) except Bari2019's forget_rate_unchosen under the two GRU conditions (ρ=−0.04 session-blind, −0.10 session-conditioned; baseline_rl's own fit stays weakly positive at ρ=0.22) — including every parameter that shows R²<−1 in the R² panel, the estimators are otherwise consistently rank-faithful even where they are absolute-scale-poor. forget_rate_unchosen under GRU is the one case where the parameter is not just off-scale but genuinely unrecovered.*
 
 ![stage3_baseline_initial_param_scatter.png](../figures/stage3_baseline_initial_param_scatter.png)
 
@@ -119,6 +135,10 @@ time, is what makes the likelihood axis discriminating below.*
 ![stage4a_persession_recovery.png](../figures/stage4a_persession_recovery.png)
 
 ***Stage 4a — per-session parameter recovery, baseline vs GRU.** (a) mean per-session recovery R2 over each family's drifting params: baseline_rl fails for QLearning (-0.60, correctly-specified generative model notwithstanding) and is flat/negative for CompareToThreshold (-0.03), while GRU session-conditioning helps every family (0.58, 0.83, 0.83). (b) per-parameter breakdown, including CompareToThreshold's static threshold (no drift block — shown as a subject-level recovery check, not drift tracking; excluded from panel a's mean). CompareToThreshold's softmax_inverse_temperature and learn_rate are weakly identified already at the session-blind level (R2 -0.04, -1.16) and session-conditioning makes them WORSE, not merely unhelpful (biasL 0.72→0.25, softmax -0.04→-1.85) — a bias/inverse-temperature confound was checked directly in the baseline_rl fits and ruled out (corr=0.13); 60.5% of CTT's 200 fitted threshold values also land outside the true range [0.2, 0.6], despite threshold's own recovery R2 being good (0.79–0.85) — R2 tracks preserved relative scale across subjects, which survives even biased point estimates. Likely explanation: the CompareToThreshold agent's lack of a choice-kernel term leaves its likelihood surface less constrained for the DE optimizer than QLearning/LossCounting have, not something specific to session-conditioning. biasL recovery drops under conditioning for BOTH QLearning (0.67→0.55) and CompareToThreshold (0.72→0.25) — a modest drop is not unique to CTT, but the magnitude is ~4x larger, and CTT's softmax drop is far more severe still (delta -1.81, the largest conditioning-induced degradation in the figure). learn_rate and threshold both improve with conditioning in every family that has them. Net: conditioning helps on average but a real minority of cells (both biasL columns, CTT's already-weak softmax) get worse, most severely where the underlying signal was already marginal.*
+
+![stage4a_persession_rho.png](../figures/stage4a_persession_rho.png)
+
+***Stage 4a — rank-correlation companion to panels (a,b) above.** Same family/parameter grouping, Spearman ρ instead of R². Every one of the 27 (family, condition, parameter) cells has positive ρ (0.48–0.94) — including CompareToThreshold's session-conditioned softmax_inverse_temperature, whose R²=−1.85 is the largest degradation in the R² panel but whose ρ=0.56 stays clearly rank-informative. QLearning's baseline_rl learn_rate shows the same pattern (R²=−1.76, ρ=0.49): both baseline_rl's and GRU's worst R² cells are scale failures on an estimator that still orders subjects better than chance, not estimators that have lost the signal entirely.*
 
 ![stage4b_recovery.png](../figures/stage4b_recovery.png)
 
@@ -186,6 +206,25 @@ excluded from training identically for every model (GRU and `baseline_rl`).
    also computes a canonical-correlation, CCA, summary as an internal cross-check that
    the embedding spans the parameter space; it saturates and is not dimension-comparable
    across embedding sizes, so it is neither reported nor plotted here.)
+
+**Paired R²/Spearman ρ reporting.** Every per-parameter recovery bar plot in this report
+(Stages 1, 2, 2b, 3, 4a) is reported alongside a companion figure of the same bar grouping
+using Spearman rank correlation (ρ) instead of R². The two metrics answer different
+questions: R² asks "does the estimator's absolute-scale MSE beat always guessing the
+population mean?" (it can go negative when a handful of outlier subjects blow up the
+sum of squared error, even if the estimator ranks subjects correctly), while ρ asks
+"does the estimator preserve subject rank order?" (scale- and outlier-robust, bounded in
+[-1, 1]). Several parameters in this report have strongly negative R² alongside strongly
+positive ρ (e.g. RescorlaWagner biasL in Stage 3, R²=-1.11 vs ρ=0.88) — the estimator is
+tracking the correct ordering of subjects while being off on absolute scale for a subset
+of them. Neither metric alone tells the full story: R² without ρ can misreport a
+rank-faithful estimator as "failed"; ρ without R² hides genuine scale/calibration problems
+that would matter for any downstream absolute-value use of the recovered parameter. Both
+are always reported together going forward, either as adjacent bars in one figure or as a
+paired R²-figure/ρ-figure combination (`analysis/stage{N}_..._rho_figure.py` producers,
+committed alongside their R² counterparts and wired into the same Makefile targets).
+ρ figures omit any panel that has no natural rank-correlation analog (e.g. Stage 1/2/2b's
+fit-quality-vs-N line plots, Stage 4b's classification-accuracy panel).
 
 **Per-session vs per-subject recovery — and why per-session is the primary axis.**
 Parameter recovery can be scored against two targets: each subject's *session-mean*
