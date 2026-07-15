@@ -14,12 +14,12 @@ done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
 100-mouse cohort** ([`03-disrnn-beta-scan`](../03-disrnn-beta-scan)) and on synthetic populations
 ([`04`](../04-gru-vs-disrnn-embedding-recovery)) — **never on the full dataset**.
 
-## Verdict — waves 1 & 2 + the generative rollouts complete (2026-07-14)
+## Verdict — all 45 training runs + generative rollouts complete (2026-07-15)
 
-> Wave 3 (`subject-capacity`) is still running and has **no held-out numbers yet**. Numbers below
-> are final for waves 1–2 (15/15 and 12/12 clean, no NaNs) and for `generative-dscan` (15/15).
-> Reports: [r1](analysis/reports/r1-heldout-scaling.md),
+> All three training waves (15+12+18 = 45/45) and `generative-dscan` (15/15) are finished, clean, no
+> NaNs. Reports: [r1](analysis/reports/r1-heldout-scaling.md),
 > [r2](analysis/reports/r2-sparsity-and-multiplier.md),
+> [r3](analysis/reports/r3-subject-capacity.md),
 > [r4](analysis/reports/r4-generative-behavioral-match.md).
 
 **1. The disRNN does not saturate like the GRU — it PEAKS at ~100 mice and then DECLINES.**
@@ -90,6 +90,32 @@ discriminates where our headroom-poor first-order metric could not.**
 > is unused), so absolute "how mouse-like" claims are an upper bound on the model's true error.
 > Cross-D and disRNN-vs-GRU comparisons are unaffected — the handicap is identical in every cell.
 
+**6. The subject bottleneck is NOT the cause of the GRU gap — the mechanism works, the causal
+hypothesis doesn't.** ([r3](analysis/reports/r3-subject-capacity.md), 18/18 finished.) `subject_penalty=0`
+is the GRU limit of the subject pathway; if the bottleneck were suppressing transfer-relevant
+information, removing it should help most. It doesn't, at any of 3 embedding widths:
+
+| embed \ subject_penalty | 1e-3 (unchanged) | 1e-4 | 0 (GRU limit) |
+|---|---|---|---|
+| 4 | **0.7175** | 0.7132 | 0.7159 |
+| 16 | **0.7199** | 0.7166 | 0.7179 |
+| 64 | **0.7202** | 0.7182 | 0.7192 |
+
+The lever demonstrably works — subject-channel openness scales with the penalty by up to **~80×**
+(update←subject Σ(1−σ): ≈0.7 at `sp=1e-3` → ≈320 at `sp=0`, embed=64) — but held-out likelihood
+never rewards the open condition. The *tightest* penalty wins at every width; the fully-open GRU
+limit is slightly worse everywhere. The partially-relaxed condition (`sp=1e-4`) is the *worst* of
+the three at every width — a non-monotone U-shape that replicates 3 independent times and is not
+explained here. Widening the embedding 4→16→64 gives a modest, plateauing gain (best cell:
+embed=64/sp=1e-3 → 0.7202) that recovers about a third of the GRU gap (0.0088 → 0.0060) — but width
+helps *alongside* the original penalty, not by relaxing it.
+
+> **Regression control.** `embed=4, sp=1e-3` should reproduce `dscan-mult2`'s D=100 cells; it runs on
+> a newer wrapper SHA (`c1c4c81`, includes perf fix #56, claimed numerically inert). Both seeds land
+> **+0.0007 / +0.0008** above the original values — small, same-sign, doesn't change any conclusion
+> here (all comparisons above are same-SHA), but says cross-SHA held-out numbers in this study should
+> be read at ±0.001, not treated as exact.
+
 > **Claims made earlier in this study's status log that the data has since falsified.** Kept rather
 > than quietly deleted. (a) "The disRNN saturates by ~100 mice like the GRU" — it does not; it peaks
 > and declines. (b) "Interaction openness rises *monotonically* with D, so the multiplier must scale
@@ -137,7 +163,7 @@ comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=10
 | [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ✅ done 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
 | [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ✅ done 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
 | [`generative-dscan`](variants/generative-dscan/notes.md) | **2nd-order validation**: roll each of the 15 `dscan-mult2` cells out as a generative agent and compare its behavior to the real mouse (study 01's r9, for the disRNN) | ✅ done 15/15 → [r4](analysis/reports/r4-generative-behavioral-match.md) | `generative-dscan-mult2@20260714-060524` | [`01KXGBPWPEDW5EC9X3V8YSM34C`](https://beaker.org/ex/01KXGBPWPEDW5EC9X3V8YSM34C) |
-| [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ⏳ 12/18 training (~42k/60k); 6 `embed=64` restarted after wrapper #61 | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) + embed64 recovery [`01KXGNW6ADG8NSR6R8XWH5NTSH`](https://beaker.org/ex/01KXGNW6ADG8NSR6R8XWH5NTSH) |
+| [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ✅ done 18/18 → [r3](analysis/reports/r3-subject-capacity.md) | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) + embed64 clean recovery [`01KXH3DXG79JTPEZ959TWP02KQ`](https://beaker.org/ex/01KXH3DXG79JTPEZ959TWP02KQ) |
 
 ### Bad-node recovery (2026-07-13)
 
@@ -319,3 +345,27 @@ python code/launch_beaker_resumable.py \
   kill a training run. The dim cap is a nicety; the `try/except` around `wandb.Image()` is the thing
   that makes the class of bug impossible — and #58 shipped the nicety to one code path while leaving
   the actual crash site bare.
+
+- 2026-07-15 08:5x PT: **`subject-capacity` complete (18/18, final numbers) → [r3](analysis/reports/r3-subject-capacity.md).
+  The subject bottleneck is NOT the cause of the disRNN's gap to the GRU.** The manipulation worked
+  — subject-channel openness scales with the penalty by up to **~80×** — but held-out likelihood
+  never rewards the open condition: the tightest penalty (`sp=1e-3`, unchanged) wins at every one of
+  3 embedding widths, and the fully-open GRU limit (`sp=0`) is slightly worse everywhere. The
+  partially-relaxed condition (`sp=1e-4`) is the *worst* at every width — a non-monotone U-shape that
+  replicates 3 independent times and is not explained here. Widening the embedding 4→16→64 gives a
+  modest, plateauing gain (best cell: embed=64/sp=1e-3 → **0.7202**) that recovers about a third of
+  the GRU gap (0.0088 → 0.0060) — paired with the *original* penalty, not a relaxed one.
+
+  Confirms the earlier note (0-day-prior status): `heldout/eval_likelihood` is written
+  **incrementally throughout** `auto_heldout_finetune`, not once at the end — watched one cell climb
+  0.668 → 0.708 → 0.714 → 0.715 → 0.717 → 0.7174 across its own finetune checkpoints. From here on,
+  only `state == "finished"` values are trusted.
+
+  **Regression control**: `embed=4, sp=1e-3` (newer wrapper SHA, `c1c4c81`, perf fix #56 claimed
+  numerically inert) lands **+0.0007 / +0.0008** above `dscan-mult2`'s original D=100 values, same
+  sign both seeds. Small, doesn't change any conclusion (all comparisons above are same-SHA), but
+  says cross-SHA held-out numbers here should be read at ±0.001.
+
+  **All 45 training runs across the three waves are now finished.** With `generative-dscan` (15/15,
+  r4) also done, the study's active-compute phase is complete; `generative-rl-baseline` (RL reference
+  lines for r4) remains in flight.

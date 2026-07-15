@@ -205,5 +205,6 @@ The six zombie W&B runs left behind by recovery #2 (`3ae4c9d1`, `0124c401`, `a17
 > it alive. The two commits are **tree-identical** (`git diff eb5a6bb 5cd8b5b` is empty), so the
 > science is unaffected; this is purely about the SHA staying fetchable.
 
-**Status.** ⏳ 12/18 training (embed 4, 16 — at ~50–55k/60k; several autoResume preemptions on the
-low-priority tier, no action needed); 6/18 `embed=64` restarted clean 2026-07-14 12:5x PT, ~18 h out.
+**Status.** ✅ **done 18/18** (2026-07-15 08:5x PT). All 12 narrow cells and all 6 clean `embed=64`
+cells finished, `state=="finished"`, no NaNs. Full result: [r3](../../analysis/reports/r3-subject-capacity.md).
+The wrapper pin branch above can now be deleted (all runs pinned to it have finished).
