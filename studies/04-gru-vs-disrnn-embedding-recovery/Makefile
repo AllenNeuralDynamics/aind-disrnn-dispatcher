@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery
 
-all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b
+all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -76,3 +76,23 @@ stage2-trajectory:
 # NOTE: analysis/fetch_stage2_embedding_trajectories.py is NOT part of `all` -- same
 # one-off pattern as the stage2b embedding fetch: it is the only W&B-touching step in
 # this figure's provenance. Re-run it manually only if the coordinates go stale.
+
+# Stage-3 model-identity confusion (baseline vs GRU, real per-subject data) + fit-quality/
+# per-session-recovery figures, matching the stage1/stage2/stage2b house convention.
+# Offline producers, reading committed curated inputs (s3_baseline_modelselection.csv,
+# stage3_gru_details.json, stage3_gru_recovery.csv, s3_baseline_likelihood.csv,
+# stage3_baseline_likelihood_summary.csv, stage3_persession_recovery.csv). The baseline
+# per-subject/per-session likelihood + recovery CSVs are produced OFF the Claude Science
+# sandbox (compute_stage3_baseline_likelihood.py, compute_stage3_persession_recovery.py,
+# fetch_stage3_gt_likelihood.py -- need the HPC filesystem + W&B) and committed here so
+# `make` stays offline.
+stage3-recovery:
+	$(PY) analysis/stage3_confusion_figure.py \
+		--ms-csv analysis/s3_baseline_modelselection.csv \
+		--gru-details-json analysis/stage3_gru_details.json \
+		--out analysis/figures/stage3_baseline_vs_gru_confusion.png
+	$(PY) analysis/stage3_recovery_vs_baseline.py \
+		--gru-csv analysis/stage3_gru_recovery.csv \
+		--baseline-summary-csv analysis/stage3_baseline_likelihood_summary.csv \
+		--persession-csv analysis/stage3_persession_recovery.csv \
+		--out analysis/figures/stage3_recovery_vs_baseline.png

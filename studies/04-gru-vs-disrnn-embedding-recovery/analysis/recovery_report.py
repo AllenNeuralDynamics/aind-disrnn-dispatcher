@@ -217,6 +217,27 @@ def _update_reports(ladder, s4b, dis):
          "**Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL "
          "(b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family "
          "parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within."),
+        ("stage3_baseline_vs_gru_confusion.png",
+         "**Stage 3 — model-identity confusion, baseline vs GRU.** GRU embedding decoding (a, "
+         "98.5% correct) vs fixed-baseline model selection (b, 47.0% correct): fit all three "
+         "available baselines (Bari/Hattori/CompareToThreshold) per subject, assign to whichever "
+         "gives the best held-out likelihood. RescorlaWagner has NO matching baseline in this "
+         "stage's toolkit (only 3 fixed fitters exist for 3 true presets), so its subjects are "
+         "structurally mis-assigned — mostly to Bari. Real per-subject data from "
+         "s3_baseline_modelselection.csv, replacing an earlier version whose baseline panel was "
+         "synthesized to match a remembered accuracy number rather than read from real fits."),
+        ("stage3_recovery_vs_baseline.png",
+         "**Stage 3 — fit quality and per-session parameter recovery, baseline vs GRU.** (a) "
+         "relative held-out likelihood — 6 GRU cells (0.978–0.990) vs baseline_rl best-of-3 "
+         "model-selection (0.962) and its matched-model ceiling (0.958). (b,c) per-session "
+         "parameter recovery (baseline_rl / GRU session-blind broadcast a fixed per-subject "
+         "estimate; session-conditioned predicts a genuinely per-session value), mean over each "
+         "family's params (b) and per-parameter (c). RescorlaWagner has no baseline_rl bars (no "
+         "matching fitter). Several baseline parameters show weak identifiability even after "
+         "winsorizing near-degenerate MLE fits at the true parameter ceiling — consistent with "
+         "this family's previously-reported within-subject session-mean R². GRU recovers every "
+         "parameter session-conditioned > session-blind > baseline. Single seed (42) per cell — "
+         "no error bars."),
         ("stage4a_recovery_combined.png",
          "**Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); "
          "GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d)."),

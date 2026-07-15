@@ -82,6 +82,14 @@ time, is what makes the likelihood axis discriminating below.*
 
 ***Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL (b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within.*
 
+![stage3_baseline_vs_gru_confusion.png](../figures/stage3_baseline_vs_gru_confusion.png)
+
+***Stage 3 — model-identity confusion, baseline vs GRU.** GRU embedding decoding (a, 98.5% correct — same confusion data as stage3_recovery_combined.png panel e, isolated here for direct comparison) vs fixed-baseline model selection (b, 47.0% correct): fit all three available baselines (Bari/Hattori/CompareToThreshold) per subject, assign to whichever gives the best held-out likelihood. RescorlaWagner has NO matching baseline in this stage's toolkit (only 3 fixed fitters exist for 3 true presets), so its subjects are structurally mis-assigned — mostly to Bari, the closest softmax-QL fitter. Real per-subject data from the committed `s3_baseline_modelselection.csv`, replacing an earlier version of this figure whose baseline panel had been synthesized to match a remembered accuracy number rather than read from real per-subject fits.*
+
+![stage3_recovery_vs_baseline.png](../figures/stage3_recovery_vs_baseline.png)
+
+***Stage 3 — fit quality and per-session parameter recovery, baseline vs GRU.** Fills the same gap stages 2/2b already close: (a) relative held-out likelihood — the 6 GRU cells (0.978–0.990) vs baseline_rl's realistic best-of-3 model-selection likelihood (0.962) and its ceiling if the true model type were known (matched, 0.958 — the two are close because even correctly-specified baselines trail GRU on fit quality alone). (b,c) per-session parameter recovery (baseline_rl / GRU session-blind / GRU session-conditioned broadcasting a fixed per-subject estimate to every session, except session-conditioned which predicts a genuinely per-session value), mean over each family's own parameter set (b) and per-parameter (c). RescorlaWagner has no baseline_rl bars (no matching fixed fitter — see confusion figure). Several baseline parameters (forget_rate_unchosen, learn_rate, learn_rate_rew, choice_kernel_relative_weight) show weak identifiability even after winsorizing near-degenerate MLE fits at the true parameter ceiling — consistent with this family's own previously-reported within-subject session-mean R² (forget_rate_unchosen was already negative there). GRU recovers every parameter session-conditioned > session-blind > baseline. Single seed (42) per cell — no error bars.*
+
 ![stage4a_recovery_combined.png](../figures/stage4a_recovery_combined.png)
 
 ***Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d).*
