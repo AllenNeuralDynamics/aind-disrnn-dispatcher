@@ -32,7 +32,7 @@ import wandb
 ENT, PROJ = "AIND-disRNN", "embedding_recovery"
 GRU_BLIND_RUN = "1y7vz70o"     # none, D4
 GRU_COND_RUN = "ok01hebs"      # scalar, D4 -- same embed size as blind, for a fair pair
-BASELINE_RUNIDS = {"Bari2019": "x548cbk7", "Hattori2019": "cthtvmln"}  # no RW baseline exists
+BASELINE_RUNIDS = {"Bari2019": "x548cbk7", "Hattori2019": "cthtvmln", "RescorlaWagner": "qy9lof3x"}
 OUTBASE = "/home/han.hou/outputs/disrnn/wandb"
 
 FAMILY_PARAMS = {

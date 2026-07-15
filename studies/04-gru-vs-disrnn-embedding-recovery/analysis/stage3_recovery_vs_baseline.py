@@ -5,17 +5,25 @@ to match stage1_recovery_vs_baseline.png / stage2_recovery_vs_baseline.png.
 FILLS TWO GAPS that existed for Stage 3 (unlike stages 1/2/2b, which both had a
 baseline-vs-GRU likelihood comparison and per-session parameter recovery):
 
-  a  Fit-quality: relative held-out likelihood, baseline_rl (best-of-3 model-selection,
-     the realistic deployed scenario; "matched" ceiling if the true model were known is
-     shown as a lighter marker) vs the 6 GRU cells (session_encoding x embedding size).
-     baseline_rl trails GRU (0.96 best-of-3 / 0.96 matched vs 0.98-0.99 GRU) even before
-     accounting for its inability to recover model IDENTITY (see confusion figure).
+  a  Fit-quality: relative held-out likelihood, baseline_rl (best-of-4 model-selection --
+     now includes RescorlaWagner's own fitter, wandb run qy9lof3x -- the realistic deployed
+     scenario; "matched" ceiling if the true model were known is shown as a lighter marker,
+     now n=200 across all 3 true families) vs the 6 GRU cells (session_encoding x embedding
+     size). baseline_rl trails GRU (0.96 best-of-4 / 0.92 matched vs 0.98-0.99 GRU) even
+     before accounting for its inability to recover model IDENTITY (see confusion figure).
+     The matched ceiling DROPPED from 0.958 (n=134, Bari/Hattori only) to 0.920 (n=200, all
+     3 families) once RW's own fitter is included -- RW is fit-quality-poor even against its
+     own true generative subjects (matched eval_likelihood 0.67 vs Bari/Hattori's 0.75-0.78),
+     a weak-identifiability finding distinct from the earlier "RW has no fitter at all" gap.
   b  Per-session parameter recovery, mean over each family's own parameter set, THREE
      conditions per family (baseline_rl / GRU session-blind / GRU session-conditioned) --
      same per-session convention as stages 2/2b (baseline_rl and session-blind broadcast a
      fixed per-subject estimate to every session; only session-conditioned GRU predicts a
-     genuinely per-session value). RescorlaWagner has NO baseline_rl bar (no matching fixed
-     fitter exists for this stage's toolkit -- see confusion figure panel b).
+     genuinely per-session value). RescorlaWagner NOW has a baseline_rl bar (RW's own fitter,
+     wandb run qy9lof3x) and it is markedly negative (biasL/learn_rate/epsilon all R2<-1,
+     Spearman 0.26-0.88 still positive) -- the fixed per-subject RW fit is a much worse
+     per-session predictor than Bari/Hattori's fixed fits, consistent with panel a's weak-
+     identifiability finding.
   c  Per-session recovery, per PARAMETER, grouped by family -- the fine-grained view.
      Several baseline parameters (forget_rate_unchosen, learn_rate, learn_rate_rew,
      choice_kernel_relative_weight) show WEAK identifiability even after winsorizing
@@ -49,17 +57,17 @@ def _panel_a(ax, gru, base_summary):
         col = "#08519c" if r.enc == "scalar" else "#6baed6"
         ax.scatter(r.embed, r.lik_rel, marker=mk, color=col, s=70, edgecolor="white",
                     lw=0.8, zorder=3)
-    b3 = base_summary[base_summary.cond == "baseline_rl_best_of_3"].lik_rel.iloc[0]
-    bm = base_summary[base_summary.cond == "baseline_rl_matched"].lik_rel.iloc[0]
-    ax.axhline(b3, color="black", ls="-", lw=1.6, zorder=1)
+    b4 = base_summary[base_summary.cond == "baseline_rl_best_of_4"].lik_rel.iloc[0]
+    bm = base_summary[base_summary.cond == "baseline_rl_matched_4way_n200"].lik_rel.iloc[0]
+    ax.axhline(b4, color="black", ls="-", lw=1.6, zorder=1)
     ax.axhline(bm, color="0.5", ls="--", lw=1.1, zorder=1)
     ax.set_xticks([4, 8, 16]); ax.set_xlim(3, 18)
     ax.set_ylim(min(gru.lik_rel.min(), bm) - 0.006, 1.002)
     ax.set_xlabel("subject embedding size"); ax.set_ylabel("relative likelihood")
-    ax.set_title(f"Fit quality: GRU 0.98\u20130.99 vs\nbaseline best-of-3={b3:.3f}", fontsize=9, loc="left")
+    ax.set_title(f"Fit quality: GRU 0.98\u20130.99 vs\nbaseline best-of-4={b4:.3f}", fontsize=9, loc="left")
     handles = [plt.Line2D([], [], marker="^", color="#6baed6", lw=0, label="GRU (none)"),
                plt.Line2D([], [], marker="o", color="#08519c", lw=0, label="GRU (scalar)"),
-               plt.Line2D([], [], color="black", lw=1.6, label="baseline (best-of-3)"),
+               plt.Line2D([], [], color="black", lw=1.6, label="baseline (best-of-4)"),
                plt.Line2D([], [], color="0.5", lw=1.1, ls="--", label="baseline (matched)")]
     ax.legend(handles=handles, frameon=False, fontsize=6.5, loc="lower center",
                bbox_to_anchor=(0.5, -0.34), ncol=2, handletextpad=0.4)
