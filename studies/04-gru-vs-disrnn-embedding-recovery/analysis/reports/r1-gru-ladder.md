@@ -96,6 +96,10 @@ time, is what makes the likelihood axis discriminating below.*
 
 ***Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d).*
 
+![stage4a_persession_recovery.png](../figures/stage4a_persession_recovery.png)
+
+***Stage 4a — per-session parameter recovery, baseline vs GRU.** (a) mean per-session recovery R2 over each family's drifting params: baseline_rl fails for QLearning (-0.60, correctly-specified generative model notwithstanding) and is flat/negative for CompareToThreshold (-0.03), while GRU session-conditioning helps every family (0.58, 0.83, 0.83). (b) per-parameter breakdown, including CompareToThreshold's static threshold (no drift block — shown as a subject-level recovery check, not drift tracking; excluded from panel a's mean). CompareToThreshold's softmax_inverse_temperature and learn_rate are weakly identified already at the session-blind level (R2 -0.04, -1.16) and session-conditioning makes them WORSE, not merely unhelpful (biasL 0.72→0.25, softmax -0.04→-1.85) — a bias/inverse-temperature confound was checked directly in the baseline_rl fits and ruled out (corr=0.13); 60.5% of CTT's 200 fitted threshold values also land outside the true range [0.2, 0.6], despite threshold's own recovery R2 being good (0.79–0.85) — R2 tracks preserved relative scale across subjects, which survives even biased point estimates. Likely explanation: the CompareToThreshold agent's lack of a choice-kernel term leaves its likelihood surface less constrained for the DE optimizer than QLearning/LossCounting have, not something specific to session-conditioning. learn_rate itself still improves with conditioning (0.27→0.66), so the effect is isolated to the two already-marginal params, not the whole family.*
+
 ![stage4b_recovery.png](../figures/stage4b_recovery.png)
 
 ***Stage 4b — per-session family switching.** Mixture-weight recovery vs embedding size (a); subject-vs-session dissociation null (b); per-session family confusion (c).*

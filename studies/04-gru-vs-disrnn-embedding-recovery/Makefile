@@ -100,7 +100,11 @@ stage3-recovery:
 # stage4a-recovery regenerates analysis/figures/stage4a_recovery_combined.png from frozen
 # curated inputs (embedding + GRU confusion details + GRU embed-size grid + baseline
 # model-selection crosstab), keyed by immutable wandb_run_id inside the JSON/CSV -- offline,
-# no W&B pull, so `make` stays offline.
+# no W&B pull, so `make` stays offline. Also regenerates the per-session parameter
+# recovery figure (baseline_rl vs GRU session-blind vs GRU session-conditioned) from
+# stage4a_persession_recovery.csv, the Stage-4a analog of stage3_recovery_vs_baseline.png's
+# panels b/c -- produced OFF-sandbox (compute_stage4a_persession_recovery.py needs the HPC
+# filesystem + W&B) and committed here so `make` stays offline.
 stage4a-recovery:
 	$(PY) analysis/stage4a_recovery_figure.py \
 		--emb-csv analysis/stage4a_embedding.csv \
@@ -108,3 +112,6 @@ stage4a-recovery:
 		--gru-recovery-csv analysis/stage4a_gru_recovery.csv \
 		--ms-csv analysis/stage4a_baseline_modelselection.csv \
 		--out analysis/figures/stage4a_recovery_combined.png
+	$(PY) analysis/stage4a_persession_figure.py \
+		--persession-csv analysis/stage4a_persession_recovery.csv \
+		--out analysis/figures/stage4a_persession_recovery.png
