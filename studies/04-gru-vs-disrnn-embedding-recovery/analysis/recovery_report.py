@@ -340,6 +340,35 @@ def _update_reports(ladder, s4b, dis):
          "that has them. Net: conditioning helps on average but a real minority of cells "
          "(both biasL columns, CTT's already-weak softmax) get worse, most severely where the "
          "underlying signal was already marginal."),
+        ("stage4a_baseline_initial_param_scatter.png",
+         "**Stage 4a — baseline_rl: true initial (session-0) parameter vs fitted static "
+         "value.** Direct analog of the Stage-3 baseline scatter, restricted to the diagonal "
+         "(each family's fixed fitter scored only against subjects whose true generative "
+         "family matches it). Unlike Stage 3's missing-RW-fitter gap, every Stage-4a family "
+         "has a correctly-specified baseline -- CompareToThreshold's is genuinely decent "
+         "across all 4 parameters (R2=0.42-0.83, zero winsorized outliers), while QLearning "
+         "shows the same severe ceiling-hugging degeneracy Stage 3 found for Bari2019 "
+         "(choice_kernel_relative_weight, forget_rate_unchosen, softmax_inverse_temperature "
+         "all pinned at the winsor ceiling for a substantial fraction of subjects)."),
+
+        ("stage4a_gru_initial_param_scatter.png",
+         "**Stage 4a -- GRU session-blind: true initial (session-0) parameter vs "
+         "within-family CV prediction.** Companion figure using GRU's held-out (5-fold "
+         "GroupKFold over subjects) linear-readout prediction instead of baseline_rl's "
+         "per-subject MLE. CompareToThreshold's learn_rate and softmax_inverse_temperature "
+         "panels are the one place in this comparison where the correctly-specified "
+         "baseline_rl fitter beats the GRU embedding (baseline R2=0.42/0.72 vs GRU "
+         "R2=-2.20/-0.13). The two negative R2s are not the same failure: "
+         "softmax_inverse_temperature's is almost entirely a single leverage point -- one "
+         "subject with the largest embedding-norm outlier across all 200 subjects (~4.5x "
+         "the population median) that single-handedly wrecks a 5-fold linear fit; excluding "
+         "that one subject alone recovers R2=0.62, essentially matching baseline_rl. "
+         "learn_rate's negative R2 is not primarily an outlier artifact -- even excluding the "
+         "same subject it stays clearly negative (R2=-0.58) because the remaining 66 "
+         "predictions collapse into a narrow band (SD 0.11 vs true SD 0.25), a genuine "
+         "variance-shrinkage failure of the cross-validated linear readout on this specific "
+         "family/parameter, not a single bad point."),
+
         ("stage4b_recovery.png",
          "**Stage 4b — per-session family switching.** Mixture-weight recovery vs embedding size "
          "(a); subject-vs-session dissociation null (b); per-session family confusion (c)."),
