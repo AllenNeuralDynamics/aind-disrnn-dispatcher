@@ -13,10 +13,14 @@ per-session GT regen). SDK-free: GraphQL for file URLs + config, requests.get fo
 softmax_inverse_temperature is winsorized at 20 (true ceiling ~18.6) for the same reason
 as the session-mean recompute: 5-10 near-deterministic subjects have divergent per-subject
 beta MLEs. Raw R2, Spearman, n_winsorized kept as disclosed columns.
+
+spearman_biasL / spearman_learn_rate report the Spearman rank correlation for those two
+params alongside their R^2 (same y_true/y_pred pair; R^2 stays the primary metric).
 """
 import os, sys, json, io
 import numpy as np, pandas as pd, requests
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
 
 ENT, PROJ = "AIND-disRNN", "embedding_recovery"
 RUNS = {50: "f787vi1g", 100: "uooa8w1k", 200: "0l8d5rq9", 300: "col8bdj9"}
@@ -91,15 +95,19 @@ if __name__ == "__main__":
                 row["n_softmax_winsorized_rows"] = int((f > WINSOR).sum())
                 r2s.append(row["r2_softmax_temp"])
             else:
-                row[f"r2_{p}"] = r2_score(t, f); r2s.append(row[f"r2_{p}"])
+                row[f"r2_{p}"] = r2_score(t, f)
+                rho, _pval = spearmanr(t, f)
+                row[f"spearman_{p}"] = float(rho)
+                r2s.append(row[f"r2_{p}"])
         row["r2_mean"] = float(np.mean(r2s))
         row["softmax_winsor_threshold"] = WINSOR
         rows.append(row)
         print(f"N={N} {rid}: per-session biasL={row['r2_biasL']:.3f} learn={row['r2_learn_rate']:.3f} "
-              f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f} ({n_sess} sess/subj)")
+              f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f} ({n_sess} sess/subj) "
+              f"spearman_biasL={row['spearman_biasL']:.3f} spearman_learn_rate={row['spearman_learn_rate']:.3f}")
     out = pd.DataFrame(rows)[
-        ["num_subjects", "r2_biasL", "r2_learn_rate", "r2_softmax_temp", "r2_mean",
-         "r2_softmax_temp_raw", "softmax_spearman", "n_softmax_winsorized_rows",
-         "softmax_winsor_threshold", "n_session_rows", "wandb_run_id"]]
+        ["num_subjects", "r2_biasL", "spearman_biasL", "r2_learn_rate", "spearman_learn_rate",
+         "r2_softmax_temp", "r2_mean", "r2_softmax_temp_raw", "softmax_spearman",
+         "n_softmax_winsorized_rows", "softmax_winsor_threshold", "n_session_rows", "wandb_run_id"]]
     out.to_csv("stage2_baseline_persession_recovery.csv", index=False)
     print("WROTE stage2_baseline_persession_recovery.csv", out.shape)

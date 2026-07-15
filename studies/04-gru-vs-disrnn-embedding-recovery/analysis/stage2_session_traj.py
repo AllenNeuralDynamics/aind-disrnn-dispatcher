@@ -15,8 +15,12 @@ from utils.multisubject import compute_session_conditioned_context_dataframe
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_predict, GroupKFold
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
 import pickle
 PARAMS=["param_biasL","param_learn_rate","param_softmax_inverse_temperature"]
+# Spearman rho reported alongside R2 (same y_true/y_pred pair) for biasL/learn_rate only,
+# mirroring the convention used for the baseline_rl per-session CSVs.
+SPEARMAN_PARAMS=["param_biasL","param_learn_rate"]
 
 def regen_gt(cfg):
     ld=HierarchicalCognitiveAgents(task=cfg["task"],agent=cfg["agent"],num_trials=cfg["num_trials"],
@@ -72,6 +76,9 @@ for name,meta in inv.items():
             out[f"sess_R2_{p}"]=r2_score(m[p].values,yhat)
             yhat_s=cross_val_predict(LinearRegression(),Xsub,m[p].values,cv=gkf,groups=groups)
             out[f"subjonly_R2_{p}"]=r2_score(m[p].values,yhat_s)
+            if p in SPEARMAN_PARAMS:
+                out[f"sess_spearman_{p}"]=float(spearmanr(m[p].values,yhat)[0])
+                out[f"subjonly_spearman_{p}"]=float(spearmanr(m[p].values,yhat_s)[0])
         yhat_f=cross_val_predict(LinearRegression(),X,m["session_frac"].values,cv=gkf,groups=groups)
         out["sessfrac_R2"]=r2_score(m["session_frac"].values,yhat_f)
         yhat_fs=cross_val_predict(LinearRegression(),Xsub,m["session_frac"].values,cv=gkf,groups=groups)

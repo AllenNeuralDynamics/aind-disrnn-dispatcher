@@ -21,13 +21,23 @@ stage2_recovery.py; do not conflate them.
 Canonical runs (baseline-rl-stage2@20260704-223824, all finished):
   N=50 f787vi1g, N=100 uooa8w1k, N=200 0l8d5rq9, N=300 col8bdj9
 
+softmax_inverse_temperature is winsorized at 20 (true ceiling ~18.6): 5-10 near-deterministic
+subjects per run have divergent per-subject beta MLEs that blow up an unwinsorized R2. Raw
+R2, Spearman, and n_winsorized are kept as disclosed columns alongside the winsorized R2.
+spearman_biasL / spearman_learn_rate report the Spearman rank correlation for those two
+params alongside their R^2 (same y_true/y_pred pair; R^2 stays the primary metric).
+
 Output columns (frozen, keyed by wandb_run_id per the 'freeze the numbers' rule):
-  num_subjects, r2_biasL, r2_learn_rate, r2_softmax_temp, r2_mean, eval_likelihood,
-  wandb_run_id
+  num_subjects, r2_biasL, spearman_biasL, r2_learn_rate, spearman_learn_rate,
+  r2_softmax_temp, r2_mean, r2_softmax_temp_raw, softmax_spearman, n_softmax_winsorized,
+  softmax_winsor_threshold, wandb_run_id
 """
 import os, sys, json, io
 import numpy as np, pandas as pd, requests
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
+
+WINSOR = 20.0
 
 # SDK-free: wandb.Api() crashes on this cluster's wandb 0.23.1 with a simplejson
 # 'Object of type Api is not JSON serializable' error during sweep/run resolution
@@ -160,14 +170,29 @@ if __name__ == "__main__":
             fc = _find_col(fit, needles)
             if fc is None:
                 raise KeyError(f"no fitted column for {p} in {list(fit.columns)}")
-            r2 = r2_score(m[GT_COL[p]].values, m[fc].values)
-            row[f"r2_{p}"] = r2; r2s.append(r2)
+            t = m[GT_COL[p]].values
+            f = m[fc].values
+            if p == "softmax_temp":
+                fw = np.clip(f, None, WINSOR)
+                row["r2_softmax_temp"] = r2_score(t, fw)
+                row["r2_softmax_temp_raw"] = r2_score(t, f)
+                row["softmax_spearman"] = pd.Series(f).corr(pd.Series(t), method="spearman")
+                row["n_softmax_winsorized"] = int((f > WINSOR).sum())
+                r2s.append(row["r2_softmax_temp"])
+            else:
+                row[f"r2_{p}"] = r2_score(t, f)
+                rho, _pval = spearmanr(t, f)
+                row[f"spearman_{p}"] = float(rho)
+                r2s.append(row[f"r2_{p}"])
         row["r2_mean"] = float(np.mean(r2s))
+        row["softmax_winsor_threshold"] = WINSOR
         rows.append(row)
         print(f"N={N} {rid}: biasL={row['r2_biasL']:.3f} learn={row['r2_learn_rate']:.3f} "
-              f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f}")
+              f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f} "
+              f"spearman_biasL={row['spearman_biasL']:.3f} spearman_learn_rate={row['spearman_learn_rate']:.3f}")
     out = pd.DataFrame(rows)[
-        ["num_subjects", "r2_biasL", "r2_learn_rate", "r2_softmax_temp",
-         "r2_mean", "eval_likelihood", "wandb_run_id"]]
+        ["num_subjects", "r2_biasL", "spearman_biasL", "r2_learn_rate", "spearman_learn_rate",
+         "r2_softmax_temp", "r2_mean", "r2_softmax_temp_raw", "softmax_spearman",
+         "n_softmax_winsorized", "softmax_winsor_threshold", "wandb_run_id"]]
     out.to_csv("stage2_baseline_recovery.csv", index=False)
     print("WROTE stage2_baseline_recovery.csv", out.shape)

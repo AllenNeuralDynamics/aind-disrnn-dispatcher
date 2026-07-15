@@ -11,10 +11,14 @@ SDK-free: GraphQL for run discovery/config/file URLs, requests.get for GCS.
 
 softmax_inverse_temperature winsorized at 20 (true ceiling ~18.6) for the same reason as
 the stage-2 recompute. Raw R2, Spearman, n_winsorized kept as disclosed columns.
+
+spearman_biasL / spearman_learn_rate report the Spearman rank correlation for those two
+params alongside their R^2 (same y_true/y_pred pair; R^2 stays the primary metric).
 """
 import os, sys, json
 import numpy as np, pandas as pd, requests
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
 
 ENT, PROJ = "AIND-disRNN", "embedding_recovery"
 SWEEP = "ykjk89o5"
@@ -96,10 +100,18 @@ if __name__ == "__main__":
             row["n_softmax_winsorized_rows"] = int((f > WINSOR).sum())
             r2s.append(row["r2_softmax_temp"])
         else:
-            row[f"r2_{p}"] = r2_score(t, f); r2s.append(row[f"r2_{p}"])
+            row[f"r2_{p}"] = r2_score(t, f)
+            rho, _pval = spearmanr(t, f)
+            row[f"spearman_{p}"] = float(rho)
+            r2s.append(row[f"r2_{p}"])
     row["r2_mean"] = float(np.mean(r2s))
     row["softmax_winsor_threshold"] = WINSOR
     print(f"S2b baseline_rl persession: biasL={row['r2_biasL']:.3f} learn={row['r2_learn_rate']:.3f} "
-          f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f} ({len(m)} session rows)")
-    pd.DataFrame([row]).to_csv("stage2b_baseline_persession.csv", index=False)
+          f"softmax={row['r2_softmax_temp']:.3f} mean={row['r2_mean']:.3f} ({len(m)} session rows) "
+          f"spearman_biasL={row['spearman_biasL']:.3f} spearman_learn_rate={row['spearman_learn_rate']:.3f}")
+    out_cols = ["stage", "cond", "num_subjects", "n_session_rows", "wandb_run_id",
+                "r2_biasL", "spearman_biasL", "r2_learn_rate", "spearman_learn_rate",
+                "r2_softmax_temp", "r2_softmax_temp_raw", "softmax_spearman",
+                "n_softmax_winsorized_rows", "r2_mean", "softmax_winsor_threshold"]
+    pd.DataFrame([row])[out_cols].to_csv("stage2b_baseline_persession.csv", index=False)
     print("WROTE stage2b_baseline_persession.csv")
