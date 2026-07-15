@@ -23,6 +23,7 @@ import numpy as np, pandas as pd
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_predict, GroupKFold
+from scipy.stats import spearmanr
 
 sys.path.insert(0, os.path.expanduser("~/scratch/recovery-smoke/aind-disrnn-wrapper/code"))
 from data_loaders.hierarchical_synthetic import HierarchicalCognitiveAgents
@@ -32,7 +33,7 @@ import wandb
 ENT, PROJ = "AIND-disRNN", "embedding_recovery"
 GRU_BLIND_RUN = "1y7vz70o"     # none, D4
 GRU_COND_RUN = "ok01hebs"      # scalar, D4 -- same embed size as blind, for a fair pair
-BASELINE_RUNIDS = {"Bari2019": "x548cbk7", "Hattori2019": "cthtvmln", "RescorlaWagner": "qy9lof3x"}
+BASELINE_RUNIDS = {"Bari2019": "x548cbk7", "Hattori2019": "cthtvmln"}  # no RW baseline exists
 OUTBASE = "/home/han.hou/outputs/disrnn/wandb"
 
 FAMILY_PARAMS = {
@@ -157,7 +158,7 @@ def gru_session_blind_persession(gt, run_name):
             y_pred = sess.subject_id.map(pred_by_subj).values
             r2 = r2_score(y_true, y_pred)
             out.append({"true_preset": family, "cond": "gru_session_blind", "param": p, "r2": r2,
-                         "r2_raw": r2, "spearman": np.nan, "n_winsorized": 0,
+                         "r2_raw": r2, "spearman": spearmanr(y_true, y_pred).correlation, "n_winsorized": 0,
                          "n_session_rows": len(y_true), "wandb_run_id": run_name})
     return out
 
@@ -199,7 +200,7 @@ def gru_session_conditioned_persession(gt, run_name, meta):
             yhat = cross_val_predict(LinearRegression(), X[valid], y[valid], groups=groups[valid], cv=gkf)
             r2 = r2_score(y[valid], yhat)
             out.append({"true_preset": family, "cond": "gru_session_conditioned", "param": p, "r2": r2,
-                         "r2_raw": r2, "spearman": np.nan, "n_winsorized": 0,
+                         "r2_raw": r2, "spearman": spearmanr(y[valid], yhat).correlation, "n_winsorized": 0,
                          "n_session_rows": int(valid.sum()), "wandb_run_id": run_name})
     return out
 

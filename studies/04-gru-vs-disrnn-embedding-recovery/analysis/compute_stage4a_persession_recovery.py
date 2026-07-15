@@ -209,7 +209,7 @@ def gru_session_blind_persession(gt, run_name):
             y_pred = sess.subject_id.map(pred_by_subj).values
             r2 = r2_score(y_true, y_pred)
             out.append({"true_family": family, "cond": "gru_session_blind", "param": p, "r2": r2,
-                         "r2_raw": r2, "spearman": np.nan, "n_winsorized": 0,
+                         "r2_raw": r2, "spearman": spearmanr(y_true, y_pred).correlation, "n_winsorized": 0,
                          "n_session_rows": len(y_true), "wandb_run_id": run_name})
     return out
 
@@ -248,7 +248,7 @@ def gru_session_conditioned_persession(gt, run_name):
             yhat = cross_val_predict(LinearRegression(), X[valid], y[valid], groups=groups[valid], cv=gkf)
             r2 = r2_score(y[valid], yhat)
             out.append({"true_family": family, "cond": "gru_session_conditioned", "param": p, "r2": r2,
-                         "r2_raw": r2, "spearman": np.nan, "n_winsorized": 0,
+                         "r2_raw": r2, "spearman": spearmanr(y[valid], yhat).correlation, "n_winsorized": 0,
                          "n_session_rows": int(valid.sum()), "wandb_run_id": run_name})
     return out
 
