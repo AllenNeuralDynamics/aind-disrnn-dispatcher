@@ -23,7 +23,7 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 
 def make_figure(gru, baseline, out_png, focus_n=200, hid_focus=16):
     gcol = {"h16e4": "#6baed6", "e2": "#7f7f7f", "base": "#000000"}
-    fig, ax = plt.subplots(figsize=(4.4, 3.8))
+    fig, ax = plt.subplots(figsize=(5.0, 4.0))
 
     xpos = np.arange(3); w = 0.27
     g200 = gru[(gru.hid == hid_focus) & (gru.emb == 4) & (gru.subj == focus_n)].iloc[0]
@@ -33,9 +33,9 @@ def make_figure(gru, baseline, out_png, focus_n=200, hid_focus=16):
     ax.bar(xpos, [g200e2[f"spearman_{p}"] for p in PARAMS], w, color=gcol["e2"], label="GRU 2-d embedding")
     ax.bar(xpos + w, [g200[f"spearman_{p}"] for p in PARAMS], w, color=gcol["h16e4"], label="GRU 4-d embedding")
     ax.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
-    ax.set_xticks(xpos); ax.set_xticklabels(PARAMS, fontsize=8); ax.set_ylabel("Spearman \u03c1")
-    ax.set_ylim(0, 1.05); ax.set_title(f"Per-parameter rank correlation (n={focus_n})", fontsize=10)
-    ax.legend(fontsize=7, frameon=False, loc="lower right")
+    ax.set_xticks(xpos); ax.set_xticklabels(PARAMS, fontsize=9); ax.set_ylabel("Spearman \u03c1")
+    ax.set_ylim(0, 1.18); ax.set_title(f"Per-parameter rank correlation (n={focus_n})", fontsize=10)
+    ax.legend(fontsize=7.5, frameon=False, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.16))
     ax.set_box_aspect(1)
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     fig.savefig(out_png, dpi=200, bbox_inches="tight")
