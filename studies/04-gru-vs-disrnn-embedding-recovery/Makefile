@@ -54,6 +54,5 @@ stage1-baseline:
 stage2-recovery:
 	$(PY) analysis/stage2_recovery_figure.py \
 		--lik-csv analysis/stage2_likelihood_comparison.csv \
-		--gru-csv analysis/stage2_gru_recovery.csv \
-		--baseline-csv analysis/stage2_baseline_recovery.csv \
+		--persession-csv analysis/stage2_persession_recovery.csv \
 		--out analysis/figures/stage2_recovery_vs_baseline.png

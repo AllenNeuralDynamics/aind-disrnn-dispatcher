@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 """Stage-2 recovery figure (3 square panels, house style) — offline producer.
 
-Combines the former stage2_likelihood_comparison + stage2_recovery into one figure
-matching stage1_recovery_vs_baseline:
+One figure matching stage1_recovery_vs_baseline:
   a  Fit quality: likelihood relative to ground truth vs #subjects
      (baseline_rl, GRU session-blind [none], GRU session-conditioned [scalar]).
-  b  Mean subject-parameter recovery R2 vs #subjects (none vs scalar [+ baseline]).
-  c  Per-parameter recovery R2 at n=200 (baseline [+] / none / scalar).
+  b  PER-SESSION parameter recovery R2 (mean over params) vs #subjects, all three models.
+  c  Per-session per-parameter recovery R2 at n=200 (baseline / session-blind / session-cond).
+
+Panels b/c score recovery against each SESSION's true drifting parameter (not the
+session-mean). Fixed per-subject estimates (baseline_rl, GRU session-blind) are broadcast to
+all of a subject's sessions; only the session-conditioned GRU predicts a per-session value.
+All three land moderate-to-high because the per-session parameter is dominated by the subject
+centroid — session conditioning adds the drift-tracking edge. (Recovery of the drift POSITION
+itself, where session-blind is 0 by construction, is a separate story in
+stage2_session_trajectory.png — not the target here.)
 
 Inputs (committed, curated; each keyed by wandb_run_id per the 'freeze the numbers' rule):
   stage2_likelihood_comparison.csv   N, GRU_none, GRU_scalar, baseline_rl  (relative LL)
-  stage2_gru_recovery.csv            per (N, enc) subject-param recovery R2 + run id
-  stage2_baseline_recovery.csv       OPTIONAL: per-N baseline_rl fitted-param recovery R2
-                                     (num_subjects, r2_biasL, r2_learn_rate, r2_softmax_temp).
-                                     When absent, the baseline bar/line is omitted and the
-                                     figure notes it — baseline's fit-quality story still
-                                     shows in panel a. Single seed (42) per cell -> no error bars.
+  stage2_persession_recovery.csv     per (N, model) per-session param recovery R2 + run id;
+                                     3 models: baseline_rl, gru_session_blind,
+                                     gru_session_conditioned. softmax_temp winsorized@20 with
+                                     r2_softmax_temp_raw / softmax_spearman disclosed.
+                                     Single seed (42) per cell -> no error bars.
 """
 import argparse, os
 import numpy as np, pandas as pd
@@ -27,7 +33,7 @@ PARAMS = ["biasL", "learn_rate", "softmax_temp"]
 COL = {"none": "#6baed6", "scalar": "#08519c", "base": "black"}
 
 
-def make_figure(lik, gru, baseline, out_png, focus_n=200):
+def make_figure(lik, ps, out_png, focus_n=200):
     # Match stage1_recovery_vs_baseline exactly: matplotlib default base, per-element
     # fontsize overrides below (titles 10, legend 6, ticklabels 7, panel letters 12).
     fig = plt.figure(figsize=(12, 3.6)); gs = fig.add_gridspec(1, 3, wspace=0.42)
@@ -44,44 +50,42 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
     axA.set_ylim(0.96, 1.008)  # shared with stage-1 panel a (same quantity) — see house convention
     axA.legend(frameon=False, loc="center right", fontsize=6)
 
-    # ---- b: mean recovery R2 vs N ----
-    for enc, mk in [("none", "o"), ("scalar", "o")]:
-        g = gru[gru.enc == enc].sort_values("num_subjects")
-        axB.plot(g.num_subjects, g.R2_mean, marker=mk, color=COL[enc],
-                 label=f"GRU 4-d, {'session-blind' if enc=='none' else '+ session cond.'}")
-    if baseline is not None and "r2_mean" in baseline:
-        b = baseline.sort_values("num_subjects")
-        axB.plot(b.num_subjects, b.r2_mean, marker="s", color=COL["base"], label="baseline_rl")
+    # ---- b: PER-SESSION parameter recovery R2 vs N ----
+    # Target = each SESSION's true drifting parameter (not the session-mean). Fixed
+    # per-subject estimates (baseline, GRU session-blind) are broadcast to all sessions;
+    # only the session-conditioned GRU predicts a per-session value. All three are moderate
+    # because the per-session parameter is dominated by the subject centroid; session
+    # conditioning adds the drift-tracking edge.
+    series = [("baseline_rl", "base", "s", "baseline_rl"),
+              ("gru_session_blind", "none", "o", "GRU 4-d, session-blind"),
+              ("gru_session_conditioned", "scalar", "o", "GRU 4-d + session cond.")]
+    for model, ck, mk, lab in series:
+        d = ps[ps.model == model].sort_values("num_subjects")
+        axB.plot(d.num_subjects, d.r2_mean, marker=mk, color=COL[ck], label=lab)
     axB.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
-    axB.set_xlabel("# subjects"); axB.set_ylabel("mean recovery R\u00b2")
+    axB.set_xlabel("# subjects"); axB.set_ylabel("per-session recovery R\u00b2")
     axB.set_xticks([50, 100, 200, 300]); axB.set_ylim(0.6, 1.03)
-    axB.set_title("Parameter recovery"); axB.legend(frameon=False, loc="lower right", fontsize=6)
+    axB.set_title("Per-session parameter recovery"); axB.legend(frameon=False, loc="lower right", fontsize=6)
 
-    # ---- c: per-parameter at N=focus_n ----
+    # ---- c: per-session per-parameter at N=focus_n ----
     xpos = np.arange(3)
-    gn = gru[(gru.enc == "none") & (gru.num_subjects == focus_n)].iloc[0]
-    gs2 = gru[(gru.enc == "scalar") & (gru.num_subjects == focus_n)].iloc[0]
-    have_base = baseline is not None and (baseline.num_subjects == focus_n).any()
-    if have_base:
-        b200 = baseline[baseline.num_subjects == focus_n].iloc[0]
-        w = 0.27
-        axC.bar(xpos - w, [b200[f"r2_{p}"] for p in PARAMS], w, color=COL["base"], label="baseline_rl")
-        axC.bar(xpos, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU 4-d, session-blind")
-        axC.bar(xpos + w, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU 4-d + session cond.")
-    else:
-        w = 0.38
-        axC.bar(xpos - w / 2, [gn[f"r2_{p}"] for p in PARAMS], w, color=COL["none"], label="GRU 4-d, session-blind")
-        axC.bar(xpos + w / 2, [gs2[f"r2_{p}"] for p in PARAMS], w, color=COL["scalar"], label="GRU 4-d + session cond.")
+    bars = [("baseline_rl", "base", "baseline_rl"),
+            ("gru_session_blind", "none", "GRU 4-d, session-blind"),
+            ("gru_session_conditioned", "scalar", "GRU 4-d + session cond.")]
+    w = 0.27
+    for i, (model, ck, lab) in enumerate(bars):
+        row = ps[(ps.model == model) & (ps.num_subjects == focus_n)].iloc[0]
+        axC.bar(xpos + (i - 1) * w, [row[f"r2_{p}"] for p in PARAMS], w, color=COL[ck], label=lab)
     axC.axhline(1.0, color="0.7", ls=":", lw=0.8, zorder=0)
     axC.set_xticks(xpos); axC.set_xticklabels(["biasL", "learn\nrate", "softmax\ntemp"], fontsize=7)
-    axC.set_ylabel("recovery R\u00b2"); axC.set_ylim(0, 1.05)
-    axC.set_title(f"Per-parameter (n={focus_n})")
+    axC.set_ylabel("per-session recovery R\u00b2"); axC.set_ylim(0, 1.05)
+    axC.set_title(f"Per-session per-parameter (n={focus_n})")
 
     for ax in (axA, axB, axC):
         ax.set_box_aspect(1)
         ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     for ax, l in zip((axA, axB, axC), "abc"):
-        ax.text(-0.12, 1.02, l, transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
+        ax.text(-0.18, 1.04, l, transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
     fig.savefig(out_png, dpi=200, bbox_inches="tight")
     return fig
 
@@ -89,11 +93,9 @@ def make_figure(lik, gru, baseline, out_png, focus_n=200):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--lik-csv", default="stage2_likelihood_comparison.csv")
-    ap.add_argument("--gru-csv", default="stage2_gru_recovery.csv")
-    ap.add_argument("--baseline-csv", default="stage2_baseline_recovery.csv")
+    ap.add_argument("--persession-csv", default="stage2_persession_recovery.csv")
     ap.add_argument("--out", default="stage2_recovery_vs_baseline.png")
     a = ap.parse_args()
-    lik = pd.read_csv(a.lik_csv); gru = pd.read_csv(a.gru_csv)
-    baseline = pd.read_csv(a.baseline_csv) if os.path.exists(a.baseline_csv) else None
-    make_figure(lik, gru, baseline, a.out)
-    print("wrote", a.out, "(baseline bar:", baseline is not None, ")")
+    lik = pd.read_csv(a.lik_csv); ps = pd.read_csv(a.persession_csv)
+    make_figure(lik, ps, a.out)
+    print("wrote", a.out, "(models:", sorted(ps.model.unique()), ")")
