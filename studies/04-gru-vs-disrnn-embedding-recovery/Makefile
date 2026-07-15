@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2b
 
-all: r1 stage1-prelim stage1-baseline stage2-recovery
+all: r1 stage1-prelim stage1-baseline stage2-recovery stage2b
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
