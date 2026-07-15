@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery stage4b-recovery
 
-all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery
+all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery stage4b-recovery
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -115,3 +115,17 @@ stage4a-recovery:
 	$(PY) analysis/stage4a_persession_figure.py \
 		--persession-csv analysis/stage4a_persession_recovery.csv \
 		--out analysis/figures/stage4a_persession_recovery.png
+
+# stage4b-recovery regenerates analysis/figures/stage4b_recovery.png (per-session
+# family-switching: subject embedding recovers stable Dirichlet mixture weights; session
+# conditioning adds ~nothing for per-session family decoding). Offline producer reads two
+# frozen committed inputs -- stage4b_recovery_grid.csv (per-run summary) and
+# stage4b_recovery.json (in-container recovery output: per-family mix-weight R2 +
+# per-session confusion matrix), keyed by wandb_run_id (sweep nptb5bam) -- no W&B pull, so
+# `make` stays offline. The JSON is produced OFF-sandbox (needs the wrapper loader + W&B)
+# and committed here as the frozen authoritative copy.
+stage4b-recovery:
+	$(PY) analysis/stage4b_recovery_figure.py \
+		--grid-csv analysis/stage4b_recovery_grid.csv \
+		--recovery-json analysis/stage4b_recovery.json \
+		--out analysis/figures/stage4b_recovery.png
