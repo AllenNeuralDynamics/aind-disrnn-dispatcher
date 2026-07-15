@@ -112,6 +112,24 @@ class, fit per subject. All runs are in W&B project `embedding_recovery` (entity
    the embedding spans the parameter space; it saturates and is not dimension-comparable
    across embedding sizes, so it is neither reported nor plotted here.)
 
+**Per-session vs per-subject recovery — and why per-session is the primary axis.**
+Parameter recovery can be scored against two targets: each subject's *session-mean*
+parameter (one value per subject) or each *session's* true (drifting) parameter (one
+value per session). **Per-session recovery is the primary metric** — it is the more
+complete question, asking whether the model tracks the parameter *as it actually varies*.
+When there is no within-subject drift (Stage 1, static subjects), every session shares one
+parameter, so per-session recovery **reduces exactly to per-subject recovery** — the two
+targets coincide. They diverge only once drift is present (Stage 2 onward): there, a fixed
+per-subject estimate (baseline_rl, and the session-blind GRU) is broadcast to all of a
+subject's sessions, while only the session-conditioned GRU produces a genuinely per-session
+prediction. All three still score moderate-to-high because the per-session parameter is
+dominated by the between-subject spread of centroids (which a fixed per-subject value
+captures); session conditioning adds the smaller within-subject drift-tracking component on
+top. The stage-2 figure's panels b/c use this per-session target for all three models.
+(Recovery of the drift *position* itself — 0→1 within a subject, where any fixed per-subject
+model is 0 by construction — is a separate, model-specific diagnostic shown in
+`stage2_session_trajectory.png`, not the parameter-recovery axis here.)
+
 **Per-stage configuration.**
 
 | stage | generator (`data/agent`) | between-subject structure | within-subject structure | GRU hidden / embedding sweep | session encoding |
