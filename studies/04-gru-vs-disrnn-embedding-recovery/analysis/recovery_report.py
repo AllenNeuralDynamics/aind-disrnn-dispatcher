@@ -278,9 +278,14 @@ def _update_reports(ladder, s4b, dis):
          "scale across subjects, which survives even biased point estimates. Likely explanation: "
          "the CompareToThreshold agent's lack of a choice-kernel term leaves its likelihood "
          "surface less constrained for the DE optimizer than QLearning/LossCounting have, not "
-         "something specific to session-conditioning. learn_rate itself still improves with "
-         "conditioning (0.27→0.66), so the effect is isolated to the two already-marginal "
-         "params, not the whole family."),
+         "something specific to session-conditioning. biasL recovery drops under conditioning "
+         "for BOTH QLearning (0.67→0.55) and CompareToThreshold (0.72→0.25) — a modest "
+         "drop is not unique to CTT, but the magnitude is ~4x larger, and CTT's softmax drop is "
+         "far more severe still (delta -1.81, the largest conditioning-induced degradation in "
+         "the figure). learn_rate and threshold both improve with conditioning in every family "
+         "that has them. Net: conditioning helps on average but a real minority of cells "
+         "(both biasL columns, CTT's already-weak softmax) get worse, most severely where the "
+         "underlying signal was already marginal."),
         ("stage4b_recovery.png",
          "**Stage 4b — per-session family switching.** Mixture-weight recovery vs embedding size "
          "(a); subject-vs-session dissociation null (b); per-session family confusion (c)."),

@@ -20,7 +20,7 @@ vs Stage 3's missing-fitter gap) -- so all three families get a baseline_rl bar.
      panel b, per user request -- see panel b caption.
   b  Per-session recovery, per PARAMETER, grouped by family -- the fine-grained view.
      CompareToThreshold's softmax_inverse_temperature and learn_rate are already weakly
-     identified at the STATIC (session-blind) level (R2 -0.04 and -1.96 respectively) --
+     identified at the STATIC (session-blind) level (R2 -0.04 and -1.16 respectively) --
      not a session-conditioning artifact, since it shows up before any per-session
      complication (see stage4a_gru_details.json within-family R2 for run 1xeoeclu). A
      bias/inverse-temperature confound was checked directly against the baseline_rl fits
@@ -38,7 +38,17 @@ vs Stage 3's missing-fitter gap) -- so all three families get a baseline_rl bar.
      with softmax_inverse_temperature/learn_rate's genuinely weak R2, this points to the
      CTT agent class itself (choice_kernel="none", i.e. no history term) giving the DE
      optimizer a flatter, less-constrained likelihood surface than QLearning/LossCounting
-     have, rather than anything specific to the session-conditioning procedure. Session-conditioning makes biasL and softmax_inverse_temperature
+     have, rather than anything specific to the session-conditioning procedure.
+     biasL recovery DROPS under session-conditioning for BOTH QLearning (0.67->0.55,
+     delta -0.12) and CompareToThreshold (0.72->0.25, delta -0.47) -- so a modest drop is
+     not unique to CTT, but the magnitude is: CTT's drop is ~4x larger, and its
+     softmax_inverse_temperature drop is far more severe still (-0.04->-1.85, delta
+     -1.81, the largest conditioning-induced degradation in the whole figure). learn_rate
+     and threshold both improve with conditioning in every family that has them
+     (QLearning learn_rate +0.38, CTT learn_rate +1.82, CTT threshold +0.03, LossCounting
+     +0.01/+0.07). Net picture: conditioning is a net positive for every family/param on
+     average, but a real minority of cells (both biasL columns, and CTT's already-weak
+     softmax) get worse, most severely where the underlying signal was already marginal. Session-conditioning makes biasL and softmax_inverse_temperature
      recovery WORSE, not merely unhelpful (0.72->0.25, -0.04->-1.85) -- plausibly
      overfitting noise into a cross-validated per-session regression target with little
      real signal to find -- but that mechanism is NOT directly verified here (would need
