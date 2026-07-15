@@ -76,7 +76,7 @@ time, is what makes the likelihood axis discriminating below.*
 
 ![stage2b_session_trajectory.png](../figures/stage2b_session_trajectory.png)
 
-***Stage 2b — session trajectory.** Per-session parameter recovery R² by parameter for Stage 2 vs Stage 2b, subject-only (session-blind) vs session-conditioned (a); session-position recovery (b) — subject-only is 0 by construction, and the session delta recovers position at 0.94 (S2) → 0.47 (S2b) as the drift turns non-monotonic. Color: light blue = subject-only, dark blue = session-conditioned; Stage 2 lighter, Stage 2b full. Offline from committed CSVs.*
+***Stage 2b — session trajectory.** Per-session parameter recovery R² at Stage 2b (n=200) for baseline_rl / GRU session-blind / GRU session-conditioned (a) — the same 3-model, 3-bar format as the Stage-2 combined figure's panel c, for direct side-by-side comparison; session-position recovery, Stage 2 vs Stage 2b, subject-only vs session-conditioned (b) — subject-only is 0 by construction, and the session delta recovers position at 0.94 (S2) → 0.47 (S2b) as the drift turns non-monotonic (baseline_rl has no per-session position estimate, so it is not shown in b). Color: black = baseline, light blue = session-blind/subject-only, dark blue = session-conditioned; in (b), stage is distinguished by saturation. Offline from committed CSVs.*
 
 ![stage3_recovery_combined.png](../figures/stage3_recovery_combined.png)
 
