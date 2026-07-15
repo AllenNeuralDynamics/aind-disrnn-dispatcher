@@ -44,6 +44,10 @@ stage1-baseline:
 		--baseline-csv analysis/stage1_baseline_recovery.csv \
 		--gt-json analysis/stage1_gt_likelihood.json \
 		--out analysis/figures/stage1_recovery_vs_baseline.png
+	$(PY) analysis/stage1_recovery_rho_figure.py \
+		--gru-csv analysis/stage1_gru_recovery.csv \
+		--baseline-csv analysis/stage1_baseline_recovery.csv \
+		--out analysis/figures/stage1_recovery_rho.png
 
 # Stage-2 combined recovery figure (3 square panels; likelihood + subject-param
 # recovery + per-param bars), matching stage1_recovery_vs_baseline. Offline producer
@@ -56,6 +60,8 @@ stage2b:
 	$(PY) analysis/stage2b_trajectory_figure.py --traj-csv analysis/stage2b_trajectory_recovery.csv \
 		--emb-csv analysis/stage2b_embedding_trajectories.csv \
 		--out analysis/figures/stage2b_session_trajectory.png
+	$(PY) analysis/stage2b_recovery_rho_figure.py --traj-csv analysis/stage2b_trajectory_recovery.csv \
+		--out analysis/figures/stage2b_recovery_rho.png
 
 # NOTE: analysis/fetch_stage2b_embedding_trajectories.py is NOT part of `all` -- it is the
 # one W&B-touching step in this figure's provenance (regenerates analysis/stage2b_embedding_trajectories.csv
@@ -67,6 +73,9 @@ stage2-recovery:
 		--lik-csv analysis/stage2_likelihood_comparison.csv \
 		--persession-csv analysis/stage2_persession_recovery.csv \
 		--out analysis/figures/stage2_recovery_vs_baseline.png
+	$(PY) analysis/stage2_recovery_rho_figure.py \
+		--persession-csv analysis/stage2_persession_recovery.csv \
+		--out analysis/figures/stage2_recovery_rho.png
 
 stage2-trajectory:
 	$(PY) analysis/stage2_trajectory_figure.py \
@@ -97,6 +106,9 @@ stage3-recovery:
 		--baseline-summary-csv analysis/stage3_baseline_likelihood_summary.csv \
 		--persession-csv analysis/stage3_persession_recovery.csv \
 		--out analysis/figures/stage3_recovery_vs_baseline.png
+	$(PY) analysis/stage3_recovery_rho_figure.py \
+		--persession-csv analysis/stage3_persession_recovery.csv \
+		--out analysis/figures/stage3_recovery_rho.png
 	$(PY) analysis/stage3_initial_param_scatter.py \
 		--scatter-csv analysis/stage3_baseline_initial_param_scatter.csv \
 		--out analysis/figures/stage3_baseline_initial_param_scatter.png
@@ -128,6 +140,9 @@ stage4a-recovery:
 	$(PY) analysis/stage4a_persession_figure.py \
 		--persession-csv analysis/stage4a_persession_recovery.csv \
 		--out analysis/figures/stage4a_persession_recovery.png
+	$(PY) analysis/stage4a_persession_rho_figure.py \
+		--persession-csv analysis/stage4a_persession_recovery.csv \
+		--out analysis/figures/stage4a_persession_rho.png
 	$(PY) analysis/stage4a_baseline_initial_param_scatter.py \
 		--scatter-csv analysis/stage4a_baseline_initial_param_scatter.csv \
 		--out analysis/figures/stage4a_baseline_initial_param_scatter.png
