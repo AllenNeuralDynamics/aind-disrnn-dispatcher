@@ -97,6 +97,15 @@ stage3-recovery:
 		--baseline-summary-csv analysis/stage3_baseline_likelihood_summary.csv \
 		--persession-csv analysis/stage3_persession_recovery.csv \
 		--out analysis/figures/stage3_recovery_vs_baseline.png
+	$(PY) analysis/stage3_initial_param_scatter.py \
+		--scatter-csv analysis/stage3_baseline_initial_param_scatter.csv \
+		--out analysis/figures/stage3_baseline_initial_param_scatter.png
+	$(PY) analysis/stage3_trajectory_figure.py \
+		--trajectory-csv analysis/stage3_full_trajectory.csv \
+		--baseline-fits-json analysis/stage3_baseline_fits.json \
+		--gru-blind-csv analysis/stage3_gru_blind_predictions.csv \
+		--gru-cond-csv analysis/stage3_gru_cond_predictions.csv \
+		--out analysis/figures/stage3_trajectory_recovery.png
 
 # stage4a-recovery regenerates analysis/figures/stage4a_recovery_combined.png from frozen
 # curated inputs (embedding + GRU confusion details + GRU embed-size grid + baseline
