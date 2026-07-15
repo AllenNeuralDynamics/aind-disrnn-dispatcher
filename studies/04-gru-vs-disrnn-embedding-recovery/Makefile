@@ -88,9 +88,9 @@ stage2-trajectory:
 # `make` stays offline.
 stage3-recovery:
 	$(PY) analysis/stage3_confusion_figure.py \
-		--ms-csv analysis/s3_baseline_modelselection_4way.csv \
+		--ms-csv analysis/s3_baseline_modelselection_3true.csv \
 		--gru-details-json analysis/stage3_gru_details.json \
-		--n-baselines 4 \
+		--baselines matched \
 		--out analysis/figures/stage3_baseline_vs_gru_confusion.png
 	$(PY) analysis/stage3_recovery_vs_baseline.py \
 		--gru-csv analysis/stage3_gru_recovery.csv \

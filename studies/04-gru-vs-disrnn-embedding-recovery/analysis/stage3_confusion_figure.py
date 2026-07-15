@@ -9,22 +9,22 @@ data throughout -- no fabricated data anywhere in this figure's provenance.
 
   a  GRU embedding decoding: 3-way logistic regression on the subject embedding
      (5-fold CV), run 1y7vz70o (none, D4) -- 98.5% correct, near-perfect diagonal.
-  b  Fixed-baseline model-selection: fit ALL FOUR RL fitters (Bari/Hattori/
-     CompareToThreshold/RescorlaWagner) per subject, assign to whichever gives the
-     best held-out likelihood -- 51.0% correct (s3_baseline_modelselection_4way.csv).
-     RescorlaWagner's own fitter now exists (baseline-rw-stage3 sweep, wandb run
-     qy9lof3x) and correctly recovers 8/67 true-RW subjects (0/67 was structurally
-     guaranteed under the earlier 3-fitter setup, since no RW option existed at all).
-     Most true-RW subjects (35/67) still get misassigned to Bari, and 19/67 to
-     Hattori -- so RW's OWN fitter frequently does not win even on its own true
-     subjects. This points to RescorlaWagner being weakly identified relative to the
-     softmax-QL family under this held-out-likelihood criterion, not merely "missing
-     from the toolkit" -- adding the correct fitter closed most but not all of the gap
-     (47.0%->51.0%; GRU embedding decoding still wins by a wide margin at 98.5%).
-     A 3-fitter version of this analysis (s3_baseline_modelselection.csv, structurally
-     0/67 for RW) is retained for historical comparison via --n-baselines 3.
+  b  Fixed-baseline model-selection, MATCHED comparison (default, --baselines matched):
+     exactly the 3 true generative fitters (Bari/Hattori/RescorlaWagner) compete per
+     subject -- CompareToThreshold, which has no matching true preset in this stage,
+     is dropped entirely (s3_baseline_modelselection_3true.csv). 62.5% correct (125/200),
+     UP from 51.0% once CTT stops siphoning off Bari/Hattori subjects as a spurious
+     best fit. RescorlaWagner's own fitter (baseline-rw-stage3 sweep, wandb run
+     qy9lof3x) still only recovers 8/66 true-RW subjects even with no off-target
+     competitor in the mix -- 36/66 still misassigned to Bari, 22/66 to Hattori -- so
+     RW remains weakly identified relative to the softmax-QL family under this
+     held-out-likelihood criterion; this is a genuine property of RW's fit, not an
+     artifact of CTT crowding the comparison. GRU embedding decoding still wins by a
+     wide margin either way (98.5%). Two other selectable modes for comparison:
+     --baselines historical (Bari/Hattori/CTT, no RW fitter at all, 47.0%) and
+     --baselines plus_rw (adds RW alongside CTT, 4-way, 51.0%).
 
-Offline: reads committed CSV/JSON inputs, selectable via --n-baselines {3,4}.
+Offline: reads committed CSV/JSON inputs, selectable via --baselines {historical,plus_rw,matched}.
 """
 import argparse
 import json
@@ -77,14 +77,19 @@ def make_figure(gru_cm, gru_labels, gru_acc, base_cm, base_row_labels, base_col_
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ms-csv", default="s3_baseline_modelselection_4way.csv",
-                     help="3-fitter file: s3_baseline_modelselection.csv (RW structurally excluded); "
-                          "4-fitter file: s3_baseline_modelselection_4way.csv (RW's own fitter included)")
+    ap.add_argument("--ms-csv", default="s3_baseline_modelselection_3true.csv",
+                     help="s3_baseline_modelselection.csv (3-fitter historical: Bari/Hattori/CTT, RW "
+                          "structurally excluded); s3_baseline_modelselection_4way.csv (4-fitter: adds "
+                          "RW's own fitter, off-target CTT still competes); "
+                          "s3_baseline_modelselection_3true.csv (3-fitter MATCHED: exactly the 3 true "
+                          "generative fitters Bari/Hattori/RW, CTT excluded -- default, apples-to-apples)")
     ap.add_argument("--gru-details-json", default="stage3_gru_details.json")
     ap.add_argument("--gru-run", default="1y7vz70o")
-    ap.add_argument("--n-baselines", type=int, choices=[3, 4], default=4,
-                     help="3 = historical (Bari/Hattori/CTT only, RW has no matching fitter); "
-                          "4 = current (adds RescorlaWagner's own fitter)")
+    ap.add_argument("--baselines", default="matched", choices=["historical", "plus_rw", "matched"],
+                     help="historical = Bari/Hattori/CTT only (RW has no matching fitter, pre-qy9lof3x); "
+                          "plus_rw = adds RescorlaWagner's own fitter, CTT still competes as a 4th "
+                          "off-target option; matched = exactly the 3 true generative fitters "
+                          "(Bari/Hattori/RW), CTT dropped entirely -- apples-to-apples 3-vs-3 comparison")
     ap.add_argument("--out", default="stage3_baseline_vs_gru_confusion.png")
     a = ap.parse_args()
 
@@ -94,9 +99,12 @@ if __name__ == "__main__":
 
     ms = pd.read_csv(a.ms_csv)
     presets = ["Bari2019", "Hattori2019", "RescorlaWagner"]
-    baselines_avail = ["Bari2019", "Hattori2019", "CompareToThreshold"]
-    if a.n_baselines == 4:
-        baselines_avail = baselines_avail + ["RescorlaWagner"]
+    baselines_by_mode = {
+        "historical": ["Bari2019", "Hattori2019", "CompareToThreshold"],
+        "plus_rw": ["Bari2019", "Hattori2019", "CompareToThreshold", "RescorlaWagner"],
+        "matched": ["Bari2019", "Hattori2019", "RescorlaWagner"],
+    }
+    baselines_avail = baselines_by_mode[a.baselines]
     base_cm = pd.crosstab(ms.true_preset, ms.selected_baseline).reindex(
         index=presets, columns=baselines_avail, fill_value=0).values
     base_acc = (ms.true_preset == ms.selected_baseline).mean()

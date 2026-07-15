@@ -226,18 +226,19 @@ def _update_reports(ladder, s4b, dis):
          "number; (b)/(c) only show what any single 2D view happens to catch."),
         ("stage3_baseline_vs_gru_confusion.png",
          "**Stage 3 — model-identity confusion, baseline vs GRU.** GRU embedding decoding (a, "
-         "98.5% correct) vs fixed-baseline model selection (b, 51.0% correct, n=200): fit all "
-         "FOUR RL fitters (Bari/Hattori/CompareToThreshold/RescorlaWagner) per subject, assign to "
-         "whichever gives the best held-out likelihood. RescorlaWagner now has its own matching "
-         "fitter (wandb run qy9lof3x) and is correctly assigned for 8/66 true-RW subjects — up "
-         "from a structural 0/66 under the earlier 3-fitter setup. Most true-RW subjects (35/66) "
-         "still get misassigned to Bari and 19/66 to Hattori, pointing to RescorlaWagner being "
-         "weakly identified relative to the softmax-QL family, not merely missing from the "
-         "toolkit. Adding the correct fitter closed under half the gap to GRU (47.0%→51.0% vs "
-         "98.5%). Real per-subject data from s3_baseline_modelselection_4way.csv (3-fitter "
-         "historical version retained as s3_baseline_modelselection.csv), replacing an earlier "
-         "version whose baseline panel was synthesized to match a remembered accuracy number "
-         "rather than read from real fits."),
+         "98.5% correct) vs fixed-baseline model selection (b, 62.5% correct, n=200, MATCHED "
+         "comparison): fit exactly the 3 true generative fitters (Bari/Hattori/RescorlaWagner) "
+         "per subject; CompareToThreshold, which has no matching true preset in this stage, is "
+         "dropped entirely rather than left in as a 4th off-target competitor. Accuracy rises "
+         "from 51.0% (4-way, CTT still competing) to 62.5% once CTT stops siphoning off "
+         "Bari/Hattori subjects as a spurious best fit. RescorlaWagner's own fitter (wandb run "
+         "qy9lof3x) still only recovers 8/66 true-RW subjects even with no off-target competitor "
+         "(36/66 misassigned to Bari, 22/66 to Hattori) — a genuine weak-identifiability property "
+         "of RW's fit, not a CTT-crowding artifact. GRU still wins by a wide margin (98.5%). "
+         "Other selectable comparisons via --baselines: historical (Bari/Hattori/CTT, no RW "
+         "fitter, 47.0%) and plus_rw (adds RW alongside CTT, 4-way, 51.0%). Real per-subject "
+         "data throughout, replacing an earlier version whose baseline panel was synthesized to "
+         "match a remembered accuracy number rather than read from real fits."),
         ("stage3_recovery_vs_baseline.png",
          "**Stage 3 — fit quality and per-session parameter recovery, baseline vs GRU.** (a) "
          "relative held-out likelihood — 6 GRU cells (0.978–0.990) vs baseline_rl best-of-4 "
