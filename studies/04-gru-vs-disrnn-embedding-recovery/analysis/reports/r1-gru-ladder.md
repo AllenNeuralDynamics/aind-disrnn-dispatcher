@@ -72,11 +72,11 @@ time, is what makes the likelihood axis discriminating below.*
 
 ![stage2b_likelihood_flip.png](../figures/stage2b_likelihood_flip.png)
 
-***Stage 2b — the baseline flip.** Static Q-learning collapses (0.939) under extrapolation while both GRUs stay >0.987 (a); (b) where model separation now lives.*
+***Stage 2b — the baseline flip.** Fit quality at N=200 by stage: static Q-learning collapses (0.939) under S2b held-out-tail extrapolation while both GRUs stay >0.987 (a); the S2b relative-LL gaps show where model separation lives (b). House palette: black = baseline, light blue = GRU session-blind, dark blue = GRU session-conditioned. Offline from committed CSV.*
 
 ![stage2b_session_trajectory.png](../figures/stage2b_session_trajectory.png)
 
-***Stage 2b.** Stronger, non-monotonic drift: session position is harder to recover (0.94→0.47) but the session delta still carries it; (c) drift paths.*
+***Stage 2b — session trajectory.** Per-session parameter recovery R² by parameter for Stage 2 vs Stage 2b, subject-only (session-blind) vs session-conditioned (a); session-position recovery (b) — subject-only is 0 by construction, and the session delta recovers position at 0.94 (S2) → 0.47 (S2b) as the drift turns non-monotonic. Color: light blue = subject-only, dark blue = session-conditioned; Stage 2 lighter, Stage 2b full. Offline from committed CSVs.*
 
 ![stage3_recovery_combined.png](../figures/stage3_recovery_combined.png)
 

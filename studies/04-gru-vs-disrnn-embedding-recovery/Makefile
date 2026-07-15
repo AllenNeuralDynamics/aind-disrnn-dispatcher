@@ -51,6 +51,10 @@ stage1-baseline:
 # recovery), each keyed by wandb_run_id. The baseline recovery CSV is produced OFF the
 # Claude Science sandbox (compute_stage2_baseline_recovery.py, needs W&B/GCS) — it is
 # committed here so `make` stays offline.
+stage2b:
+	$(PY) analysis/stage2b_flip_figure.py --flip-csv analysis/stage2b_likelihood_flip.csv --out analysis/figures/stage2b_likelihood_flip.png
+	$(PY) analysis/stage2b_trajectory_figure.py --traj-csv analysis/stage2b_trajectory_recovery.csv --out analysis/figures/stage2b_session_trajectory.png
+
 stage2-recovery:
 	$(PY) analysis/stage2_recovery_figure.py \
 		--lik-csv analysis/stage2_likelihood_comparison.csv \
