@@ -244,7 +244,20 @@ def _update_reports(ladder, s4b, dis):
          "winsorizing near-degenerate MLE fits at the true parameter ceiling — consistent with "
          "this family's previously-reported within-subject session-mean R². GRU recovers every "
          "parameter session-conditioned > session-blind > baseline. Single seed (42) per cell — "
-         "no error bars."),
+         "no error bars.\n\n"
+         "Why is GRU session-blind (also one static value per subject) so much better than "
+         "baseline_rl at the SAME task? Both broadcast a fixed per-subject value — neither "
+         "tracks drift — so this gap is an estimation story, not a drift-tracking story. "
+         "baseline_rl fits each subject independently via differential evolution with no "
+         "cross-subject sharing, so weakly-identifiable parameters (forget_rate_unchosen, "
+         "learn_rate_rew, softmax_inverse_temperature, choice_kernel_relative_weight) can hit "
+         "degenerate boundary values per subject. GRU's embedding is decoded by a readout "
+         "trained jointly across all 200 subjects, which regularizes/shrinks toward the "
+         "cohort — it cannot run off to those same extremes. biasL is the control case: "
+         "strongly identifiable from one subject alone, so baseline_rl and GRU session-blind "
+         "are near-tied there (Bari 0.75 vs 0.72; Hattori 0.76 vs 0.78) — the gap opens "
+         "specifically where cross-subject pooling helps most and independent per-subject "
+         "MLE is most exposed."),
         ("stage4a_recovery_combined.png",
          "**Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); "
          "GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d)."),
