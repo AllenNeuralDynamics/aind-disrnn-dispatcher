@@ -53,7 +53,14 @@ stage1-baseline:
 # committed here so `make` stays offline.
 stage2b:
 	$(PY) analysis/stage2b_flip_figure.py --flip-csv analysis/stage2b_likelihood_flip.csv --out analysis/figures/stage2b_likelihood_flip.png
-	$(PY) analysis/stage2b_trajectory_figure.py --traj-csv analysis/stage2b_trajectory_recovery.csv --out analysis/figures/stage2b_session_trajectory.png
+	$(PY) analysis/stage2b_trajectory_figure.py --traj-csv analysis/stage2b_trajectory_recovery.csv \
+		--emb-csv analysis/stage2b_embedding_trajectories.csv \
+		--out analysis/figures/stage2b_session_trajectory.png
+
+# NOTE: analysis/fetch_stage2b_embedding_trajectories.py is NOT part of `all` -- it is the
+# one W&B-touching step in this figure's provenance (regenerates analysis/stage2b_embedding_trajectories.csv
+# from the training code's own reconstruction). Re-run it manually only if the embedding
+# example-subject coordinates need to be refreshed; `stage2b` itself stays fully offline.
 
 stage2-recovery:
 	$(PY) analysis/stage2_recovery_figure.py \
