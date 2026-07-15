@@ -59,6 +59,16 @@ GROUP = "generative-dscan-mult2@20260714-060524"
 GRU_JSON = STUDY.parent / "01-gru-scaling-law" / "analysis" / "generative_match.json"
 GRU_ARM = "v2"  # session conditioning active -- the arm architecturally matched to these runs
 
+# RL baselines: rolled out generatively from variants/generative-rl-baseline (r1's per-subject
+# fits, expanded to the n=614 cohort -- see that variant's notes.md for why per-subject, not
+# per-session). Single point each at D=614 (fit on all 614 mice, same cohort as the D=614 disRNN/
+# GRU cells), NOT a D-sweep -- unlike the disRNN/GRU curves. JSON committed under that variant's
+# results/ dir since these are this study's own work product, not a W&B-logged run.
+# NB: not named "results/" -- that collides with a repo-wide .gitignore pattern (meant for the
+# Beaker /results output-mount convention) and silently drops the committed JSON.
+RL_RESULTS_DIR = STUDY / "variants" / "generative-rl-baseline" / "rl_rollout_summaries"
+RL_LABELS = {"ctt": "compare-to-threshold", "bari": "Bari", "hattori": "Hattori"}
+
 DLAB = {0.016: 10, 0.049: 30, 0.163: 100, 0.489: 300, 1.0: 614}
 
 STAT = "post_switch_by_reward_and_run_length"
@@ -148,7 +158,41 @@ def gru_reference() -> dict:
     return out
 
 
-def figure(disrnn: dict, gru: dict) -> None:
+def rl_reference() -> dict:
+    """RL baselines' generative match, computed stats-only (no figures) from cached rollouts.
+
+    quantitative_summary.json per alias has the SAME nested structure the wrapper logs to W&B
+    (see wandb_keys.py) -- just not flattened into dotted keys, since these rollouts were never
+    logged to a W&B run.
+    """
+    out = {}
+    for alias, label in RL_LABELS.items():
+        path = RL_RESULTS_DIR / f"{alias}_quantitative_summary.json"
+        if not path.exists():
+            continue
+        d = json.loads(path.read_text())
+        sw = d["switch_triggered"]["quantitative_summary"]["subject_mean"][STAT]
+        sw_mse = d["switch_triggered"]["delta_significance_summary"][STAT][
+            "subject_balanced_error_summary"
+        ]["mean_squared_error"]
+        hist = d["history_dependent"]["quantitative_summary"]["subject_mean"][HIST_PATTERN][
+            str(HIST_N_BACK)
+        ]
+        hist_mse = d["history_dependent"]["delta_significance_summary"][HIST_PATTERN][
+            str(HIST_N_BACK)
+        ]["subject_balanced_error_summary"]["mean_squared_error"]
+        out[alias] = dict(
+            label=label,
+            D=614,
+            corr_mean=float(sw["correlation"]),
+            rmse_mean=math.sqrt(float(sw_mse)),
+            hist_corr_mean=float(hist["correlation"]),
+            hist_rmse_mean=math.sqrt(float(hist_mse)),
+        )
+    return out
+
+
+def figure(disrnn: dict, gru: dict, rl: dict) -> None:
     apply_presentation_style()
     Ds = sorted(v["D"] for v in disrnn.values())
     fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.4))
@@ -165,11 +209,20 @@ def figure(disrnn: dict, gru: dict) -> None:
         gm = [gru.get(f"D{D}", {}).get(f"{corr_key}_mean") for D in Ds]
         ax.errorbar(Ds, dm, yerr=ds, fmt="o-", capsize=3, label="disRNN (mult=2, β=1e-3)")
         ax.plot(Ds, gm, "s--", color="gray", label="GRU (study 01, v2)")
+        rl_markers = {"ctt": "^", "bari": "v", "hattori": "D"}
+        for alias, v in rl.items():
+            ax.scatter(
+                [v["D"]], [v.get(f"{corr_key}_mean")],
+                marker=rl_markers.get(alias, "x"), s=70, color="#c44e52", zorder=5,
+                label=f"RL: {v['label']}",
+            )
         ax.set_xscale("log")
         ax.set_xlabel("# training mice (D)")
         ax.set_ylabel("model-vs-animal correlation")
         ax.set_title(title, fontsize=11)
-        ax.legend(loc="lower right", fontsize=8)
+        # upper-left is the one corner ALL series (disRNN/GRU/RL) leave clear at every D --
+        # lower-right sat directly on top of the RL:ctt history-panel marker (hist_corr=0.93).
+        ax.legend(loc="upper left", fontsize=8)
 
     fig.suptitle(
         "Generative behavioral match vs cohort size — the disRNN is less mouse-like at every D",
@@ -184,7 +237,7 @@ def _fmt(value, digits=4):
     return "—" if value is None else f"{value:.{digits}f}"
 
 
-def render_markers(disrnn: dict, gru: dict) -> None:
+def render_markers(disrnn: dict, gru: dict, rl: dict) -> None:
     Ds = sorted(v["D"] for v in disrnn.values())
     header = "| D | " + " | ".join(str(D) for D in Ds) + " |"
     sep = "|---|" + "---|" * len(Ds)
@@ -213,6 +266,32 @@ def render_markers(disrnn: dict, gru: dict) -> None:
         row("disRNN RMSE", lambda D: _fmt(disrnn[f"D{D}"].get("hist_rmse_mean"))),
         row("GRU RMSE", lambda D: _fmt(gru.get(f"D{D}", {}).get("hist_rmse_mean"))),
     ]
+
+    if rl:
+        d614, g614 = disrnn.get("D614", {}), gru.get("D614", {})
+        lines += [
+            "",
+            "**(c) RL baselines at D=614** — per-subject fits (r1), rolled out through the SAME "
+            "task construction as the disRNN/GRU rollouts (not a D-sweep: one fit per mouse, all "
+            "614 mice):",
+            "",
+            "| model | switch corr | switch RMSE | history corr | history RMSE |",
+            "|---|---|---|---|---|",
+            f"| **GRU** | {_fmt(g614.get('corr_mean'))} | {_fmt(g614.get('rmse_mean'))} | "
+            f"{_fmt(g614.get('hist_corr_mean'))} | {_fmt(g614.get('hist_rmse_mean'))} |",
+        ]
+        for alias in ("hattori", "ctt", "bari"):
+            v = rl.get(alias)
+            if not v:
+                continue
+            lines.append(
+                f"| {v['label']} | {_fmt(v['corr_mean'])} | {_fmt(v['rmse_mean'])} | "
+                f"{_fmt(v['hist_corr_mean'])} | {_fmt(v['hist_rmse_mean'])} |"
+            )
+        lines.append(
+            f"| **disRNN** | {_fmt(d614.get('corr_mean'))} | {_fmt(d614.get('rmse_mean'))} | "
+            f"{_fmt(d614.get('hist_corr_mean'))} | {_fmt(d614.get('hist_rmse_mean'))} |"
+        )
     block = "\n".join(lines)
 
     report = STUDY / "analysis" / "reports" / "r4-generative-behavioral-match.md"
@@ -232,6 +311,7 @@ def main() -> None:
     rows = collect()
     disrnn = aggregate(rows)
     gru = gru_reference()
+    rl = rl_reference()
 
     payload = {
         "_meta": build_meta("analysis/generative_match.py", [GROUP]),
@@ -240,14 +320,19 @@ def main() -> None:
             "history": {"pattern": HIST_PATTERN, "n_back": HIST_N_BACK},
             "partition": "combined",
             "gru_reference": {"source": str(GRU_JSON.relative_to(STUDY.parent.parent)), "arm": GRU_ARM},
+            "rl_reference": {
+                "source": str(RL_RESULTS_DIR.relative_to(STUDY.parent.parent)),
+                "note": "single point at D=614, per-subject fits (r1), not a D-sweep",
+            },
         },
         "disrnn": disrnn,
         "gru": gru,
+        "rl": rl,
     }
     (HERE / "generative_match.json").write_text(json.dumps(payload, indent=2))
 
-    figure(disrnn, gru)
-    render_markers(disrnn, gru)
+    figure(disrnn, gru, rl)
+    render_markers(disrnn, gru, rl)
 
     print(f"\n{'D':>5} {'corr':>8} {'GRU':>8} {'rmse':>8} {'GRU':>8}")
     for D in sorted(v["D"] for v in disrnn.values()):

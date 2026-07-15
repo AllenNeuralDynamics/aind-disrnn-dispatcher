@@ -1,16 +1,17 @@
 # 05-disrnn-scaling-law — reports
 
-Three producers, all reading the committed `analysis/grid.csv` except r4 (reads W&B directly):
-`analysis/scaling_report.py` (r1+r2), `analysis/subject_capacity_report.py` (r3),
-`analysis/generative_match.py` (r4). Each writes its own figures + JSON and regenerates its
-`<!-- BEGIN result-N -->` block. Regenerate everything with `make -C studies/05-disrnn-scaling-law`.
+Three producers, all reading the committed `analysis/grid.csv` except r4 (reads W&B + the
+committed local RL rollout JSON): `analysis/scaling_report.py` (r1+r2),
+`analysis/subject_capacity_report.py` (r3), `analysis/generative_match.py` (r4). Each writes its
+own figures + JSON and regenerates its `<!-- BEGIN result-N -->` block. Regenerate everything with
+`make -C studies/05-disrnn-scaling-law`.
 
 | report | question | verdict |
 |---|---|---|
 | [r1 — held-out scaling](r1-heldout-scaling.md) | Does the disRNN transfer better with more mice? | **No.** It peaks at D≈100 (0.7174) then **declines** (0.7154 at D=614) — not undertraining. It sits ~0.010 below the GRU at *every* D and, at the full cohort, below a per-mouse RL baseline. |
 | [r2 — sparsity & the multiplier](r2-sparsity-and-multiplier.md) | Does study 03's D=100 verdict hold at D=614? | **Half of it.** The multiplier still closes the gate monotonically, and "more mice ⇒ less sparse" is confirmed. But study 03's headline — *sparsity is free* — **breaks**: at D=614 sparsifying costs ~0.004 held-out, half the disRNN's gap to the GRU. |
 | [r3 — subject capacity](r3-subject-capacity.md) | Is per-subject capacity the transfer cap? | **No — the mechanism works, the hypothesis doesn't.** The penalty controls subject-channel openness by up to ~80×, confirming the lever moves. But held-out likelihood never rewards the open condition: the *tightest* penalty wins at every embedding width, and unbottlenecking (the GRU limit) is slightly worse. Widening the embedding 4→16→64 gives a modest, plateauing gain that closes ~a third of the GRU gap — but pairs best with the *original* penalty, not a relaxed one. |
-| [r4 — generative match](r4-generative-behavioral-match.md) | Does the disRNN *behave* like a mouse? | **Less than the GRU does, at every D.** History-curve correlation trails by 0.02–0.03 — **10–20× the seed noise**. RMSE is comparable, so it gets the average switch level right and the *shape* wrong. The 2nd-order test discriminates where likelihood could not. |
+| [r4 — generative match](r4-generative-behavioral-match.md) | Does the disRNN *behave* like a mouse? | **Less than the GRU does, at every D** — history-curve correlation trails by 0.02–0.03, **10–20× the seed noise**. Against 3 per-mouse RL baselines at D=614, there's no clean verdict: 2/3 beat the disRNN on the switch curve (Hattori even edges out the GRU), but on the history curve the ranking **inverts** — the RL model best at switch (compare-to-threshold) is the *worst* model in the whole table. |
 
 ## Metric caveat (carry into every report)
 

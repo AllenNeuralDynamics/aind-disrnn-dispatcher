@@ -10,6 +10,7 @@ inputs:
   data: analysis/generative_match.json
   figure: analysis/fig_generative_match.png
   reference: studies/01-gru-scaling-law/analysis/generative_match.json
+  rl_reference: variants/generative-rl-baseline/rl_rollout_summaries/{ctt,bari,hattori}_quantitative_summary.json
 reproduce: make -C studies/05-disrnn-scaling-law r4
 ---
 
@@ -46,6 +47,16 @@ curves, and held-out cohort are identical, so the two models are directly compar
 | **GRU corr** | 0.9619 | 0.9768 | 0.9819 | 0.9838 | 0.9841 |
 | **disRNN RMSE** | 0.0247 | 0.0253 | 0.0228 | 0.0268 | 0.0249 |
 | **GRU RMSE** | 0.0279 | 0.0293 | 0.0240 | 0.0255 | 0.0255 |
+
+**(c) RL baselines at D=614** — per-subject fits (r1), rolled out through the SAME task construction as the disRNN/GRU rollouts (not a D-sweep: one fit per mouse, all 614 mice):
+
+| model | switch corr | switch RMSE | history corr | history RMSE |
+|---|---|---|---|---|
+| **GRU** | 0.9802 | 0.0379 | 0.9841 | 0.0255 |
+| Hattori | 0.9884 | 0.0452 | 0.9648 | 0.0313 |
+| compare-to-threshold | 0.9770 | 0.0369 | 0.9313 | 0.0216 |
+| Bari | 0.9425 | 0.0831 | 0.9561 | 0.0403 |
+| **disRNN** | 0.9433 | 0.0396 | 0.9623 | 0.0249 |
 <!-- END result-4 -->
 
 ## What it says
@@ -75,6 +86,29 @@ and it is invisible to a per-trial likelihood, which the flat curve scores nearl
 with [r1](r1-heldout-scaling.md) (the likelihood gap is also flat in D) and
 [r2](r2-sparsity-and-multiplier.md) (sparsification costs ~0.004 held-out at D=614), the picture is
 consistent: **the disRNN's deficit is architectural, not data-limited.**
+
+**4. Against classical RL, the disRNN's ranking depends entirely on which curve you ask.** r1 already
+showed the disRNN *loses* to compare-to-threshold on held-out likelihood at D=614. Table (c) rolls
+the same three per-mouse RL baselines out generatively (per-subject fits, same task construction as
+every other model here — see
+[`variants/generative-rl-baseline`](../../variants/generative-rl-baseline/notes.md)) and the answer
+is not a clean "RL wins" or "RL loses":
+
+- **On the switch curve**, two of three RL models beat the disRNN outright — **Hattori (0.9884)
+  even edges out the GRU (0.9802)** — and compare-to-threshold (0.9770) is close behind. Only Bari
+  (0.9425) sits at the disRNN's level.
+- **On the history curve, the ranking inverts.** compare-to-threshold — the single best RL model on
+  switch-triggered behavior — is the **worst model in the whole table** on history (0.9313, well
+  below the disRNN's 0.9623). Bari also trails the disRNN here (0.9561). Only Hattori beats the
+  disRNN on both curves.
+
+So "does the disRNN behave more like a mouse than a simple RL model?" has no single answer — it
+depends which behavioral signature you're asking about, and the three RL models themselves disagree
+with each other about which task feature they capture. compare-to-threshold nails short-timescale
+win-stay/lose-shift (the switch curve) while missing 3-trial-back structure entirely; the value-based
+models (Bari, Hattori) are more even across both. Also notable: **Bari's RMSE is 2× everyone else's**
+on both curves (0.083 switch, 0.040 history) despite a mid-table correlation — its curve *shape*
+tracks the animal reasonably, but its absolute *level* is off by more than any other model here.
 
 ## Caveats
 

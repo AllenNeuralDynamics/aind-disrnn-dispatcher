@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/generative_match.py",
-    "produced_at_pt": "2026-07-14T10:29:24-07:00",
-    "dispatcher_git_sha": "22be288c686e57f81d688a1d823c2df2bed0aa6a",
+    "produced_at_pt": "2026-07-15T11:52:17-07:00",
+    "dispatcher_git_sha": "59ddea12e1e6e542c62f6c440bb9a3a55dfda7a0",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "generative-dscan-mult2@20260714-060524"
@@ -18,6 +18,10 @@
     "gru_reference": {
       "source": "studies/01-gru-scaling-law/analysis/generative_match.json",
       "arm": "v2"
+    },
+    "rl_reference": {
+      "source": "studies/05-disrnn-scaling-law/variants/generative-rl-baseline/rl_rollout_summaries",
+      "note": "single point at D=614, per-subject fits (r1), not a D-sweep"
     }
   },
   "disrnn": {
@@ -117,6 +121,32 @@
       "rmse_mean": 0.037877412399305053,
       "hist_corr_mean": 0.9840777507876538,
       "hist_rmse_mean": 0.025485779340908992
+    }
+  },
+  "rl": {
+    "ctt": {
+      "label": "compare-to-threshold",
+      "D": 614,
+      "corr_mean": 0.9769856244227698,
+      "rmse_mean": 0.03685811340780895,
+      "hist_corr_mean": 0.9313346410858782,
+      "hist_rmse_mean": 0.021559166644636574
+    },
+    "bari": {
+      "label": "Bari",
+      "D": 614,
+      "corr_mean": 0.9425315128022134,
+      "rmse_mean": 0.08310961555084169,
+      "hist_corr_mean": 0.9560649826817181,
+      "hist_rmse_mean": 0.04025799219210753
+    },
+    "hattori": {
+      "label": "Hattori",
+      "D": 614,
+      "corr_mean": 0.9883598999209425,
+      "rmse_mean": 0.04522272605871766,
+      "hist_corr_mean": 0.9648450833195308,
+      "hist_rmse_mean": 0.03129281091338725
     }
   }
 }

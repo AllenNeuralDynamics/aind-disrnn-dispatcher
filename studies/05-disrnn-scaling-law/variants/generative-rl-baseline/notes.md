@@ -81,4 +81,41 @@ Each job simulates **18,124 sessions across all 614 mice** (zero dropped — eve
 | Bari | [`bg3nzqz9`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/bg3nzqz9) | `QLearning_L1F1_CK1_softmax` | 0.7149 |
 | Hattori | [`unhmbrk4`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/unhmbrk4) | `QLearning_L2F1_softmax` | 0.7127 |
 
-**Status.** ⏳ running 3/3 (launched 2026-07-14 11:1x PT).
+## Two timeouts before this landed — figure generation, not stats, was the cost
+
+The rollout step (this file, above) finished in ~4-6h each and cached both session histories to
+disk (`simulated_session_history.pkl`, `animal_session_history.pkl`) before the SWITCH curve's
+figures/stats finished but the HISTORY curve's did not (6h wall clock). A second attempt
+(`reanalyze_from_cache.py`, reusing those caches, `DISRNN_SUBJECT_BOOTSTRAP_RESAMPLES=0` to skip
+the subject-level CI bootstrap) **also timed out at 2h** — proof the bootstrap was never the real
+cost.
+
+File-mtime forensics on the dead 2h run: the underlying stats (`compute_switch_stats` +
+`compute_history_dependent_switch_stats`) were both done in **under 12 minutes**; the remaining
+~1h50m was spent in `_save_switch_figures` / `_save_history_dependent_switch_figures`, specifically
+the **per-session scatter plots** (18,124 points each) at ~20–25 min apiece — figures r4 never
+reads.
+
+Fix (`reanalyze_stats_only.py`): call `compute_switch_stats()` / `compute_history_dependent_
+switch_stats()` directly, skip `_save_*_figures()` entirely. Same wrapper code, zero
+re-simulation, zero rendering. All three finished in **10–15 minutes**
+(`submit_reanalyze_stats_only.sbatch`, 30 min budget). Outputs committed to
+`rl_rollout_summaries/{alias}_quantitative_summary.json` (~89 KB each — not named `results/`,
+which collides with a repo-wide `.gitignore` pattern; small enough to commit, and this
+study's own work product rather than a W&B-logged run) — [r4](../../analysis/reports/r4-generative-behavioral-match.md)
+reads these directly.
+
+## Result
+
+| model | switch corr | switch RMSE | history corr | history RMSE |
+|---|---|---|---|---|
+| Hattori | **0.9884** | 0.0452 | 0.9648 | 0.0313 |
+| compare-to-threshold | 0.9770 | 0.0369 | **0.9313** | 0.0216 |
+| Bari | 0.9425 | 0.0831 | 0.9561 | 0.0403 |
+| disRNN (D=614) | 0.9433 | 0.0396 | 0.9623 | 0.0249 |
+
+No RL model is uniformly more mouse-like than the disRNN: 2/3 beat it on the switch curve, but the
+best of those (compare-to-threshold) is the single worst model on the history curve. Full
+interpretation: [r4](../../analysis/reports/r4-generative-behavioral-match.md) finding 4.
+
+**Status.** ✅ **done 3/3** (2026-07-15 11:2x PT). This closes the study's active-compute phase.

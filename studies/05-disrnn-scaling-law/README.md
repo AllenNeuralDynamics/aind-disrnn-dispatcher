@@ -14,10 +14,11 @@ done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
 100-mouse cohort** ([`03-disrnn-beta-scan`](../03-disrnn-beta-scan)) and on synthetic populations
 ([`04`](../04-gru-vs-disrnn-embedding-recovery)) — **never on the full dataset**.
 
-## Verdict — all 45 training runs + generative rollouts complete (2026-07-15)
+## Verdict — all compute complete (2026-07-15)
 
-> All three training waves (15+12+18 = 45/45) and `generative-dscan` (15/15) are finished, clean, no
-> NaNs. Reports: [r1](analysis/reports/r1-heldout-scaling.md),
+> All three training waves (15+12+18 = 45/45), `generative-dscan` (15/15), and
+> `generative-rl-baseline` (3/3) are finished, clean, no NaNs. This study's active-compute phase is
+> done. Reports: [r1](analysis/reports/r1-heldout-scaling.md),
 > [r2](analysis/reports/r2-sparsity-and-multiplier.md),
 > [r3](analysis/reports/r3-subject-capacity.md),
 > [r4](analysis/reports/r4-generative-behavioral-match.md).
@@ -116,6 +117,24 @@ helps *alongside* the original penalty, not by relaxing it.
 > here (all comparisons above are same-SHA), but says cross-SHA held-out numbers in this study should
 > be read at ±0.001, not treated as exact.
 
+**7. Against classical RL, the disRNN's behavioral ranking has no single answer.**
+([r4](analysis/reports/r4-generative-behavioral-match.md), all 3 RL baselines.) r1 already showed
+the disRNN *loses* to compare-to-threshold on held-out **likelihood** at D=614. Rolled out
+generatively, the picture flips depending which curve you ask:
+
+| model | switch corr | history corr |
+|---|---|---|
+| GRU | 0.9802 | 0.9841 |
+| Hattori (RL) | **0.9884** | 0.9648 |
+| compare-to-threshold (RL) | 0.9770 | **0.9313** |
+| Bari (RL) | 0.9425 | 0.9561 |
+| disRNN | 0.9433 | 0.9623 |
+
+On the switch curve, 2/3 RL models beat the disRNN (Hattori even edges out the GRU). On the history
+curve the ranking **inverts**: compare-to-threshold — the best RL model on switch — is the **worst
+model in the whole table**. Only Hattori beats the disRNN on both. No model here is uniformly more
+mouse-like; the RL models themselves disagree about which behavioral signature they capture.
+
 > **Claims made earlier in this study's status log that the data has since falsified.** Kept rather
 > than quietly deleted. (a) "The disRNN saturates by ~100 mice like the GRU" — it does not; it peaks
 > and declines. (b) "Interaction openness rises *monotonically* with D, so the multiplier must scale
@@ -159,11 +178,12 @@ comparable. Cell-by-cell, the D=100 cells here are comparable to study 03's D=10
 
 | variant | what differs | status | W&B group (launch) | Beaker exp |
 |---|---|---|---|---|
-| [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ⏳ running | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
+| [`smoke-d614`](variants/smoke-d614/notes.md) | 1 task, full cohort, schedule compressed ~30× — proves the D=614 pipeline before the fan-out | ✅ done 1/1 | `smoke-d614@20260713-001936` | [`01KXD5GZ1S112A6M4SJ0A1TK6J`](https://beaker.org/ex/01KXD5GZ1S112A6M4SJ0A1TK6J) |
 | [`dscan-mult2`](variants/dscan-mult2/notes.md) | **the scaling curve**: D {10,30,100,300,614} × seed {0,1,2} = 15 tasks at mult=2 | ✅ done 15/15 | `dscan-mult2@20260713-003428` | [`01KXD6CDKKN2CARG16AW4XQRJN`](https://beaker.org/ex/01KXD6CDKKN2CARG16AW4XQRJN) + recovery [`01KXD6PA22ZZW2MJ2CH0JSKSWT`](https://beaker.org/ex/01KXD6PA22ZZW2MJ2CH0JSKSWT) |
 | [`mult-beta-d614`](variants/mult-beta-d614/notes.md) | study 03's mult{1,2,5,10} × β{3e-4,1e-3,3e-3} grid re-run at D=614 = 12 tasks | ✅ done 12/12 | `mult-beta-d614@20260713-003501` | [`01KXD6DCD9VGY3G6D3M0JWPB7X`](https://beaker.org/ex/01KXD6DCD9VGY3G6D3M0JWPB7X) + recovery [`01KXD6PBQ8CDVG7RF8S7DJ64MF`](https://beaker.org/ex/01KXD6PBQ8CDVG7RF8S7DJ64MF) |
 | [`generative-dscan`](variants/generative-dscan/notes.md) | **2nd-order validation**: roll each of the 15 `dscan-mult2` cells out as a generative agent and compare its behavior to the real mouse (study 01's r9, for the disRNN) | ✅ done 15/15 → [r4](analysis/reports/r4-generative-behavioral-match.md) | `generative-dscan-mult2@20260714-060524` | [`01KXGBPWPEDW5EC9X3V8YSM34C`](https://beaker.org/ex/01KXGBPWPEDW5EC9X3V8YSM34C) |
 | [`subject-capacity`](variants/subject-capacity/notes.md) | **is per-subject capacity the transfer cap?** embed{4,16,64} × subject_penalty{β,β/10,0} at D=100 = 18 tasks; penalty=0 is the GRU limit | ✅ done 18/18 → [r3](analysis/reports/r3-subject-capacity.md) | `subject-capacity@20260713-225831` | [`01KXFKA0G7E6X1MPSH39YQXMV7`](https://beaker.org/ex/01KXFKA0G7E6X1MPSH39YQXMV7) + [`01KXFKA1ZST5F5M46HSW2C4YEG`](https://beaker.org/ex/01KXFKA1ZST5F5M46HSW2C4YEG) + embed64 clean recovery [`01KXH3DXG79JTPEZ959TWP02KQ`](https://beaker.org/ex/01KXH3DXG79JTPEZ959TWP02KQ) |
+| [`generative-rl-baseline`](variants/generative-rl-baseline/notes.md) | do the 3 per-mouse RL baselines (r1) behave more like a mouse than the disRNN? Generative rollout, same task construction as `generative-dscan`, D=614 (all mice), no D-sweep | ✅ done 3/3 → [r4](analysis/reports/r4-generative-behavioral-match.md) | (HPC SLURM, not Beaker — CPU-only) | jobs `23179104`/`23179105`/`23179106` |
 
 ### Bad-node recovery (2026-07-13)
 
@@ -369,3 +389,36 @@ python code/launch_beaker_resumable.py \
   **All 45 training runs across the three waves are now finished.** With `generative-dscan` (15/15,
   r4) also done, the study's active-compute phase is complete; `generative-rl-baseline` (RL reference
   lines for r4) remains in flight.
+
+- 2026-07-15 11:2x PT: **`generative-rl-baseline` complete (3/3) → [r4 updated](analysis/reports/r4-generative-behavioral-match.md).
+  Against classical RL, the disRNN's ranking depends entirely on which curve you ask.** All three
+  per-mouse RL baselines (r1's fits: compare-to-threshold, Bari, Hattori) rolled out generatively at
+  D=614, same task construction as every other model in r4:
+
+  | model | switch corr | history corr |
+  |---|---|---|
+  | GRU | 0.9802 | 0.9841 |
+  | Hattori (RL) | **0.9884** | 0.9648 |
+  | compare-to-threshold (RL) | 0.9770 | **0.9313** |
+  | Bari (RL) | 0.9425 | 0.9561 |
+  | disRNN | 0.9433 | 0.9623 |
+
+  On the switch curve, 2/3 RL models beat the disRNN (Hattori even edges out the GRU). On the
+  history curve the ranking **inverts**: compare-to-threshold — the best RL model on switch — is the
+  **worst model in the whole table**, well below the disRNN it "beat" on the other axis. Only Hattori
+  beats the disRNN on both. No model here is uniformly more mouse-like than any other; the three RL
+  models disagree with each other about which behavioral signature they capture. Bari's RMSE is ~2×
+  everyone else's on both curves despite mid-table correlation — its curve shape tracks the animal,
+  its absolute level does not.
+
+  **Infra note, not science:** two reanalysis passes timed out before this landed. First (6h wall
+  clock): the switch curve finished but history-dependent significance testing did not. Second (2h,
+  subject-level bootstrap disabled): *still* timed out — which proved the bootstrap was never the
+  bottleneck. File-mtime forensics on the dead run showed stats complete in <12 min; the remaining
+  ~1h50m was spent rendering per-session scatter plots (18,124 points each) that r4 never reads.
+  Fix: call the wrapper's `compute_switch_stats()` / `compute_history_dependent_switch_stats()`
+  directly and skip figure generation entirely — same code, zero re-simulation. All three finished
+  in 10–15 minutes. **Lesson: when a stats job times out, check whether it's the stats or the
+  plots before reaching for a bigger wall clock.**
+
+  With this, `generative-rl-baseline` is done and **all active compute for this study is complete.**
