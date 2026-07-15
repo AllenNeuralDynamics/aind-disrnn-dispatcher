@@ -269,6 +269,31 @@ def _update_reports(ladder, s4b, dis):
          "are near-tied there (Bari 0.75 vs 0.72; Hattori 0.76 vs 0.78) — the gap opens "
          "specifically where cross-subject pooling helps most and independent per-subject "
          "MLE is most exposed."),
+        ("stage3_baseline_initial_param_scatter.png",
+         "**Stage 3 — baseline_rl: true initial (session-0) parameter vs fitted static "
+         "value.** Isolates whether the negative per-session recovery R2 above comes from "
+         "drift-tracking failure (baseline_rl broadcasts one static estimate across all 40 "
+         "sessions, structurally cannot track drift) or a genuine point-estimate fit-quality "
+         "problem already present at session 0, before drift accumulates. Most weakly-recovered "
+         "parameters (choice-kernel weight, forget-rate-unchosen, RescorlaWagner's own three "
+         "params) already show ceiling-hugging degenerate MLE fits at session 0 -- red triangles "
+         "mark winsorized fits -- so this is at least partly a static fit-quality problem, not "
+         "purely drift confusion. biasL is the clean exception (R2=0.74 for Bari/Hattori). "
+         "Several parameters keep strong Spearman rank correlation even when R2 is negative "
+         "(e.g. RW biasL rho=0.93 vs R2=-0.19, winsorized R2=0.33), pointing to a scale/"
+         "calibration miscalibration rather than pure noise for those cases."),
+        ("stage3_trajectory_recovery.png",
+         "**Stage 3 — true parameter drift vs baseline/GRU recovery, one representative "
+         "subject per family.** Qualitative complement to the aggregate R2 numbers above: for "
+         "one well-fit representative subject per true family, plots the true drifting "
+         "parameter across all 40 sessions against baseline_rl (flat static line), GRU "
+         "session-blind (flat static line), and GRU session-conditioned (a genuine per-session "
+         "curve, reconstructed the same way as the stage2/stage2b trajectory figures). Only "
+         "session-conditioned tracks the parameter's actual shape -- most visible for "
+         "Bari/Hattori's non-monotonic sinusoidal inverse-temperature drift and RescorlaWagner's "
+         "linear learn_rate ramp -- while both flat baselines sit pinned at a single value "
+         "throughout, including into the held-out tail."),
+
         ("stage4a_recovery_combined.png",
          "**Stage 4a — family mixture.** Embedding-space PCA separating the three families (a,b); "
          "GRU embedding decodes family at 100% (c) vs 70% fixed-baseline model selection (d)."),
