@@ -1,8 +1,9 @@
 {
   "_meta": {
     "produced_by": "analysis/generative_match.py",
-    "produced_at_pt": "2026-06-26T02:24:14-07:00",
-    "dispatcher_git_sha": "122abfd0e2fd67c7eda1ab2099f8b7cf2881ae61",
+    "produced_at_pt": "2026-07-15T13:51:16-07:00",
+    "dispatcher_git_sha": "6235b550a7137cd27487b118ef68d941981716d9",
+    "wrapper_git_sha": "870e6ddd56c0bfba4d2a314b63af0e056ef0153c",
     "wandb_groups": [
       "generative-v1@20260623-180747",
       "generative-v2@20260623-180750"
@@ -584,6 +585,32 @@
           "rmse_sd": 3.779019018872253e-05
         }
       }
+    }
+  },
+  "rl_reference": {
+    "ctt": {
+      "label": "compare-to-threshold",
+      "D": 614,
+      "corr": 0.9769856244227698,
+      "rmse": 0.03685811340780895,
+      "hist_corr": 0.9313346410858782,
+      "hist_rmse": 0.021559166644636574
+    },
+    "bari": {
+      "label": "Bari",
+      "D": 614,
+      "corr": 0.9425315128022134,
+      "rmse": 0.08310961555084169,
+      "hist_corr": 0.9560649826817181,
+      "hist_rmse": 0.04025799219210753
+    },
+    "hattori": {
+      "label": "Hattori",
+      "D": 614,
+      "corr": 0.9883598999209425,
+      "rmse": 0.04522272605871766,
+      "hist_corr": 0.9648450833195308,
+      "hist_rmse": 0.03129281091338725
     }
   }
 }
