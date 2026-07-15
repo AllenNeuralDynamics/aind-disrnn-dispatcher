@@ -346,10 +346,17 @@ def _update_reports(ladder, s4b, dis):
          "(each family's fixed fitter scored only against subjects whose true generative "
          "family matches it). Unlike Stage 3's missing-RW-fitter gap, every Stage-4a family "
          "has a correctly-specified baseline -- CompareToThreshold's is genuinely decent "
-         "across all 4 parameters (R2=0.42-0.83, zero winsorized outliers), while QLearning "
-         "shows the same severe ceiling-hugging degeneracy Stage 3 found for Bari2019 "
+         "across all 4 parameters after winsorizing degenerate MLE excursions (R2=0.42-0.83, "
+         "with 8/67 subjects' learn_rate fits clipped at the true ceiling) -- comparable "
+         "in relative frequency but far less severe than QLearning's, which shows the "
+         "same severe ceiling-hugging degeneracy Stage 3 found for Bari2019 "
          "(choice_kernel_relative_weight, forget_rate_unchosen, softmax_inverse_temperature "
-         "all pinned at the winsor ceiling for a substantial fraction of subjects)."),
+         "all pinned at the winsor ceiling for a substantial fraction of subjects). "
+         "LossCounting's own fit is not uniformly clean either: loss_count_threshold_std "
+         "shows a severe raw R2=-2.31 (winsorized -0.31, 31/66 subjects clipped) -- the "
+         "worst negative R2 of any Stage-4a baseline parameter, comparable to QLearning's "
+         "worst cases despite LossCounting otherwise looking well-behaved on biasL and "
+         "loss_count_threshold_mean."),
 
         ("stage4a_gru_initial_param_scatter.png",
          "**Stage 4a -- GRU session-blind: true initial (session-0) parameter vs "
