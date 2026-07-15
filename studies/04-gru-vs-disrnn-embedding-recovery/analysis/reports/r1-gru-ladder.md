@@ -103,6 +103,39 @@ GRU, 50,000 steps, checkpoint every 5,000 steps. Stages with session conditionin
 session term. The `baseline_rl` reference is the correctly-specified generating model
 class, fit per subject. All runs are in W&B project `embedding_recovery` (entity `AIND-disRNN`).
 
+**How the synthetic data is generated** (`data_loaders.hierarchical_synthetic.HierarchicalCognitiveAgents`,
+wrapper repo). Two-armed foraging task, random-walk reward probabilities (no
+baiting). For each subject:
+1. **Centroid draw.** A per-subject parameter centroid (`biasL`, `learn_rate`,
+   `softmax_inverse_temperature`, plus a preset/family label from Stage 3
+   onward) is drawn from the population distribution in `subject_param_dist`
+   (uniform ranges, e.g. `learn_rate ~ U[0.1, 0.9]`), using a per-subject RNG
+   seeded as `agent_base_seed + subject_idx * subject_seed_stride`.
+2. **Within-subject trajectory (optional, Stage 2+).** If `drift` is
+   configured, each session's parameters are displaced from the centroid along
+   a deterministic function of session position (`linear`, `toward_zero`,
+   `multiplicative`, or `sinusoidal` — see the per-stage table below), plus
+   optional per-session Gaussian `session_noise`. With `drift` empty (Stage 1)
+   every session shares the centroid exactly.
+3. **Trial simulation.** For each (subject, session), a `ForagerQLearning` (or
+   preset-family) agent is simulated against the task for 650 trials, using
+   two independent deterministic seed streams — one for the agent's choice
+   sampling, one for the task's reward schedule — both offset by
+   `subject_idx * subject_seed_stride + session_idx`, so every row is
+   independently regenerable from `(config, seed)` alone with no frozen
+   dataset. Subject simulation is embarrassingly parallel and byte-identical
+   regardless of worker count.
+4. **Ground truth emitted alongside training data.** The loader writes a
+   per-(subject, session) ground-truth parameter table (CSV, the recovery
+   target) and computes the *generating policy's* own likelihood on the same
+   held-out sessions the trained models are scored on — this is the
+   `groundtruth_likelihood` denominator for `likelihood_relative_to_groundtruth`
+   everywhere in this report.
+
+Held-out sessions are selected by `heldout_session_mode` (`interleaved`,
+Stages 1–2, vs `tail`, Stage 2b onward — see "Held-out evaluation" above) and
+excluded from training identically for every model (GRU and `baseline_rl`).
+
 **Recovery scoring** (`analysis/recovery_scoring.py`, model-agnostic). Two axes:
 1. **Fit** — `likelihood_relative_to_groundtruth` = model NL ÷ generating-policy NL
    (ceiling 1.0), pulled from W&B.
