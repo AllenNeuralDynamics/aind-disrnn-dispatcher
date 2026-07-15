@@ -80,6 +80,16 @@ per-(subject, session) ground-truth parameter table (`groundtruth_params.csv`).
   `softmax_inverse_temperature` ~ U[2, 15]. Each subject = one centroid.
 - **Drift (Stage-2 onward):** within-subject drift across sessions; Stage-2b adds
   strong + non-monotonic drift with a tail held-out session split.
+- **Held-out evaluation (all stages):** every stage's reported likelihood is
+  computed on held-out sessions (`data.eval_every_n=2`), never on training
+  sessions — but the *split mode* changes at Stage-2b. Stages 1–2 use an
+  `interleaved` split (every 2nd session held out, scattered — the model sees
+  sessions on both sides of each gap and can *interpolate* through it, so a
+  static per-subject fit pays little). Stage-2b onward switch to a `tail`
+  split (`data.heldout_session_mode=tail`, last 20% of each subject's
+  sessions, contiguous) — the model must *extrapolate* past the end of what
+  it trained on, which is what makes the likelihood axis discriminating
+  (see the baseline flip, below).
 - **Mixtures (Stages 3–4):** Stage-3 mixes QL variants (Bari/Hattori/RW), Stage-4a
   mixes model *families* (QL/CompareToThreshold/LossCounting) one per subject,
   Stage-4b switches family per session from a sparse Dirichlet(0.5) subject mixture.

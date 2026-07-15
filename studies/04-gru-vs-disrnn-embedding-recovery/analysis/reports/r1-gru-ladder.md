@@ -62,6 +62,14 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ***Stage 2.** Only the session-conditioning MLP encodes drift position (subject-only delta-zeroed = R² 0.00 by construction); (c) each subject traces a drift path in embedding space.*
 
+*Every stage's likelihood is a held-out-session likelihood (`eval_every_n=2`)
+— Stages 1–2 just use an `interleaved` split (every 2nd session, scattered),
+which a static per-subject fit can interpolate through, so it looks
+uninformative. Stage 2b switches to a `tail` split (last 20% of each
+subject's sessions, contiguous, `heldout_session_mode=tail`) that forces
+extrapolation — that switch, not held-out evaluation appearing for the first
+time, is what makes the likelihood axis discriminating below.*
+
 ![stage2b_likelihood_flip.png](../figures/stage2b_likelihood_flip.png)
 
 ***Stage 2b — the baseline flip.** Static Q-learning collapses (0.939) under extrapolation while both GRUs stay >0.987 (a); (b) where model separation now lives.*
