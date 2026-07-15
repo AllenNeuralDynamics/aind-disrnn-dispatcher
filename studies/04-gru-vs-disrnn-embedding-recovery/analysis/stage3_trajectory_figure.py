@@ -12,7 +12,7 @@ tracks the parameter as it actually drifts across the 40 sessions. The held-out 
 
 Representative subjects are chosen as the first (alphabetically) subject per family
 whose baseline_rl fit lands within the true parameter's plausible range on every drifting
-parameter (same WINSOR ceiling convention as stage3_baseline_initial_param_scatter.py) --
+parameter (same WINSOR ceiling convention as stage3_initial_param_scatter.py) --
 this avoids illustrating the qualitative story with a subject whose static fit is itself
 a degenerate MLE outlier.
 
