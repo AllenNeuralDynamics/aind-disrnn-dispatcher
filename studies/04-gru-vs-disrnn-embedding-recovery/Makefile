@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2b
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b
 
-all: r1 stage1-prelim stage1-baseline stage2-recovery stage2b
+all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -67,3 +67,12 @@ stage2-recovery:
 		--lik-csv analysis/stage2_likelihood_comparison.csv \
 		--persession-csv analysis/stage2_persession_recovery.csv \
 		--out analysis/figures/stage2_recovery_vs_baseline.png
+
+stage2-trajectory:
+	$(PY) analysis/stage2_trajectory_figure.py \
+		--traj-csv analysis/stage2_trajectory_recovery.csv \
+		--emb-csv analysis/stage2_embedding_trajectories.csv \
+		--out analysis/figures/stage2_session_trajectory.png
+# NOTE: analysis/fetch_stage2_embedding_trajectories.py is NOT part of `all` -- same
+# one-off pattern as the stage2b embedding fetch: it is the only W&B-touching step in
+# this figure's provenance. Re-run it manually only if the coordinates go stale.

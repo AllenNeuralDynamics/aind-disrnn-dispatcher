@@ -60,7 +60,7 @@ reproduce: make -C studies/04-gru-vs-disrnn-embedding-recovery r1
 
 ![stage2_session_trajectory.png](../figures/stage2_session_trajectory.png)
 
-***Stage 2.** Only the session-conditioning MLP encodes drift position (subject-only delta-zeroed = R² 0.00 by construction); (c) each subject traces a drift path in embedding space.*
+***Stage 2 — session trajectory.** Per-session parameter recovery R² at Stage 2 (n=200) for baseline_rl / GRU session-blind / GRU session-conditioned (a) — reads the same source values as the combined figure's panel c, so the bars agree exactly; session-position recovery, session-conditioned vs subject-only (b) — subject-only is 0 by construction, session conditioning recovers it at 0.94; embedding-space drift paths for 8 example subjects, colored by session position (c) — reconstructed via the training code's own `compute_session_conditioned_context_dataframe`, frozen to CSV once. Color: black = baseline, light blue = session-blind/subject-only, dark blue = session-conditioned; in (c), viridis = session position. Offline from committed CSVs.*
 
 *Every stage's likelihood is a held-out-session likelihood (`eval_every_n=2`)
 — Stages 1–2 just use an `interleaved` split (every 2nd session, scattered),

@@ -198,9 +198,15 @@ def _update_reports(ladder, s4b, dis):
         ("stage2_recovery_vs_baseline.png",
          "**Stage 2 — mild drift.** Fit quality relative to ground truth (a, all near ceiling), and PER-SESSION parameter recovery R² — how well each model's per-session prediction tracks the true drifting parameter — as the mean over parameters vs #subjects (b) and per-parameter at n=200 (c), for baseline_rl, GRU session-blind, and GRU session-conditioned (markers: baseline = square, GRU = circle; color: light blue = 4-d subject-only, dark blue = 4-d + session conditioning, black = baseline). Fixed per-subject estimates (baseline, session-blind) are broadcast to every session; only the session-conditioned GRU predicts a per-session value, and it recovers best (0.84–0.91) while the two fixed models trail together (0.76–0.85) — all three are moderate-to-high because the per-session parameter is dominated by the subject centroid, so session conditioning adds the drift-tracking edge. (Recovery of the drift POSITION itself, where session-blind is 0 by construction, is a separate story — see stage2_session_trajectory.png.) baseline_rl softmax-temperature uses a ROBUST R² (fitted inverse-temperature winsorized at 20, true ceiling ~18.6; Spearman 0.89–0.93). Single seed (42) per cell — no error bars."),
         ("stage2_session_trajectory.png",
-         "**Stage 2.** Only the session-conditioning MLP encodes drift position "
-         "(subject-only delta-zeroed = R² 0.00 by construction); (c) each subject traces a "
-         "drift path in embedding space."),
+         "**Stage 2 — session trajectory.** Per-session parameter recovery R² at Stage 2 (n=200) for "
+         "baseline_rl / GRU session-blind / GRU session-conditioned (a) — reads the same source values "
+         "as the combined figure's panel c, so the bars agree exactly; session-position recovery, "
+         "session-conditioned vs subject-only (b) — subject-only is 0 by construction, session "
+         "conditioning recovers it at 0.94; embedding-space drift paths for 8 example subjects, colored "
+         "by session position (c) — reconstructed via the training code's own "
+         "`compute_session_conditioned_context_dataframe`, frozen to CSV once. Color: black = baseline, "
+         "light blue = session-blind/subject-only, dark blue = session-conditioned; in (c), viridis = "
+         "session position. Offline from committed CSVs."),
         ("stage2b_likelihood_flip.png",
          "**Stage 2b — the baseline flip.** Static Q-learning collapses (0.939) under "
          "extrapolation while both GRUs stay >0.987 (a); (b) where model separation now lives."),
