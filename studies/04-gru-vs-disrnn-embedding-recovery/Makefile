@@ -128,6 +128,12 @@ stage4a-recovery:
 	$(PY) analysis/stage4a_persession_figure.py \
 		--persession-csv analysis/stage4a_persession_recovery.csv \
 		--out analysis/figures/stage4a_persession_recovery.png
+	$(PY) analysis/stage4a_baseline_initial_param_scatter.py \
+		--scatter-csv analysis/stage4a_baseline_initial_param_scatter.csv \
+		--out analysis/figures/stage4a_baseline_initial_param_scatter.png
+	$(PY) analysis/stage4a_gru_initial_param_scatter.py \
+		--scatter-csv analysis/stage4a_gru_initial_param_scatter.csv \
+		--out analysis/figures/stage4a_gru_initial_param_scatter.png
 
 # stage4b-recovery regenerates analysis/figures/stage4b_recovery.png (per-session
 # family-switching: subject embedding recovers stable Dirichlet mixture weights; session
