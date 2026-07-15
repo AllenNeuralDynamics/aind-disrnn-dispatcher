@@ -80,7 +80,7 @@ time, is what makes the likelihood axis discriminating below.*
 
 ![stage3_recovery_combined.png](../figures/stage3_recovery_combined.png)
 
-***Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL (b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within.*
+***Stage 3 — QL-variant mixture.** Embedding-space PCA colored by true type (a), biasL (b), learn_rate (c); type decoded at 97.5–99.5% (d), confusion (e), within-family parameter recovery (f). Model TYPE → cluster; PARAMETERS → position within — but (b)/(c)'s within-cluster gradient strength is a 2D-PCA-projection artifact, not a measure of recovery quality: each type's true biasL-encoding direction in the full 4-d embedding aligns with the global top-2 PCA axes by chance (checked directly — RescorlaWagner's biasL direction is 82% aligned with local PC1, vs 7–11% for Bari/Hattori), so it looks clean for RescorlaWagner and scattered for Bari/Hattori despite (f)'s R² being uniformly high (0.89–0.96) for all three. (f) is the authoritative recovery number; (b)/(c) only show what any single 2D view happens to catch.*
 
 ![stage3_baseline_vs_gru_confusion.png](../figures/stage3_baseline_vs_gru_confusion.png)
 
