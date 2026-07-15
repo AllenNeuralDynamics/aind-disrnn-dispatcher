@@ -20,9 +20,9 @@
 # default source of truth, so `make` runs offline.
 
 PY ?= python
-.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery
+.PHONY: all r1 r2 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery
 
-all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery
+all: r1 stage1-prelim stage1-baseline stage2-recovery stage2-trajectory stage2b stage3-recovery stage4a-recovery
 
 # r1 and r2 are produced together by recovery_report.py (one figure set, both
 # report blocks). Listed separately for discoverability; both run the same command.
@@ -96,3 +96,15 @@ stage3-recovery:
 		--baseline-summary-csv analysis/stage3_baseline_likelihood_summary.csv \
 		--persession-csv analysis/stage3_persession_recovery.csv \
 		--out analysis/figures/stage3_recovery_vs_baseline.png
+
+# stage4a-recovery regenerates analysis/figures/stage4a_recovery_combined.png from frozen
+# curated inputs (embedding + GRU confusion details + GRU embed-size grid + baseline
+# model-selection crosstab), keyed by immutable wandb_run_id inside the JSON/CSV -- offline,
+# no W&B pull, so `make` stays offline.
+stage4a-recovery:
+	$(PY) analysis/stage4a_recovery_figure.py \
+		--emb-csv analysis/stage4a_embedding.csv \
+		--gru-details-json analysis/stage4a_gru_details.json \
+		--gru-recovery-csv analysis/stage4a_gru_recovery.csv \
+		--ms-csv analysis/stage4a_baseline_modelselection.csv \
+		--out analysis/figures/stage4a_recovery_combined.png
