@@ -224,7 +224,10 @@ are always reported together going forward, either as adjacent bars in one figur
 paired R²-figure/ρ-figure combination (`analysis/stage{N}_..._rho_figure.py` producers,
 committed alongside their R² counterparts and wired into the same Makefile targets).
 ρ figures omit any panel that has no natural rank-correlation analog (e.g. Stage 1/2/2b's
-fit-quality-vs-N line plots, Stage 4b's classification-accuracy panel).
+fit-quality-vs-N line plots, Stage 4b's per-session classification-accuracy and confusion-matrix
+panels). Stage 4b's mixture-weight recovery panel (reported as R² per family) does have a
+computable rho analog, but it is not yet built — no rho companion exists for any Stage-4b
+panel as of this writing; treat Stage 4b as outstanding, not exempt.
 
 **Per-session vs per-subject recovery — and why per-session is the primary axis.**
 Parameter recovery can be scored against two targets: each subject's *session-mean*
