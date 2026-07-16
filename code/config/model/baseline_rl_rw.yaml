@@ -1,0 +1,34 @@
+# Baseline fitter -- Rescorla-Wagner style (ForagerQLearning: epsilon-greedy action
+# selection, single learning rate, no forget rate, no choice kernel). One of the FOUR
+# fixed baselines for the Stage-3 mixture (Bari/Hattori/RescorlaWagner/CTT was previously
+# THREE -- Bari/Hattori/CTT -- leaving RescorlaWagner subjects structurally mis-assigned;
+# this config closes that gap so model-selection has a correctly-specified fitter for
+# every true preset). agent_kwargs matches the Stage-3 generator's RescorlaWagner preset
+# EXACTLY (confirmed from hierarchical_rl_stage3.yaml's subject_presets: agent_class
+# ForagerQLearning, choice_kernel none, action_selection epsilon-greedy,
+# number_of_forget_rate 0, number_of_learning_rate 1). STANDALONE config (no baseline_rl
+# merge) so the agent_kwargs dict is exactly this class's structure.
+type: baseline_rl
+
+agent_class: ForagerQLearning
+agent_kwargs:
+  number_of_learning_rate: 1
+  number_of_forget_rate: 0
+  choice_kernel: none
+  action_selection: epsilon-greedy
+run_name_component: baseline_rw
+_target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
+
+architecture:
+  multisubject: true
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+multisubject_subject_workers: 6
+fit_bounds_override: {}
+clamp_params: {}
+DE_kwargs:
+  polish: true
+heldout_refit:
+  enabled: false
+  skip_train_fit: false
+
+seed: ${seed}

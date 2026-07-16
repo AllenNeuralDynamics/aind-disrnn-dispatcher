@@ -14,6 +14,10 @@ absolute-likelihood key — baseline_rl):
       - Ridge R^2: cross-validated R^2 of predicting each true param from the
         embedding (embedding -> param).  This is the interpretable "can I read
         parameter X off the embedding?" score, robust to d_emb != 3.
+      - Spearman rho: rank correlation between true param and the SAME
+        cross-validated Ridge predictions used for R^2 (identical y_true/y_pred
+        pair, just a rank-based summary alongside the primary R^2 metric --
+        reported, never substituted for R^2).
 
 The true per-subject params are STATIC in Stage 1 (one value per subject across
 sessions) and deterministic in subject_idx alone, so a single master
@@ -27,6 +31,7 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.cross_decomposition import CCA
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
 
 PARAM_COLS = ["param_biasL", "param_learn_rate", "param_softmax_inverse_temperature"]
 PARAM_SHORT = {"param_biasL": "biasL",
@@ -75,17 +80,22 @@ def cca_scores(E, P):
 
 
 def ridge_r2(E, P, n_splits=5, alpha=1.0, seed=0):
-    """Cross-validated R^2 predicting each true param from the embedding."""
+    """Cross-validated R^2 (primary) + Spearman rho (secondary, same y_true/y_pred
+    pair) predicting each true param from the embedding."""
     n = E.shape[0]
     n_splits = min(n_splits, n)
     Es = StandardScaler().fit_transform(E)
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
     out = {}
+    spearman_out = {}
     for j, col in enumerate(PARAM_COLS):
         y = P[:, j]
         pred = cross_val_predict(Ridge(alpha=alpha), Es, y, cv=kf)
         out[PARAM_SHORT[col]] = float(r2_score(y, pred))
+        rho, _pval = spearmanr(y, pred)
+        spearman_out[PARAM_SHORT[col]] = float(rho)
     out["r2_mean"] = float(np.mean(list(out.values())))
+    out["_spearman"] = spearman_out  # consumed by score_run; not itself a metric key
     return out
 
 
@@ -95,5 +105,7 @@ def score_run(emb_pickle: str, true_df: pd.DataFrame) -> dict:
     res = {"n_subjects": E.shape[0], "emb_dim": E.shape[1]}
     res.update(cca_scores(E, P))
     r2 = ridge_r2(E, P)
+    spearman = r2.pop("_spearman")
     res.update({f"r2_{k}": v for k, v in r2.items()})
+    res.update({f"spearman_{k}": v for k, v in spearman.items()})
     return res

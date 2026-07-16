@@ -6,6 +6,7 @@ per-(subject,session) session-conditioned embedding, then tests whether that tra
 recovers the DRIFTING per-session parameters. No reimplementation.
 """
 import os, sys, json, numpy as np, pandas as pd
+STAGE=os.environ.get("STAGE","stage2")
 sys.path.insert(0, os.path.expanduser("~/scratch/recovery-smoke/aind-disrnn-wrapper/code"))
 import wandb
 api = wandb.Api(); ENT,PROJ="AIND-disRNN","embedding_recovery"
@@ -15,8 +16,12 @@ from utils.multisubject import compute_session_conditioned_context_dataframe
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_predict, GroupKFold
 from sklearn.metrics import r2_score
+from scipy.stats import spearmanr
 import pickle
 PARAMS=["param_biasL","param_learn_rate","param_softmax_inverse_temperature"]
+# Spearman rho reported alongside R2 (same y_true/y_pred pair) for all three drifting
+# params, mirroring the convention used for the baseline_rl per-session CSVs.
+SPEARMAN_PARAMS=["param_biasL","param_learn_rate","param_softmax_inverse_temperature"]
 
 def regen_gt(cfg):
     ld=HierarchicalCognitiveAgents(task=cfg["task"],agent=cfg["agent"],num_trials=cfg["num_trials"],
@@ -33,7 +38,7 @@ def fetch(run,fn,dest):
 
 rows=[]
 for name,meta in inv.items():
-    if meta["stage"]!="stage2" or meta["state"]!="finished" or meta["enc"]!="scalar": continue
+    if meta["stage"]!=STAGE or meta["state"]!="finished" or meta["enc"]!="scalar": continue
     rd=os.path.join(outdir,name); os.makedirs(rd,exist_ok=True)
     try:
         P=pickle.load(open(fetch(name,"params.pkl",rd),"rb")) if False else json.load(open(fetch(name,"params.json",rd)))
@@ -72,6 +77,9 @@ for name,meta in inv.items():
             out[f"sess_R2_{p}"]=r2_score(m[p].values,yhat)
             yhat_s=cross_val_predict(LinearRegression(),Xsub,m[p].values,cv=gkf,groups=groups)
             out[f"subjonly_R2_{p}"]=r2_score(m[p].values,yhat_s)
+            if p in SPEARMAN_PARAMS:
+                out[f"sess_spearman_{p}"]=float(spearmanr(m[p].values,yhat)[0])
+                out[f"subjonly_spearman_{p}"]=float(spearmanr(m[p].values,yhat_s)[0])
         yhat_f=cross_val_predict(LinearRegression(),X,m["session_frac"].values,cv=gkf,groups=groups)
         out["sessfrac_R2"]=r2_score(m["session_frac"].values,yhat_f)
         yhat_fs=cross_val_predict(LinearRegression(),Xsub,m["session_frac"].values,cv=gkf,groups=groups)
@@ -82,5 +90,5 @@ for name,meta in inv.items():
         print(f"{name} N={meta['num_subjects']} rows={len(m)} sess_R2_mean={out['sess_R2_mean']:.3f} (subjonly {out['subjonly_R2_mean']:.3f}) sessfrac_R2={out['sessfrac_R2']:.3f} (subjonly {out['sessfrac_R2_subjonly']:.3f})")
     except Exception as ex:
         import traceback; print(f"{name} FAILED: {type(ex).__name__}: {ex}"); traceback.print_exc()
-df=pd.DataFrame(rows); df.to_csv(os.path.join(outdir,"stage2_session_trajectory_recovery.csv"),index=False)
+df=pd.DataFrame(rows); df.to_csv(os.path.join(outdir,f"{STAGE}_session_trajectory_recovery.csv"),index=False)
 print("WROTE",df.shape)

@@ -36,6 +36,34 @@ Full results: [`analysis/reports/INDEX.md`](analysis/reports/INDEX.md)
 (r1 = GRU ladder, r2 = disRNN replication). Regenerate everything with
 `make -C studies/04-gru-vs-disrnn-embedding-recovery`.
 
+## Stage ladder (proof of principle)
+
+![Model-recovery stage ladder](recovery_stages_schematic.png)
+
+*Conceptual schematic (hand-drawn, not produced by `recovery_report.py`): the
+generative ladder on synthetic ground truth, drawn in shared parameter-space
+coordinates. Filled points = observations, open circles = subject centroids,
+arrows = within-subject drift, colour = model class/family, dashed grey = held-out
+tail.*
+
+Each stage adds one piece of structure the embedding has to recover; the
+correctly-specified `baseline_rl` reference (not a competitor) marks the achievable
+ceiling and is where a fixed model stops being sufficient.
+
+| Stage | Structure added | Correct-model baseline | Embedding recovery |
+|---|---|---|---|
+| **1** | static subjects (fixed params) | ceiling (~1.0) | subject param R² 0.91–0.96; **embedding size, not width, is the knob** |
+| **2** | within-subject drift | rel-LL 0.993 (at ceiling) | subj R² 0.96 (scalar); session-fraction R² up to 0.94 |
+| **2b** | strong / non-monotonic drift + held-out tail | 0.939 (drops under extrapolation) | **baseline flip**: GRU >0.987 |
+| **3** | mixture of QL variants (Bari/Hattori/RW) | 47% model-selection | preset classification **97.5–99.5%** |
+| **4a** | mixture of families (QL/CTT/LossCounting) | 70% model-selection | GRU family decode 100%; **disRNN 0.95–0.98** (scalar), ~4–6 pt LL cost |
+| **4b** | per-session family switching | reference | null: recovery is **subject-level**; session code encodes *position* (R²≈0.6), not the discrete family |
+
+**Takeaway.** The data-driven embedding recovers generative structure exactly where
+a correctly-specified model breaks down — and Stage 4b pinpoints the one structure
+the current architecture cannot represent (a discrete per-session family draw),
+motivating the hierarchical-VI direction (`docs/design-hierarchical-vi-foundation-model.md`).
+
 ## Ground-truth generative model
 
 Data is produced on-the-fly by `HierarchicalCognitiveAgents`
@@ -52,6 +80,16 @@ per-(subject, session) ground-truth parameter table (`groundtruth_params.csv`).
   `softmax_inverse_temperature` ~ U[2, 15]. Each subject = one centroid.
 - **Drift (Stage-2 onward):** within-subject drift across sessions; Stage-2b adds
   strong + non-monotonic drift with a tail held-out session split.
+- **Held-out evaluation (all stages):** every stage's reported likelihood is
+  computed on held-out sessions (`data.eval_every_n=2`), never on training
+  sessions — but the *split mode* changes at Stage-2b. Stages 1–2 use an
+  `interleaved` split (every 2nd session held out, scattered — the model sees
+  sessions on both sides of each gap and can *interpolate* through it, so a
+  static per-subject fit pays little). Stage-2b onward switch to a `tail`
+  split (`data.heldout_session_mode=tail`, last 20% of each subject's
+  sessions, contiguous) — the model must *extrapolate* past the end of what
+  it trained on, which is what makes the likelihood axis discriminating
+  (see the baseline flip, below).
 - **Mixtures (Stages 3–4):** Stage-3 mixes QL variants (Bari/Hattori/RW), Stage-4a
   mixes model *families* (QL/CompareToThreshold/LossCounting) one per subject,
   Stage-4b switches family per session from a sparse Dirichlet(0.5) subject mixture.
