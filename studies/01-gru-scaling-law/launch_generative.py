@@ -52,14 +52,20 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Pinned refs (see task context).
-WRAPPER_REF = "916d3b497cfa866e14d1f041d1316f70c706f6e1"  # study: partition fix + parallel stats + smaller bootstrap
-DISPATCHER_REF = "study/data-scaling-law"
-IMAGE = "han-hou/disrnn-wrapper-pck-integration"
+# Defaults below are for study 01. Everything study-specific is CLI-settable so other studies
+# can reuse this launcher (study 05 points it at the disRNN scaling runs). The image and
+# dispatcher ref that used to be hardcoded here are DEAD -- "han-hou/disrnn-wrapper-pck-integration"
+# no longer exists (ImageNotFound) and "study/data-scaling-law" is a long-gone branch -- so the
+# defaults are updated to live refs rather than preserved as a broken status quo.
+WRAPPER_REF = "main"
+DISPATCHER_REF = "main"
+IMAGE = "han-hou/disrnn-wrapper-main-20260712"
 WANDB_PROJECT = "mice_data_scaling"
 WANDB_ENTITY = "AIND-disRNN"
 
 # Generative-rollout defaults (seen-subject multisubject runs).
 MODEL_DIR = "/prior/run"
+HYDRATE_DEST = "/results/prior"  # writable; used by the W&B-run route
 SPLIT = "train"
 CHECKPOINT_POLICY = "best_eval"
 ROLLOUT_MODE = "curriculum_matched"
@@ -90,17 +96,63 @@ def _git_sha(repo_dir: Path) -> str | None:
     return None
 
 
-def enumerate_source_tasks(source_exp: str) -> list[dict]:
-    """Return [{result_dataset, subject_ratio, seed, job_name}] for each source task."""
-    out = subprocess.run(
-        [BEAKER, "experiment", "get", source_exp, "--format", "json"],
-        capture_output=True, text=True,
-    )
-    if out.returncode != 0:
-        sys.exit(f"[generative] `beaker experiment get {source_exp}` failed:\n{out.stderr}")
-    data = json.loads(out.stdout)
-    exp = data[0] if isinstance(data, list) else data
+def enumerate_from_wandb_group(group: str, project: str, entity: str) -> list[dict]:
+    """Return one row per FINISHED run in a W&B group — the exact set of grid cells.
+
+    Preferred over enumerate_source_tasks(): `group` + `state=finished` IS the grid, whereas
+    Beaker-job enumeration is a lossy proxy (replacement jobs for preemptions/failed starts, and
+    recovery re-submits living in their own experiment). Rows carry `run_id` instead of
+    `result_dataset`; the task hydrates the model_dir in-container from the W&B artifact.
+    """
+    import wandb
+
+    runs = wandb.Api().runs(f"{entity}/{project}", filters={"group": group, "state": "finished"})
     rows = []
+    for r in runs:
+        cfg = r.config or {}
+        data = cfg.get("data") or {}
+        model = cfg.get("model") or {}
+        # The TOP-LEVEL `seed` is None in these runs -- Hydra interpolates ${seed} into the
+        # sub-configs but the root key is not logged. Read it where it actually lands, or every
+        # cell of a seed-swept grid collapses onto seed=0 and the task names collide.
+        seed = model.get("seed")
+        if seed is None:
+            seed = data.get("seed", data.get("subject_sample_seed"))
+        if seed is None:
+            seed = cfg.get("seed")
+        if seed is None:
+            raise ValueError(f"Cannot determine seed for run {r.id}; refusing to collapse cells.")
+        rows.append({
+            "run_id": r.id,
+            "subject_ratio": str(data.get("subject_ratio")),
+            "seed": str(seed),
+            "job_name": r.name,
+        })
+    print(f"[generative] W&B group {group}: {len(rows)} finished run(s)")
+    return sorted(rows, key=lambda x: (float(x["subject_ratio"]), int(x["seed"])))
+
+
+def enumerate_source_tasks(source_exps: list[str]) -> list[dict]:
+    """Return [{result_dataset, subject_ratio, seed, job_name}] for each source task."""
+    jobs = []
+    for source_exp in source_exps:
+        out = subprocess.run(
+            [BEAKER, "experiment", "get", source_exp, "--format", "json"],
+            capture_output=True, text=True,
+        )
+        if out.returncode != 0:
+            sys.exit(f"[generative] `beaker experiment get {source_exp}` failed:\n{out.stderr}")
+        data = json.loads(out.stdout)
+        exp_i = data[0] if isinstance(data, list) else data
+        jobs.extend(exp_i.get("jobs", []))
+    exp = {"jobs": jobs}
+    # One row per (subject_ratio, seed) CELL, taking only the job that actually SUCCEEDED.
+    # A Beaker experiment has one job per task PLUS a replacement job for every preemption and
+    # every failed start, so iterating jobs blindly yields duplicates and dead jobs -- which would
+    # roll out a generative analysis against an empty result dataset and double-count cells. Keep
+    # exitCode == 0 only, and de-duplicate by cell.
+    by_cell: dict[tuple[str, str], dict] = {}
+    skipped = 0
     for job in exp.get("jobs", []):
         result = (job.get("result") or {}).get("beaker") or (
             (job.get("execution", {}).get("result") or {}).get("beaker")
@@ -111,13 +163,20 @@ def enumerate_source_tasks(source_exp: str) -> list[dict]:
         m_seed = re.search(r"(?:^| )seed=([0-9]+)", cmds)
         if result is None or m_ratio is None or m_seed is None:
             continue
-        rows.append({
+        status = job.get("status") or {}
+        if status.get("exitCode") != 0:  # preempted (143), failed, or still running
+            skipped += 1
+            continue
+        by_cell[(m_ratio.group(1), m_seed.group(1))] = {
             "result_dataset": result,
             "subject_ratio": m_ratio.group(1),
             "seed": m_seed.group(1),
             "job_name": job.get("name") or job.get("execution", {}).get("spec", {}).get("name"),
-        })
-    return rows
+        }
+    if skipped:
+        print(f"[generative] skipped {skipped} non-succeeded job(s) "
+              f"(preempted / failed / running); kept {len(by_cell)} succeeded cell(s)")
+    return sorted(by_cell.values(), key=lambda r: (float(r["subject_ratio"]), int(r["seed"])))
 
 
 def _shq(s: str) -> str:
@@ -172,13 +231,29 @@ def _wandb_log_py(group: str, study: str, variant: str, launch_id: str,
 
 def _inner_cmd(group: str, study: str, variant: str, launch_id: str,
                subject_ratio: str, seed: str, source_dataset: str,
-               source_exp: str) -> str:
-    """Run the generative analysis, then log the summary + figures to W&B."""
+               source_exp: str, checkpoint_policy: str = CHECKPOINT_POLICY,
+               source_run_id: str | None = None, project: str = WANDB_PROJECT,
+               entity: str = WANDB_ENTITY) -> str:
+    """Run the generative analysis, then log the summary + figures to W&B.
+
+    Two ways to get the model_dir. With ``source_run_id`` we hydrate it in-container from the
+    W&B training-output artifact (exact: the run id IS the cell). Otherwise we fall back to
+    ``/prior``, the mounted Beaker result dataset (kept for older grids).
+    """
+    model_dir = MODEL_DIR
+    hydrate = ""
+    if source_run_id:
+        model_dir = f"{HYDRATE_DEST}/run"
+        hydrate = (
+            "python -m post_training_analysis.wandb_model_dir"
+            f" --run-id {source_run_id} --project {project} --entity {entity}"
+            f" --dest {HYDRATE_DEST} && "
+        )
     gen = (
         "python -m run_analysis generative"
-        f" --model-dir {MODEL_DIR}"
+        f" --model-dir {model_dir}"
         f" --split {SPLIT}"
-        f" --checkpoint-policy {CHECKPOINT_POLICY}"
+        f" --checkpoint-policy {checkpoint_policy}"
         f" --rollout-mode {ROLLOUT_MODE}"
         f" --n-rollouts-per-session {N_ROLLOUTS_PER_SESSION}"
         f" --window-size {WINDOW_SIZE}"
@@ -190,11 +265,14 @@ def _inner_cmd(group: str, study: str, variant: str, launch_id: str,
         subject_ratio=subject_ratio, seed=seed, source_dataset=source_dataset,
         source_exp=source_exp, results_out=RESULTS_OUT,
     )
-    return f"{gen} && python -c {_shq(log_py)}"
+    return f"{hydrate}{gen} && python -c {_shq(log_py)}"
 
 
 def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
-               launch_id: str, wrapper_ref: str) -> tuple[dict, str]:
+               launch_id: str, wrapper_ref: str, *, image: str = IMAGE,
+               dispatcher_ref: str = DISPATCHER_REF, project: str = WANDB_PROJECT,
+               entity: str = WANDB_ENTITY,
+               checkpoint_policy: str = CHECKPOINT_POLICY) -> tuple[dict, str]:
     study = "data-scaling-law"
     group = f"generative-{variant}@{launch_id}"
     spec_tasks = []
@@ -202,28 +280,32 @@ def build_spec(source_exp: str, variant: str, tasks: list[dict], cluster: str,
         inner = _inner_cmd(
             group=group, study=study, variant=variant, launch_id=launch_id,
             subject_ratio=row["subject_ratio"], seed=row["seed"],
-            source_dataset=row["result_dataset"], source_exp=source_exp,
+            source_dataset=row.get("result_dataset", ""), source_exp=source_exp,
+            checkpoint_policy=checkpoint_policy,
+            source_run_id=row.get("run_id"), project=project, entity=entity,
         )
         name = f"generative-{variant}-d{row['subject_ratio']}-s{row['seed']}"
         name = re.sub(r"[^a-zA-Z0-9-]+", "-", name).strip("-")[:120]
         spec_tasks.append({
             "name": name,
-            "image": {"beaker": IMAGE},
+            "image": {"beaker": image},
             "command": ["bash", ENTRYPOINT, "bash", "-lc", inner],
             "context": {"priority": "low", "preemptible": True},
             "constraints": {"cluster": [cluster]},
             # 90GiB / 12 CPU == ONE L40s GPU bundle -> exactly 1 GPU (AGENTS.md §10).
             "resources": {"gpuCount": 1, "cpuCount": 12, "memory": "90GiB"},
-            "datasets": [
-                {"mountPath": "/prior", "source": {"beaker": row["result_dataset"]}},
-            ],
+            # Only the Beaker route needs the read-only /prior mount; the W&B route hydrates
+            # the model_dir in-container from the training-output artifact.
+            **({} if row.get("run_id") else
+               {"datasets": [{"mountPath": "/prior",
+                              "source": {"beaker": row["result_dataset"]}}]}),
             "envVars": [
                 {"name": "WANDB_API_KEY", "secret": "han-wandb-api-key"},
-                {"name": "WANDB_PROJECT", "value": WANDB_PROJECT},
-                {"name": "WANDB_ENTITY", "value": WANDB_ENTITY},
+                {"name": "WANDB_PROJECT", "value": project},
+                {"name": "WANDB_ENTITY", "value": entity},
                 {"name": "WANDB_RUN_GROUP", "value": group},
                 {"name": "WRAPPER_REF", "value": wrapper_ref},
-                {"name": "DISPATCHER_REF", "value": DISPATCHER_REF},
+                {"name": "DISPATCHER_REF", "value": dispatcher_ref},
                 # Fan the 3 independent session partitions (train/eval/combined)
                 # across a spawn pool — the stats phase dominates high-D
                 # wall-clock. 3 = one worker per partition (combined is the pole).
@@ -255,7 +337,15 @@ def submit(spec: dict, workspace: str, rendered_path: Path) -> str | None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--source-exp", required=True, help="Source training Beaker experiment id.")
+    p.add_argument("--from-wandb-group", default=None,
+                   help="PREFERRED: select cells by W&B group (group + state=finished IS the grid). "
+                        "Hydrates each model_dir in-container from the training-output artifact. "
+                        "Mutually exclusive with --source-exp, which enumerates Beaker jobs and is "
+                        "lossy (preemption/failed-start replacement jobs, recovery experiments).")
+    p.add_argument("--source-exp", nargs="+",
+                   help="Source training Beaker experiment id(s). Pass every experiment holding "
+                        "cells of the grid -- a recovery re-submit lives in its OWN experiment, and "
+                        "omitting it silently drops those cells from the analysis.")
     p.add_argument("--variant", required=True, help="e.g. v1 / v2 (group = generative-<variant>@<launch_id>).")
     p.add_argument("--cluster", default="ai1/octo-hub-aws-l40s")
     p.add_argument("--workspace", default="ai1/aind-dynamic-foraging-foundation-model")
@@ -264,11 +354,25 @@ def main() -> None:
     p.add_argument("--only-seed", default=None, help="Filter to this seed.")
     p.add_argument("--no-submit", action="store_true")
     p.add_argument("--wrapper-ref", default=WRAPPER_REF, help="Wrapper git ref the entrypoint checks out.")
+    p.add_argument("--dispatcher-ref", default=DISPATCHER_REF, help="Dispatcher git ref.")
+    p.add_argument("--image", default=IMAGE, help="Beaker image (must exist; the old pck-integration image is gone).")
+    p.add_argument("--project", default=WANDB_PROJECT, help="W&B project to log the generative runs into.")
+    p.add_argument("--entity", default=WANDB_ENTITY, help="W&B entity.")
+    p.add_argument("--checkpoint-policy", default=CHECKPOINT_POLICY,
+                   help="best_eval | best_heldout | final. disRNN has no early stopping, so best_eval "
+                        "and final coincide unless eval LL peaked mid-run.")
     p.add_argument("--output-dir", default=str(Path(__file__).resolve().parent))
     args = p.parse_args()
 
-    all_tasks = enumerate_source_tasks(args.source_exp)
-    print(f"[generative] source exp {args.source_exp}: {len(all_tasks)} tasks")
+    if bool(args.from_wandb_group) == bool(args.source_exp):
+        sys.exit("[generative] pass exactly one of --from-wandb-group (preferred) or --source-exp")
+    if args.from_wandb_group:
+        all_tasks = enumerate_from_wandb_group(args.from_wandb_group, args.project, args.entity)
+        source_exp_label = f"wandb:{args.from_wandb_group}"
+    else:
+        all_tasks = enumerate_source_tasks(args.source_exp)
+        source_exp_label = "+".join(args.source_exp)  # several when cells span recovery experiments
+    print(f"[generative] source {source_exp_label}: {len(all_tasks)} tasks")
     tasks = all_tasks
     if args.only_ratio is not None:
         tasks = [t for t in tasks if abs(float(t["subject_ratio"]) - float(args.only_ratio)) < 1e-9]
@@ -280,11 +384,15 @@ def main() -> None:
         sys.exit("[generative] no source tasks matched the filters")
     print(f"[generative] selected {len(tasks)} task(s):")
     for t in tasks:
-        print(f"    D={t['subject_ratio']} seed={t['seed']} dataset={t['result_dataset']}")
+        src = t.get("run_id") or t.get("result_dataset")
+        print(f"    D={t['subject_ratio']} seed={t['seed']} source={src}")
 
     launch_id = _seattle_launch_id()
-    spec, group = build_spec(args.source_exp, args.variant, tasks, args.cluster,
-                             launch_id, args.wrapper_ref)
+    spec, group = build_spec(source_exp_label, args.variant, tasks, args.cluster,
+                             launch_id, args.wrapper_ref,
+                             image=args.image, dispatcher_ref=args.dispatcher_ref,
+                             project=args.project, entity=args.entity,
+                             checkpoint_policy=args.checkpoint_policy)
     record_stem = group.split("@")[0]  # generative-<variant>
 
     output_dir = Path(args.output_dir)
@@ -307,6 +415,10 @@ def main() -> None:
         "wandb_project": WANDB_PROJECT,
         "wandb_entity": WANDB_ENTITY,
         "wrapper_ref": args.wrapper_ref,
+        "dispatcher_ref": args.dispatcher_ref,
+        "image": args.image,
+        "wandb_project": args.project,
+        "checkpoint_policy": args.checkpoint_policy,
         "dispatcher_ref": DISPATCHER_REF,
         "cluster": args.cluster,
         "experiment_id": experiment_id,
