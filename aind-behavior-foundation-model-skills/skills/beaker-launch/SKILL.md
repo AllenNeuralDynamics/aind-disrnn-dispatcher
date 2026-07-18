@@ -114,6 +114,11 @@ It sets the W&B group to `<variant>@<launch_id>` and injects `DISRNN_META_*`
 provenance (see the study-conventions skill). Requires
 `training.checkpoint_every_n_steps > 0` for resume to work.
 
+> **⚠️ Grids above ~15 tasks: Beaker rejects the single-experiment payload with a misleading 409.**
+> Render with `--no-submit` first, check the resolved-JSON size, and split into ≤~15-task chunks
+> submitted directly if it's too big — see `references/scheduling-lessons.md` "Resolved-JSON payload
+> ceiling."
+
 > **⚠️ Set `wandb.project=` in the sweep `command:` for resumable launches.** Unlike
 > the native launcher (whose `wandb agent` sweep controller owns the project), the
 > resumable launcher sets only the W&B **group**, not the project — each task runs

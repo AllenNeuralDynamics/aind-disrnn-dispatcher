@@ -79,6 +79,37 @@ S3/DB-backed data jobs to GCP. AWS clusters (l40s, h200, g6e) reach S3 fine. The
 trial/session database is public AWS S3
 (`s3://aind-scratch-data/aind-dynamic-foraging-cache`, us-west-2).
 
+## Resolved-JSON payload ceiling on `experiment.create()` (hit twice: 2026-07-14, 2026-07-18)
+
+`launch_beaker_resumable.py` renders a sweep grid into **one** Beaker experiment spec with one task
+per grid point. **Beaker rejects a spec whose resolved JSON payload is too large**, with a misleading
+`[code=409] a retryable database conflict occurred` — not a size/413 error, and retrying the same
+oversized payload never helps.
+
+Measured (resolved JSON, i.e. `len(json.dumps(spec))` — **not** the YAML file size; YAML aliasing
+collapses repeated env blocks and understates the true payload by ~30%):
+
+| tasks | resolved payload | result |
+|---|---|---|
+| 12 | 32,584 B | ✅ |
+| 15 | 40,447 B | ✅ |
+| 18 | 54,405 B | ❌ 409 |
+| 80 | 197,546 B (2,469 B/task) | ❌ 409 (also exceeded the client's 5 s default timeout first, masking the size problem) |
+
+**The ceiling is between 40 KB and 54 KB (likely 48 KiB).** Stay safely under it: **chunk any grid
+above ~15 tasks into ≤~15-task pieces** (≈10 tasks/~25 KB gives a comfortable margin).
+
+**Fix, two parts:**
+1. `code/beaker_client.py` `get_beaker_client()` sets `beaker._timeout = 60` (beaker-py's default
+   ~5 s is too short for a large-payload `experiment.create()` call) — matches the pre-existing
+   `check_gpu_availability.py` workaround.
+2. Render the full grid once with `--no-submit` (keeps one shared W&B group + one set of pinned
+   SHAs across the whole logical launch), then split the rendered `tasks:` list into ≤15-task chunks
+   and submit each chunk directly via `beaker.experiment.create()` — N Beaker experiment IDs, one W&B
+   group. Verify no duplicate experiments after any submit that hit a transient 409-then-retry (check
+   `b.workspace.experiments()` for stray task-count matches). Worked examples: study 05
+   `subject-capacity` (18→2×9 tasks) and study 06 `mult-d-grid` (80→8×10 tasks) `notes.md`.
+
 ## Verify mechanisms with data before asserting
 
 When explaining *why* infra/scheduling/quota behaves a certain way, **pull the
