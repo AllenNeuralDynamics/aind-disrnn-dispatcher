@@ -1,0 +1,88 @@
+{
+  "mode": "resumable-grid-chunked",
+  "n_tasks": 80,
+  "chunk_size": 10,
+  "n_chunks": 8,
+  "parts": [
+    {
+      "part": 1,
+      "tasks": [
+        0,
+        9
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24798,
+      "experiment_id": "01KXVN8CPDJTNFVJD9VCPGF8HH"
+    },
+    {
+      "part": 2,
+      "tasks": [
+        10,
+        19
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24802,
+      "experiment_id": "01KXVN8F5N493BJ4B7KC3FRKD1"
+    },
+    {
+      "part": 3,
+      "tasks": [
+        20,
+        29
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24800,
+      "experiment_id": "01KXVN8HQYA8Y6MHNGPDSX900R"
+    },
+    {
+      "part": 4,
+      "tasks": [
+        30,
+        39
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24800,
+      "experiment_id": "01KXVN8RZSGET33Z05J7B61NQ0"
+    },
+    {
+      "part": 5,
+      "tasks": [
+        40,
+        49
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24802,
+      "experiment_id": "01KXVN8VBAEBB07F0T6AKKJMBK"
+    },
+    {
+      "part": 6,
+      "tasks": [
+        50,
+        59
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24798,
+      "experiment_id": "01KXVN92ZNTWAQ10YNV36DDGVQ"
+    },
+    {
+      "part": 7,
+      "tasks": [
+        60,
+        69
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24790,
+      "experiment_id": "01KXVN95GHN340BNAWDM91BC3T"
+    },
+    {
+      "part": 8,
+      "tasks": [
+        70,
+        79
+      ],
+      "n_tasks": 10,
+      "payload_bytes": 24782,
+      "experiment_id": "01KXVN986D229GE1P5CZDHRX8S"
+    }
+  ]
+}
