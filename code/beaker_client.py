@@ -198,7 +198,10 @@ def get_beaker_client(workspace: str | None = None):
 
     token = os.environ["BEAKER_TOKEN"]
     cfg = Config(user_token=token, default_org="ai1", default_workspace=workspace)
-    return Beaker(cfg)
+    beaker = Beaker(cfg)
+    beaker._timeout = 60  # beaker-py's default is too short for large-payload requests
+    # (e.g. an 80-task experiment.create()); matches the check_gpu_availability.py workaround.
+    return beaker
 
 
 def submit_beaker_experiment(spec_path: str, workspace: str, name: str | None = None) -> str:
