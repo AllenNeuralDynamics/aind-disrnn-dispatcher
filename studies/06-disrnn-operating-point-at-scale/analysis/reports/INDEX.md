@@ -5,7 +5,7 @@ One report per scan. Regenerated from committed data via the study Makefile.
 | # | Report | Scan | Status |
 |---|---|---|---|
 | r1 | [Penalty selection](r1-penalty-selection.md) | existing 03+05 data (zero new compute) | ✅ live |
-| r2 | Grid scaling curve | `mult-d-grid` (80 runs) | 🚀 launched 2026-07-18, awaiting runs |
+| r2 | [Scaling surface (live)](r2-scaling-surface.md) | `mult-d-grid` (80 runs) | 🔴 live — regenerates as the grid progresses (`make pull && make r2`) |
 
 ## Planned content
 

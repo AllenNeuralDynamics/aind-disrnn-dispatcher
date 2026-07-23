@@ -1,0 +1,206 @@
+{
+  "_meta": {
+    "produced_by": "analysis/scaling_report.py",
+    "produced_at_pt": "2026-07-22T21:30:38-07:00",
+    "dispatcher_git_sha": "02ae6df42e619c0453a4e81022c09a637827a21c",
+    "wrapper_git_sha": null,
+    "wandb_groups": [
+      "mult-d-grid@20260718-151409"
+    ]
+  },
+  "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN divergence).",
+  "progress": {
+    "finished": 28,
+    "running": 23,
+    "crashed": 0,
+    "failed": 3,
+    "never_started": 26,
+    "n_total": 80
+  },
+  "cells": [
+    {
+      "D": 10,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 2,
+      "heldout_ll_mean": 0.6999,
+      "heldout_ll_sem": 0.0036
+    },
+    {
+      "D": 10,
+      "mult": 1,
+      "beta": 0.001,
+      "n": 2,
+      "heldout_ll_mean": 0.7085,
+      "heldout_ll_sem": 0.0062
+    },
+    {
+      "D": 10,
+      "mult": 2,
+      "beta": 0.0003,
+      "n": 2,
+      "heldout_ll_mean": 0.7017,
+      "heldout_ll_sem": 0.0065
+    },
+    {
+      "D": 10,
+      "mult": 2,
+      "beta": 0.001,
+      "n": 2,
+      "heldout_ll_mean": 0.7064,
+      "heldout_ll_sem": 0.0003
+    },
+    {
+      "D": 10,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.71,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 10,
+      "mult": 5,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7025,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 10,
+      "mult": 10,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7109,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 10,
+      "mult": 10,
+      "beta": 0.001,
+      "n": 2,
+      "heldout_ll_mean": 0.706,
+      "heldout_ll_sem": 0.0003
+    },
+    {
+      "D": 29,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7108,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 1,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7146,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 2,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7157,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 2,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7023,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.712,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 5,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7163,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 10,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7091,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 29,
+      "mult": 10,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7159,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7146,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 1,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7128,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 2,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7118,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7123,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 5,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.713,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 30,
+      "mult": 10,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.713,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 99,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7172,
+      "heldout_ll_sem": 0.0
+    }
+  ]
+}
