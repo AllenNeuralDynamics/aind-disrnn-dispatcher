@@ -27,7 +27,7 @@ written incrementally throughout training, so in-flight runs are excluded until 
 ![held-out LL vs D, coloured by β, marker by mult, vs GRU and study 05's fixed-penalty curve](../fig_scaling_surface.png)
 
 <!-- BEGIN result-1 -->
-**Progress: 28/80 finished, 23 running, 26 pending, 3 failed.**
+**Progress: 34/80 finished, 22 running, 20 pending, 3 failed.**
 
 | D | mult | β | held-out (mean) | sem | n seeds |
 |---|---|---|---|---|---|
@@ -50,10 +50,16 @@ written incrementally throughout training, so in-flight runs are excluded until 
 | 30 | 1 | 0.0003 | 0.7146 | 0.0000 | 1 |
 | 30 | 1 | 0.001 | 0.7128 | 0.0000 | 1 |
 | 30 | 2 | 0.0003 | 0.7118 | 0.0000 | 1 |
+| 30 | 2 | 0.001 | 0.7139 | 0.0000 | 1 |
 | 30 | 5 | 0.0003 | 0.7123 | 0.0000 | 1 |
 | 30 | 5 | 0.001 | 0.7130 | 0.0000 | 1 |
+| 30 | 10 | 0.0003 | 0.7136 | 0.0000 | 1 |
 | 30 | 10 | 0.001 | 0.7130 | 0.0000 | 1 |
 | 99 | 1 | 0.0003 | 0.7172 | 0.0000 | 1 |
+| 99 | 2 | 0.0003 | 0.7165 | 0.0000 | 1 |
+| 99 | 2 | 0.001 | 0.7181 | 0.0000 | 1 |
+| 101 | 1 | 0.001 | 0.7147 | 0.0000 | 1 |
+| 101 | 2 | 0.0003 | 0.7184 | 0.0000 | 1 |
 <!-- END result-1 -->
 
 ## Reading the figure
