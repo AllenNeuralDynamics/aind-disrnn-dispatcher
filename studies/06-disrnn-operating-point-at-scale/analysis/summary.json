@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-07-23T03:42:32-07:00",
-    "dispatcher_git_sha": "7c44ae26f087bc3e1f25d2f1c6365c165517e321",
+    "produced_at_pt": "2026-07-23T15:43:00-07:00",
+    "dispatcher_git_sha": "09f69ea483cd53c9572db354c3170cca1ba1f5e4",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "mult-d-grid@20260718-151409"
@@ -10,11 +10,11 @@
   },
   "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN divergence).",
   "progress": {
-    "finished": 34,
-    "running": 22,
-    "crashed": 1,
+    "finished": 39,
+    "running": 6,
+    "crashed": 13,
     "failed": 3,
-    "never_started": 20,
+    "never_started": 19,
     "n_total": 80
   },
   "cells": [
@@ -220,6 +220,14 @@
     },
     {
       "D": 99,
+      "mult": 1,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7167,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 99,
       "mult": 2,
       "beta": 0.0003,
       "n": 1,
@@ -232,6 +240,22 @@
       "beta": 0.001,
       "n": 1,
       "heldout_ll_mean": 0.7181,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 99,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7151,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 101,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7192,
       "heldout_ll_sem": 0.0
     },
     {
@@ -248,6 +272,22 @@
       "beta": 0.0003,
       "n": 1,
       "heldout_ll_mean": 0.7184,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 101,
+      "mult": 2,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7152,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 101,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.715,
       "heldout_ll_sem": 0.0
     }
   ]
