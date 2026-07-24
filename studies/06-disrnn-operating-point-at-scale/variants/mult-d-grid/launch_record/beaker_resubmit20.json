@@ -1,0 +1,40 @@
+{
+  "reason": "20 tasks (060-079) died on node 01KREKR0ZA15SVAV97CW72WDNZ (DNS resolution failure at git-fetch, exit 128, not a preemption) -- resubmitted with identical task specs (same WANDB_RUN_ID etc)",
+  "bad_node": "01KREKR0ZA15SVAV97CW72WDNZ",
+  "parts": [
+    {
+      "part": 1,
+      "task_names": [
+        "mult-d-grid-20260718-151409-060",
+        "mult-d-grid-20260718-151409-061",
+        "mult-d-grid-20260718-151409-062",
+        "mult-d-grid-20260718-151409-063",
+        "mult-d-grid-20260718-151409-064",
+        "mult-d-grid-20260718-151409-065",
+        "mult-d-grid-20260718-151409-066",
+        "mult-d-grid-20260718-151409-067",
+        "mult-d-grid-20260718-151409-068",
+        "mult-d-grid-20260718-151409-069"
+      ],
+      "payload_bytes": 24790,
+      "experiment_id": "01KYB43A78GH0X95K1W70EFNSZ"
+    },
+    {
+      "part": 2,
+      "task_names": [
+        "mult-d-grid-20260718-151409-070",
+        "mult-d-grid-20260718-151409-071",
+        "mult-d-grid-20260718-151409-072",
+        "mult-d-grid-20260718-151409-073",
+        "mult-d-grid-20260718-151409-074",
+        "mult-d-grid-20260718-151409-075",
+        "mult-d-grid-20260718-151409-076",
+        "mult-d-grid-20260718-151409-077",
+        "mult-d-grid-20260718-151409-078",
+        "mult-d-grid-20260718-151409-079"
+      ],
+      "payload_bytes": 24782,
+      "experiment_id": "01KYB43HX8G6GPSTZFH09MGQZ4"
+    }
+  ]
+}

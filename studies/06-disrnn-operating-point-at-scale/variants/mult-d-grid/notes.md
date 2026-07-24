@@ -75,6 +75,42 @@ was created by that attempt (checked `b.workspace.experiments()`, nothing matchi
   (queued for the low-preemptible burst tier); a sampled running job requested exactly
   `{gpu_count: 1, cpu_count: 12, memory: 90 GiB}` — no multi-GPU over-assignment.
 
+## Recovery — 20 tasks lost to one bad node, resubmitted (2026-07-24)
+
+**Tasks 060–079 (parts 7 and 8, 10 each) all failed within minutes of each other on 2026-07-24
+~11:02–11:05 UTC, exit code 128, `was_preempted=False`** — not a preemption, and not the NaN
+pattern from the 3 earlier failures. Job logs show the actual cause:
+
+```
+[entrypoint] refreshing source from GitHub before the run...
+fatal: unable to access 'https://github.com/AllenNeuralDynamics/aind-disrnn-dispatcher.git/':
+Could not resolve host: github.com
+```
+
+All 20 ran on the **same single node** (`01KREKR0ZA15SVAV97CW72WDNZ`) — verified by checking
+`job.node` across several of the 20 — a transient DNS/network failure on that node at container
+startup, before training (or even `wandb.init()`) began. Per AGENTS §13 "transient node failure ≠
+code bug": resubmit, don't debug. Because `was_preempted=False`, autoResume never retried these —
+they were genuinely stuck.
+
+**Resubmitted with identical task specs** (same `WANDB_RUN_ID`/`WANDB_RUN_GROUP`/pinned SHAs),
+pulled straight from the already-rendered `experiment_resumable_submitted.yaml` — safe because
+none of the 20 ever logged anything to W&B (confirmed: `pull_grid.py` still showed exactly 61 runs
+seen, unchanged, before and after — the resubmit-eligible W&B run-ID-reuse rule applies cleanly
+here since there was zero history to lose). Split into 2×10-task chunks (same payload-ceiling
+reasoning as the original launch) and submitted directly via `beaker.experiment.create()`.
+
+| part | tasks | payload | Beaker experiment |
+|---|---|---|---|
+| 1 | 060–069 | 24,790 B | [`01KYB43A78GH0X95K1W70EFNSZ`](https://beaker.org/ex/01KYB43A78GH0X95K1W70EFNSZ) |
+| 2 | 070–079 | 24,782 B | [`01KYB43HX8G6GPSTZFH09MGQZ4`](https://beaker.org/ex/01KYB43HX8G6GPSTZFH09MGQZ4) |
+
+Verified at resubmission (2026-07-24 15:32 PT): 5/20 already scheduled, all on **different** nodes
+(none on the bad node); 2/2 chunk submits hit a transient 409 on first attempt and succeeded on
+retry (same known pattern), verified no duplicate experiments were created. Specs:
+`launch_record/experiment_resubmit20_part{1,2}.yaml`; record:
+`launch_record/beaker_resubmit20.json`.
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.
