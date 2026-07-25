@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 """Recover `heldout/eval_likelihood` for runs whose final summary write was lost.
 
-WHY THIS EXISTS. Five mult-d-grid tasks (-049, -052, -054, -056, -057) completed training
-AND their held-out fine-tune successfully -- Beaker exit 0, logs end with "All done, goodbye",
-and W&B holds their COMMITTED `disrnn-output-*` (training-output) and
-`*-heldoutper_subject_likelihood` (run_table) artifacts. But each had been preempted several
-times, W&B marked the run `crashed` on a heartbeat timeout, and the *final summary write* was
-silently dropped: the run objects sit frozen at a mid-training step with NO `heldout/*` key at
-all. Beaker considers these tasks done (exit 0), so autoResume never retried them -- the metric
-was simply lost, and `scaling_report.py`'s `state == "finished"` filter drops all five cells.
+WHY THIS EXISTS. Some mult-d-grid tasks completed training AND their held-out fine-tune
+successfully -- Beaker exit 0, logs end with "All done, goodbye", and W&B holds their COMMITTED
+`disrnn-output-*` (training-output) and `*-heldoutper_subject_likelihood` (run_table) artifacts.
+But each had been preempted several times, W&B marked the run `crashed` on a heartbeat timeout,
+and the *final summary write* was silently dropped: the run objects sit frozen at a mid-training
+step with NO `heldout/*` key at all. Beaker considers these tasks done (exit 0), so autoResume
+never retried them -- the metric was simply lost, and `scaling_report.py`'s
+`state == "finished"` filter drops those cells. First hit on 5 tasks (-049/-052/-054/-056/-057,
+2026-07-25), then recurred on -058 hours later; expect more as long runs keep getting preempted.
+See the beaker-launch skill, `references/scheduling-lessons.md` "exit 0 with a missing metric".
+
+SELF-DISCOVERING. Rather than a hand-maintained ID list (the failure recurs, so a list goes
+stale), this scans the W&B group for runs matching ALL of:
+
+  * `state == "crashed"`      -- not finished, not still running, not a real `failed` error
+  * NO `heldout/eval_likelihood` key in the summary
+  * a COMMITTED `run_table` artifact holding `per_subject_likelihood.table.json`
+
+**The table is the safety interlock.** The held-out stage runs only at the very END of a run, so
+its per-subject table cannot exist unless that stage completed. A run that was merely preempted
+mid-training has no such table and is therefore never touched -- there is no way to mistake an
+in-progress run for a recoverable one.
 
 WHY NOT re-score on GPU. The documented re-score path
 (`resume_heldout_beaker.py --run-id <id>`, see the beaker-launch skill's
@@ -53,14 +67,7 @@ from pathlib import Path
 import wandb
 
 PROJECT = "AIND-disRNN/disrnn_data_scaling"
-# the 5 runs whose final summary write was lost (see module docstring)
-LOST_RUN_IDS = [
-    "mult-d-grid-20260718-151409-33c0e6f5",  # task -049
-    "mult-d-grid-20260718-151409-d9e2902c",  # task -052
-    "mult-d-grid-20260718-151409-b3f9e4ba",  # task -054
-    "mult-d-grid-20260718-151409-5d00f24c",  # task -056
-    "mult-d-grid-20260718-151409-eb2f9dc2",  # task -057
-]
+GROUP = "mult-d-grid@20260718-151409"
 KEY = "heldout/eval_likelihood"
 SRC_NOTE = "per_subject_likelihood.table.json (trial-weighted geometric mean)"
 
@@ -86,11 +93,32 @@ def heldout_from_table(run) -> tuple[float, int]:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def has_heldout_table(run) -> bool:
+    """True iff the run has a COMMITTED run_table artifact -- proof the held-out stage ran."""
+    return any(a.type == "run_table" and a.state == "COMMITTED" for a in run.logged_artifacts())
+
+
+def discover_candidates(runs) -> list:
+    """Runs that completed their held-out stage but lost the final summary write.
+
+    See the module docstring: state=='crashed' + missing scalar + a COMMITTED held-out table.
+    The table is the interlock -- it exists only if the held-out stage finished, so a run that
+    was merely preempted mid-training can never be selected.
+    """
+    out = []
+    for run in runs:
+        if run.state != "crashed" or run.summary.get(KEY) is not None:
+            continue
+        if has_heldout_table(run):
+            out.append(run)
+    return out
+
+
 def validate_formula(api, n: int = 5) -> None:
     """Re-verify the aggregation on runs that have BOTH a table and a native scalar."""
     checked = 0
     worst = 0.0
-    for run in api.runs(PROJECT, filters={"group": "mult-d-grid@20260718-151409"}, per_page=200):
+    for run in api.runs(PROJECT, filters={"group": GROUP}, per_page=200):
         if run.state != "finished":
             continue
         native = run.summary.get(KEY)
@@ -120,12 +148,22 @@ def main() -> None:
     api = wandb.Api(timeout=30)
     validate_formula(api)
 
-    for rid in LOST_RUN_IDS:
-        run = api.run(f"{PROJECT}/{rid}")
+    runs = list(api.runs(PROJECT, filters={"group": GROUP}, per_page=200))
+    already = sum(1 for r in runs if r.summary.get(f"{KEY}_backfilled"))
+    candidates = discover_candidates(runs)
+    print(f"scanned {len(runs)} runs in {GROUP}: {len(candidates)} recoverable "
+          f"(previously backfilled: {already})")
+
+    for run in candidates:
         value, n_subj = heldout_from_table(run)
-        existing = run.summary.get(KEY)
-        status = "already present" if existing is not None else "MISSING -> backfill"
-        print(f"{rid[-8:]}  state={run.state:9s} n_subj={n_subj}  recovered={value:.6f}  ({status})")
+        cfg = run.config
+        d = len(cfg.get("resolved_subject_ids") or [])
+        pen = (cfg.get("model") or {}).get("penalties") or {}
+        beta, upl = pen.get("beta"), pen.get("update_net_latent_penalty")
+        mult = round(upl / beta) if (beta and upl) else None
+        seed = (cfg.get("data") or {}).get("seed")
+        print(f"  {run.id[-8:]}  D={d:3d} mult={mult} beta={beta:g} seed={seed} "
+              f"n_subj={n_subj}  ->  {KEY}={value:.6f}")
         if args.dry_run:
             continue
         run.summary[KEY] = value
@@ -133,7 +171,11 @@ def main() -> None:
         run.summary[f"{KEY}_backfill_src"] = SRC_NOTE
         run.summary.update()
 
-    print("dry run -- nothing written" if args.dry_run else "backfill written to W&B")
+    if not candidates:
+        print("nothing to backfill")
+    else:
+        print("dry run -- nothing written" if args.dry_run
+              else f"backfilled {len(candidates)} run(s) to W&B")
 
 
 if __name__ == "__main__":
