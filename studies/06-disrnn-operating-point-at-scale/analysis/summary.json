@@ -1,18 +1,20 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-07-24T21:43:14-07:00",
-    "dispatcher_git_sha": "ea495d06183b769dacf2dc7a44280d0bd5da57c5",
+    "produced_at_pt": "2026-07-25T09:23:46-07:00",
+    "dispatcher_git_sha": "280c97aa0ba03d03f99183c37b7311e24380f372",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "mult-d-grid@20260718-151409"
     ]
   },
-  "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN divergence).",
+  "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise), PLUS backfilled runs whose exact scalar was recovered post-hoc from the per-subject table (backfill_lost_heldout.py). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN).",
   "progress": {
-    "finished": 48,
-    "running": 21,
-    "crashed": 8,
+    "usable": 55,
+    "of_which_backfilled": 5,
+    "finished": 50,
+    "running": 20,
+    "crashed": 7,
     "failed": 3,
     "never_started": 0,
     "n_total": 80
@@ -355,11 +357,67 @@
       "heldout_ll_sem": 0.0
     },
     {
+      "D": 300,
+      "mult": 2,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7182,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 300,
+      "mult": 2,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7166,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 300,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.718,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 301,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7177,
+      "heldout_ll_sem": 0.0
+    },
+    {
       "D": 301,
       "mult": 1,
       "beta": 0.001,
       "n": 1,
       "heldout_ll_mean": 0.7158,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 301,
+      "mult": 2,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7138,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 301,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7189,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 301,
+      "mult": 5,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7153,
       "heldout_ll_sem": 0.0
     }
   ]

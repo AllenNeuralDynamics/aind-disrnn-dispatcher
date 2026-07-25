@@ -51,10 +51,21 @@ def _f(x):
 
 
 def read_own_grid():
+    """Rows usable for analysis = a trustworthy FINAL heldout_ll.
+
+    Normally that means state=='finished'. It also includes runs whose scalar was recovered
+    post-hoc by backfill_lost_heldout.py: those completed training AND their held-out stage
+    (Beaker exit 0, committed output+table artifacts) but lost their final summary write to a
+    W&B heartbeat timeout, so they sit at state=='crashed' with an exact, table-derived metric.
+    Excluding them would silently drop 5 D=300 cells. Any OTHER crashed run is still excluded --
+    its heldout_ll, if any, is a mid-training incremental value, not a final one.
+    """
     with GRID_CSV.open() as f:
         rows = list(csv.DictReader(f))
-    finished = [r for r in rows if r["state"] == "finished" and _f(r["heldout_ll"]) is not None]
-    return rows, finished
+    usable = [r for r in rows
+              if _f(r["heldout_ll"]) is not None
+              and (r["state"] == "finished" or r.get("heldout_backfilled") == "True")]
+    return rows, usable
 
 
 def read_s05_fixed_curve():
@@ -89,7 +100,7 @@ def summarize(finished):
     return out
 
 
-def fig_scaling_surface(cells, s05_curve, n_finished):
+def fig_scaling_surface(cells, s05_curve, n_usable):
     fig, ax = plt.subplots(figsize=(10, 6.5))
     ds = sorted(GRU)
     ax.plot(ds, [GRU[d] for d in ds], "o--", color="#333333", ms=6, label="GRU (study 01)", zorder=2)
@@ -115,7 +126,7 @@ def fig_scaling_surface(cells, s05_curve, n_finished):
     ax.set_xticklabels([str(d) for d in sorted(GRU)])
     ax.set_xlabel("training mice  D  (log scale)")
     ax.set_ylabel("held-out likelihood")
-    ax.set_title(f"mult-d-grid — live scaling surface  ({n_finished}/{N_TOTAL} finished)")
+    ax.set_title(f"mult-d-grid — live scaling surface  ({n_usable}/{N_TOTAL} runs usable)")
     ax.legend(fontsize=8, ncol=2, loc="lower right")
     ax.grid(alpha=0.2)
     fig.tight_layout()
@@ -124,13 +135,13 @@ def fig_scaling_surface(cells, s05_curve, n_finished):
     return out
 
 
-def update_report_block(cells, n_finished, n_running, n_pending, n_failed):
+def update_report_block(cells, n_usable, n_running, n_pending, n_failed):
     lines = ["| D | mult | β | held-out (mean) | sem | n seeds |",
              "|---|---|---|---|---|---|"]
     for c in cells:
         lines.append(f"| {c['D']} | {c['mult']} | {c['beta']:g} | "
                      f"{c['heldout_ll_mean']:.4f} | {c['heldout_ll_sem']:.4f} | {c['n']} |")
-    status_line = (f"**Progress: {n_finished}/{N_TOTAL} finished, {n_running} running, "
+    status_line = (f"**Progress: {n_usable}/{N_TOTAL} usable, {n_running} running, "
                    f"{n_pending} pending, {n_failed} failed.**")
     block = ("<!-- BEGIN result-1 -->\n" + status_line + "\n\n" + "\n".join(lines)
              + "\n<!-- END result-1 -->")
@@ -142,32 +153,38 @@ def update_report_block(cells, n_finished, n_running, n_pending, n_failed):
 
 
 def main() -> None:
-    rows, finished = read_own_grid()
+    rows, usable = read_own_grid()
     s05_curve = read_s05_fixed_curve()
-    cells = summarize(finished)
+    cells = summarize(usable)
 
     # W&B's own state field cleanly distinguishes preemption ("crashed", benign -- autoResume
     # reuses the same run id and keeps training) from a real script failure ("failed", e.g. a
     # NaN ValueError) -- no need to re-derive this from Beaker job history here.
+    # n_usable is the headline: state=='finished' PLUS backfilled-but-crashed (see read_own_grid).
+    n_usable = len(usable)
+    n_backfilled = sum(1 for r in usable if r.get("heldout_backfilled") == "True")
     n_finished = sum(1 for r in rows if r["state"] == "finished")
     n_running = sum(1 for r in rows if r["state"] == "running")
     n_crashed = sum(1 for r in rows if r["state"] == "crashed")
     n_failed = sum(1 for r in rows if r["state"] == "failed")
     n_never_started = N_TOTAL - len(rows)  # tasks with no W&B run yet (still queued)
 
-    fig_path = fig_scaling_surface(cells, s05_curve, n_finished)
+    fig_path = fig_scaling_surface(cells, s05_curve, n_usable)
 
     payload = {"_meta": build_meta("analysis/scaling_report.py", WANDB_GROUPS, study_root=STUDY),
                "note": ("LIVE report -- regenerate as the grid progresses. heldout_ll only "
-                        "trusted for state=='finished' rows (written incrementally otherwise). "
-                        "'crashed' = preempted, autoResume reuses the run id; 'failed' = a real "
-                        "script error (e.g. NaN divergence)."),
-               "progress": {"finished": n_finished, "running": n_running, "crashed": n_crashed,
+                        "trusted for state=='finished' rows (written incrementally otherwise), "
+                        "PLUS backfilled runs whose exact scalar was recovered post-hoc from the "
+                        "per-subject table (backfill_lost_heldout.py). 'crashed' = preempted, "
+                        "autoResume reuses the run id; 'failed' = a real script error (e.g. NaN)."),
+               "progress": {"usable": n_usable, "of_which_backfilled": n_backfilled,
+                            "finished": n_finished, "running": n_running, "crashed": n_crashed,
                             "failed": n_failed, "never_started": n_never_started, "n_total": N_TOTAL},
                "cells": cells}
     (HERE / "summary.json").write_text(json.dumps(payload, indent=2))
-    update_report_block(cells, n_finished, n_running, n_never_started, n_failed)
-    print(f"wrote {fig_path.name} and summary.json  ({n_finished}/{N_TOTAL} finished, "
+    update_report_block(cells, n_usable, n_running, n_never_started, n_failed)
+    print(f"wrote {fig_path.name} and summary.json  ({n_usable}/{N_TOTAL} usable "
+          f"({n_backfilled} backfilled), {n_finished} wandb-finished, "
           f"{len(cells)} (D,mult,beta) cells with >=1 seed)")
 
 

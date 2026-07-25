@@ -46,6 +46,10 @@ def main() -> None:
             "heldout_ll": s.get("heldout/eval_likelihood"),
             "eval_ll": s.get("checkpoint/eval_likelihood"),
             "final_step": s.get("_step"),
+            # True when the scalar was recovered post-hoc from the per-subject held-out table
+            # because the run's final summary write was lost (backfill_lost_heldout.py).
+            # Such a run stays state=='crashed' but its metric is exact -- see that script.
+            "heldout_backfilled": bool(s.get("heldout/eval_likelihood_backfilled", False)),
         }
         rows.append(row)
 
