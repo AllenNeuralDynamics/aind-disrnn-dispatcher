@@ -169,6 +169,13 @@ the fan-out. Routine repeats of known-good launches: fan out directly.
   `beaker cluster get <cluster> --format json`.
 - When explaining scheduling/quota behavior, **pull the JSON and cite the field**;
   label "verified:" vs "likely, unconfirmed:" (AGENTS.md §11).
+- **`exit_code == 0` is NOT proof the metrics landed.** On a heavily-preempted run W&B
+  can mark the run `crashed` and silently drop its final summary write, leaving the
+  task exit-0 on Beaker with **no `heldout/*` key at all** — invisible from either side
+  alone, and never retried. Before calling a grid complete, reconcile the
+  Beaker-finished count against the W&B-finished count and chase any persistent gap
+  (`references/scheduling-lessons.md`); recovery is usually free from the surviving
+  per-subject table (`references/resume-extend-rescore.md` mechanism 4).
 - After the launch settles, write `launch_record_<label>/results.md`
   (see posthoc-reporting skill).
 
@@ -177,8 +184,11 @@ the fan-out. Routine repeats of known-good launches: fan out directly.
 - `references/sandbox-launch.md` — launching from the Claude Science Mac sandbox:
   PYTHONPATH quirk, **image-name verification** (the #1 stale-fact trap),
   transient node failures (resubmit, don't debug).
-- `references/resume-extend-rescore.md` — the three distinct mechanisms:
+- `references/resume-extend-rescore.md` — the four distinct mechanisms:
   automatic preemption resume, extend a finished run (`restore_from_run_id`),
-  re-score held-out only (`resume_heldout_beaker.py`).
+  re-score held-out only (`resume_heldout_beaker.py`), and **backfill a lost metric
+  from its surviving table artifact** (no GPU — try before re-scoring; includes the
+  verified trial-weighted-geometric aggregation).
 - `references/scheduling-lessons.md` — the verified g6e exception, priority-tier
-  measurements, bundle over-assignment, cross-cloud S3, verify-with-data.
+  measurements, bundle over-assignment, cross-cloud S3, the resolved-JSON payload
+  ceiling, **exit-0-with-a-missing-metric**, verify-with-data.

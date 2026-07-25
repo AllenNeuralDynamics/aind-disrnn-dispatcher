@@ -110,6 +110,38 @@ above ~15 tasks into ≤~15-task pieces** (≈10 tasks/~25 KB gives a comfortabl
    `b.workspace.experiments()` for stray task-count matches). Worked examples: study 05
    `subject-capacity` (18→2×9 tasks) and study 06 `mult-d-grid` (80→8×10 tasks) `notes.md`.
 
+## A heavily-preempted run can exit 0 with its final metric MISSING (study 06, 2026-07-25)
+
+**`exit_code == 0` does not guarantee the run's metrics reached W&B.** Verified on 5
+study-06 tasks: each was preempted ~5x, W&B marked the run `crashed` on a heartbeat
+timeout, and the **final summary write was silently dropped** — the run object sat
+frozen at a mid-training step with **no `heldout/*` key at all**, while the job itself
+ran to completion (logs end `All done, goodbye`, wandb reports syncing its files, exit 0).
+
+Why it is silent and does not self-heal:
+
+- **Beaker considers the task done** (exit 0), so `autoResume` never retries it.
+- **W&B keeps `state == "crashed"`** from the earlier preemption, so any analysis
+  filtering on `state == "finished"` drops the cell without complaint.
+- The loss is *not* visible from either side alone — Beaker says success, W&B says
+  crashed, and neither is wrong.
+
+**Detection: watch the gap between Beaker-finished and W&B-finished counts.** In study
+06 this showed up as a persistent, *growing* 4-5 run discrepancy (Beaker 52-55 vs W&B
+48-50). Do not hand-wave it as preemption-labelling noise (it was, wrongly, on first
+pass) — cross-reference explicitly: for every task whose latest attempt exited 0, pull
+its `WANDB_RUN_ID` from the job's env vars and check that run's state *and* whether the
+metric key is actually present. `run.summary` having 127 keys means nothing if none of
+them is the one you need.
+
+**Recovery is usually free** — the per-subject `run_table` artifact typically survives,
+so the scalar can be recomputed exactly with no GPU: see mechanism (4) in
+`resume-extend-rescore.md`. Only fall back to a GPU re-score (mechanism 3) if that
+artifact is missing.
+
+Expect this on any long, heavily-preempted low-priority fan-out, and check for it
+**before** concluding a grid is complete.
+
 ## Verify mechanisms with data before asserting
 
 When explaining *why* infra/scheduling/quota behaves a certain way, **pull the
