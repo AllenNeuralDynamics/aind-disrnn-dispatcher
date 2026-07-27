@@ -111,6 +111,48 @@ retry (same known pattern), verified no duplicate experiments were created. Spec
 `launch_record/experiment_resubmit20_part{1,2}.yaml`; record:
 `launch_record/beaker_resubmit20.json`.
 
+## NaN divergences and the determinism probe (2026-07-27)
+
+Three tasks died with `ValueError: NaN in params during session-regularized training` — genuine
+failures, not preemptions (exit 1, `was_preempted=False`):
+
+| task | D | mult | β | seed | lr | died at |
+|---|---|---|---|---|---|---|
+| -008 | 10 | 5 | 3e-4 | 0 | 1e-3 | step 13031 |
+| -011 | 10 | 5 | 1e-3 | 1 | 1e-3 | step 13680 |
+| -012 | 10 | 10 | 3e-4 | 0 | 1e-3 | step 9420 |
+
+**The pattern is D=10 × high multiplier (5 or 10)** — β varies, seed varies (BOTH 0 and 1 appear),
+lr is the safe 1e-3 throughout, and no mult=1 or mult=2 cell has diverged at any D. All three die
+in a narrow 9–14k window, i.e. just after the penalty ramp (`n_warmup_steps=7500`) fully engages.
+
+*Likely, unconfirmed:* the multiplier drives the interaction bottleneck's σ toward closure; at D=10
+there are only ten subjects to constrain it, so the penalty term dominates and σ saturates, blowing
+up the log/gradient term. Note study 03 saw mult=10 diverge only at **lr=5e-3** (at D=100); here it
+happens at the *safe* lr, suggesting **small D lowers the divergence threshold** — new relative to 03.
+
+**Probe launched: [`01KYJQ472RT9638M68WWH6HJRK`](https://beaker.org/ex/01KYJQ472RT9638M68WWH6HJRK)**
+(spec `launch_record/experiment_nanretry1.yaml`, record `launch_record/beaker_nanretry1.json`).
+Re-runs all three cells with **identical** config — verified programmatically that the only fields
+differing from the originals are `name` and `WANDB_RUN_ID`. If they re-diverge at the same step the
+divergence is deterministic (a strong, citable claim); if they survive it is stochastic.
+
+**Seeds were deliberately NOT changed.** Re-rolling the seed usually does clear a NaN, but seed 1
+diverged too, so this is an unstable corner rather than one unlucky draw — substituting a seed that
+survives would report only the seeds that happened not to blow up (survivorship bias) and would hide
+the instability. Study 03 faced the same choice and reported its divergences. If a value is wanted
+for these cells, add seed 2 as a documented *supplement*, never as a replacement.
+
+**Two deliberate deviations from a plain resubmit:**
+1. **Fresh W&B run ids.** Unlike the bad-node case, these runs *had logged history* (9–14k steps).
+   The id-reuse rule holds only for runs that logged NOTHING — reusing an id on a from-scratch
+   restart corrupts history, since Beaker restarts at step 0 while W&B's counter does not rewind.
+   The `WANDB_RUN_GROUP` is unchanged, so the analysis still picks these up for the same cell.
+2. **Distinct task names** (`nanretry1-0NN`). A new experiment brings a new `/results` dataset, so
+   there is no checkpoint and the rerun starts from scratch — what the determinism test wants. The
+   distinct names also keep the original failures visible in the status counter instead of being
+   silently superseded as "latest attempt" (so the Beaker-side task total is now 83, not 80).
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.
