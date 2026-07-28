@@ -1,0 +1,46 @@
+# Task template for variant nxd-h512 D=614 cells (consumed by launch_beaker_resumable.py).
+#
+# WHY BEAKER: the 3 D=614 (subject_ratio=1.0) cells at hidden_size=512 could not be
+# landed on Allen HPC SLURM -- host RAM climbed unboundedly through the training loop
+# and OOM-killed at 128G, 256G and (in CPU profiling probes) even 400G. Three
+# hypotheses were tested and falsified (length-bucketing compile cache, Python-side
+# object leak via tracemalloc, JAX async-dispatch backpressure via per-step
+# block_until_ready). The H=256/D=614 cells that feed r7 succeeded on THIS backend
+# (Beaker onprem-h200, 256GiB), so we run the H=512 D=614 cells here on the
+# known-good path rather than continue debugging the SLURM route.
+#
+# MEMORY SIZING: the onprem-h200 node bundle is 8 GPU / 3024 GiB / 224 CPU, i.e.
+# ~378 GiB + 28 CPU per GPU. Requesting MORE than one bundle silently grabs extra
+# GPUs, so memory/cpuCount are held under one bundle: 360GiB / 24 CPU. That is
+# already 1.4x the 256GiB that sufficed for H=256/D=614.
+version: v2
+description: nxd-h512 D=614 cells on Beaker h200 (HPC SLURM route exhausted)
+tasks:
+  - name: data-scaling-nxd-h512-d614
+    image:
+      beaker: han-hou/disrnn-wrapper-pck-integration
+    command:
+      - bash
+      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - wandb
+      - agent
+    constraints:
+      cluster:
+        - ai1/octo-hub-onprem-h200
+        - ai1/octo.ai-aws-p5en
+    resources:
+      gpuCount: 1
+      cpuCount: 24
+      memory: 360GiB
+    context:
+      priority: low
+      preemptible: true
+    envVars:
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+      - name: WRAPPER_REF
+        value: eb5a6bb02c828bfabceeccf30aac4958477b4098   # wrapper origin/main (pushed)
+      - name: DISPATCHER_REF
+        value: 460306610515dee12414444caf50ea881755ecc3   # appending-study-01-nxd-h512 (pushed)
+    result:
+      path: /results
