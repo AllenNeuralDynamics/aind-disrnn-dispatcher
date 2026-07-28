@@ -5,14 +5,19 @@
 # and OOM-killed at 128G, 256G and (in CPU profiling probes) even 400G. Three
 # hypotheses were tested and falsified (length-bucketing compile cache, Python-side
 # object leak via tracemalloc, JAX async-dispatch backpressure via per-step
-# block_until_ready). The H=256/D=614 cells that feed r7 succeeded on THIS backend
-# (Beaker onprem-h200, 256GiB), so we run the H=512 D=614 cells here on the
-# known-good path rather than continue debugging the SLURM route.
+# block_until_ready). The H=256/D=614 cells that feed r7 succeeded on THIS backend,
+# so run the H=512 D=614 cells on the known-good path instead of continuing to debug
+# the SLURM route.
 #
-# MEMORY SIZING: the onprem-h200 node bundle is 8 GPU / 3024 GiB / 224 CPU, i.e.
-# ~378 GiB + 28 CPU per GPU. Requesting MORE than one bundle silently grabs extra
-# GPUs, so memory/cpuCount are held under one bundle: 360GiB / 24 CPU. That is
-# already 1.4x the 256GiB that sufficed for H=256/D=614.
+# KNOWN-GOOD BASELINE (nxd-grid/launch_record/experiment_resumable_submitted.yaml, the
+# H=256/D=614 cells in r7): image disrnn-wrapper-pck-integration, gpuCount 1,
+# cpuCount 16, memory 256GiB, priority low + preemptible. This spec keeps all of that
+# and only raises memory for the wider hidden state.
+#
+# MEMORY SIZING: onprem-h200 node bundle = 8 GPU / 3024 GiB / 224 CPU, i.e. ~378 GiB
+# and 28 CPU per GPU. Requesting more than ONE bundle silently grabs extra GPUs, so
+# memory/cpuCount stay inside one bundle: 360GiB / 24 CPU (1.4x the 256GiB that
+# sufficed at H=256). Verify BEAKER_ASSIGNED_GPU_COUNT == 1 on the first scheduled job.
 version: v2
 description: nxd-h512 D=614 cells on Beaker h200 (HPC SLURM route exhausted)
 tasks:
@@ -42,5 +47,7 @@ tasks:
         value: eb5a6bb02c828bfabceeccf30aac4958477b4098   # wrapper origin/main (pushed)
       - name: DISPATCHER_REF
         value: 460306610515dee12414444caf50ea881755ecc3   # appending-study-01-nxd-h512 (pushed)
+      - name: FORAGING_MODELS_REF
+        value: main   # readable; launcher resolves to an immutable SHA before submit
     result:
       path: /results
