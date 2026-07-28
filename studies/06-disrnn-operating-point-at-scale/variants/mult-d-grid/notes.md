@@ -153,6 +153,36 @@ for these cells, add seed 2 as a documented *supplement*, never as a replacement
    distinct names also keep the original failures visible in the status counter instead of being
    silently superseded as "latest attempt" (so the Beaker-side task total is now 83, not 80).
 
+### Probe result (2026-07-27, first data): divergence is STOCHASTIC, not deterministic
+
+| probe | outcome | step | original died at |
+|---|---|---|---|
+| `nanretry1-008` | **re-diverged** (same `NaN in params` error) | **7500** | 13031 |
+| `nanretry1-011` | still training, healthy | 17940 | 13680 — **passed it** |
+| `nanretry1-012` | still training, healthy | 21170 | 9420 — **passed it** |
+
+**Two of three sailed past the step where they previously died**, and the one that did re-diverge
+did so at a *different* step (7500 vs 13031, ~5500 steps earlier). So with config AND seed held
+byte-identical, the failure does not reproduce — neither in occurrence nor in timing.
+
+**The trajectory is not bit-reproducible even at a fixed seed.** That is expected for JAX on GPU
+(non-deterministic reductions / XLA autotuning), but it has a concrete consequence here: **`seed`
+does not pin the run**, so a NaN at this corner is a *rate*, not a property of a particular seed.
+This also reframes the earlier survivorship-bias worry — re-rolling the seed was never the relevant
+lever, because simply *rerunning* can yield a survivor.
+
+**Report it as a divergence rate, not a deterministic failure.** Current evidence at D=10 × mult≥5:
+4 divergences observed across the original 3 cells plus 1 probe re-divergence, against 2 probe runs
+that cleared their original death points. Any cell value obtained from a surviving rerun should be
+labelled as such.
+
+**Mechanistic clue, strengthened.** `nanretry1-008` died at step **7500** — exactly
+`model.training.n_warmup_steps=7500`, i.e. the step at which the penalty ramp reaches full strength.
+Combined with the originals all dying in the 9–14k window (just after that ramp completes), this
+supports the hypothesis that divergence is triggered when the full-strength penalty drives the
+interaction bottleneck's σ to saturation. *Still inference, not verified* — confirming it would need
+the σ/penalty traces around the divergence step.
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.

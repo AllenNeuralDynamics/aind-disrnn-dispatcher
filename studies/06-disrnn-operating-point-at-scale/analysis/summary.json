@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-07-25T14:56:58-07:00",
-    "dispatcher_git_sha": "96cdb70e8e0da38165284ef1054db7a6b7da9da4",
+    "produced_at_pt": "2026-07-27T18:43:14-07:00",
+    "dispatcher_git_sha": "8a0c743235aca92b346691105abc382e533bddc4",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "mult-d-grid@20260718-151409"
@@ -10,13 +10,13 @@
   },
   "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise), PLUS backfilled runs whose exact scalar was recovered post-hoc from the per-subject table (backfill_lost_heldout.py). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN).",
   "progress": {
-    "usable": 57,
+    "usable": 64,
     "of_which_backfilled": 6,
-    "finished": 51,
-    "running": 20,
-    "crashed": 6,
-    "failed": 3,
-    "never_started": 0,
+    "finished": 58,
+    "running": 7,
+    "crashed": 14,
+    "failed": 4,
+    "never_started": -3,
     "n_total": 80
   },
   "cells": [
@@ -434,6 +434,46 @@
       "beta": 0.001,
       "n": 1,
       "heldout_ll_mean": 0.7153,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 301,
+      "mult": 10,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.7161,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 614,
+      "mult": 1,
+      "beta": 0.0003,
+      "n": 2,
+      "heldout_ll_mean": 0.7221,
+      "heldout_ll_sem": 0.0004
+    },
+    {
+      "D": 614,
+      "mult": 1,
+      "beta": 0.001,
+      "n": 1,
+      "heldout_ll_mean": 0.7156,
+      "heldout_ll_sem": 0.0
+    },
+    {
+      "D": 614,
+      "mult": 2,
+      "beta": 0.0003,
+      "n": 2,
+      "heldout_ll_mean": 0.7164,
+      "heldout_ll_sem": 0.0008
+    },
+    {
+      "D": 614,
+      "mult": 5,
+      "beta": 0.0003,
+      "n": 1,
+      "heldout_ll_mean": 0.718,
       "heldout_ll_sem": 0.0
     }
   ]
