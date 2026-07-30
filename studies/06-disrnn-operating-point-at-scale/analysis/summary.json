@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-07-29T21:43:19-07:00",
-    "dispatcher_git_sha": "e3b36fcf78d6a78902b1b8fc89fbe3768040db07",
+    "produced_at_pt": "2026-07-30T03:42:40-07:00",
+    "dispatcher_git_sha": "382590c0c7a6ae59850702f1d85c57c9e653c54d",
     "wrapper_git_sha": null,
     "wandb_groups": [
       "mult-d-grid@20260718-151409"
@@ -10,10 +10,10 @@
   },
   "note": "LIVE report -- regenerate as the grid progresses. heldout_ll only trusted for state=='finished' rows (written incrementally otherwise), PLUS backfilled runs whose exact scalar was recovered post-hoc from the per-subject table (backfill_lost_heldout.py). 'crashed' = preempted, autoResume reuses the run id; 'failed' = a real script error (e.g. NaN).",
   "progress": {
-    "usable": 74,
+    "usable": 75,
     "of_which_backfilled": 6,
-    "finished": 68,
-    "running": 2,
+    "finished": 69,
+    "running": 1,
     "crashed": 9,
     "failed": 4,
     "never_started": -3,
@@ -72,9 +72,9 @@
       "D": 10,
       "mult": 10,
       "beta": 0.0003,
-      "n": 1,
-      "heldout_ll_mean": 0.7109,
-      "heldout_ll_sem": 0.0
+      "n": 2,
+      "heldout_ll_mean": 0.7038,
+      "heldout_ll_sem": 0.0071
     },
     {
       "D": 10,
