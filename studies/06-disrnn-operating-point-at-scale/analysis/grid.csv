@@ -12,7 +12,7 @@ mult-d-grid-nanretry1-008-80069e74,mice_snapshot_multisubject_disrnn_beta0.0003_
 mult-d-grid-20260718-151409-2f2cbd5a,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,1,0.0003,5,0.7099677920341492,0.7562691569328308,107559,False
 mult-d-grid-20260718-151409-44e89716,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,0,0.001,5,0.7024619579315186,0.7234260439872742,107558,False
 mult-d-grid-20260718-151409-3a4f8014,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,failed,10,1,0.001,5,,0.6617283225059509,13680,False
-mult-d-grid-nanretry1-011-9ebfbc2c,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,running,10,1,0.001,5,,0.7506081461906433,92000,False
+mult-d-grid-nanretry1-011-9ebfbc2c,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,1,0.001,5,0.7070651054382324,0.7506188750267029,107586,False
 mult-d-grid-20260718-151409-409c1995,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,10,,0.6256696581840515,9420,False
 mult-d-grid-nanretry1-012-addc55a0,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,0,0.0003,10,0.6966278553009033,0.7257663011550903,107559,False
 mult-d-grid-20260718-151409-47e080fe,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,1,0.0003,10,0.7108776569366455,0.7556134462356567,107559,False
