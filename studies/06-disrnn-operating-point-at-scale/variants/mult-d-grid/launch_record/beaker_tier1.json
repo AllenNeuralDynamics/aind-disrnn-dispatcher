@@ -1,0 +1,30 @@
+{
+  "purpose": "final 3 cells on tier 1 (normal, non-preemptible) after tier-3 thrash",
+  "thrash_evidence": {
+    "attempts_over_8h": "~100 across 3 tasks",
+    "median_survival_min": {
+      "060": 1.6,
+      "062": 2.0,
+      "079": 1.4
+    }
+  },
+  "superseded_experiment": "01KYXNJYA7KEY47JXWJGEG4M3Y",
+  "experiment_id": "01KYYW59S4YT65A9HRPTV7GWEX",
+  "tasks": [
+    {
+      "orig_task": "mult-d-grid-20260718-151409-060",
+      "tier1_task": "tier1-060",
+      "tier1_wandb_run": "mult-d-grid-tier1-060-2dccc268"
+    },
+    {
+      "orig_task": "mult-d-grid-20260718-151409-062",
+      "tier1_task": "tier1-062",
+      "tier1_wandb_run": "mult-d-grid-tier1-062-84fe4677"
+    },
+    {
+      "orig_task": "mult-d-grid-20260718-151409-079",
+      "tier1_task": "tier1-079",
+      "tier1_wandb_run": "mult-d-grid-tier1-079-3dd65461"
+    }
+  ]
+}

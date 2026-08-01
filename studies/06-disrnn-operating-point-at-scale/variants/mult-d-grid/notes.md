@@ -225,6 +225,42 @@ logged 69–77k steps and the id-reuse rule only holds for runs that logged noth
 task names (`rescue1-0NN`) so the wedged originals stay visible rather than being superseded by
 latest-attempt dedup.
 
+### Tier-3 thrash: the last 3 cells could not finish on low-preemptible (2026-08-01)
+
+The rescue relaunch (`01KYXNJYA7KEY47JXWJGEG4M3Y`, tier 3 `{low, preemptible: true}`) did not
+merely run slowly — it **could not make progress at all**. Measured over ~8 h:
+
+| task | attempts | median survival | max |
+|---|---|---|---|
+| `rescue1-060` | 31 | **1.6 min** | 9.6 min |
+| `rescue1-062` | 38 | **2.0 min** | 27.1 min |
+| `rescue1-079` | 34 | **1.4 min** | 3.3 min |
+
+~100 attempts, each evicted after 1–2 minutes. A full run needs ~14 h and checkpoints only
+every 10k steps, so **every eviction discarded all progress** — a thrash loop with zero net
+advance. Two attempts also died on a *second* bad node, `aws-h200-distinct-cricket`
+(`rescue1-079`: `Could not resolve host: github.com`, exit 128; `rescue1-060`:
+`_duckdb.IOException` timeout to `aind-scratch-data.s3.amazonaws.com`, exit 1) — an AWS node,
+so this is a genuine node network fault, *not* the documented GCP-cannot-reach-S3 caveat.
+
+**Fix: tier 1** — [`01KYYW59S4YT65A9HRPTV7GWEX`](https://beaker.org/ex/01KYYW59S4YT65A9HRPTV7GWEX),
+`{priority: normal, preemptible: false}`, drawn from the 4 protected allocated slots, never
+evicted. The tier-3 experiment was stopped so the two do not race for the same cells.
+
+**Why not tier 2** (`{normal/high, preemptible: true}`, the 8 unallocated slots): still
+preemptible — high priority is evicted *later*, not *never*, which is insufficient at 1.5-min
+survival. And per the verified measurement in the beaker-launch skill, normal-preemptible is
+**capped at the 8 slots and pends when capped** while `low` bursts *past* the cap, so tier 2
+could queue MORE while only partly reducing eviction. The skill's rule applies directly: *a few
+must-finish runs → tier 1; tier 2 only once the 4 allocated slots are exhausted.* We need 3.
+
+**Caveat accepted:** `autoResume` is auto-applied only to *preemptible* jobs, so these will not
+self-restart if they hit a broken node — resubmit manually if so.
+
+**Verification note:** `experiment.spec()` round-trips the context as `preemptible=None`
+(beaker-py omits the default), but the **jobs** report `priority=normal, preemptible=False`.
+Check the job level, not the spec echo, when confirming tier.
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.
