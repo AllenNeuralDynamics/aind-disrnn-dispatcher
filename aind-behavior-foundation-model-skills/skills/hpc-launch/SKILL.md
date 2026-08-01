@@ -118,6 +118,32 @@ detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
   GCS + W&B) and the HPC original `code/resume_heldout.py` (`--model-dir <dir> --wandb-run-id
   <id>`, run on a compute node that can read the checkpoint tree + reach W&B).
 
+## Recording an intervention (resubmit / rescue / probe / backfill)
+
+`launch_hpc.py` writes **no launch-record JSON** — unlike the Beaker launchers, it leaves no
+file behind describing what was submitted. So anything you do after the initial sweep
+(resubmitting dead array tasks, rescuing a wedged job, a diagnostic rerun, recovering a metric
+post-hoc) must be recorded by hand or it is lost:
+
+```python
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "util"))
+from launch_record import write_intervention
+
+write_intervention(
+    path=variant / "launch_record" / "hpc_<label>.json",
+    kind="resubmit", platform="hpc",
+    wandb_group="<variant>@<launch_id>",
+    study_root=STUDY,
+    job_refs=[{"type": "wandb_sweep", "id": sweep_id},          # PREFER this
+              {"type": "slurm_array_job", "id": array_job_id}],  # ages out of sacct
+    trigger={"symptom": "array tasks 3-7 died", "cause": "node OOM"},
+)
+```
+
+**Record the W&B sweep id, not just the SLURM id.** SLURM job ids are recycled and drop out of
+`sacct` history within days, so a sweep id is the only handle that still resolves later. Schema
+and the wrap-up validator: the `study-conventions` skill.
+
 ## Monitoring
 
 ```bash

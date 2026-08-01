@@ -51,6 +51,55 @@ in `AGENTS.md` §8).
   and `launch_beaker.py`) implement the portable launch metadata identically;
   the wrapper records the resolved source commits.
 
+## Interventions after the first launch (resubmit / rescue / probe / tier change / backfill)
+
+The launchers record the **first** launch. Everything afterwards used to be hand-rolled, and
+that is precisely where provenance was lost: study 06 accumulated five follow-up actions with
+five different ad-hoc JSON shapes, **none carrying a timestamp**, plus 6 post-hoc-recovered
+metric values documented only in prose. Interventions are the surprising events — the ones
+provenance exists for — so they get a fixed schema:
+
+```python
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "util"))
+from launch_record import write_intervention
+
+write_intervention(
+    path=variant / "launch_record" / "<backend>_<label>.json",
+    kind="rescue",                    # resubmit|rescue|probe|tier-change|backfill|extend
+    platform="beaker",                # beaker | hpc | none (none == submits nothing)
+    wandb_group="<variant>@<launch_id>",   # the join key the validator reconciles on
+    study_root=STUDY,
+    job_refs=[{"type": "beaker_experiment", "id": exp.id}],   # see backend table below
+    supersedes=["<older experiment/sweep id>"],
+    trigger={"symptom": ..., "cause": ..., "evidence": {...}},   # symptom+cause REQUIRED
+    tasks=[{"orig_task": ..., "new_task": ..., "orig_wandb_run": ..., "new_wandb_run": ...}],
+    deviations={"fresh_run_ids": True, "renamed_tasks": True},
+    cost={"progress_discarded_steps": {...}},
+)
+```
+
+**Works for both backends** — a study can use both (AGENTS.md §13: GPU → Beaker, CPU → HPC
+SLURM). They differ only in what identifies a submitted unit:
+
+| platform | `job_refs` entry | note |
+|---|---|---|
+| `beaker` | `{"type": "beaker_experiment", "id": "01K…"}` | |
+| `hpc` | `{"type": "wandb_sweep", "id": "…"}` | **prefer this** — durable |
+| `hpc` | `{"type": "slurm_array_job" \| "slurm_job", "id": "…"}` | recycled, ages out of `sacct` |
+| `none` | *(omit)* | only for `kind="backfill"` |
+
+`launch_hpc.py` currently writes **no** launch record at all, so an HPC intervention must call
+this helper by hand until that launcher is taught to do it.
+
+It wraps `_meta.build_meta()`, so timestamp + dispatcher/wrapper SHAs come for free, and it
+**refuses** a record with no `trigger.cause`, an unknown platform/ref type, or a work-submitting
+kind with no `job_refs`.
+
+Record the **`deviations`** honestly — every study-06 intervention made a deliberate choice
+(fresh vs reused W&B run ids, renamed tasks, changed priority tier) for a real reason. Reused
+run ids are only safe when the old run logged **nothing**; a from-scratch rerun replays step 0
+while W&B's counter does not rewind.
+
 ## Checklist for a new variant launch
 
 1. Create `studies/<study>/variants/<variant>/` with `sweep.yaml` + `experiment.yaml`
@@ -63,6 +112,18 @@ in `AGENTS.md` §8).
 5. Add a row to the study README's Variants index.
 6. After the group settles, write `launch_record_<label>/results.md`
    (contract in the posthoc-reporting skill).
+7. **Reconcile provenance before calling the variant done:**
+
+   ```bash
+   python studies/util/validate_provenance.py studies/<study> --variant <variant> \
+          --beaker --wandb --strict
+   ```
+
+   Cross-checks three sources that otherwise drift silently: the launch records, the live
+   backends (Beaker experiments / W&B sweeps) targeting the group, and any post-hoc-recovered
+   values flagged in `grid.csv`. Advisory by default; `--strict` exits 1 on findings — use
+   that at wrap-up. Checks 1–2 are offline (no credentials needed); `--beaker` / `--wandb`
+   add the live reconciliation.
 
 ## References (read on demand)
 
