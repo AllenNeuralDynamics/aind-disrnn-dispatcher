@@ -1,0 +1,31 @@
+{
+  "purpose": "3 grid tasks wedged on broken node (container image pull failure) \u2014 resubmitted from scratch, fresh W&B run ids, distinct task names",
+  "bad_node": "01KPVKJYXNWNJCH7ZFK0TBXPW5",
+  "bad_node_hostname": "aidc-h200-prd2",
+  "progress_discarded": {
+    "060": 76120,
+    "062": 77100,
+    "079": 68860
+  },
+  "experiment_id": "01KYXNJYA7KEY47JXWJGEG4M3Y",
+  "tasks": [
+    {
+      "orig_task": "mult-d-grid-20260718-151409-060",
+      "rescue_task": "rescue1-060",
+      "orig_wandb_run": "mult-d-grid-20260718-151409-f98da348",
+      "rescue_wandb_run": "mult-d-grid-rescue1-060-2ded6afd"
+    },
+    {
+      "orig_task": "mult-d-grid-20260718-151409-062",
+      "rescue_task": "rescue1-062",
+      "orig_wandb_run": "mult-d-grid-20260718-151409-d111b057",
+      "rescue_wandb_run": "mult-d-grid-rescue1-062-2ad6a289"
+    },
+    {
+      "orig_task": "mult-d-grid-20260718-151409-079",
+      "rescue_task": "rescue1-079",
+      "orig_wandb_run": "mult-d-grid-20260718-151409-31dfe9f9",
+      "rescue_wandb_run": "mult-d-grid-rescue1-079-8d699a23"
+    }
+  ]
+}

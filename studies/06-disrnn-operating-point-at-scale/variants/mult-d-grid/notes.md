@@ -183,6 +183,48 @@ supports the hypothesis that divergence is triggered when the full-strength pena
 interaction bottleneck's σ to saturation. *Still inference, not verified* — confirming it would need
 the σ/penalty traces around the divergence step.
 
+## Second bad-node incident: 3 tasks wedged on `aidc-h200-prd2` (2026-07-31)
+
+Tasks **-060, -062, -079** sat "pending" for five days. This was reported for several days as
+*capacity starvation* — that diagnosis was **wrong**. Beaker was placing them; they were failing
+to start, repeatedly, on **one node**: `01KPVKJYXNWNJCH7ZFK0TBXPW5` (hostname `aidc-h200-prd2`,
+an onprem H200):
+
+```
+Failed to start job: failed to create container: cannot create container:
+Error response from daemon: No such image:
+gcr.io/ai2-beaker-core/public/d9a3b3uvabos73b7u3j0:latest: image not found
+```
+
+**Why this is service-side, verified:** `gcr.io/ai2-beaker-core/...` is *Beaker's* internal
+registry namespace, not ours. The image id `01KXCF2EASQ8NV463684PZJ0ZP`
+(`han-hou/disrnn-wrapper-main-20260712`) still exists, and the same id ran to completion many
+times on other nodes — **including twice on this very node days earlier**. So it is a node-local
+registry/pull fault, not a spec error. The node is **not cordoned**, so Beaker keeps treating it
+as healthy and re-choosing it: `-060` hit it on 07-27 16:01 and again on 07-31 16:55 — four days
+apart, same node, same failure. `nanretry1-008`'s retry hit it too, at the same 16:55 sweep.
+
+**This also explains the false "capacity" reading.** Repeated checks showed
+`octo-hub-onprem-h200` with 11–14 GPUs free and an empty queue while these tasks sat pending —
+because the free capacity was in the same pool as the one broken node they kept being assigned to.
+**Lesson: "pending while capacity is free" is not necessarily starvation — read `job.status.message`
+on the latest attempt before concluding anything about the scheduler.**
+
+**Rescue: [`01KYXNJYA7KEY47JXWJGEG4M3Y`](https://beaker.org/ex/01KYXNJYA7KEY47JXWJGEG4M3Y)**
+(spec `launch_record/experiment_rescue1.yaml`, record `launch_record/beaker_rescue1.json`).
+
+**Cost, accepted knowingly:** the wedged runs were **65–72 % trained** (steps 76120 / 77100 /
+68860 of ~107k) and the rescue restarts them **from scratch**. A new experiment gets a new
+`/results` dataset, so there is no checkpoint to resume, and restore/extend cannot help — it
+downloads the source run's `training-output` artifact, which is only written at END of training,
+so an unfinished run is not extendable. Waiting was the only progress-preserving option, and
+Beaker demonstrably keeps re-picking the bad node.
+
+**Deviations (same rationale as the NaN probe):** fresh W&B run ids, because these runs *had*
+logged 69–77k steps and the id-reuse rule only holds for runs that logged nothing; and distinct
+task names (`rescue1-0NN`) so the wedged originals stay visible rather than being superseded by
+latest-attempt dedup.
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.
