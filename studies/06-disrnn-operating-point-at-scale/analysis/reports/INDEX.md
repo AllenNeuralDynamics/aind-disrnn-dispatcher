@@ -16,6 +16,11 @@ One report per scan. Regenerated from committed data via the study Makefile.
 - **r2 — grid scaling curve.** The headline: held-out LL vs D×mult×β, overlaid on study 05's
   fixed-penalty curve and study 01's GRU curve. Launched as an 80-run grid (D×mult×β{3e-4,1e-3}×2
   seeds) directly motivated by r1 — see [notes.md](../../variants/mult-d-grid/notes.md) for the
-  8 Beaker experiment IDs (payload-limit split) and W&B group `mult-d-grid@20260718-151409`.
+  full Beaker experiment history and W&B group `mult-d-grid@20260718-151409`. That history grew
+  to **13 experiments** across 5 launch records (`launch_record/beaker_*.json`): the original 8
+  (payload-limit split), +2 resubmitting 20 tasks lost to a bad node, +1 NaN determinism probe,
+  +1 rescue off a second bad node, +1 tier-1 relaunch of the final 3 cells. **`grid.csv` also
+  contains 6 held-out values recovered post-hoc** (flagged `heldout_backfilled`) — see notes.md
+  before using the data.
 - **(H2, follow-on)** generative switch-curve shape at the selected point — added with a
   `generative-*` rollout variant once r2 confirms which checkpoint(s) are worth rolling out.

@@ -111,6 +111,40 @@ retry (same known pattern), verified no duplicate experiments were created. Spec
 `launch_record/experiment_resubmit20_part{1,2}.yaml`; record:
 `launch_record/beaker_resubmit20.json`.
 
+The two superseded originals were **renamed in Beaker** to `DEAD-superseded-part7-badnode-dns`
+and `DEAD-superseded-part8-badnode-dns`, with descriptions pointing at their replacements. They
+are kept, not deleted — Beaker has no archive, and `delete` would destroy the provenance these
+notes cite (and the result datasets). They show a permanent red "10 failed" badge in the UI;
+that is expected. Their tasks are correctly overridden by the resubmits via latest-attempt dedup.
+
+## 6 held-out metrics lost then recovered — READ THIS BEFORE USING `grid.csv` (2026-07-25)
+
+**Six values in `analysis/grid.csv` were recovered post-hoc, not logged natively.** They are
+flagged `heldout_backfilled=True` there and `heldout/eval_likelihood_backfilled=True` in W&B.
+
+What happened: six heavily-preempted tasks completed training **and** their held-out stage
+(Beaker exit 0, logs ending `All done, goodbye`, committed `disrnn-output-*` and
+`*-heldoutper_subject_likelihood` artifacts) — but W&B had already marked each run `crashed` on
+a heartbeat timeout, and the **final summary write was silently dropped**. The runs sat frozen at
+a mid-training step with **no `heldout/*` key at all**. Beaker saw exit 0 so autoResume never
+retried them, and `scaling_report.py`'s `state == "finished"` filter dropped all six cells.
+Five were D=300/301 — the sparsest column in the grid.
+
+Detected via a persistent, *growing* gap between the Beaker-finished count and the W&B-finished
+count (52–55 vs 48–50). That gap was first waved off as preemption-labelling noise, which was
+wrong; the correct move is to cross-reference each exit-0 task's `WANDB_RUN_ID` against its W&B
+state **and** whether the metric key is actually present.
+
+Recovered with **no GPU** by `analysis/backfill_lost_heldout.py` (self-discovering, idempotent):
+the per-subject held-out table survives as a committed `run_table` artifact, and the scalar is a
+pure function of it. The aggregation was **verified, not assumed** —
+`heldout/eval_likelihood` is the **trial-weighted GEOMETRIC** mean,
+`exp(Σ nᵢ·ln(likᵢ) / Σ nᵢ)`, reproducing natively-logged scalars to ≤5.3e-08 across 5 runs.
+The two plausible alternatives are wrong by ~0.004–0.005 — *the same magnitude as the effects
+this study measures* — so the script re-validates the formula at runtime and refuses to write on
+drift. Full mechanism: beaker-launch skill, `references/resume-extend-rescore.md` §4 and
+`references/scheduling-lessons.md` "exit 0 with a missing metric".
+
 ## NaN divergences and the determinism probe (2026-07-27)
 
 Three tasks died with `ValueError: NaN in params during session-regularized training` — genuine
