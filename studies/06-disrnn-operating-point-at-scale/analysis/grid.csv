@@ -9,6 +9,7 @@ mult-d-grid-20260718-151409-ffab411a,mice_snapshot_multisubject_disrnn_beta0.001
 mult-d-grid-20260718-151409-f5a8de89,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,1,0.001,2,0.7061306238174438,0.752054750919342,107578,False
 mult-d-grid-20260718-151409-299bc18e,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.7287701964378357,13031,False
 mult-d-grid-nanretry1-008-80069e74,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.6356585621833801,7500,False
+mult-d-grid-tier1-008-e8077edb,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,running,10,0,0.0003,5,,0.7270163297653198,75840,False
 mult-d-grid-20260718-151409-2f2cbd5a,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,1,0.0003,5,0.7099677920341492,0.7562691569328308,107559,False
 mult-d-grid-20260718-151409-44e89716,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,0,0.001,5,0.7024619579315186,0.7234260439872742,107558,False
 mult-d-grid-20260718-151409-3a4f8014,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,failed,10,1,0.001,5,,0.6617283225059509,13680,False
@@ -57,7 +58,11 @@ mult-d-grid-20260718-151409-b3f9e4ba,mice_snapshot_multisubject_disrnn_beta0.001
 mult-d-grid-20260718-151409-5d00f24c,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n300subj,crashed,300,0,0.0003,5,0.7180166462216727,0.7263369560241699,59900,True
 mult-d-grid-20260718-151409-dda44a9e,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n300subj,crashed,300,0,0.001,5,0.7158790426437965,0.7217604517936707,23210,True
 mult-d-grid-20260718-151409-f98da348,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n300subj,crashed,300,0,0.0003,10,,0.7262016534805298,76120,False
+mult-d-grid-rescue1-060-2ded6afd,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject,failed,300,0,0.0003,10,,,,False
+mult-d-grid-tier1-060-2dccc268,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n300subj,finished,300,0,0.0003,10,0.7178278565406799,0.7257483601570129,107559,False
 mult-d-grid-20260718-151409-d111b057,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n300subj,crashed,300,0,0.001,10,,0.7240390181541443,77100,False
+mult-d-grid-rescue1-062-2ad6a289,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n300subj,crashed,300,0,0.001,10,,0.4985685646533966,600,False
+mult-d-grid-tier1-062-84fe4677,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n300subj,finished,300,0,0.001,10,0.7164739966392517,0.7236354947090149,107559,False
 mult-d-grid-20260718-151409-33c0e6f5,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n301subj,crashed,301,1,0.0003,1,0.7176692126417333,0.727234959602356,78400,True
 mult-d-grid-20260718-151409-0761b71d,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n301subj,finished,301,1,0.001,1,0.7157906889915466,0.7254396080970764,107560,False
 mult-d-grid-20260718-151409-3947b8e7,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n301subj,finished,301,1,0.0003,2,0.7183811664581299,0.7286409735679626,107559,False
@@ -82,3 +87,5 @@ mult-d-grid-20260718-151409-5c91f1e0,mice_snapshot_multisubject_disrnn_beta0.000
 mult-d-grid-20260718-151409-14944b05,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n614subj,finished,614,1,0.0003,10,0.7194523215293884,0.7260978817939758,107559,False
 mult-d-grid-20260718-151409-3a232ed8,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n614subj,finished,614,0,0.001,10,0.7156834006309509,0.7239693403244019,107559,False
 mult-d-grid-20260718-151409-31dfe9f9,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject,crashed,614,1,0.001,10,,0.7241974472999573,68860,False
+mult-d-grid-rescue1-079-8d699a23,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject,crashed,614,1,0.001,10,,,,False
+mult-d-grid-tier1-079-3dd65461,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n614subj,running,614,1,0.001,10,,0.7240312695503235,106640,False
