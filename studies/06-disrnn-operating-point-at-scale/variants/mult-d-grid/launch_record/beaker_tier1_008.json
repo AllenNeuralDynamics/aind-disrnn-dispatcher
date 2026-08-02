@@ -1,0 +1,28 @@
+{
+  "purpose": "3rd attempt at the last uncovered cell (D=10, mult=5, beta=3e-4, seed=0) on the 4th allocated slot; diverged with NaN 2/2 before",
+  "cell": {
+    "D": 10,
+    "mult": 5,
+    "beta": 0.0003,
+    "seed": 0
+  },
+  "prior_divergences": [
+    {
+      "attempt": "original",
+      "died_at_step": 13031
+    },
+    {
+      "attempt": "nanretry1-008",
+      "died_at_step": 7500
+    }
+  ],
+  "stopped_competing": "01KYJQ472RT9638M68WWH6HJRK",
+  "experiment_id": "01KZ0JRW2GT674CRM6BRHZG750",
+  "tasks": [
+    {
+      "orig_task": "mult-d-grid-20260718-151409-008",
+      "new_task": "tier1-008",
+      "new_wandb_run": "mult-d-grid-tier1-008-e8077edb"
+    }
+  ]
+}

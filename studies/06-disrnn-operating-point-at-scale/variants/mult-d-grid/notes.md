@@ -295,6 +295,39 @@ self-restart if they hit a broken node — resubmit manually if so.
 (beaker-py omits the default), but the **jobs** report `priority=normal, preemptible=False`.
 Check the job level, not the spec echo, when confirming tier.
 
+### The last uncovered cell: task -008, third attempt (2026-08-01)
+
+After the tier-1 relaunch of -060/-062/-079, exactly **one** of the 80 grid points still had no
+usable held-out value: **task -008 = (D=10, mult=5, β=3e-4, seed=0)**.
+
+Its two NaN siblings were rescued by the probe — `nanretry1-011` → 0.7071 and `nanretry1-012`
+→ 0.6966 — but **-008 diverged both times**: the original at step 13031, the probe at 7500. It
+is the single most unstable point in the grid. Tally for the D=10 × mult≥5 corner: **4
+divergences in 6 attempts**, and this cell alone is **2/2**.
+
+Note this is a missing **seed**, not a missing **cell**: (D=10, mult=5, β=3e-4) already carries
+its seed-1 sibling's value, so the surface has no hole — just n=1 instead of n=2 at that point.
+
+**Third attempt: [`01KZ0JRW2GT674CRM6BRHZG750`](https://beaker.org/ex/01KZ0JRW2GT674CRM6BRHZG750)**
+on the 4th (last free) allocated slot, `{priority: normal, preemptible: false}`. Tier 3 was not
+an option: it thrashes at ~1.5 min median survival and this run must reach ~107k steps.
+
+Before submitting, the competing tier-3 `nanretry1-008` attempt was confirmed dead (its
+experiment was already stopped). **Two runs of the same (D, mult, β, seed) must never race** —
+both completing would double-count seed 0 in that cell's mean and inflate its seed count.
+Fresh W&B run id, since the probe run had logged 7500 steps.
+
+**Reporting obligation — this is the survivorship-bias guard.** Re-running until something
+survives and reporting only the survivor would hide exactly the instability this study found.
+A value from attempt 3 is legitimate **only if reported with the cell's full divergence
+history** (2/2 before it, 3 attempts total). The honest claim is "this configuration diverges
+often at D=10", never "this configuration trains fine".
+
+**Node note:** it was scheduled onto `aidc-h200-prd2` — the very node whose image-pull fault
+wedged three tasks for five days — and **started cleanly**, so that node has recovered, as
+`aws-h200-distinct-cricket` did. Watch it anyway: tier-1 jobs are non-preemptible and therefore
+get **no `autoResume`**, so a node fault here needs a manual resubmit.
+
 **Launch checklist (for the next large grid).**
 1. Verify the current wrapper image (`beaker workspace images ai1/aind-dynamic-foraging-foundation-model`).
 2. `python code/check_gpu_availability.py` — route to backend(s) with schedulable GPUs.
