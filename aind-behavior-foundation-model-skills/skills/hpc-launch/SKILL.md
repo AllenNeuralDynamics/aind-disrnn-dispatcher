@@ -126,9 +126,11 @@ file behind describing what was submitted. So anything you do after the initial 
 post-hoc) must be recorded by hand or it is lost:
 
 ```python
+import sys
+from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "util"))
 from launch_record import write_intervention
-
 write_intervention(
     path=variant / "launch_record" / "hpc_<label>.json",
     kind="resubmit", platform="hpc",
