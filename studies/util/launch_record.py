@@ -216,7 +216,8 @@ def load_records(launch_record_dir: Path | str) -> list[dict]:
     for p in sorted(Path(launch_record_dir).glob("*.json")):
         try:
             d = json.loads(p.read_text())
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as e:
+            out.append({"_schema": "unreadable", "_path": str(p), "_error": f"{type(e).__name__}: {e}"})
             continue
         d.setdefault("_schema", "current" if "_meta" in d and "kind" in d else "legacy")
         d["_path"] = str(p)
