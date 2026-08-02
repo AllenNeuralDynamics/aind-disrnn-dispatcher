@@ -47,12 +47,16 @@ def check_records_parse(records: list[dict], findings: list) -> None:
     if not records:
         _finding(findings, "ERROR", "records", "no launch_record/*.json found at all")
         return
+    unreadable = [r for r in records if r.get("_schema") == "unreadable"]
+    for r in unreadable:
+        _finding(findings, "ERROR", "records",
+                 f"{Path(r['_path']).name}: unreadable JSON ({r.get('_error')})")
+
     legacy = [Path(r["_path"]).name for r in records if r.get("_schema") == "legacy"]
     if legacy:
         _finding(findings, "WARN", "records",
-                 f"{len(legacy)}/{len(records)} record(s) predate the schema "
-                 f"(no _meta/kind, so no timestamp or provenance): {', '.join(legacy)}")
-    for r in records:
+                 f"{len(legacy)}/{len(records)} record(s) predate the schema (no _meta/kind): "
+                 f"{', '.join(legacy)}")
         if r.get("_schema") != "current":
             continue
         if not r.get("trigger", {}).get("cause"):
