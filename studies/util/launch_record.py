@@ -1,8 +1,7 @@
 """Schema + writer for INTERVENTION launch records (all studies).
 
 WHY THIS EXISTS. A study's *first* launch is well instrumented: the launchers write
-`launch_record/beaker_resumable.json` with a fixed schema and inject the `meta.*` block.
-Everything that happens *afterwards* — resubmitting tasks killed by a bad node, rescuing
+`launch_record/beaker_resumable.json` with a fixed schema, and stamp the portable `meta.*` fields into each W&B run config.
 wedged tasks, probing a failure, changing priority tier, backfilling a lost metric — has
 historically been done with a bespoke script that invented its own JSON shape.
 
