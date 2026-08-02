@@ -158,14 +158,33 @@ def write_intervention(
             raise ValueError(f"job_ref {r!r} has unknown type; expected one of {REF_TYPES}")
         if not r.get("id"):
             raise ValueError(f"job_ref {r!r} has no id")
-    if kind != "backfill" and not job_refs:
-        raise ValueError(
-            f"kind={kind!r} submits work, so job_refs must be non-empty "
-            '(beaker: [{"type":"beaker_experiment","id":...}]; '
-            'hpc: [{"type":"wandb_sweep","id":...}])'
-        )
-    if kind == "backfill" and platform != "none":
-        raise ValueError('kind="backfill" submits nothing, so platform must be "none"')
+
+    if kind == "backfill":
+        if platform != "none":
+            raise ValueError('kind="backfill" submits nothing, so platform must be "none"')
+        if job_refs:
+            raise ValueError('kind="backfill" submits nothing, so job_refs must be empty')
+    else:
+        if platform == "none":
+            raise ValueError('platform="none" is only valid for kind="backfill"')
+        if not job_refs:
+            raise ValueError(
+                f"kind={kind!r} submits work, so job_refs must be non-empty "
+                '(beaker: [{"type":"beaker_experiment","id":...}]; '
+                'hpc: [{"type":"wandb_sweep","id":...}])'
+            )
+
+    allowed_ref_types = {
+        "beaker": {"beaker_experiment"},
+        "hpc": {"wandb_sweep", "slurm_array_job", "slurm_job"},
+    }
+    allowed = allowed_ref_types.get(platform)
+    if allowed is not None:
+        for r in job_refs:
+            if r.get("type") not in allowed:
+                raise ValueError(
+                    f"job_ref {r!r} not valid for platform {platform!r}; expected type in {sorted(allowed)}"
+                )
 
     record = {
         "_meta": build_meta(produced_by, [wandb_group], study_root=study_root),
