@@ -219,7 +219,13 @@ def main() -> int:
     check_backfill_documented(args.study / "analysis", records, findings)
 
     group = args.wandb_group or next(
-        (r["wandb_group"] for r in records if r.get("wandb_group")), None)
+        (
+            (r.get("wandb_group") or r.get("group"))
+            for r in records
+            if r.get("wandb_group") or r.get("group")
+        ),
+        None,
+    )
     if args.beaker or args.wandb:
         if not group:
             _finding(findings, "WARN", "reconcile",
