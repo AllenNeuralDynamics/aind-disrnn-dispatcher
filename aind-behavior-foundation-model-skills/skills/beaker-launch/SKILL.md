@@ -166,6 +166,11 @@ the fan-out. Routine repeats of known-good launches: fan out directly.
   label "verified:" vs "likely, unconfirmed:" (AGENTS.md §11).
 - After the launch settles, write `launch_record_<label>/results.md`
   (see posthoc-reporting skill).
+- **Any post-launch intervention — resubmit, rescue, probe, tier change — must write a
+  launch record**, or it is lost: the launchers only record the *first* launch. Use
+  `studies/util/launch_record.py::write_intervention(..., platform="beaker",
+  job_refs=[{"type": "beaker_experiment", "id": exp.id}])`; schema and the wrap-up
+  reconciler (`validate_provenance.py`) live in the `study-conventions` skill.
 
 ## References (read on demand)
 
