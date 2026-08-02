@@ -60,9 +60,11 @@ metric values documented only in prose. Interventions are the surprising events 
 provenance exists for — so they get a fixed schema:
 
 ```python
+import sys
+from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "util"))
 from launch_record import write_intervention
-
 write_intervention(
     path=variant / "launch_record" / "<backend>_<label>.json",
     kind="rescue",                    # resubmit|rescue|probe|tier-change|backfill|extend
