@@ -9,7 +9,7 @@ mult-d-grid-20260718-151409-ffab411a,mice_snapshot_multisubject_disrnn_beta0.001
 mult-d-grid-20260718-151409-f5a8de89,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,1,0.001,2,0.7061306238174438,0.752054750919342,107578,False
 mult-d-grid-20260718-151409-299bc18e,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.7287701964378357,13031,False
 mult-d-grid-nanretry1-008-80069e74,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.6356585621833801,7500,False
-mult-d-grid-tier1-008-e8077edb,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,running,10,0,0.0003,5,,0.7241694331169128,89800,False
+mult-d-grid-tier1-008-e8077edb,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,0,0.0003,5,0.7044376730918884,0.7223450541496277,107559,False
 mult-d-grid-20260718-151409-2f2cbd5a,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,1,0.0003,5,0.7099677920341492,0.7562691569328308,107559,False
 mult-d-grid-20260718-151409-44e89716,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,0,0.001,5,0.7024619579315186,0.7234260439872742,107558,False
 mult-d-grid-20260718-151409-3a4f8014,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,failed,10,1,0.001,5,,0.6617283225059509,13680,False
