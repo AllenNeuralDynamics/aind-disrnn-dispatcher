@@ -57,6 +57,11 @@ def check_records_parse(records: list[dict], findings: list) -> None:
         _finding(findings, "WARN", "records",
                  f"{len(legacy)}/{len(records)} record(s) predate the schema (no _meta/kind): "
                  f"{', '.join(legacy)}")
+
+    # Current-schema records must carry a cause; a record that says what was launched but not
+    # why is not provenance. Kept as its own loop -- it applies to every current record, not
+    # only to the ones reached while reporting legacy files.
+    for r in records:
         if r.get("_schema") != "current":
             continue
         if not r.get("trigger", {}).get("cause"):
