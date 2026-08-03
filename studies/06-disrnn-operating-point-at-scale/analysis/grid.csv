@@ -9,7 +9,7 @@ mult-d-grid-20260718-151409-ffab411a,mice_snapshot_multisubject_disrnn_beta0.001
 mult-d-grid-20260718-151409-f5a8de89,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,1,0.001,2,0.7061306238174438,0.752054750919342,107578,False
 mult-d-grid-20260718-151409-299bc18e,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.7287701964378357,13031,False
 mult-d-grid-nanretry1-008-80069e74,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,failed,10,0,0.0003,5,,0.6356585621833801,7500,False
-mult-d-grid-tier1-008-e8077edb,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,running,10,0,0.0003,5,,0.7270163297653198,75840,False
+mult-d-grid-tier1-008-e8077edb,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,running,10,0,0.0003,5,,0.7241694331169128,89800,False
 mult-d-grid-20260718-151409-2f2cbd5a,mice_snapshot_multisubject_disrnn_beta0.0003_lr0.001_multisubject_n10subj,finished,10,1,0.0003,5,0.7099677920341492,0.7562691569328308,107559,False
 mult-d-grid-20260718-151409-44e89716,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,finished,10,0,0.001,5,0.7024619579315186,0.7234260439872742,107558,False
 mult-d-grid-20260718-151409-3a4f8014,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n10subj,failed,10,1,0.001,5,,0.6617283225059509,13680,False
@@ -88,4 +88,4 @@ mult-d-grid-20260718-151409-14944b05,mice_snapshot_multisubject_disrnn_beta0.000
 mult-d-grid-20260718-151409-3a232ed8,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n614subj,finished,614,0,0.001,10,0.7156834006309509,0.7239693403244019,107559,False
 mult-d-grid-20260718-151409-31dfe9f9,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject,crashed,614,1,0.001,10,,0.7241974472999573,68860,False
 mult-d-grid-rescue1-079-8d699a23,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject,crashed,614,1,0.001,10,,,,False
-mult-d-grid-tier1-079-3dd65461,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n614subj,running,614,1,0.001,10,,0.7240312695503235,106640,False
+mult-d-grid-tier1-079-3dd65461,mice_snapshot_multisubject_disrnn_beta0.001_lr0.001_multisubject_n614subj,finished,614,1,0.001,10,0.7136015295982361,0.7240749597549438,107559,False
