@@ -30,7 +30,7 @@ negative verdict was a consequence of holding a too-strong penalty fixed as the 
 
 The grid was complete at 80/80 usable runs, 2 seeds per cell, on 2026-08-02.
 
-![Held-out likelihood vs cohort size. The tuned operating point (mult=1, β=3e-4) rises monotonically to 0.7221 at D=614, clearing the RL baseline and halving the GRU gap. Together with (mult=10, β=3e-4), it is one of only two of the 8 settings with no SEM-clearing dip anywhere in the range; among the other six, three (including study 05's fixed penalty) have one real dip apiece at varying points in D, and three are flat within noise — see point 2 in the text for the per-series breakdown.](../fig_scaling_surface.png)
+![Held-out likelihood vs cohort size. The tuned operating point (mult=1, β=3e-4) rises monotonically to 0.7221 at D=614, clearing the RL baseline and halving the GRU gap. Together with (mult=10, β=3e-4), it is one of only two of the 8 settings with no SEM-clearing dip anywhere in the range; among the other six, three have one real dip apiece at varying points in D, and three — including study 05's own fixed penalty — are flat within noise rather than genuinely declining. See point 2 in the text for the per-series breakdown.](../fig_scaling_surface.png)
 
 ![Held-out likelihood for all 8 (multiplier, β) settings across cohort size, with the per-cohort winner outlined, plus the spread across settings at each D.](../fig_beta_mult_sensitivity.png)
 
