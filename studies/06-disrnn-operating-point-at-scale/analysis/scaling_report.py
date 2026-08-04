@@ -396,6 +396,81 @@ def fig_generalization_gap(gap_cells):
     return out
 
 
+def fig_gap_sensitivity(gap_cells):
+    """Heatmap companion to fig_generalization_gap: the full 8-setting gap surface across D.
+
+    Mirrors fig_beta_mult_sensitivity's layout (heatmap + range-across-settings panel) but for
+    the generalization gap instead of held-out likelihood. Uses a diverging colormap centered
+    at gap=0 (the semantic zero -- no overfitting), not the data midpoint, since a gap can be
+    slightly negative (D=100, one cell) as well as positive. Per-column "winner" here is the
+    MINIMUM (least overfit), the opposite convention from the held-out heatmap's maximum.
+    """
+    mults = sorted({c["mult"] for c in gap_cells})
+    betas = sorted({c["beta"] for c in gap_cells})
+    ds = sorted({c["D"] for c in gap_cells})
+    by = {(c["mult"], c["beta"], c["D"]): c["gap_mean"] for c in gap_cells}
+    row_keys = [(m, b) for b in betas for m in mults]
+    if any((m, b, d) not in by for m, b in row_keys for d in ds):
+        return None  # incomplete grid
+
+    mat = np.array([[by[(m, b, d)] for d in ds] for m, b in row_keys])
+    vmax = np.abs(mat).max()
+
+    fig = plt.figure(figsize=(9.2, 6.4))
+    gs = fig.add_gridspec(2, 2, height_ratios=[8, 2.6], width_ratios=[1, 0.045],
+                          hspace=0.55, wspace=0.05)
+    ax, cax, axb = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, 0])
+
+    im = ax.imshow(mat, cmap="RdBu_r", vmin=-vmax, vmax=vmax, aspect="auto")
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            v = mat[i, j]
+            col_best = np.isclose(v, mat[:, j].min())   # lowest gap = least overfit
+            norm = (v - (-vmax)) / (2 * vmax)
+            color = "white" if (norm < 0.3 or norm > 0.75) else "black"
+            ax.text(j, i, f"{v:.4f}", ha="center", va="center", fontsize=8.0,
+                    color=color, weight="bold" if col_best else "normal")
+            if col_best:
+                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False,
+                                            edgecolor="black", lw=2.2))
+
+    ax.set_xticks(range(len(ds))); ax.set_xticklabels([str(d) for d in ds])
+    ax.set_yticks(range(len(row_keys))); ax.set_yticklabels([f"mult={m}" for m, b in row_keys], fontsize=8.5)
+    ax.set_xlabel("training mice  D")
+    n_per_beta = len(mults)
+    for line in range(n_per_beta, len(row_keys), n_per_beta):
+        ax.axhline(line - 0.5, color="white", lw=2.5)
+    for grp, b in enumerate(betas):
+        ax.text(-1.35, grp * n_per_beta + (n_per_beta - 1) / 2, f"β={_fmt_beta(b)}",
+                rotation=90, va="center", ha="center", fontsize=9.5, weight="bold")
+    ax.set_title("Generalization gap across all 8 penalty/multiplier settings and cohort sizes",
+                 loc="left", fontsize=10.2)
+    fig.colorbar(im, cax=cax, label="generalization gap\n(in-sample − held-out)")
+    cax.tick_params(labelsize=7.5)
+    ax.text(0.0, 1.08, "gap > 0 = overfits the training cohort", transform=ax.transAxes,
+            fontsize=8, color="#6e6e6e")
+
+    spread = mat.max(axis=0) - mat.min(axis=0)
+    axb.bar(range(len(ds)), spread, color="#6e6e6e", width=0.55)
+    for j, s in enumerate(spread):
+        axb.text(j, s + spread.max() * 0.03, f"{s:.4f}", ha="center", va="bottom",
+                 fontsize=7.5, color="#444")
+    axb.set_xticks(range(len(ds))); axb.set_xticklabels([str(d) for d in ds])
+    axb.set_xlabel("training mice  D")
+    axb.set_ylabel("range across\n8 settings", fontsize=8)
+    axb.set_title("Settings agree most at D=300-614; disagree most at D=10-30",
+                  loc="left", fontsize=9.5)
+    axb.spines[["top", "right"]].set_visible(False)
+    axb.set_ylim(0, spread.max() * 1.35)
+    for a in (ax, axb):
+        a.tick_params(axis="both", labelsize=8.5)
+
+    fig.subplots_adjust(left=0.16, right=0.87)
+    out = HERE / "fig_gap_sensitivity.png"
+    fig.savefig(out, dpi=200)
+    return out
+
+
 def update_report_block(cells, n_usable, n_running, n_outstanding, n_failed):
     lines = ["| D | mult | β | held-out (mean) | sem | n seeds |",
              "|---|---|---|---|---|---|"]
@@ -438,6 +513,7 @@ def main() -> None:
     sens_path = fig_beta_mult_sensitivity(cells)
     gap_cells = summarize_gap(usable)
     gap_fig_path = fig_generalization_gap(gap_cells)
+    gap_heatmap_path = fig_gap_sensitivity(gap_cells)
 
     payload = {"_meta": build_meta("analysis/scaling_report.py", WANDB_GROUPS, study_root=STUDY),
                "note": ("LIVE report -- regenerate as the grid progresses. heldout_ll only "
@@ -452,7 +528,7 @@ def main() -> None:
                "cells": cells, "generalization_gap_cells": gap_cells}
     (HERE / "summary.json").write_text(json.dumps(payload, indent=2))
     update_report_block(cells, n_usable, n_running, n_outstanding, n_failed)
-    fig_names = ", ".join(p.name for p in (fig_path, sens_path, gap_fig_path) if p)
+    fig_names = ", ".join(p.name for p in (fig_path, sens_path, gap_fig_path, gap_heatmap_path) if p)
     print(f"wrote {fig_names} and summary.json  ({n_usable}/{N_TOTAL} usable "
           f"({n_backfilled} backfilled), {n_finished} wandb-finished, "
           f"{len(cells)} (D,mult,beta) cells with >=1 seed)")

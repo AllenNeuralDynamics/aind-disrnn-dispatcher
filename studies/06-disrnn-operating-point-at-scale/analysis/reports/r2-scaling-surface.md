@@ -12,6 +12,7 @@ inputs:
   figure: analysis/fig_scaling_surface.png
   figure_sensitivity: analysis/fig_beta_mult_sensitivity.png
   figure_generalization_gap: analysis/fig_generalization_gap.png
+  figure_gap_heatmap: analysis/fig_gap_sensitivity.png
 reproduce: make -C studies/06-disrnn-operating-point-at-scale r2
 ---
 
@@ -87,6 +88,17 @@ by about the same amount at D=614. It must come from the tuned setting fitting t
 cohort *and* transferring, not from suppressing overfitting relative to the fixed penalty.
 
 ![Generalization gap vs cohort size for all 8 settings, focal winner and study 05's fixed penalty highlighted.](../fig_generalization_gap.png)
+
+![Generalization gap heatmap: all 8 (mult, β) settings × 5 cohort sizes, with the least-overfit cell per column outlined, plus the range across settings at each D.](../fig_gap_sensitivity.png)
+
+The heatmap makes the "same story at all 8 settings" claim checkable cell-by-cell, and adds one
+more point: the 8 settings **disagree with each other most at D=10–30** (gap range up to 0.0095,
+falling monotonically to ≤0.0018–0.0025 by D=300–614). That pattern is *not* the same shape as
+the held-out-likelihood sensitivity panel (point 2's companion figure), where the range across
+settings is **U-shaped** — high at D=10 (0.0086) *and* at D=614 (0.0087), low only in the middle
+(0.0032 at D=100). So at D=614 specifically, the 8 settings disagree a lot in held-out transfer
+(range 0.0087) while agreeing closely in how much they overfit (range 0.0025) — the differences
+in held-out performance there are not being driven by differences in overfitting.
 
 ## Caveats
 
