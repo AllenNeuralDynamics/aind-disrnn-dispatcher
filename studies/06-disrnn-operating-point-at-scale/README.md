@@ -38,11 +38,11 @@ values of D**. This study measures that surface.
 | Scan | Question | Headline | Report |
 |---|---|---|---|
 | penalty selection (existing 03+05 data, **zero new compute**) | Can β be picked from data we already have; does the pick depend on D? | **No** — free at D=100, but the generalization gap **grows with D** (β=3e-4: +0.0027→+0.0083) and the held-out-optimal β is also the most overfit β. Motivates scanning β jointly with D, not fixing it. | [r1](analysis/reports/r1-penalty-selection.md) |
-| `mult-d-grid` (D×mult×β, 80 runs) | Does 05's peak-then-decline vanish at some point on the penalty×D surface? | 🚀 launched 2026-07-18 — see [notes.md](variants/mult-d-grid/notes.md) for the 8 Beaker experiment IDs (payload-limit split) | r2 |
+| `mult-d-grid` (D×mult×β, 80 runs, 2 seeds) | Does 05's peak-then-decline vanish at some point on the penalty×D surface? | **Yes** — at mult=1, β=3e-4, held-out transfer rises monotonically to 0.7221 at D=614, clears the best per-mouse RL baseline, and halves the GRU gap (−0.0114 → −0.0047). The decline was a penalty artifact: the right β must scale *down* as the cohort grows, not stay fixed. ✅ complete 2026-08-02 | [r2](analysis/reports/r2-scaling-surface.md) |
 
 ## Scans (variants)
 
-### `mult-d-grid` — wave 1 (🚀 launched 2026-07-18)
+### `mult-d-grid` — wave 1 (✅ complete 2026-08-02, 80/80 usable → [r2](analysis/reports/r2-scaling-surface.md))
 
 Originally scoped as a single-operating-point D-scan at the wave-2 winner (mult=1, β=3e-4). **r1
 overturned that**: the in-sample-vs-held-out selection plot shows β=3e-4 is also the *most overfit*
@@ -55,14 +55,18 @@ one W&B group `mult-d-grid@20260718-151409`, split to stay under Beaker's ~48 Ki
 skill's `scheduling-lessons.md` for the general fix). 21/80 jobs were running within minutes of
 submission on the low-preemptible burst tier.
 
-**Primary hypothesis (H1).** If 05's decline is a penalty artifact, some point on the grid is
-**flat-or-rising** across D (no peak-then-decline) and reaches the RL baseline / closes most of the
-GRU gap at D=614. If the decline **persists at every tested penalty**, it is an *intrinsic* disRNN
-scaling property, and 05's negative verdict stands (now stress-tested across operating points).
+**Primary hypothesis (H1) — CONFIRMED.** If 05's decline is a penalty artifact, some point on the
+grid is **flat-or-rising** across D (no peak-then-decline) and reaches the RL baseline / closes
+most of the GRU gap at D=614. It is: mult=1, β=3e-4 rises monotonically to 0.7221 at D=614, clears
+the RL baseline (0.7170), and closes about half the GRU gap. See [r2](analysis/reports/r2-scaling-surface.md)
+for the full surface, the β×D crossover that explains it, and the per-series breakdown of which of
+the other 7 settings genuinely decline vs. are merely flat.
 
-**Secondary (H2), same rollouts.** Study 05 finding #5: the disRNN's generative switch-curve is *too
-flat* — bottlenecks prune history-dependence. A more-open bottleneck should **restore curve shape**.
-Testable via a follow-on `generative-*` rollout variant on the grid's winning checkpoints.
+**Secondary (H2), same rollouts — not yet run.** Study 05 finding #5: the disRNN's generative
+switch-curve is *too flat* — bottlenecks prune history-dependence. A more-open bottleneck should
+**restore curve shape**. Testable via a follow-on `generative-*` rollout variant on the grid's
+winning checkpoint (mult=1, β=3e-4, D=614) — deferred to a future session; this wrap-up closes
+wave 1 (H1) only.
 
 **Seed-noise bars to clear** (measured in study 05, same config family): held-out SD ≈ 0.0005;
 generative history-curve corr SD 0.0008–0.0020 at D ≥ 100.
