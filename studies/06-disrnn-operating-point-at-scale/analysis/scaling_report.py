@@ -471,6 +471,60 @@ def fig_gap_sensitivity(gap_cells):
     return out
 
 
+def fig_train_vs_heldout_scatter(usable_rows):
+    """Per-run scatter: x = in-sample (train) likelihood, y = held-out likelihood.
+
+    Companion to fig_generalization_gap that keeps every individual run visible instead of
+    collapsing to per-cell means -- shows D moving each cloud ALONG the diagonal (not just up
+    the y-axis): D=10 sits far below-right of the diagonal (heavy overfitting, wide scatter),
+    D>=100 sits tight to the diagonal. The tuned setting is marked with diamonds so it can be
+    read off within its own D-colored cloud, not just against the cross-D summary curve.
+    """
+    ds_sorted = D_NOMINAL
+    cmap = plt.get_cmap("viridis")
+    d_color = {d: cmap(i / (len(ds_sorted) - 1)) for i, d in enumerate(ds_sorted)}
+
+    xs_all = [float(r["eval_ll"]) for r in usable_rows]
+    ys_all = [float(r["heldout_ll"]) for r in usable_rows]
+    lo, hi = min(xs_all + ys_all) - 0.003, max(xs_all + ys_all) + 0.003
+
+    fig, ax = plt.subplots(figsize=(7.2, 7.0))
+    ax.plot([lo, hi], [lo, hi], "--", color="#999999", lw=1.2, zorder=1)
+
+    for d in ds_sorted:
+        pts = [r for r in usable_rows if nominal_d(int(float(r["D"]))) == d]
+        is_focal = lambda r: (int(float(r["mult"])), float(r["beta"])) == FOCAL
+        non_focal, focal = [r for r in pts if not is_focal(r)], [r for r in pts if is_focal(r)]
+        ax.scatter([float(r["eval_ll"]) for r in non_focal], [float(r["heldout_ll"]) for r in non_focal],
+                   s=28, color=d_color[d], alpha=0.75, edgecolor="none", zorder=2)
+        ax.scatter([float(r["eval_ll"]) for r in focal], [float(r["heldout_ll"]) for r in focal],
+                   s=90, color=d_color[d], alpha=0.95, edgecolor="black", linewidth=1.1,
+                   marker="D", zorder=4)
+
+    ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
+    ax.set_aspect("equal")
+    ax.set_xlabel("in-sample likelihood (training mice)")
+    ax.set_ylabel("held-out likelihood (unseen mice)")
+    ax.set_title("Every run, in-sample vs held-out — diamonds are the tuned setting "
+                 f"(mult={FOCAL[0]}, β={_fmt_beta(FOCAL[1])})", loc="left", fontsize=10.2)
+    ax.text(0.02, 0.96, "below diagonal = overfits", transform=ax.transAxes, fontsize=8, color="#6e6e6e")
+
+    handles = [plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=d_color[d],
+                          markersize=8, label=f"D={d}") for d in ds_sorted]
+    handles.append(plt.Line2D([0], [0], marker="D", color="w", markerfacecolor="grey",
+                              markeredgecolor="black", markersize=9,
+                              label=f"tuned (mult={FOCAL[0]}, β={_fmt_beta(FOCAL[1])})"))
+    ax.legend(handles=handles, fontsize=8, frameon=True, facecolor="white", edgecolor="none",
+              framealpha=0.9, loc="upper left", bbox_to_anchor=(0.02, 0.85))
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    ax.grid(alpha=0.15)
+    fig.tight_layout()
+    out = HERE / "fig_train_vs_heldout_scatter.png"
+    fig.savefig(out, dpi=200)
+    return out
+
+
 def update_report_block(cells, n_usable, n_running, n_outstanding, n_failed):
     lines = ["| D | mult | β | held-out (mean) | sem | n seeds |",
              "|---|---|---|---|---|---|"]
@@ -514,6 +568,7 @@ def main() -> None:
     gap_cells = summarize_gap(usable)
     gap_fig_path = fig_generalization_gap(gap_cells)
     gap_heatmap_path = fig_gap_sensitivity(gap_cells)
+    scatter_path = fig_train_vs_heldout_scatter(usable)
 
     payload = {"_meta": build_meta("analysis/scaling_report.py", WANDB_GROUPS, study_root=STUDY),
                "note": ("LIVE report -- regenerate as the grid progresses. heldout_ll only "
@@ -528,7 +583,7 @@ def main() -> None:
                "cells": cells, "generalization_gap_cells": gap_cells}
     (HERE / "summary.json").write_text(json.dumps(payload, indent=2))
     update_report_block(cells, n_usable, n_running, n_outstanding, n_failed)
-    fig_names = ", ".join(p.name for p in (fig_path, sens_path, gap_fig_path, gap_heatmap_path) if p)
+    fig_names = ", ".join(p.name for p in (fig_path, sens_path, gap_fig_path, gap_heatmap_path, scatter_path) if p)
     print(f"wrote {fig_names} and summary.json  ({n_usable}/{N_TOTAL} usable "
           f"({n_backfilled} backfilled), {n_finished} wandb-finished, "
           f"{len(cells)} (D,mult,beta) cells with >=1 seed)")

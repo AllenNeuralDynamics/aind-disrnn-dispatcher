@@ -1,7 +1,7 @@
 {
   "_meta": {
     "produced_by": "analysis/scaling_report.py",
-    "produced_at_pt": "2026-08-04T10:24:22-07:00",
+    "produced_at_pt": "2026-08-04T10:31:17-07:00",
     "dispatcher_git_sha": null,
     "wrapper_git_sha": null,
     "wandb_groups": [

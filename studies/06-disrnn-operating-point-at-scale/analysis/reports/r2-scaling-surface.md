@@ -13,6 +13,7 @@ inputs:
   figure_sensitivity: analysis/fig_beta_mult_sensitivity.png
   figure_generalization_gap: analysis/fig_generalization_gap.png
   figure_gap_heatmap: analysis/fig_gap_sensitivity.png
+  figure_train_vs_heldout: analysis/fig_train_vs_heldout_scatter.png
 reproduce: make -C studies/06-disrnn-operating-point-at-scale r2
 ---
 
@@ -90,6 +91,16 @@ cohort *and* transferring, not from suppressing overfitting relative to the fixe
 ![Generalization gap vs cohort size for all 8 settings, focal winner and study 05's fixed penalty highlighted.](../fig_generalization_gap.png)
 
 ![Generalization gap heatmap: all 8 (mult, β) settings × 5 cohort sizes, with the least-overfit cell per column outlined, plus the range across settings at each D.](../fig_gap_sensitivity.png)
+
+![Every individual run's in-sample vs held-out likelihood, coloured by D, tuned setting marked with diamonds.](../fig_train_vs_heldout_scatter.png)
+
+At the level of individual runs (not per-cell means), D moves each cloud *along* the diagonal, not
+just up the y-axis: D=10's cloud sits far below-right of the diagonal (mean held-out−in-sample
+residual −0.034) and is visibly the widest scatter of any D; D=100 sits almost on the diagonal
+(residual −0.002, the tightest of the 5); D=300 and D=614 sit at a small, comparable offset
+(−0.009, −0.008) — this is the same non-monotonic in-D pattern as points 5's mean curve, just
+visible per-run instead of averaged. The tuned setting's diamonds sit at or above the rest of
+their own D-coloured cloud at every D, confirming it isn't winning only on average.
 
 The heatmap makes the "same story at all 8 settings" claim checkable cell-by-cell, and adds one
 more point: the 8 settings **disagree with each other most at D=10–30** (gap range up to 0.0095,
