@@ -23,6 +23,18 @@ done ([`01-gru-scaling-law`](../01-gru-scaling-law), replicated 3-way in
 > [r3](analysis/reports/r3-subject-capacity.md),
 > [r4](analysis/reports/r4-generative-behavioral-match.md).
 
+> ➡️ **UPDATE (2026-08-02): point 1's "peak at ~100 then declines" is corrected by
+> [study 06](../06-disrnn-operating-point-at-scale)'s `mult-d-grid`.** The wave-2 single-seed probe
+> in point 2 below (mult=1, β=3e-4 → 0.7211 at D=614) is confirmed at 2 seeds → **0.7221**, and
+> study 06 shows it is not an isolated cell: at that operating point held-out transfer rises
+> monotonically across the *entire* D range (no peak, no decline anywhere), clears the best
+> per-mouse RL baseline, and closes about half the GRU gap. The decline reported here is a property
+> of holding **this study's fixed penalty (mult=2, β=1e-3)** fixed as D grows, not an intrinsic
+> disRNN scaling property — see study 06's [r2](../06-disrnn-operating-point-at-scale/analysis/reports/r2-scaling-surface.md)
+> for the full penalty×D surface and the β×D crossover that explains why no single β could have
+> been picked a priori. Points 1 and 2 below are left as originally written (the historical
+> record); read them together with this note.
+
 **1. The disRNN does not saturate like the GRU — it PEAKS at ~100 mice and then DECLINES.**
 
 | D | 10 | 30 | 100 | 300 | 614 |

@@ -45,3 +45,40 @@ checkpoints — this reproduces the source run's original held-out numbers.
 The HPC original is `code/resume_heldout.py`
 (`--model-dir <dir> --wandb-run-id <id>`, run on a compute node that can read the
 checkpoint tree + reach W&B); both live under the wrapper's `code/`.
+
+## 4. Backfill a LOST metric from its surviving table artifact — no GPU at all
+
+**Try this before (3).** If the held-out stage actually *ran* and only the final
+summary write was lost (see "exit 0 with a missing metric" in
+`scheduling-lessons.md`), the scalar is recoverable **exactly** from the run's own
+committed `run_table` artifact — no container, no GPU, no re-training. Re-scoring
+via (3) would re-derive a number that already exists.
+
+Check first: does the crashed run have BOTH a `<mtype>-output-<run_id>`
+(`training-output`) and a `*-heldoutper_subject_likelihood` (`run_table`) artifact,
+each `COMMITTED`? If yes, the held-out stage completed and its full per-subject
+output survived.
+
+**Verify the aggregation against natively-logged runs — never assume it.**
+`heldout/eval_likelihood` is the **trial-weighted GEOMETRIC** mean of the
+per-subject likelihoods (correct: a likelihood is `exp(mean log-lik per trial)`):
+
+```
+heldout/eval_likelihood = exp( sum_i n_trials_i * ln(lik_i) / sum_i n_trials_i )
+```
+
+Verified on study 06 to <= 5.3e-08 against 5 runs holding both the table and a
+native scalar. **The two plausible-looking alternatives are badly wrong**: a simple
+mean over subjects is off by ~0.005 and the *arithmetic* trial-weighted mean by
+~0.004 — the same magnitude as the effects these studies measure, so a guessed
+formula silently poisons the result rather than failing loudly. A backfill script
+should re-validate the formula at runtime against native runs and refuse to write
+if it drifts.
+
+**Tag what you backfill.** Write a marker alongside the value
+(`heldout/eval_likelihood_backfilled=True` + a `_backfill_src` note) so a recovered
+number is never mistaken for a natively-logged one, and have the analysis layer
+admit *only* flagged rows past its `state == "finished"` filter — any *other*
+crashed run's `heldout_ll` is a mid-training incremental value, not a final one.
+Worked example: `studies/06-disrnn-operating-point-at-scale/analysis/backfill_lost_heldout.py`
+(idempotent, `--dry-run`), which recovered 5 lost D=300 cells.
