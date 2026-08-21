@@ -79,6 +79,69 @@ S3/DB-backed data jobs to GCP. AWS clusters (l40s, h200, g6e) reach S3 fine. The
 trial/session database is public AWS S3
 (`s3://aind-scratch-data/aind-dynamic-foraging-cache`, us-west-2).
 
+## Resolved-JSON payload ceiling on `experiment.create()` (hit twice: 2026-07-14, 2026-07-18)
+
+`launch_beaker_resumable.py` renders a sweep grid into **one** Beaker experiment spec with one task
+per grid point. **Beaker rejects a spec whose resolved JSON payload is too large**, with a misleading
+`[code=409] a retryable database conflict occurred` — not a size/413 error, and retrying the same
+oversized payload never helps.
+
+Measured (resolved JSON, i.e. `len(json.dumps(spec))` — **not** the YAML file size; YAML aliasing
+collapses repeated env blocks and understates the true payload by ~30%):
+
+| tasks | resolved payload | result |
+|---|---|---|
+| 12 | 32,584 B | ✅ |
+| 15 | 40,447 B | ✅ |
+| 18 | 54,405 B | ❌ 409 |
+| 80 | 197,546 B (2,469 B/task) | ❌ 409 (also exceeded the client's 5 s default timeout first, masking the size problem) |
+
+**The ceiling is between 40 KB and 54 KB (likely 48 KiB).** Stay safely under it: **chunk any grid
+above ~15 tasks into ≤~15-task pieces** (≈10 tasks/~25 KB gives a comfortable margin).
+
+**Fix, two parts:**
+1. `code/beaker_client.py` `get_beaker_client()` sets `beaker._timeout = 60` (beaker-py's default
+   ~5 s is too short for a large-payload `experiment.create()` call) — matches the pre-existing
+   `check_gpu_availability.py` workaround.
+2. Render the full grid once with `--no-submit` (keeps one shared W&B group + one set of pinned
+   SHAs across the whole logical launch), then split the rendered `tasks:` list into ≤15-task chunks
+   and submit each chunk directly via `beaker.experiment.create()` — N Beaker experiment IDs, one W&B
+   group. Verify no duplicate experiments after any submit that hit a transient 409-then-retry (check
+   `b.workspace.experiments()` for stray task-count matches). Worked examples: study 05
+   `subject-capacity` (18→2×9 tasks) and study 06 `mult-d-grid` (80→8×10 tasks) `notes.md`.
+
+## A heavily-preempted run can exit 0 with its final metric MISSING (study 06, 2026-07-25)
+
+**`exit_code == 0` does not guarantee the run's metrics reached W&B.** Verified on 5
+study-06 tasks: each was preempted ~5x, W&B marked the run `crashed` on a heartbeat
+timeout, and the **final summary write was silently dropped** — the run object sat
+frozen at a mid-training step with **no `heldout/*` key at all**, while the job itself
+ran to completion (logs end `All done, goodbye`, wandb reports syncing its files, exit 0).
+
+Why it is silent and does not self-heal:
+
+- **Beaker considers the task done** (exit 0), so `autoResume` never retries it.
+- **W&B keeps `state == "crashed"`** from the earlier preemption, so any analysis
+  filtering on `state == "finished"` drops the cell without complaint.
+- The loss is *not* visible from either side alone — Beaker says success, W&B says
+  crashed, and neither is wrong.
+
+**Detection: watch the gap between Beaker-finished and W&B-finished counts.** In study
+06 this showed up as a persistent, *growing* 4-5 run discrepancy (Beaker 52-55 vs W&B
+48-50). Do not hand-wave it as preemption-labelling noise (it was, wrongly, on first
+pass) — cross-reference explicitly: for every task whose latest attempt exited 0, pull
+its `WANDB_RUN_ID` from the job's env vars and check that run's state *and* whether the
+metric key is actually present. `run.summary` having 127 keys means nothing if none of
+them is the one you need.
+
+**Recovery is usually free** — the per-subject `run_table` artifact typically survives,
+so the scalar can be recomputed exactly with no GPU: see mechanism (4) in
+`resume-extend-rescore.md`. Only fall back to a GPU re-score (mechanism 3) if that
+artifact is missing.
+
+Expect this on any long, heavily-preempted low-priority fan-out, and check for it
+**before** concluding a grid is complete.
+
 ## Verify mechanisms with data before asserting
 
 When explaining *why* infra/scheduling/quota behaves a certain way, **pull the
