@@ -102,11 +102,13 @@ separated from the capacity advantage. State this in every report.
 |---|---|---|---|---|
 | [`d100-bridge`](variants/d100-bridge/) | One D cell (D~100), timing OFF vs ON × 3 seeds. OFF arm doubles as a bridge control against study-01's H128/D~100 held-out (0.72729 ± 0.00013) on a newer wrapper SHA, image and cluster. | launched 2026-08-22 | `d100-bridge@<launch_id>` | see `launch_record/` |
 
+| [`h128-dscan`](variants/h128-dscan/) | Timing arm ONLY across the D grid: `subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}` × 3 seeds, H128. The study's headline curve. Launched in parallel with `d100-bridge` since the timing arm is needed at every D either way. | launched 2026-08-22 | `h128-dscan@20260821-231301` | `01M0M1KQQCSYZMRE9S9F5SSZV5` |
+
 Planned, not yet launched:
 
-- **H128 D-scaling** — timing arm across `subject_ratio ∈ {0.016, 0.049, 0.163,
-  0.489, 1.0}` × 3 seeds. Reuses study-01's H128 column as baseline *if* the
-  bridge holds; otherwise runs paired OFF arms.
+- **Paired timing-OFF arms** across the D grid — needed *only if* `d100-bridge`
+  shows the OFF arm does not reproduce study-01's H128 band. If the bridge holds,
+  study-01's H128 column is the baseline and this is not run.
 - **Shuffled control** — the capacity-matched arm described above.
 
 ## Related
