@@ -15,6 +15,7 @@ Science, the Claude API/Agent SDK, ...).
 | `wrapper-runtime` | The training/analysis runtime: run lifecycle, held-out switches, checkpoints, `run_analysis.py` |
 | `study-conventions` | Study/variant folder layout, W&B group naming, provenance, study wrap-up |
 | `posthoc-reporting` | Report/JSON contracts, launch records, regeneration rules |
+| `git-session-isolation` | Concurrent sessions on one shared repo + dual-repo provenance and the origin-is-truth git rules (Mac + HPC) |
 
 ## Structure & authoring convention (progressive disclosure)
 

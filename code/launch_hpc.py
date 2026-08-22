@@ -293,6 +293,18 @@ def _inject_lineage_into_command(
             "+meta.slurm_array_task_id='${oc.env:SLURM_ARRAY_TASK_ID,unknown}'",
         ]
     )
+    # HPC has no /results mount (that is the Beaker/Code Ocean container path the
+    # model configs default to), so the end-of-training auto held-out fine-tune
+    # aborts with "[Errno 13] Permission denied: '/results'" and the run logs NO
+    # heldout/* metrics -- silently, as a WARNING, after training has succeeded.
+    # Every HPC sweep needs the override, so inject it here rather than relying on
+    # each sweep YAML to remember (which is how studies 01 and 02 both lost their
+    # held-out metrics). Skip if the sweep already set it explicitly.
+    if not any("auto_heldout_finetune.output_root" in str(c) for c in cmd):
+        cmd.append(
+            "model.training.auto_heldout_finetune.output_root="
+            "'${oc.env:DISRNN_HELDOUT_ROOT,${oc.env:HOME}/outputs/heldout_subject_finetuning}'"
+        )
     sweep_cfg["command"] = cmd
     return sweep_cfg
 
