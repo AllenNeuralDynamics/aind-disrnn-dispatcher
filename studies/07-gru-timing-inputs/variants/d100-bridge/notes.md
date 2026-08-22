@@ -77,3 +77,66 @@ measured effect of a 60× increase in mice, which is implausible. Expect
   from the `studies/<study>/variants/<variant>/` path), and their on-prem cluster
   could not pull the image. Both stopped; superseded by the launch from this
   folder. See `launch_record/` for the intervention record.
+
+---
+
+## Results (2026-08-22)
+
+### The bridge FAILED — study-01's H128 column is not reusable
+
+| arm | held-out likelihood | seeds |
+|---|---|---|
+| study-01 `v2-sc-active` H128/D~100 | **0.72729** ± 0.00013 | 3 |
+| this study, timing **OFF** | **0.72790** ± 0.00016 | 3 |
+
+A **+0.00061 offset, ~4 SD apart**, with both bands internally tight — a real,
+reproducible shift, not noise. Causes are confounded exactly as anticipated
+before launch: newer wrapper SHA *and* newer image *and* different cluster
+(aws-h200 vs onprem-h200).
+
+Consequence: **paired timing-OFF arms are mandatory at every D.** The offset is
+~10% of the effect being measured, so silently inheriting study-01's baseline
+would have biased the whole curve. This is what the bridge was for.
+
+### The effect at D≈100
+
+| arm | held-out likelihood | seeds |
+|---|---|---|
+| timing OFF | 0.72790 ± 0.00016 | 3 |
+| timing ON | **0.73420** ± 0.00043 | 3 |
+
+**ON − OFF = +0.00630**, pooled sd 0.00032 → **19.5 sd**, t=23.9, p=1.8e-5, and
+the arms do not overlap (min ON 0.73375 > max OFF 0.72808).
+
+That is **83% of the logistic probe's +0.0076** and **1.1× the entire
+D≈10→614 data-scaling gain (+0.0057)** — far larger than the 0.001–0.005 this
+variant's own "Expectation" section predicted. The prediction was wrong in the
+conservative direction: the GRU extracts *more* from RT/licking than a 3-lag
+logistic probe suggested, not less.
+
+### ⚠ The two arms were scored from DIFFERENT checkpoints
+
+The ON numbers came from a **held-out-only re-score** (no retraining) after the
+held-out bug below was fixed, and `checkpoint_policy=best_eval` selected
+**step_70000**. The OFF arm's native end-of-train held-out used **step_90000**.
+Both runs early-stopped at 90k (`eval_likelihood=0.7371 best=0.7378 stale=2/2`),
+and the artifact for the ON runs contains both checkpoints — so this is genuine
+`best_eval` behaviour on each arm's own eval curve, not a truncation artifact.
+But it means the arms are **not scored at a common horizon**, and the ON arm was
+scored at its own best while OFF was scored at its stopping point. The effect is
+far too large (19.5 sd) to be explained by a 20k-step checkpoint difference on a
+curve whose eval span is ~0.0007, but the comparison is not yet apples-to-apples
+and the D-grid arms should be scored the same way.
+
+### Held-out bug found and fixed (wrapper `35d6a19`)
+
+The ON arm originally produced **no held-out metric at all**: the held-out bundle
+is built by `heldout_finetuning.py` through its own loader path, which never
+derived the timing columns, so the held-out tensor was 6 wide against a 9-wide
+trained input and the restore failed with
+`'multisubject_gru/~/gru/w_i' with retrieved shape (9, 384) does not match
+shape=[6, 384]`. That warning is caught and logged, so the job exited 0 with the
+study's primary metric silently absent. Fixed, then recovered without retraining
+via `resume_heldout_beaker.py` (Beaker exp `01M0NAVPBNZGEX4DBH1M8BT7Y0`), which
+logged `attached timing features -> 5 input feature(s)` and built a width-7
+held-out tensor.
