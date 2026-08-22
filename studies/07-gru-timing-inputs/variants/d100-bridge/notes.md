@@ -140,3 +140,55 @@ study's primary metric silently absent. Fixed, then recovered without retraining
 via `resume_heldout_beaker.py` (Beaker exp `01M0NAVPBNZGEX4DBH1M8BT7Y0`), which
 logged `attached timing features -> 5 input feature(s)` and built a width-7
 held-out tensor.
+
+### DIAGNOSED: why study-01 does not reproduce (it is not code drift)
+
+A field-by-field config diff against study-01 `v2-sc-active` H128/D~100 shows
+**zero differences in `model.architecture` and `model.training`** — every
+schedule, lr, batch, early-stop and conditioning knob matches. Two `data.*` keys
+differ: `timing_features` (expected — it did not exist then) and **`snapshot`**:
+
+| | study-01 (2026-06-22) | this study (2026-08-22) |
+|---|---|---|
+| `data.snapshot` | `None` | `20260603` |
+| resolves to | `…/aind-dynamic-foraging-cache/session_table.parquet` | `…/snapshots/20260603/session_table.parquet` |
+
+`snapshot=None` reads the **root table**, not the frozen snapshot. Those are
+different objects: root has 24,865 sessions / 934 subjects (latest 2026-08-21),
+pinned-20260603 has 23,868 / 902 (latest 2026-06-03).
+
+Crucially — and this is where the naive "the root table has since rolled forward"
+story is wrong — **every mouse study-01 used exists in the pinned snapshot**
+(0 missing across all three runs). No mouse was unavailable. What differs is
+smaller: **259 sessions across 32 already-present subjects** were ingested
+between the snapshot cut (Jun 3) and study-01's run (Jun 22), so study-01 saw
+slightly higher session counts for those 32 mice.
+
+That is enough, because cohort selection is **rank-based**: subjects are ordered
+by session count, every 5th is reserved as held-out, and `subject_ratio` is
+sampled from the remainder. Session counts near the selection boundary are
+densely tied (19–27 subjects share each count in the 31–36 range), so one subject
+gaining a session jumps a tie group and **cascades every rank below it**. Result
+at matched `subject_sample_seed`: 1–3 mice swap per seed (seed 0 swaps 3, seeds
+1 and 2 swap 1 each), and the **held-out population changes too** — so
+"held-out likelihood" is being computed on partly different animals.
+
+**So the +0.00061 offset is a cohort-composition difference, not evidence that
+the wrapper changed behaviour.** Wrapper SHA, image and cluster are all still
+confounded in principle, but they no longer need to be invoked: a sufficient
+cause is identified and measured.
+
+Two consequences:
+
+1. **The headline effect is unaffected.** Verified directly: at every
+   `subject_sample_seed`, the ON and OFF arms resolve to *identical* subject sets
+   and both pin `snapshot=20260603` (seed 0: 99 mice, seeds 1–2: 101 mice each,
+   `IDENTICAL=True` in all three). The +0.0063 is a within-cohort paired
+   contrast, so selection drift cannot produce it.
+2. **Paired OFF arms are still mandatory** across the D grid — not because the
+   wrapper drifted, but because study-01's numbers are keyed to a different
+   cohort draw and are not the right baseline for a pinned-snapshot study.
+
+Lesson for the study conventions: **always pin `data.snapshot`.** An unpinned run
+is not reproducible even with identical code, because the selection is
+rank-sensitive to a table that grows underneath it.
