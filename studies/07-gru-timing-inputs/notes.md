@@ -79,3 +79,62 @@ is declining by then. The gap is not "OFF was stopped too early".
 - Consider `min_delta` ~0.0003 and/or `checkpoint_policy=best_heldout` for future
   variants — but NOT mid-study, since it would change what "best" means between
   cells.
+
+### Follow-up: is "fixed 90k budget" the same as "undertrained"? NO — it is D-dependent
+
+Han asked whether the min_delta finding means many runs are undertrained. Measured
+the within-subject eval curve of all 14 D-scan runs. The answer is that the D
+sweep crosses **three different regimes**, so the fixed budget does not bias every
+cell the same way:
+
+| D (mice) | argmax checkpoint | late slope / 10k | regime |
+|---|---|---|---|
+| ≈10 | 10–20k | **−0.019 to −0.032** | **overtrained** — collapses to 0.52–0.56 by 80k |
+| ≈30 | 30k | −0.011 to −0.016 | **overtrained** |
+| ≈100 | 60–70k | −0.0003 to −0.0001 | **converged** (the bridge cell) |
+| ≈300 | 90k (last) | +0.00017 to +0.00027 | **undertrained** — still rising when cut |
+| ≈614 | 90k (last) | +0.00020 to +0.00050 | **undertrained** — still rising when cut |
+
+So: **the small-D cells are overtrained, not undertrained** — they peak by 10–30k
+and then fall off a cliff (the overfit guard is what stops them at 80k). Only the
+**large-D end (D≈300, 614) is genuinely truncated** by the budget.
+
+Note `best_eval` already protects the *reported number* in every regime: it
+returns each run's own optimum, so the overtrained small-D cells are scored at
+their 10–20k peak, not at their collapsed 80k value. The truncation only costs
+what the large-D runs would have gained with more steps.
+
+**Size of the large-D truncation.** A saturating fit was degenerate on monotone
+data (it returned ~0 headroom, which is not credible), so bound it two ways from
+the measured slope (+0.00026/10k averaged over the six large-D runs) over a
+notional +50k steps:
+
+* decaying increment (τ≈1 checkpoint): **+0.00015**
+* slope held constant (optimistic): **+0.00131**
+
+Against the +0.00630 timing effect that is 2–21% — small — but it is comparable to
+or larger than the +0.00061 bridge offset, and critically it acts **only at the
+top of the D axis**. So it distorts the **shape** of the scaling curve (flattening
+the large-D end), which is exactly what a data-scaling study is trying to measure.
+
+### Decision (Han, 2026-08-22): fix min_delta in FUTURE variants
+
+Not mid-study — changing it now would make "best" mean different things in
+different cells of the same grid. Planned for the next variant:
+
+* `min_delta: 0.0003` (matched to the measured scale of late improvement, ~10x
+  smaller than the current 0.003).
+* Keep `start_after_step: 70000` and `patience: 2`; keep `overfit_guard: 0.01`
+  (it is doing real work — it is what rescues the small-D cells).
+* Raise the effective ceiling for large-D cells so a genuine "still rising" run
+  can actually use it (`n_steps: 150000` is already set; the binding constraint
+  is the stop rule, not the ceiling).
+* Consider `checkpoint_policy: best_heldout` so selection and the primary metric
+  agree — but note this changes what is being selected on, so it belongs in a
+  variant that re-runs both arms, not a partial backfill.
+
+Simulation caveat: at `min_delta` 0.001 and 0.0003 the *observed* d100-bridge runs
+still stop at 90k, because their late deltas are ≤0.0003. The change bites for the
+large-D cells whose slope is +0.0002-0.0005 per checkpoint, and for any future
+cell that is still climbing. It is not a no-op, but it is not a large behavioural
+change at D≈100 either.
