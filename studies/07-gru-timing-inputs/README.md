@@ -104,6 +104,16 @@ separated from the capacity advantage. State this in every report.
 
 | [`h128-dscan`](variants/h128-dscan/) | Timing arm ONLY across the D grid: `subject_ratio ∈ {0.016, 0.049, 0.163, 0.489, 1.0}` × 3 seeds, H128. The study's headline curve. Launched in parallel with `d100-bridge` since the timing arm is needed at every D either way. | launched 2026-08-22 | `h128-dscan@20260821-231301` | `01M0M1KQQCSYZMRE9S9F5SSZV5` |
 
+| [`h128-dscan-onprem`](variants/h128-dscan-onprem/) | The same timing arm for `subject_ratio ∈ {0.163, 0.489, 1.0}` × 3 seeds, moved to `octo-hub-onprem-h200` because aws-h200 had saturated with this study's own tasks. Identical recipe. | launched 2026-08-22 | `h128-dscan-onprem@20260822-012657` | `01M0M997B9XNCY0W1Z9FK69GA8` |
+
+> **Cluster note.** GCP clusters (`octo-hub-gcp-h100`, `octo.hub-gcp-h200`) cannot
+> reach the AWS S3 parquet cache and are unusable for any DB-backed run here, however
+> many GPUs they show free. Usable S3-backed targets: `octo-hub-aws-h200`,
+> `octo-hub-onprem-h200`, `octo-hub-aws-l40s`, `aipbd-aws-h200`. Also note the D grid
+> is split across two clusters (see `h128-dscan-onprem` notes), so D and cluster are
+> correlated — both are H200 and study-01's H128 column trained on onprem, but a
+> cluster-level artifact would alias onto the D axis.
+
 Planned, not yet launched:
 
 - **Paired timing-OFF arms** across the D grid — needed *only if* `d100-bridge`
