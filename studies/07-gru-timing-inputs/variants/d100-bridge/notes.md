@@ -160,9 +160,28 @@ pinned-20260603 has 23,868 / 902 (latest 2026-06-03).
 Crucially — and this is where the naive "the root table has since rolled forward"
 story is wrong — **every mouse study-01 used exists in the pinned snapshot**
 (0 missing across all three runs). No mouse was unavailable. What differs is
-smaller: **259 sessions across 32 already-present subjects** were ingested
-between the snapshot cut (Jun 3) and study-01's run (Jun 22), so study-01 saw
-slightly higher session counts for those 32 mice.
+smaller: **259 sessions across 32 subjects** were ingested between the snapshot
+cut (Jun 3) and study-01's run (Jun 22) — 217 sessions for 24 subjects already in
+the snapshot, plus 42 sessions belonging to 8 subjects that did not exist in it
+at all (see the correction below).
+
+**Correction (audit).** An earlier version of this note called all 32 of those
+subjects "already-present", which is wrong and was caught in review. Joining the
+window against the pinned subject list splits them:
+
+| | subjects | sessions |
+|---|---|---|
+| already present in pinned 20260603 | 24 | 217 |
+| **brand-new**, absent from pinned | **8** | **42** |
+
+(Restricted to the mature/curriculum pool that actually drives ranking: 23
+already-present / 179 sessions, and 5 new / 19 sessions.) The upper bound was
+visible in the data all along — only 24 shared subjects have a differing session
+count across the wider Jun3→Aug21 window, so 32 could never all be pre-existing.
+
+This *strengthens* the mechanism rather than weakening it: 8 new subjects
+entering the ranked pool displace ranks directly, on top of the 24 whose counts
+grew.
 
 That is enough, because cohort selection is **rank-based**: subjects are ordered
 by session count, every 5th is reserved as held-out, and `subject_ratio` is
