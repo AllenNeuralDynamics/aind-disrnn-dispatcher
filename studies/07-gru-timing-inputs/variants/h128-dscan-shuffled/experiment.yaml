@@ -46,9 +46,9 @@ tasks:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
       - name: WRAPPER_REF
-        value: 7212d3de7b9ebf2230237e9e3f4479c7df4cc895
+        value: 78b8d11857653d83b9e8bd4191e8f0fced0c2a3c
       - name: DISPATCHER_REF
-        value: 7190255fad313021d64e8ef41129ef7fb014ce55
+        value: ae8707d189434006b7ae3d9b77887d51077e92e9
       - name: FORAGING_MODELS_REF
         value: main
     result:
