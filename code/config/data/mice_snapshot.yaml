@@ -90,6 +90,23 @@ timing_features:
                                # constants; keep true for disRNN (its bottleneck KL is
                                # quadratic in input magnitude, and per-channel sigma
                                # readouts must be comparable across inputs)
+  # ── Shuffled control arm ───────────────────────────────────────────────────
+  # Permutes the raw response columns WITHIN each session before the
+  # previous-trial shift. Per-session marginals, observation width and input
+  # scale are all preserved; only trial alignment is destroyed. The arm is
+  # therefore parameter- AND scale-matched to the real arm, so
+  # real-minus-shuffled isolates trial-aligned information from the capacity that
+  # widening the input vector confers by itself.
+  #
+  # NOT a zero-information baseline: session-level statistics survive by design
+  # (measured — session-demeaned corr with choice falls to ~0.003 while the raw
+  # corr stays ~0.17 for logRT), so it is a CONSERVATIVE control.
+  #
+  # Requires shuffle to be false on every real arm. Hydra composes data.* from
+  # THIS file at Beaker runtime, so these keys must exist here or a sweep that
+  # overrides them dies at composition with "Key 'shuffle' is not in struct".
+  shuffle: false
+  shuffle_seed: 0
 
 # Your template for the data part of the W&B run name
 run_name_component: mice_snapshot
