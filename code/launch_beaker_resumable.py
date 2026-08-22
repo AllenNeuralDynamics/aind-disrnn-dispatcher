@@ -209,8 +209,19 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
         # jobs burst onto spare idle GPUs BEYOND the workspace's unallocated-slot budget
         # (measured: ~14 concurrent on H200 vs a normal-priority cap of 8), at the cost of
         # being evicted first — which autoResume recovers. So `low` maximizes fan-out
-        # throughput. Use `normal` only for a single job you need to resist eviction.
-        task["context"] = {"priority": "low", "preemptible": True}
+        # throughput. Use `normal`/`high` for jobs you need to resist eviction.
+        #
+        # This is the DEFAULT ONLY. It used to be an unconditional assignment, which
+        # silently discarded any `context:` the experiment template set — so a template
+        # asking for the protected/allocated tier ({priority: high, preemptible: false})
+        # was rewritten to low/preemptible with no warning, and the launch looked
+        # successful. Honour an explicit template context instead; fall back to the
+        # burst default when the template says nothing.
+        template_ctx = template_task.get("context")
+        if template_ctx:
+            task["context"] = copy.deepcopy(template_ctx)
+        else:
+            task["context"] = {"priority": "low", "preemptible": True}
 
         managed = {
             "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
