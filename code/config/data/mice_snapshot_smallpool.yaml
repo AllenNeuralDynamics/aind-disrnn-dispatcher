@@ -67,6 +67,9 @@ timing_features:
                                # constants; keep true for disRNN (its bottleneck KL is
                                # quadratic in input magnitude, and per-channel sigma
                                # readouts must be comparable across inputs)
+  shuffle: false               # CONTROL ARM: permute raw response cols within session
+  shuffle_seed: -1             # -1 = derive from the run seed (so seed replicates of
+                               # the shuffled arm get DIFFERENT permutations)
 
 # Your template for the data part of the W&B run name
 run_name_component: mice_snapshot

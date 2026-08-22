@@ -106,7 +106,7 @@ timing_features:
   # THIS file at Beaker runtime, so these keys must exist here or a sweep that
   # overrides them dies at composition with "Key 'shuffle' is not in struct".
   shuffle: false
-  shuffle_seed: 0
+  shuffle_seed: -1             # -1 = derive from the run seed
 
 # Your template for the data part of the W&B run name
 run_name_component: mice_snapshot
