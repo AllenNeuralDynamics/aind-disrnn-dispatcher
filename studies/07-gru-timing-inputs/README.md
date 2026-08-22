@@ -19,7 +19,14 @@ Two per-trial quantities are added as previous-trial inputs:
 
 **The only model/data change** vs study-01 is `data.timing_features.enabled:
 false → true`. The wrapper derives the observation width from the input tensor,
-so `obs_size` widens 2 → 5 with no model-code or config-block change. Everything
+so the input tensor widens **3 → 6** columns with no model-code or config-block
+change. Verified in the `d100-bridge` job logs: the OFF arm builds
+`x_names=['Subject ID', 'prev choice', 'prev reward']` (width 3) and the ON arm
+`[..., 'prev log RT', 'prev n_lick_left', 'prev n_lick_right']` (width 6) — column
+0 is the prepended multisubject index, so the observation count proper goes 2 → 5.
+Quote the width, not `obs_size`: the GRU trainer sizes its input from
+`xs.shape[2]` and has no `obs_size` parameter (that is a disRNN concept), so a
+GRU study should not cite it. Everything
 else (GRU H, scalar session conditioning, λ-forward schedule, lr, batch, held-out
 cohort, snapshot pin) is held identical to `01-gru-scaling-law`'s `v2-sc-active` /
 `nxd-grid` variants so the arms are comparable.
