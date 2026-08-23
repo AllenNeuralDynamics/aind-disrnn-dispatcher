@@ -67,3 +67,69 @@ All other knobs byte-identical to `h128-dscan`.
 
 PRIMARY METRIC: `heldout/final/eval_likelihood`. Within-subject LL is a diagnostic
 only (train-eval gap).
+
+---
+
+## First complete three-way cell: D≈10 (2026-08-22, 23:07 PT)
+
+All three seeds of the shuffled arm at D≈10 finished. Held-out mouse likelihood:
+
+| arm | mean | sd | seeds |
+|---|---|---|---|
+| no added inputs (OFF) | 0.72248 | 0.00166 | 3 |
+| **shuffled control** | **0.71231** | 0.00422 | 3 |
+| + RT & lick counts (ON) | 0.72388 | 0.00250 | 3 |
+
+Decomposition:
+
+| quantity | value | se |
+|---|---|---|
+| input-width cost (SHUF − OFF) | **−0.01017** | 0.00262 |
+| trial-aligned information (ON − SHUF) | **+0.01157** | 0.00283 |
+| net observed (ON − OFF) | +0.00140 | 0.00173 |
+
+**The net effect hides two large opposing effects that nearly cancel.** The
+information content is 8.3x the net, and the width cost cancels 88% of it. Had
+we run only ON vs OFF at this cohort size we would have concluded "the features
+barely help at D≈10" — a conclusion that is arithmetically true and
+mechanistically wrong.
+
+### The control validates itself
+
+The concern with any negative control is whether it is really matched. The
+train−eval gap says it is:
+
+| arm | train − eval gap |
+|---|---|
+| OFF | +0.0229 |
+| **SHUFFLED** | **+0.2734** |
+| ON | +0.2375 |
+
+The shuffled arm carries the same ~10x overfitting tax as the real arm (0.273 vs
+0.238, both against 0.023 for OFF), confirming it is paying the capacity price
+without receiving the information. That is exactly the design intent, measured
+rather than assumed.
+
+Note the shuffled arm is slightly WORSE than the real arm on this diagnostic
+(+0.273 vs +0.238), consistent with real trial-aligned features being mildly
+easier to fit than permuted ones — a second, independent sign that the
+permutation removed something the model was using.
+
+### Consequence for the headline
+
+This changes the interpretation of the D curve's growth (see the study notes).
+The ON−OFF gain rising +0.0014 → +0.0082 across D is now decomposable at least
+at the small-D end: at D≈10 the information is already worth +0.0116, close to
+the +0.0082 net seen at D≈614. So the leading hypothesis flips from
+
+  "the information becomes more valuable as the cohort grows"
+
+to
+
+  "the information is worth roughly +0.010 throughout, and what changes with D
+   is the vanishing width penalty."
+
+CONFIRMATION PENDING: this rests on one D cell. The D≈30 and D≈100 shuffled cells
+land in ~4h and ~2.5h; D≈614 in ~10h. If ON−SHUF is roughly flat across D while
+SHUF−OFF shrinks toward zero, the reframing holds. If ON−SHUF itself grows, the
+original "information scales" reading survives after all.
