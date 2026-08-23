@@ -48,7 +48,7 @@ tasks:
       - name: WRAPPER_REF
         value: 78b8d11857653d83b9e8bd4191e8f0fced0c2a3c
       - name: DISPATCHER_REF
-        value: 847227c531abdfa18c6daf1c837b10c2cae656a4
+        value: 4f56a32f8c5f76a7b392665c9761eb2a86a54807
       - name: FORAGING_MODELS_REF
         value: main
     result:
