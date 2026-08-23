@@ -138,3 +138,71 @@ still stop at 90k, because their late deltas are ≤0.0003. The change bites for
 large-D cells whose slope is +0.0002-0.0005 per checkpoint, and for any future
 cell that is still climbing. It is not a no-op, but it is not a large behavioural
 change at D≈100 either.
+
+---
+
+## HEADLINE RESULT: the paired D curve (2026-08-22, ~21:00 PT)
+
+All 15 timing-OFF cells scored. Held-out mouse likelihood, mean over seeds:
+
+| D (mice) | OFF | ON | ON−OFF | se | train−eval gap (OFF / ON) |
+|---|---|---|---|---|---|
+| ≈10 | 0.72248 (n=3) | 0.72388 (n=3) | **+0.00140** | 0.00173 | +0.023 / **+0.237** |
+| ≈30 | 0.72568 (n=3) | 0.73035 (n=2) | **+0.00468** | 0.00030 | +0.003 / +0.060 |
+| ≈100 | 0.72791 (n=6) | 0.73421 (n=6) | **+0.00630** | 0.00016 | −0.002 / +0.001 |
+| ≈300 | 0.72869 (n=3) | 0.73647 (n=3) | **+0.00778** | 0.00012 | −0.005 / −0.004 |
+| ≈614 | 0.72894 (n=2) | 0.73712 (n=2) | **+0.00819** | 0.00006 | −0.005 / −0.005 |
+
+The added inputs beat the baseline at **every** cohort size, and the gain **grows
+monotonically with D**, from +0.0014 at D≈10 to +0.0082 at D≈614 — a ~6x range.
+
+### The growth is NOT clean evidence that the information scales
+
+This is exactly the confound flagged before launch (capacity_by_D.png): a
+slightly-higher-capacity arm can look worse at small D and overtake as D grows,
+mimicking the "information that scales" signature. The train−eval gap column
+shows it happening:
+
+* At D≈10 the ON arm's overfitting gap is **+0.237 vs +0.023** for OFF — a 10x
+  larger penalty. The 3 extra input channels (+2.2% params at H128) are ruinous
+  with 10 mice.
+* By D≈100 the gaps are equal (−0.002 vs +0.001), and at D≥300 they are identical
+  to within 0.001.
+
+So the ON arm pays a large overfitting tax at small D that vanishes by D≈100.
+Part of the curve's rise is therefore that tax being lifted, not the information
+becoming more valuable. Decomposing:
+
+* D≈10 → D≈100: gain rises +0.0049 while the ON-arm excess gap falls 0.215 →
+  0.003. Both moving together; **not separable from these two arms alone.**
+* D≈100 → D≈614: gain still rises +0.0019 while both gaps are already flat and
+  equal. This upper segment is the part that **cannot** be explained by
+  differential overfitting, and it is the defensible "information scales" claim.
+
+### What the shuffled arm will settle
+
+The only clean attribution comes from ON−SHUFFLED, which is parameter- and
+scale-matched, so it carries the identical overfitting tax at every D. First
+shuffled cell (D≈10, n=1, the rest still training):
+
+  OFF 0.72248 → SHUF 0.70746 → ON 0.72388
+
+i.e. shuffling is **−0.015 WORSE than no added inputs at all**, and the ON−SHUF
+information effect at D≈10 is +0.016 — an order of magnitude larger than the
++0.0014 ON−OFF net. Reading: at D≈10 the width tax is real and large, the
+trial-aligned information is also large, and they nearly cancel. If that pattern
+holds across D, the honest headline becomes "the information is worth ~0.016 and
+the width costs ~0.015 at small cohorts" rather than "the effect grows with D".
+
+CAVEAT: n=1. Do not quote this number until the remaining 14 shuffled cells land.
+
+### Reporting rules that follow
+
+1. Lead with the paired ON−OFF curve (all 15 cells, seeds shown), NOT with D≈100
+   alone.
+2. Always show the train−eval gap panel beside it. The gain's growth is not
+   interpretable without it.
+3. Do not claim "the added information scales with cohort size" from ON−OFF
+   below D≈100. Above D≈100 that claim is supported.
+4. D≈10 is a separate regime (overfitting-dominated); consider excluding it from
+   any headline effect size, as flagged before launch.
