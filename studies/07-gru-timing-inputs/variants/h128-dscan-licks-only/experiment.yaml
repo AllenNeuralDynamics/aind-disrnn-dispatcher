@@ -8,7 +8,6 @@
 # clusters, which would alias a cluster artifact onto the curve's shape.
 version: v2
 description: "study-07 h128-dscan-licks-only — single feature block, H128 D-scan, 3 seeds"
-budget: ai2/allennlp
 tasks:
   - name: train
     image:
