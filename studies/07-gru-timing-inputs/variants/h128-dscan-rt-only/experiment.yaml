@@ -17,7 +17,7 @@ tasks:
       - name: WRAPPER_REF
         value: 78b8d11857653d83b9e8bd4191e8f0fced0c2a3c
       - name: DISPATCHER_REF
-        value: 4d0fa294eb23a9cf5d80e5feac7d1d741aae3ce6
+        value: f6fbdbb81693b09281a3754eba0566712cc1ca1a
       - name: FORAGING_MODELS_REF
         value: main
       - name: WANDB_API_KEY
