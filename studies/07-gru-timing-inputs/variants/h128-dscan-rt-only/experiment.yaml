@@ -1,0 +1,36 @@
+# TIER 4 / low priority + preemptible.
+#
+# Priority 4 of 4. Nothing else of ours is live right now, but these should yield
+# to anything launched after them, and autoResume makes eviction cheap.
+#
+# Both S3-capable H200 clusters are listed so the scheduler places freely and
+# placement stays ORTHOGONAL to the swept D axis -- not split by D across
+# clusters, which would alias a cluster artifact onto the curve's shape.
+version: v2
+description: "study-07 h128-dscan-rt-only — single feature block, H128 D-scan, 3 seeds"
+budget: ai2/allennlp
+tasks:
+  - name: train
+    image:
+      beaker: han-hou/disrnn-wrapper-main-20260712
+    command: ["/entrypoint.sh"]
+    envVars:
+      - name: WRAPPER_REF
+        value: 78b8d11857653d83b9e8bd4191e8f0fced0c2a3c
+      - name: DISPATCHER_REF
+        value: edc1ca2545fc7f87daa062f49979e5ff7537368b
+      - name: FORAGING_MODELS_REF
+        value: main
+      - name: WANDB_API_KEY
+        secret: han-wandb-api-key
+    resources:
+      gpuCount: 1
+    context:
+      priority: low
+      preemptible: true
+    constraints:
+      cluster:
+        - ai1/octo-hub-aws-h200
+        - ai1/octo-hub-onprem-h200
+    result:
+      path: /results
