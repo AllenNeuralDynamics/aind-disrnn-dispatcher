@@ -206,3 +206,64 @@ CAVEAT: n=1. Do not quote this number until the remaining 14 shuffled cells land
    below D≈100. Above D≈100 that claim is supported.
 4. D≈10 is a separate regime (overfitting-dominated); consider excluding it from
    any headline effect size, as flagged before launch.
+
+---
+
+## RESOLVED: the three-way grid is complete (2026-08-23, 09:11 PT)
+
+All 15 shuffled cells scored. The decision rule stated in the d100-bridge notes
+("if ON−SHUF is flat across D while SHUF−OFF shrinks toward zero, the reframing
+holds; if ON−SHUF grows, the original reading survives") resolves in favour of
+the reframing.
+
+| D | OFF | SHUF | ON | width cost (SHUF−OFF) | **information (ON−SHUF)** | net (ON−OFF) |
+|---|---|---|---|---|---|---|
+| ≈10 | 0.72248 | 0.71231 | 0.72388 | −0.01017 | **+0.01157** | +0.00140 |
+| ≈30 | 0.72568 | 0.72285 | 0.73035 | −0.00282 | **+0.00750** | +0.00468 |
+| ≈100 | 0.72791 | 0.72701 | 0.73421 | −0.00090 | **+0.00720** | +0.00630 |
+| ≈300 | 0.72869 | 0.72886 | 0.73647 | +0.00017 | **+0.00761** | +0.00778 |
+| ≈614 | 0.72891 | 0.72954 | 0.73712 | +0.00063 | **+0.00758** | +0.00821 |
+
+### The verdict
+
+Regressing each component on log10(D):
+
+| component | slope per decade | p | r² |
+|---|---|---|---|
+| information (ON−SHUF) | −0.00178 | 0.187 | 0.49 |
+| information, excluding D≈10 | **+0.00014** | 0.580 | 0.18 |
+| width cost (SHUF−OFF) | **+0.00548** | **0.038** | 0.81 |
+| net observed (ON−OFF) | +0.00370 | — | — |
+
+**The information is flat and the width cost is what scales.** Excluding the
+overfitting-dominated D≈10 cell, ON−SHUF has mean +0.00747 with sd 0.00019
+across a 20x range of cohort size — a spread smaller than the typical per-cell
+se (0.00072). The net effect's apparent 6x growth is almost entirely the width
+penalty going from −0.010 to +0.001.
+
+So the correct claim is NOT "previous-trial response features become more useful
+as the cohort grows". It is:
+
+> Previous-trial reaction time and lick counts carry a **constant ~+0.0075** of
+> held-out predictive information, independent of cohort size over 10–614 mice.
+> What changes with cohort size is the model's ability to afford the three extra
+> input channels: below ~100 mice the width penalty cancels most of the benefit.
+
+### Why this matters beyond this study
+
+The D≈10 cell is the cautionary case: ON−OFF there is +0.0014 (0.8 se, not
+significant), which alone reads as "the features barely help with 10 mice". The
+control shows the information was already +0.0116 — the largest of any cell —
+and simply unaffordable. Any future input-widening experiment on a small cohort
+should run the shuffled arm before concluding a null.
+
+The width cost crossing zero at D≈300 (+0.00017) and turning slightly positive
+at D≈614 (+0.00063) is also notable: with enough mice, three permuted channels
+are marginally BETTER than not having them, consistent with mild regularization
+from uninformative inputs rather than a cost.
+
+### Reporting consequence
+
+Supersedes the four reporting rules recorded above. The headline figure is now
+the three-way decomposition (study07_threeway_full.png), not the paired curve —
+the paired curve alone systematically misattributes the effect.
