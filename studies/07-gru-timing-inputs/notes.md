@@ -331,34 +331,58 @@ This CONTRADICTS the probe, which was mildly super-additive (parts +0.0070 vs
 joint +0.0076). Worth stating as a place the linear probe mispredicted the sign
 of an interaction.
 
-### Small-D cells are NOT usable, and there is a horizon confound
+### Small-D cells are NOT usable — corrected mechanism (2026-08-23)
 
 At D≈10/30 both single-block arms sit far BELOW the OFF baseline (RT-only −0.026
-at D≈10). Two compounding reasons, neither of which is about information:
+at D≈10). **My first commit here (071822b) gave the wrong mechanism** — I wrote
+that the arms "trained further into the collapse" and were "scored past their
+own peak." That is wrong, and Han caught it: held-out is NOT scored at the final
+step. The checkpoint policy is `best_eval`
+(`generative_analysis.py:4813`, `max(checkpoints, key=eval_likelihood)`), so
+every held-out number comes from the checkpoint with the best WITHIN-SUBJECT
+validation LL, not the last one. A longer run cannot be "scored past its peak."
 
-1. **Overtraining.** These cells are in the regime established earlier (D≈10
-   peaks at 10–20k then collapses).
-2. **A horizon confound I did not anticipate.** The single-block arms trained
-   LONGER than their peers: mean steps RT 93,838 and licks 91,838 vs OFF 90,505,
-   ON 87,380, shuffled 87,838. Seven runs exceeded 95k, and **all five RT/licks
-   runs among them at D≤30 are the collapsed ones** (hl 0.632–0.716). Early
-   stopping fired later for these arms, so they trained further into the
-   collapse. corr(step, hl) = −0.42 within D≤30.
+The real reason D≤30 is untrustworthy is that **`best_eval` selects on a signal
+that has itself collapsed at small cohorts**, so it cannot pick a good
+checkpoint:
 
-The one over-budget run at D≈100 (RT, 100,505 steps, 0.72792) matches its 90k
-siblings (0.72792, 0.72795) exactly — so the longer horizon only does damage
-where the curve is already declining. That localizes the confound rather than
-excusing it.
+* corr(within-subject LL, held-out LL) across seeds rises from **−0.005 at D≈10**
+  → 0.35 (D30) → 0.49 (D100) → 0.88 (D300) → **1.00 at D614**. Below D≈100 the
+  selection metric is essentially uncorrelated with what we report.
+* At D≈10 the within-subject seed sd is **0.088** and held-out sd **0.028** —
+  both dwarf the +0.0075 effect. At D≈614 they fall to 0.004.
+* Concretely: at D≈10 the run `best_eval` would pick (highest within-subject)
+  has held-out 0.7242, while the actually-best-held-out run is 0.7290 — a
+  +0.0048 gap that selection cannot capture. At D≈100 the two coincide exactly
+  (gap 0.0000): selection works again.
+
+Direct evidence it is selection, not scoring horizon: for the collapsed D≈10
+seeds the *selected* checkpoint has within-subject ≈0.63 (train ≈0.77 — overfit)
+AND held-out ≈0.63; for the healthy seeds the selected checkpoint also has
+within-subject ≈0.61–0.64 but held-out ≈0.72. Within-subject is ~flat and
+useless across all of them (it cannot separate the good checkpoint from the bad),
+so which checkpoint `best_eval` lands on is close to arbitrary and a run with more
+checkpoints in a collapsed range is more likely to land on a bad one. The
+single-block arms did early-stop slightly later (mean steps RT 93,838, licks
+91,838 vs OFF 90,505, ON 87,380), which gives `best_eval` more late/collapsed
+candidates to (mis)choose among — but the root cause is the broken selection
+signal, not the horizon per se.
 
 **Consequence:** the D≤30 single-block cells are reported as open markers in a
-shaded "overtraining regime" band and excluded from every effect estimate.
-Median-based estimates at D≈10 are much less extreme (RT −0.005, licks +0.002
-vs the mean's −0.026/−0.027), confirming a single collapsed seed per arm drives
-the mean.
+shaded band and excluded from every effect estimate. Median-based estimates at
+D≈10 are much less extreme (RT −0.005, licks +0.002 vs the mean's −0.026/−0.027),
+confirming a single mis-selected seed per arm drives the mean.
+
+**Standing implication for the study:** below D≈100, `best_eval` checkpoint
+selection is unreliable because within-subject LL has saturated/collapsed. Any
+D≤30 result must be treated as untrustworthy regardless of arm, and a future
+fix would be to select checkpoints on held-out LL directly (`best_heldout`)
+rather than within-subject — which was flagged earlier as the min_delta
+follow-up. See study07_selection_breakdown.png / .csv.
 
 ### Reporting
 
 Headline figure: study07_block_decomposition.png / .csv. The claim to make is
 "lick counts carry ~98% of the effect at D≥100; reaction time contributes a
-small but statistically real and growing share" — with the D≤30 exclusion and
-the horizon confound stated, not buried.
+small but statistically real and growing share" — with the D≤30 exclusion stated
+(untrustworthy because best_eval selection is broken there), not buried.
