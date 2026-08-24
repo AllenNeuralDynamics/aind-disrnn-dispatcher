@@ -267,3 +267,98 @@ from uninformative inputs rather than a cost.
 Supersedes the four reporting rules recorded above. The headline figure is now
 the three-way decomposition (study07_threeway_full.png), not the paired curve —
 the paired curve alone systematically misattributes the effect.
+
+---
+
+## RESOLVED: which block carries the effect (2026-08-23)
+
+All 30 single-block runs scored (15 RT-only, 15 licks-only). Held-out mouse
+likelihood, mean over seeds:
+
+| D | OFF | RT-only | licks-only | both | shuffled |
+|---|---|---|---|---|---|
+| ≈10 | 0.72248 | 0.69664 | 0.69530 | 0.72388 | 0.71231 |
+| ≈30 | 0.72568 | 0.71029 | 0.72639 | 0.73035 | 0.72285 |
+| ≈100 | 0.72791 | 0.72793 | 0.73458 | 0.73421 | 0.72701 |
+| ≈300 | 0.72869 | 0.72931 | 0.73616 | 0.73647 | 0.72886 |
+| ≈614 | 0.72891 | 0.72975 | 0.73664 | 0.73712 | 0.72954 |
+
+### The answer, at D≥100 (the trustworthy regime)
+
+| block | mean gain over OFF | share of combined |
+|---|---|---|
+| licks-only | **+0.00729** | **98%** |
+| RT-only | **+0.00049** | 7% |
+| both (measured) | +0.00743 | — |
+| sum of parts | +0.00778 | — |
+
+**Lick counts carry essentially the whole effect.** This confirms the logistic
+probe's prediction (licks +0.0051, RT +0.0008 predicted) and sharpens it: the
+realized licks-only gain is larger than the probe implied, RT's is right on
+prediction.
+
+This is the counter-intuitive result the probe already hinted at. logRT is
+*orthogonal* to the existing inputs (R²=0.000 on prev choice+reward — 100% new
+variance) yet contributes almost nothing; lick counts are heavily *redundant*
+with prev choice (R²≈0.62) yet carry 98%. **Novel variance is not the same as
+useful variance.** The value is in a nonlinear read of a partly-redundant
+channel, not in new information per se.
+
+### RT-only is small but REAL, and it grows
+
+I flagged before launch that 3 seeds would make RT-only a first look, not a null
+test. It is not a null:
+
+| D | RT-only delta | se | t | p |
+|---|---|---|---|---|
+| ≈100 | +0.00001 | 0.00006 | +0.19 | 0.855 |
+| ≈300 | +0.00061 | 0.00009 | +6.54 | 0.008 |
+| ≈614 | +0.00084 | 0.00004 | +19.50 | <0.001 |
+
+Pooled D≥100: **+0.00049, t=3.92, p=0.0044** — distinguishable from zero. And
+note the shape: RT's contribution rises monotonically from ~0 at D≈100 while
+licking *saturates* (+6.67 → +7.73 over the same range). RT may be the block that
+needs data; licking is already maxed. That is a genuine prediction for a larger
+cohort, not a post-hoc story.
+
+### Additivity: mildly SUB-additive
+
+Parts sum to +0.00778 vs +0.00743 measured for the combined arm — a shortfall of
+−0.00035, consistent across all three large-D cells (−0.38, −0.30, −0.36 ×1000).
+So the two blocks are slightly **redundant** with each other, not synergistic.
+
+This CONTRADICTS the probe, which was mildly super-additive (parts +0.0070 vs
+joint +0.0076). Worth stating as a place the linear probe mispredicted the sign
+of an interaction.
+
+### Small-D cells are NOT usable, and there is a horizon confound
+
+At D≈10/30 both single-block arms sit far BELOW the OFF baseline (RT-only −0.026
+at D≈10). Two compounding reasons, neither of which is about information:
+
+1. **Overtraining.** These cells are in the regime established earlier (D≈10
+   peaks at 10–20k then collapses).
+2. **A horizon confound I did not anticipate.** The single-block arms trained
+   LONGER than their peers: mean steps RT 93,838 and licks 91,838 vs OFF 90,505,
+   ON 87,380, shuffled 87,838. Seven runs exceeded 95k, and **all five RT/licks
+   runs among them at D≤30 are the collapsed ones** (hl 0.632–0.716). Early
+   stopping fired later for these arms, so they trained further into the
+   collapse. corr(step, hl) = −0.42 within D≤30.
+
+The one over-budget run at D≈100 (RT, 100,505 steps, 0.72792) matches its 90k
+siblings (0.72792, 0.72795) exactly — so the longer horizon only does damage
+where the curve is already declining. That localizes the confound rather than
+excusing it.
+
+**Consequence:** the D≤30 single-block cells are reported as open markers in a
+shaded "overtraining regime" band and excluded from every effect estimate.
+Median-based estimates at D≈10 are much less extreme (RT −0.005, licks +0.002
+vs the mean's −0.026/−0.027), confirming a single collapsed seed per arm drives
+the mean.
+
+### Reporting
+
+Headline figure: study07_block_decomposition.png / .csv. The claim to make is
+"lick counts carry ~98% of the effect at D≥100; reaction time contributes a
+small but statistically real and growing share" — with the D≤30 exclusion and
+the horizon confound stated, not buried.
