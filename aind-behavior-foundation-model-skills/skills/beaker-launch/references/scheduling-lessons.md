@@ -3,6 +3,20 @@
 Deep detail behind the hard rules in SKILL.md. (Absorbed from the former
 `docs/beaker-playbook.md`; this file is now the canonical home.)
 
+> ## ⚠ HISTORICAL — the g6e and p5en exceptions no longer apply
+>
+> **Revoked 2026-08-22 (confirmed by Han):** `ai1/octo.ai-aws-g6e` and
+> `ai1/octo.ai-aws-p5en` are no longer available to our workspace. Do not target
+> either, even as a fallback entry — jobs silently never schedule. Live snapshot
+> that day: g6e 0 schedulable / **2075** queued; p5en 1 schedulable / **1008**
+> queued. There are now **no** non-hub exceptions.
+>
+> The two sections below are kept for the *mechanism* they document
+> (`allowPreemptibleRestrictionExceptions` is how a non-hub cluster can admit
+> low-priority preemptible jobs, and how to check it) — not as routing advice.
+> Usable S3-backed targets are `octo-hub-aws-h200`, `octo-hub-onprem-h200`,
+> `octo-hub-aws-l40s`.
+
 ## The verified g6e exception (2026-06-23)
 
 `ai1/octo.ai-aws-g6e` is non-hub but has

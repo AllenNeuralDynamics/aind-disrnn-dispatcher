@@ -72,5 +72,41 @@ batch_mode: random
 
 seed: ${seed}
 
+# ── Optional timing inputs: previous-trial reaction time + lick counts ────
+# When enabled, the loader derives per-trial reaction time and post-go-cue lick
+# counts from the database and APPENDS them to the observation vector as
+# previous-trial inputs, alongside prev-choice + prev-reward. obs_size widens
+# automatically from the tensor width, so no model-block change is needed
+# (2 -> 5 with all three features on). Encoding: log(reaction_time) and raw
+# left/right counts, both standardized by default.
+# Implementation + rationale: aind-disrnn-wrapper code/utils/trial_timing_features.py
+# and TRAINING.md §6 "Optional timing inputs".
+timing_features:
+  enabled: false               # master switch; false -> identical to the base model
+  reaction_time: true          # include prev log reaction time (+1 feature)
+  lick_counts: true            # include prev n_lick_left + n_lick_right (+2 features)
+  lick_window_s: 2.0           # window (s) after go-cue over which licks are counted
+  standardize: true            # center/scale continuous channels by fixed population
+                               # constants; keep true for disRNN (its bottleneck KL is
+                               # quadratic in input magnitude, and per-channel sigma
+                               # readouts must be comparable across inputs)
+  # ── Shuffled control arm ───────────────────────────────────────────────────
+  # Permutes the raw response columns WITHIN each session before the
+  # previous-trial shift. Per-session marginals, observation width and input
+  # scale are all preserved; only trial alignment is destroyed. The arm is
+  # therefore parameter- AND scale-matched to the real arm, so
+  # real-minus-shuffled isolates trial-aligned information from the capacity that
+  # widening the input vector confers by itself.
+  #
+  # NOT a zero-information baseline: session-level statistics survive by design
+  # (measured — session-demeaned corr with choice falls to ~0.003 while the raw
+  # corr stays ~0.17 for logRT), so it is a CONSERVATIVE control.
+  #
+  # Requires shuffle to be false on every real arm. Hydra composes data.* from
+  # THIS file at Beaker runtime, so these keys must exist here or a sweep that
+  # overrides them dies at composition with "Key 'shuffle' is not in struct".
+  shuffle: false
+  shuffle_seed: -1             # -1 = derive from the run seed
+
 # Your template for the data part of the W&B run name
 run_name_component: mice_snapshot
