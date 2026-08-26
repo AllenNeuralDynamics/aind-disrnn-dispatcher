@@ -114,12 +114,62 @@ separated from the capacity advantage. State this in every report.
 > correlated — both are H200 and study-01's H128 column trained on onprem, but a
 > cluster-level artifact would alias onto the D axis.
 
-Planned, not yet launched:
+| [`h128-dscan-off-bigD`](variants/h128-dscan-off-bigD/) | Paired timing-OFF baseline for the large cohorts (`subject_ratio ∈ {0.163, 0.489, 1.0}` × 3 seeds), allocated/non-preemptible tier. Became mandatory because the bridge showed the OFF arm does *not* reproduce study-01's H128 band (cohort draw differs under the pinned snapshot). | done | `h128-dscan-off-bigD@<launch_id>` | `01M0NDR91DA7H79G71B1HVHYAR` |
+| [`h128-dscan-off-smallD`](variants/h128-dscan-off-smallD/) | Paired timing-OFF baseline for the small cohorts (`subject_ratio ∈ {0.016, 0.049}` × 3 seeds), unallocated/high-priority preemptible tier. | done | `h128-dscan-off-smallD@<launch_id>` | `01M0NDS1JYZ58ZC2EHGK5X0K4S` |
+| [`h128-dscan-shuffled`](variants/h128-dscan-shuffled/) | The capacity-matched **shuffled control**: ON inputs permuted within session (marginals + between-session structure preserved, trial alignment destroyed). `ON − shuffled` isolates information from the input-width cost. | done | `h128-dscan-shuffled@<launch_id>` | `01M0NSRWBVWQENPPNDTG4NKX28` |
+| [`h128-dscan-rt-only`](variants/h128-dscan-rt-only/) | Single-block arm: previous-trial **reaction time only** (1 added channel) × D grid × 3 seeds. Decomposes the combined effect. | done | `h128-dscan-rt-only@<launch_id>` | `01M0QQC7WX5NTKDKJV50SM99HQ` |
+| [`h128-dscan-licks-only`](variants/h128-dscan-licks-only/) | Single-block arm: previous-trial **lick counts only** (2 added channels) × D grid × 3 seeds. | done | `h128-dscan-licks-only@<launch_id>` | `01M0QQCGWF69Z04QJ6PR8PKCRX` |
 
-- **Paired timing-OFF arms** across the D grid — needed *only if* `d100-bridge`
-  shows the OFF arm does not reproduce study-01's H128 band. If the bridge holds,
-  study-01's H128 column is the baseline and this is not run.
-- **Shuffled control** — the capacity-matched arm described above.
+All planned arms have run. The `d100-bridge` OFF arm did **not** reproduce
+study-01's H128/D≈100 band (the pinned-snapshot cohort draw differs), so the
+paired OFF arms above were run at every D rather than inheriting study-01's
+column — see the Verdict.
+
+## Verdict
+
+Full tables and figures: [`analysis/reports/`](analysis/reports/INDEX.md). Headline
+figures at the study root: `fig_block_decomposition.png`, `fig_threeway.png`,
+`fig_selection_breakdown.png`. All numbers are held-out **mouse** likelihood at
+H=128, 3 seeds/cell, and hold at D≥100 (D≤30 excluded — see below).
+
+**1. Previous-trial response features help, and the effect is real but FLAT.**
+Adding previous-trial reaction time + lick counts raises held-out likelihood by a
+constant **~+0.0075** across the trustworthy cohort range (D≈100→614). The raw
+ON−OFF curve *appears* to grow with cohort size (+0.0014 at D≈10 → +0.0082 at
+D≈614), but the shuffled control shows that growth is a **vanishing input-width
+overfitting penalty** (shuffled−OFF rises from −0.010 to ~0), not information
+scaling. ON−shuffled — information alone, parameter- and scale-matched — is flat.
+Without the control the naive reading ("the feature matters more with more data")
+is wrong.
+
+**2. Lick counts carry ~all of it; reaction time is small but real and growing.**
+At D≥100, licks-only recovers **~98%** of the combined benefit; RT-only ~7%. The
+counter-intuitive part: reaction time is near-*orthogonal* to the existing
+(prev-choice, prev-reward) inputs yet contributes little, while lick counts are
+heavily *redundant* with prev choice yet carry the effect — novel variance is not
+useful variance. RT's share is statistically distinguishable from zero (pooled
+D≥100, p≈0.004) and, unlike licking, still growing at D=614, suggesting it is the
+block that would benefit from a larger cohort. The two blocks are mildly
+**sub-additive** (redundant with each other), not synergistic.
+
+**3. Below D≈100 the results are untrustworthy — a measurement artifact, not
+behaviour.** Held-out scoring uses the best-within-subject checkpoint
+(`best_eval`). At small cohorts the within-subject signal it selects on has itself
+collapsed: corr(within-subject, held-out) across seeds is ≈0 at D≈10 and rises to
+1.0 at D≈614, and seed noise there dwarfs the +0.0075 effect. So `best_eval`
+cannot pick a good checkpoint and the D≤30 cells are excluded from every estimate.
+A future variant should select on held-out LL (`best_heldout`); this ties into
+the early-stopping `min_delta` follow-up (`min_delta` is ~10× too large to fire,
+making the ~90k-step budget effectively fixed rather than adaptive).
+
+**4. Study-01's H128 column is not a reusable baseline.** The `d100-bridge` OFF
+arm sits +0.0006 (≈4 SD) above study-01's H128/D≈100 band. The cause is not code
+drift (a field-by-field config diff is identical) but `data.snapshot`: study-01
+ran unpinned while this study pins `20260603`, and cohort selection is rank-based
+over densely-tied session counts, so a modest difference in ingested sessions
+reshuffles which mice land in the train/held-out split. Hence the paired OFF arms
+were run at every D. **Convention adopted: always pin `data.snapshot`** — an
+unpinned run is not reproducible even with byte-identical code.
 
 ## Related
 
