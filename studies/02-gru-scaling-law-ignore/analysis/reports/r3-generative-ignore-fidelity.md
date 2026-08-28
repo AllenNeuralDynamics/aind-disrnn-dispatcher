@@ -22,7 +22,7 @@ inputs:
     - analysis/generative/ignore_repeatability.png
     - analysis/generative/example_sessions.png
   session_plot_script: analysis/generative/plot_example_sessions.py
-wrapper_ref: feat/generative-ignore
+wrapper_ref: 4aa3aec699552fcf92b083de914e21b4665fdf80  # merged to wrapper main via PR #62 (merge 6cdf1ab0)
 hpc_jobs: [25336319, 5a199cf7, f8b8d1d2]
 ---
 
@@ -179,7 +179,7 @@ rollout, exposure bias is the cause rather than a mis-fit policy.
 
 ## Provenance
 
-- Branch `feat/generative-ignore` (aind-disrnn-wrapper, off `ai_hub_pck_integration`),
+- Wrapper code merged to `main` via PR #62 (merge commit `6cdf1ab0`); branch tip was `4aa3aec6`,
   commits `eae5159`, `a68ac91`, `c446a2f`, `ba3e27a`.
 - Code: `code/post_training_analysis/generative_analysis.py` (3-way rollout support),
   `ignore_statistics.py`, `ignore_generative_report.py`.
