@@ -58,6 +58,12 @@ def main():
     parser.add_argument("--wrapper", type=str,
                         default="/home/han.hou/code/aind-disrnn-wrapper/code")
     parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--wandb-project", type=str, default="mice_data_scaling")
+    parser.add_argument("--wandb-entity", type=str, default="AIND-disRNN")
+    parser.add_argument("--launch-id", type=str, default=None,
+                        help="group suffix; defaults to a UTC timestamp")
+    parser.add_argument("--no-wandb", action="store_true")
+    parser.add_argument("--artifact-dir", type=str, default=None)
     args = parser.parse_args()
 
     sys.path.insert(0, args.wrapper)
@@ -73,6 +79,44 @@ def main():
         len(train_ids), len(train_df), len(heldout_ids), len(heldout_df),
     )
 
+    # W&B, matching the GRU runs' project, group convention and metric namespace so the
+    # results drop straight into studies/01's analyze_scaling.py rather than living apart.
+    wandb_run = None
+    if not args.no_wandb:
+        import wandb
+
+        launch_id = args.launch_id or time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+        wandb_run = wandb.init(
+            entity=args.wandb_entity,
+            project=args.wandb_project,
+            group=f"hb-{args.estimator}@{launch_id}",
+            name=f"hb-{args.estimator}-D{len(train_ids)}-s{args.seed}",
+            config={
+                "model_class": f"HB-Hattori2019-{args.estimator}",
+                "seed": args.seed,
+                # analyze_scaling.py reads D from this key
+                "resolved_subject_ids": [str(s) for s in train_ids],
+                "resolved_heldout_subject_ids": [str(s) for s in heldout_ids],
+                "data": {
+                    "subject_ratio": args.subject_ratio,
+                    "snapshot": LOADER_KWARGS["snapshot"],
+                    "min_sessions": LOADER_KWARGS["min_sessions"],
+                    "heldout_every_n": LOADER_KWARGS["heldout_every_n"],
+                    "mature_only": LOADER_KWARGS["mature_only"],
+                    "curricula": CURRICULA,
+                    "eval_every_n": 2,
+                    "seed": args.seed,
+                },
+                "meta": {
+                    "study": "08-hb-vs-gru-heldout",
+                    "estimator": args.estimator,
+                    "num_warmup": args.num_warmup,
+                    "num_samples": args.num_samples,
+                    "num_chains": args.num_chains,
+                },
+            },
+        )
+
     bundle = DatasetBundle(
         raw=train_df,
         train_set=None,
@@ -87,17 +131,20 @@ def main():
             "num_warmup": args.num_warmup,
             "num_samples": args.num_samples,
             "num_chains": args.num_chains,
+            "eval_every_n": 2,
+            "artifact_dir": args.artifact_dir,
         },
         seed=args.seed,
     )
 
+    loggers = {"wandb": wandb_run} if wandb_run is not None else None
     started = time.time()
     # These fits run for hours against a hard wall clock, so the fitted population is
     # written as soon as it exists rather than only after held-out scoring completes.
     trainer.on_population_fitted = lambda pop, info: _checkpoint(
         args.output, {"stage": "population_fitted", "population": pop, **info}
     )
-    output = trainer.fit(bundle)
+    output = trainer.fit(bundle, loggers=loggers)
     output["wall_seconds"] = time.time() - started
     output["subject_ratio"] = args.subject_ratio
     output["n_train_subjects"] = len(train_ids)
@@ -111,6 +158,9 @@ def main():
     for k, value in sorted(output.get("heldout_likelihood", {}).items()):
         print(f"  k={k}: heldout likelihood {value:.5f}")
     print(f"wrote {args.output}")
+
+    if wandb_run is not None:
+        wandb_run.finish()
 
 
 if __name__ == "__main__":
