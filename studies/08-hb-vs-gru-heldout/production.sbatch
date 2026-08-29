@@ -15,7 +15,7 @@ cd "$D"
 nvidia-smi --query-gpu=name --format=csv,noheader
 mkdir -p "$D/artifacts/$LABEL"
 $B/python -u run_hb.py \
-  --estimator one_stage --subject-ratio "$RATIO" --seed 0 \
+  --estimator one_stage --subject-ratio "$RATIO" --seed 0 --few-shot-k 0 \
   --launch-id "$LAUNCH_ID" \
   --artifact-dir "$D/artifacts/$LABEL" \
   --output "$D/one_stage_${LABEL}.json"

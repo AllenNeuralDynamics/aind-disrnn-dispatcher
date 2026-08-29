@@ -64,6 +64,13 @@ def main():
                         help="group suffix; defaults to a UTC timestamp")
     parser.add_argument("--no-wandb", action="store_true")
     parser.add_argument("--artifact-dir", type=str, default=None)
+    parser.add_argument(
+        "--few-shot-k", type=int, nargs="*", default=[0],
+        help="k rungs to score in addition to the matched rung. The held-out cohort is "
+             "~153 subjects and each rung costs one adaptation fit per subject, so the "
+             "full sweep is expensive; production runs need only the matched rung, which "
+             "is the number comparable with the GRU and the MLE baseline.",
+    )
     args = parser.parse_args()
 
     sys.path.insert(0, args.wrapper)
@@ -133,6 +140,7 @@ def main():
             "num_chains": args.num_chains,
             "eval_every_n": 2,
             "artifact_dir": args.artifact_dir,
+            "few_shot_k": tuple(args.few_shot_k),
         },
         seed=args.seed,
     )
