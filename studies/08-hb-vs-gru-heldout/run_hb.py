@@ -174,8 +174,11 @@ def main():
 
     print(f"\nestimator={args.estimator}  D={len(train_ids)}  "
           f"wall={output['wall_seconds']:.0f}s")
-    for k, value in sorted(output.get("heldout_likelihood", {}).items()):
-        print(f"  k={k}: heldout likelihood {value:.5f}")
+    # Keys are a mix of ints (k rungs) and the string "matched", so sort by a stable
+    # textual key rather than comparing the two types.
+    for k, value in sorted(output.get("heldout_likelihood", {}).items(), key=lambda kv: str(kv[0])):
+        label = "matched" if k == "matched" else f"k={k}"
+        print(f"  {label}: heldout likelihood {value:.5f}")
     print(f"wrote {args.output}")
 
     if wandb_run is not None:
