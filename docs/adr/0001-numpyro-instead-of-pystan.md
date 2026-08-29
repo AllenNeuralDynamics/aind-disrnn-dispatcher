@@ -46,3 +46,25 @@ production per-subject fits, NumPyro for the joint three-level model and SVI. No
 tension this exposes -- two-stage empirical Bayes fits per subject, which is precisely
 Stan's favourable regime, so the architecture and framework choices are currently pulling
 against each other.
+
+## Resolution, 2026-08-29: the conditional is met, NumPyro stays
+
+The batching experiment ran. Widening one gradient from 640 to 20,480 lanes at fixed depth
+costs 1.0x the time on an A100 -- 0.03 of linear, with per-lane cost falling 33x
+(`aind-dynamic-foraging-models/benchmarks/RESULTS.md`). The workload is latency-bound on GPU,
+so batching across subjects is nearly free and the whole cohort costs about what one subject
+costs today. The pre-committed threshold was 2x; the result is 1.0x.
+
+This also explains the amendment above rather than contradicting it. Both benchmarks ran at
+640 lanes, where an A100 sits at a few percent utilisation, so they measured dispatch
+overhead rather than compute -- which is why a newer GPU was slower than an older one. **The
+measurement was sound; the configuration was wrong.** Stan really is faster for a single
+subject fit at a time. That is simply not the configuration to run.
+
+**Consequence: batching is not an optimisation here, it is the decision.** Fitting subjects
+one at a time forfeits the entire rationale for this ADR and loses to Stan by 3.7x. The
+per-subject code path should be treated as a development convenience, never a production one,
+and the same applies to the one-stage joint fit, whose cohort-wide gradient is what the flat
+regime was measured on.
+
+Untested: whether flatness extends past ~20k lanes. A 16-chain cohort fit needs ~400k lanes.
