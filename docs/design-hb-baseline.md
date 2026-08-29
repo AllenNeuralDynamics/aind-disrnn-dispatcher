@@ -230,11 +230,20 @@ session filters and hoping they match the neural models'.
 
 ## 8. Staging
 
-    1. JAX/NumPyro HB-Hattori2019, two-level, per subject
+Live status is tracked in issue #72, with per-repo work in
+`aind-dynamic-foraging-models#62` and `aind-disrnn-wrapper#64`. This section holds only the
+sequence and its verification gates, which are spec rather than state.
+
+    1. JAX Hattori2019 likelihood
        -> verify: per-trial choice_prob parity vs the numpy forager
-    2. Population level over mu_p, fit to subject-level posterior draws
-       -> verify: M=0, S=1 reproduces stage 1; S not inflated
-    3. Held-out eval, zero-shot + few-shot(k)
+    2. NumPyro two-level model, per subject
+       -> verify: M=0, S=1 reproduces the published per-subject model
+    3. Population level over mu_p and log sigma, via two-stage empirical Bayes
+       -> verify: S not inflated when fit to subject-level posterior draws
+    4. Recovery study in studies/08-hb-baseline-recovery/
+       -> verify: parameter recovery, interval coverage, partial pooling beats
+          per-session MLE at short session lengths
+    5. Held-out eval, zero-shot + few-shot(k)
        -> verify: drops into _compute_normalized_likelihood unchanged
 
 ---
