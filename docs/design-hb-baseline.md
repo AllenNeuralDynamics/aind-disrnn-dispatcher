@@ -207,9 +207,9 @@ All decisions below were settled 2026-08-28. Nothing in this note is open.
 | 12 | Runs through the wrapper's `ModelTrainer` interface like `baseline_rl`, sharing the data loader and W&B logging — not offline JSON |
 | 13 | Few-shot grid is `k in {0, 1, 2, 4, 8}`, matching `studies/01-gru-scaling-law/heldout_fewshot_k*.yaml`; mirror the `_mature` variants at k=1 and k=4 |
 | 14 | Subset reuses study 01's cohort exactly (`data.subject_ratio` against the ~614 pool, seed 0), so results compare against existing GRU numbers: D≈30 at `0.049` first, then D≈100 at `0.163` |
-| 15 | Both estimators run on the subset; two-stage is only promoted to full scale if it matches one-stage. Threshold not yet fixed — the GRU's 0.0004 spread across seeds at D≈30 and D≈100 is the natural yardstick |
+| 15 | Both estimators run on the subset; two-stage is only promoted to full scale if it matches one-stage. Threshold not yet fixed — the GRU's 0.0004 spread across seeds is the natural yardstick. **Amended 2026-08-29:** two-stage's *compute* rationale is gone — see the note below — so it now has to justify itself on statistics alone |
 | 16 | Adaptation plugs in the population posterior mean (empirical Bayes), validated once against carrying full `p(M,S)` draws |
-| 17 | Batched subject fits `vmap` the **sampler**, so each subject keeps its own step size and adaptation; one joint NUTS over all subjects would couple them and stop being two-stage |
+| 17 | Batched subject fits `vmap` the **sampler**, so each subject keeps its own step size and adaptation; one joint NUTS over all subjects would couple them and stop being two-stage. **Amended 2026-08-29:** deferring this was a mistake — it is what makes two-stage viable at all on GPU, not an optimisation |
 | 18 | `chain_method` stays `vectorized` (the only way to batch on one GPU); the lockstep cost is measured by comparing ESS/draw at 1 vs 16 chains rather than assumed small |
 | 19 | SVI is out of scope. Trigger to revisit: the one-stage joint fit failing to converge, which is a problem SVI solves and more compute does not |
 | 20 | Sessions are never truncated. The GRU pads to `max_session_length` with `-1` masking and uses `length_bucketing`, changing compute but not the trial set, so the HB packs for the same reason and both score identical trials |
@@ -224,6 +224,27 @@ Claude Code session, not Claude Science, and the feature is developed on HPC dir
 
 Sessions run on a SLURM compute node (partition `aind`), so tests run locally here. Work
 needing more CPU or a GPU is spawned to another compute node or to Beaker.
+
+### Two-stage lost its compute rationale (2026-08-29)
+
+Two-stage was adopted as the cheap, scalable approximation to a joint fit assumed to be
+unaffordable. Measurement on the study 01 D≈30 cohort reversed that: the batched one-stage
+fit took 3 h 32 m while the sequential two-stage fit was still running past 5 h 45 m.
+
+The mechanism is the latency-bound behaviour recorded in
+`aind-dynamic-foraging-models/benchmarks/RESULTS.md`. Wall time is set by scan **depth**, and
+extra sessions are nearly free. A joint fit puts the whole cohort in one gradient and pays
+that depth cost **once**; sequential per-subject fitting pays it **once per subject**.
+
+So on GPU the joint fit is both the statistically preferred estimator and the cheaper one.
+Two-stage now has to earn its place on statistics alone, and only at scales where the joint
+fit fails to converge. The qualification is that this compares a batched implementation with
+a sequential one — a two-stage fit that vmapped the sampler (decision 17) would be
+competitive, which is precisely why deferring that work was a misjudgement.
+
+Extrapolating flat lanes, a full-cohort joint fit at D≈614 should cost roughly what D≈30
+costs plus a trajectory-length penalty from the higher dimension: order 8–12 hours, against
+Stan's projected days to weeks. That figure wants the D≈100 rung before it is trusted.
 
 ### Cost structure of the k-sweep
 
