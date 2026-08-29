@@ -32,6 +32,18 @@ LOADER_KWARGS = dict(
 )
 
 
+def _checkpoint(path, payload):
+    """Write a partial result so a wall-clock kill does not discard finished work."""
+    import numpy as np
+
+    def _plain(value):
+        """Make numpy arrays JSON-serialisable."""
+        return np.asarray(value).tolist() if hasattr(value, "shape") else value
+
+    with open(path, "w") as handle:
+        json.dump({k: _plain(v) for k, v in payload.items()}, handle, indent=2, default=str)
+
+
 def main():
     """Load the cohort, fit, score, and write a results JSON."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -80,6 +92,11 @@ def main():
     )
 
     started = time.time()
+    # These fits run for hours against a hard wall clock, so the fitted population is
+    # written as soon as it exists rather than only after held-out scoring completes.
+    trainer.on_population_fitted = lambda pop, info: _checkpoint(
+        args.output, {"stage": "population_fitted", "population": pop, **info}
+    )
     output = trainer.fit(bundle)
     output["wall_seconds"] = time.time() - started
     output["subject_ratio"] = args.subject_ratio
