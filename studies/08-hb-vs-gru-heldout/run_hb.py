@@ -14,6 +14,7 @@ other.
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 import warnings
@@ -63,6 +64,9 @@ def main():
     parser.add_argument("--launch-id", type=str, default=None,
                         help="group suffix; defaults to a UTC timestamp")
     parser.add_argument("--no-wandb", action="store_true")
+    parser.add_argument("--note", type=str, default=None,
+                        help="why this run exists and what it should show; "
+                             "required by the study-conventions provenance scheme")
     parser.add_argument("--artifact-dir", type=str, default=None)
     parser.add_argument(
         "--few-shot-k", type=int, nargs="*", default=[0],
@@ -92,7 +96,10 @@ def main():
     if not args.no_wandb:
         import wandb
 
-        launch_id = args.launch_id or time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+        # Seattle time, per AGENTS.md section 7 and the study-conventions skill.
+        os.environ.setdefault("TZ", "America/Los_Angeles")
+        time.tzset()
+        launch_id = args.launch_id or time.strftime("%Y%m%d-%H%M%S")
         wandb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
@@ -116,6 +123,10 @@ def main():
                 },
                 "meta": {
                     "study": "08-hb-vs-gru-heldout",
+                    "variant": "one-stage-ladder",
+                    "launch_id": launch_id,
+                    "label": f"D{len(train_ids)}-s{args.seed}",
+                    "note": args.note or "",
                     "estimator": args.estimator,
                     "num_warmup": args.num_warmup,
                     "num_samples": args.num_samples,
