@@ -206,6 +206,13 @@ All decisions below were settled 2026-08-28. Nothing in this note is open.
 | 11 | No half-Cauchy on `sigma`; pooling `log sigma_m` replaces it. Weakly-informative priors on the population scale (`m_ls ~ N(-1,1)`, `s_ls ~ HalfNormal(1)`), with `s_ls` swept in recovery |
 | 12 | Runs through the wrapper's `ModelTrainer` interface like `baseline_rl`, sharing the data loader and W&B logging — not offline JSON |
 | 13 | Few-shot grid is `k in {0, 1, 2, 4, 8}`, matching `studies/01-gru-scaling-law/heldout_fewshot_k*.yaml`; mirror the `_mature` variants at k=1 and k=4 |
+| 14 | Subset reuses study 01's cohort exactly (`data.subject_ratio` against the ~614 pool, seed 0), so results compare against existing GRU numbers: D≈30 at `0.049` first, then D≈100 at `0.163` |
+| 15 | Both estimators run on the subset; two-stage is only promoted to full scale if it matches one-stage. Threshold not yet fixed — the GRU's 0.0004 spread across seeds at D≈30 and D≈100 is the natural yardstick |
+| 16 | Adaptation plugs in the population posterior mean (empirical Bayes), validated once against carrying full `p(M,S)` draws |
+| 17 | Batched subject fits `vmap` the **sampler**, so each subject keeps its own step size and adaptation; one joint NUTS over all subjects would couple them and stop being two-stage |
+| 18 | `chain_method` stays `vectorized` (the only way to batch on one GPU); the lockstep cost is measured by comparing ESS/draw at 1 vs 16 chains rather than assumed small |
+| 19 | SVI is out of scope. Trigger to revisit: the one-stage joint fit failing to converge, which is a problem SVI solves and more compute does not |
+| 20 | Sessions are never truncated. The GRU pads to `max_session_length` with `-1` masking and uses `length_bucketing`, changing compute but not the trial set, so the HB packs for the same reason and both score identical trials |
 
 ### Development setup
 
