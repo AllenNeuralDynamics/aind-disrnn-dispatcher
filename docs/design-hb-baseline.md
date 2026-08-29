@@ -199,7 +199,7 @@ All decisions below were settled 2026-08-28. Nothing in this note is open.
 | 4 | Ignored trials excluded from the likelihood, no Q-update — matches `ignore_policy: "exclude"` |
 | 5 | Session selection reuses the wrapper's `mature_only` / curricula / snapshot filters verbatim |
 | 6 | NumPyro behind a `bayes` extra; core stays `>=3.9`; separate CI job on 3.11+ (ADR-0006) |
-| 7 | Fast parity/recovery test in the package's `tests/`; full study in `studies/08-hb-baseline-recovery/` |
+| 7 | Recovery lives entirely in `aind-dynamic-foraging-models` as a standalone suite depending on nothing in the disRNN stack, documented by a NumPyro tutorial notebook. The dispatcher study covers only the real-data held-out comparison against GRU/disRNN |
 | 8 | Recovery pilot ~20 subjects x 20 sessions x 600 trials; full run ~100 x 40 |
 | 9 | `softmax_inverse_temperature` cap configurable, default 10; check boundary pile-up in recovery |
 | 10 | A `bayes` extra in the existing `pyproject.toml`, not a separate distribution |
@@ -240,7 +240,8 @@ sequence and its verification gates, which are spec rather than state.
        -> verify: M=0, S=1 reproduces the published per-subject model
     3. Population level over mu_p and log sigma, via two-stage empirical Bayes
        -> verify: S not inflated when fit to subject-level posterior draws
-    4. Recovery study in studies/08-hb-baseline-recovery/
+    4. Standalone recovery suite in aind-dynamic-foraging-models, plus a
+       NumPyro tutorial notebook showing the results
        -> verify: parameter recovery, interval coverage, partial pooling beats
           per-session MLE at short session lengths
     5. Held-out eval, zero-shot + few-shot(k)
