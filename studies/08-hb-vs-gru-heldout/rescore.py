@@ -24,9 +24,6 @@ LOADER_KWARGS = dict(
     curricula=CURRICULA, min_sessions=10, heldout_every_n=5,
     mature_only=False, snapshot="20260603",
 )
-POPULATION_SITES = (
-    "population_mean", "population_scale", "log_sigma_mean", "log_sigma_spread",
-)
 
 
 def main():
@@ -49,10 +46,12 @@ def main():
     import jax
 
     from aind_dynamic_foraging_models.hierarchical_bayes.heldout import (
-        fit_adaptation, pointwise_log_predictive_density,
-        posterior_predictive_choice_prob,
+        POPULATION_SITES, batched_heldout_log_lik, fit_adaptation_batched,
     )
-    from model_trainers.hb_trainer import _extract_subject_sessions, _normalized_likelihood
+    from model_trainers.hb_trainer import (
+        _extract_subject_sessions, _flatten_for_scoring, _normalized_likelihood,
+        _pad_context,
+    )
     from utils.load_mice_database import load_mice_from_database
     from utils.multisubject import compute_train_eval_session_ids
 
@@ -70,46 +69,62 @@ def main():
 
     started = time.time()
     rng_key = jax.random.PRNGKey(args.seed)
-    total_log_lik, total_trials, per_subject = 0.0, 0, {}
 
-    for subject, sessions in choices.items():
-        ids = session_ids[subject]
-        if len(ids) < 2:
-            continue
-        train_ids, eval_ids = compute_train_eval_session_ids(ids, args.eval_every_n)
-        index_of = {sid: i for i, sid in enumerate(ids)}
-        context_idx = [index_of[s] for s in train_ids]
-        score_idx = [index_of[s] for s in eval_ids]
-
-        key_fit, key_draw, rng_key = jax.random.split(rng_key, 3)
-        samples = fit_adaptation(
-            np.stack([sessions[i] for i in context_idx]),
-            np.stack([rewards[subject][i] for i in context_idx]),
-            population, rng_key=key_fit,
-            num_warmup=args.num_warmup, num_samples=args.num_samples,
-            beta_max=args.beta_max,
-        )
-        subject_log_lik, subject_trials = 0.0, 0
-        for i in score_idx:
-            prob = posterior_predictive_choice_prob(
-                samples, sessions[i], rewards[subject][i],
-                rng_key=key_draw, beta_max=args.beta_max,
+    # Sessions are ragged -- each holds only its own valid trials -- so they are padded
+    # and masked, never stacked. Adaptation and scoring both run batched, matching the
+    # trainer; fitting subjects one at a time here would defeat the point of the script.
+    subjects, context_indices, score_indices = [], [], []
+    for subject, ids in session_ids.items():
+        try:
+            train_ids, eval_ids = compute_train_eval_session_ids(ids, args.eval_every_n)
+        except ValueError:
+            logging.warning(
+                "subject %s: %d sessions cannot split at eval_every_n=%d; skipping",
+                subject, len(ids), args.eval_every_n,
             )
-            log_lik, n = pointwise_log_predictive_density(prob, sessions[i])
-            subject_log_lik += log_lik
-            subject_trials += n
-        per_subject[str(subject)] = {
-            "likelihood": _normalized_likelihood(subject_log_lik, subject_trials),
-            "n_context": len(context_idx), "n_scored": len(score_idx),
-            "n_trials": subject_trials,
-        }
-        total_log_lik += subject_log_lik
-        total_trials += subject_trials
+            continue
+        index_of = {sid: i for i, sid in enumerate(ids)}
+        subjects.append(subject)
+        context_indices.append([index_of[s] for s in train_ids])
+        score_indices.append([index_of[s] for s in eval_ids])
 
+    if not subjects:
+        raise SystemExit("No held-out subject could be split; check --eval-every-n.")
+
+    context_c, context_r, ctx_mask, ctx_valid = _pad_context(
+        subjects, choices, rewards, context_indices
+    )
+    key_fit, key_draw = jax.random.split(rng_key)
+    samples = fit_adaptation_batched(
+        context_c, context_r, population, rng_key=key_fit,
+        session_mask=ctx_mask, valid_mask=ctx_valid,
+        num_warmup=args.num_warmup, num_samples=args.num_samples,
+        beta_max=args.beta_max,
+    )
+
+    flat = _flatten_for_scoring(subjects, choices, rewards, score_indices)
+    session_log_lik, session_trials = batched_heldout_log_lik(
+        samples, flat["subject_indices"], flat["choices"], flat["rewards"],
+        valid_mask=flat["valid_mask"], rng_key=key_draw, beta_max=args.beta_max,
+    )
+
+    per_subject = {}
+    for position, subject in enumerate(subjects):
+        rows = flat["rows_by_subject"][position]
+        per_subject[str(subject)] = {
+            "likelihood": _normalized_likelihood(
+                float(np.sum(session_log_lik[rows])), int(np.sum(session_trials[rows]))
+            ),
+            "n_context": len(context_indices[position]),
+            "n_scored": len(score_indices[position]),
+            "n_trials": int(np.sum(session_trials[rows])),
+        }
+    total_log_lik = float(np.sum(session_log_lik))
+    total_trials = int(np.sum(session_trials))
     matched = _normalized_likelihood(total_log_lik, total_trials)
     out = {
         "source": args.results,
-        "estimator": saved.get("estimator"),
+        "estimator": saved.get("estimator") or saved.get("_meta", {}).get("estimator"),
         "eval_every_n": args.eval_every_n,
         "matched_likelihood": matched,
         "n_heldout_subjects": len(per_subject),

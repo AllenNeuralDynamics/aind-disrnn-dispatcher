@@ -97,7 +97,9 @@ def main():
         import wandb
 
         # Seattle time, per AGENTS.md section 7 and the study-conventions skill.
-        os.environ.setdefault("TZ", "America/Los_Angeles")
+        # Assign rather than setdefault: SLURM propagates TZ from the submitting shell,
+        # so setdefault silently kept whatever that was -- the UTC bug this line fixes.
+        os.environ["TZ"] = "America/Los_Angeles"
         time.tzset()
         launch_id = args.launch_id or time.strftime("%Y%m%d-%H%M%S")
         wandb_run = wandb.init(
@@ -158,31 +160,35 @@ def main():
 
     loggers = {"wandb": wandb_run} if wandb_run is not None else None
     started = time.time()
-    # These fits run for hours against a hard wall clock, so the fitted population is
-    # written as soon as it exists rather than only after held-out scoring completes.
-    trainer.on_population_fitted = lambda pop, info: _checkpoint(
-        args.output, {"stage": "population_fitted", "population": pop, **info}
-    )
-    output = trainer.fit(bundle, loggers=loggers)
-    output["wall_seconds"] = time.time() - started
-    output["subject_ratio"] = args.subject_ratio
-    output["n_train_subjects"] = len(train_ids)
-    output["n_heldout_subjects"] = len(heldout_ids)
+    try:
+        # These fits run for hours against a hard wall clock, so the fitted population is
+        # written as soon as it exists rather than only after held-out scoring completes.
+        trainer.on_population_fitted = lambda pop, info: _checkpoint(
+            args.output, {"stage": "population_fitted", "population": pop, **info}
+        )
+        output = trainer.fit(bundle, loggers=loggers)
+        output["wall_seconds"] = time.time() - started
+        output["subject_ratio"] = args.subject_ratio
+        output["n_train_subjects"] = len(train_ids)
+        output["n_heldout_subjects"] = len(heldout_ids)
 
-    with open(args.output, "w") as handle:
-        json.dump(output, handle, indent=2, default=str)
+        with open(args.output, "w") as handle:
+            json.dump(output, handle, indent=2, default=str)
 
-    print(f"\nestimator={args.estimator}  D={len(train_ids)}  "
-          f"wall={output['wall_seconds']:.0f}s")
-    # Keys are a mix of ints (k rungs) and the string "matched", so sort by a stable
-    # textual key rather than comparing the two types.
-    for k, value in sorted(output.get("heldout_likelihood", {}).items(), key=lambda kv: str(kv[0])):
-        label = "matched" if k == "matched" else f"k={k}"
-        print(f"  {label}: heldout likelihood {value:.5f}")
-    print(f"wrote {args.output}")
-
-    if wandb_run is not None:
-        wandb_run.finish()
+        print(f"\nestimator={args.estimator}  D={len(train_ids)}  "
+              f"wall={output['wall_seconds']:.0f}s")
+        # Keys are a mix of ints (k rungs) and the string "matched", so sort by a stable
+        # textual key rather than comparing the two types.
+        items = output.get("heldout_likelihood", {}).items()
+        for k, value in sorted(items, key=lambda kv: str(kv[0])):
+            label = "matched" if k == "matched" else f"k={k}"
+            print(f"  {label}: heldout likelihood {value:.5f}")
+        print(f"wrote {args.output}")
+    finally:
+        # Always close the run: a crash mid-fit otherwise leaves it lingering as running,
+        # with the checkpointed population attached to nothing.
+        if wandb_run is not None:
+            wandb_run.finish()
 
 
 if __name__ == "__main__":

@@ -16,4 +16,4 @@ $B/python -u run_hb.py \
   --num-warmup 30 --num-samples 30 --num-chains 1 --few-shot-k 0 \
   --launch-id smoke-$(TZ=America/Los_Angeles date +%Y%m%d-%H%M%S) \
   --note "path smoke test: real loader + batched held-out scoring + W&B keys" \
-  --output "$D/smoke_d10.json"
+  --output "$D/smoke_d10_wired.json"
