@@ -29,9 +29,20 @@ num_chains: 4                 # vectorized across chains; they share one device
 beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
 
 # ── Held-out scoring ─────────────────────────────────────────────────────
-# The matched rung conditions on exactly the sessions the GRU fine-tunes on and the
-# per-mouse MLE baseline fits, so the three land on one axis. It is what gets published
-# under heldout/eval_likelihood. The k sweep is a separate, weaker claim: k=0 is zero-shot.
+# Two different things are reported, and they are not on the same scale of evidence.
+#
+# The MATCHED rung conditions on **all** of each held-out subject's train sessions -- the
+# same split, from the same function, that the GRU's auto_heldout_finetune adapts on and
+# the per-mouse MLE baseline fits. Measured on the real cohort that is a median of 14
+# context sessions, up to 35, with 87% of subjects above 8. This is the number that goes
+# to heldout/eval_likelihood, and the only one comparable with the GRU.
+#
+# The k SWEEP caps context at k sessions. Every rung is therefore *less* conditioned than
+# matched -- k=8 is roughly half the context for a typical subject, not an approximation
+# of it -- and k=0 is zero-shot, a different claim entirely. The sweep traces how quickly
+# a new subject's own data displaces the cohort prior; it does not compete with the GRU.
+#
+# The eval half is never touched by either, so all rungs score identical targets.
 eval_every_n: 2               # must match data.eval_every_n
 few_shot_k: [0, 1, 2, 4, 8]
 
