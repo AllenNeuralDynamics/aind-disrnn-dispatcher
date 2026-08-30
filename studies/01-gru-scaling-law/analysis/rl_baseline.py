@@ -102,6 +102,12 @@ GRU_PREFIXES = ("heldout-rerun-v1@", "heldout-rerun-v1-retry@",
 
 RATIO_D = {0.016: 10, 0.049: 30, 0.163: 100, 0.489: 300, 1.0: 614}
 
+# House color convention (matches study-04): light blue = base/SC-off model,
+# dark blue = the "+ session conditioning" variant. Used by fig_scaling_v1_v2_with_rl.
+C_V1, C_V2 = "#6baed6", "#08519c"
+RL_DASHES = [(0, (5, 2)), (0, (1.5, 1.5))]  # non-best RL lines, longest dash first
+D_TICKS = [10, 30, 100, 300, 614]
+
 
 # ============================= W&B pulls =============================
 
@@ -382,25 +388,95 @@ def fig_paired(paired, rl, out_png):
 
 # --- Result 1: scaling v1 vs v2 + RL ---------------------------------------
 
-def fig_scaling_v1_v2_with_rl(rl, out_png):
+def fig_scaling_v1_v2_with_rl(rl, models, out_png):
     pj = json.load(open(HERE / "paired_v1_v2_cell.json"))
     pr = pj["per_ratio"]
     xs_ratio = sorted(float(k) for k in pr)
     Ds = [pr[str(x)]["D_mean"] for x in xs_ratio]
     v1 = [pr[str(x)]["v1"] for x in xs_ratio]
     v2 = [pr[str(x)]["v2"] for x in xs_ratio]
-    fig, ax = plt.subplots(figsize=(8.5, 6.0))
-    ax.plot(Ds, v1, "o-", color="#3b76b8", label="v1 (SC off)", lw=2, markersize=9)
-    ax.plot(Ds, v2, "s-", color="#d97c2a", label="v2 (SC active)", lw=2, markersize=9)
-    # cell-level v1/v2 are trial-weighted (run-level aggregate), so use the trial-weighted RL
-    _rl_band(ax, rl, "trial_weighted")
-    ax.set_xscale("log"); ax.set_xlabel("# training mice (D)")
+
+    # Per-seed scalars for the raw dots + SEM. pj["pairs"] carries one record per
+    # (ratio, seed); pr[..]["v1"/"v2"] is exactly the mean over those seeds, so the
+    # curve values are unchanged by adding dispersion here.
+    seeds = {}
+    for rec in pj["pairs"]:
+        seeds.setdefault(float(rec["ratio"]), []).append(rec)
+    n_per_cell = sorted({len(v) for v in seeds.values()})
+
+    def _sem(vals):
+        if len(vals) < 2:
+            return 0.0
+        return float(np.std(vals, ddof=1) / math.sqrt(len(vals)))
+
+    se1 = [_sem([r["v1"] for r in seeds[x]]) for x in xs_ratio]
+    se2 = [_sem([r["v2"] for r in seeds[x]]) for x in xs_ratio]
+
+    fig, ax = plt.subplots(figsize=(3.75, 4.6))
+
+    # --- classical RL references: all fitted models, best one made salient -------
+    # Ranked from the data rather than hardcoded, so a refit that changes which
+    # model wins cannot leave the "best" label attached to the wrong line.
+    ranked = sorted(models.items(),
+                    key=lambda kv: -kv[1]["pooled_likelihood_trial_weighted"])
+    for i, (key, m) in enumerate(ranked):
+        ll = m["pooled_likelihood_trial_weighted"]
+        best = i == 0
+        ax.axhline(
+            ll,
+            color="#000000" if best else "#8a8a8a",
+            lw=1.8 if best else 1.0,
+            ls="-" if best else RL_DASHES[(i - 1) % len(RL_DASHES)],
+            zorder=2,
+            label=("RL best — %s: %.4f" % (m["label"], ll) if best
+                   else "RL — %s: %.4f" % (m["label"], ll)),
+        )
+
+    # --- GRU: raw per-seed dots, offset to either side of the mean marker --------
+    # (multiplicative offset because the x axis is log). v1 left, v2 right.
+    JIT = 1.075
+    for x, D in zip(xs_ratio, Ds):
+        recs = seeds[x]
+        ax.plot([D / JIT] * len(recs), [r["v1"] for r in recs], "o",
+                color=C_V1, alpha=0.45, markersize=4.5, mew=0, zorder=3)
+        ax.plot([D * JIT] * len(recs), [r["v2"] for r in recs], "s",
+                color=C_V2, alpha=0.45, markersize=4.5, mew=0, zorder=3)
+
+    ax.errorbar(Ds, v1, yerr=se1, fmt="o-", color=C_V1, label="v1 (SC off)",
+                lw=1.8, markersize=6.5, capsize=3, elinewidth=1.2, zorder=5)
+    ax.errorbar(Ds, v2, yerr=se2, fmt="s-", color=C_V2, label="v2 (SC active)",
+                lw=1.8, markersize=6.5, capsize=3, elinewidth=1.2, zorder=5)
+
+    ax.set_xscale("log")
+    # Label the actual cohort sizes: default log ticks label only decades, which
+    # left D=300 and D=614 drawn but unlabelled.
+    ax.set_xticks(D_TICKS)
+    # Rotated: at this width the last two labels (300, 614) collide at 0 deg
+    # (measured 5.4px gap) under the house 14pt tick font -- rotate rather than
+    # shrink the font.
+    ax.set_xticklabels([str(t) for t in D_TICKS], rotation=40, ha="right")
+    ax.minorticks_off()
+    ax.set_xlabel("# training mice (D)")
     ax.set_ylabel("held-out-mouse likelihood (cell-level)")
-    ax.set_title("Result 1 — held-out scaling vs D (+ RL reference)")
-    ax.legend(loc="lower right")
+    ax.set_title("Result 1 — held-out scaling vs D")
+    ax.legend(loc="lower right", bbox_to_anchor=(0.99, 0.30), fontsize=7.0,
+              framealpha=0.9, borderaxespad=0.0)
+    n_note = ("n = %s seeds per cell; error bars SEM; faded dots = individual seeds"
+              % ("/".join(str(n) for n in n_per_cell)))
+    ax.text(0.02, 0.98, n_note, transform=ax.transAxes, ha="left", va="top",
+            fontsize=7.5, color="#444444")
+
+    # Headroom above the highest GRU point so the presentation-size title has
+    # clear air above the curves instead of crowding the top spine.
+    ymax = max(max(v1), max(v2))
+    ymin = min(min(v1), min(v2), min(m["pooled_likelihood_trial_weighted"] for m in models.values()))
+    pad = 0.12 * (ymax - ymin)
+    ax.set_ylim(ymin - pad, ymax + pad)
+
     sns.despine(fig=fig)
-    fig.tight_layout(); fig.savefig(out_png, dpi=150); plt.close(fig)
+    fig.savefig(out_png, dpi=200, bbox_inches="tight"); plt.close(fig)
     print(f"  wrote {out_png.name}")
+
 
 
 # --- Result 4: zero-shot vs adapted + RL ----------------------------------
@@ -655,7 +731,7 @@ def main():
 
     print("\nRendering figures...")
     fig_paired(paired, rl, HERE / "fig_rl_paired.png")
-    fig_scaling_v1_v2_with_rl(rl, HERE / "fig_scaling_v1_v2.png")
+    fig_scaling_v1_v2_with_rl(rl, models, HERE / "fig_scaling_v1_v2.png")
     fig_zeroshot_vs_d_with_rl(rl, HERE / "fig_zeroshot_vs_d.png")
     fig_fewshot_curve_with_rl(rl, HERE / "fig_fewshot_curve.png")
     fig_nxd_scaling_with_rl(rl, HERE / "fig_nxd_scaling.png")
