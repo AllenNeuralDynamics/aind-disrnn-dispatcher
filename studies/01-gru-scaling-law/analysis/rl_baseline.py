@@ -412,7 +412,7 @@ def fig_scaling_v1_v2_with_rl(rl, models, out_png):
     se1 = [_sem([r["v1"] for r in seeds[x]]) for x in xs_ratio]
     se2 = [_sem([r["v2"] for r in seeds[x]]) for x in xs_ratio]
 
-    fig, ax = plt.subplots(figsize=(3.75, 4.6))
+    fig, ax = plt.subplots(figsize=(4.5, 4.6))
 
     # --- classical RL references: all fitted models, best one made salient -------
     # Ranked from the data rather than hardcoded, so a refit that changes which
@@ -451,10 +451,7 @@ def fig_scaling_v1_v2_with_rl(rl, models, out_png):
     # Label the actual cohort sizes: default log ticks label only decades, which
     # left D=300 and D=614 drawn but unlabelled.
     ax.set_xticks(D_TICKS)
-    # Rotated: at this width the last two labels (300, 614) collide at 0 deg
-    # (measured 5.4px gap) under the house 14pt tick font -- rotate rather than
-    # shrink the font.
-    ax.set_xticklabels([str(t) for t in D_TICKS], rotation=40, ha="right")
+    ax.set_xticklabels([str(t) for t in D_TICKS])
     ax.minorticks_off()
     ax.set_xlabel("# training mice (D)")
     ax.set_ylabel("held-out-mouse likelihood (cell-level)")
@@ -476,7 +473,6 @@ def fig_scaling_v1_v2_with_rl(rl, models, out_png):
     sns.despine(fig=fig)
     fig.savefig(out_png, dpi=200, bbox_inches="tight"); plt.close(fig)
     print(f"  wrote {out_png.name}")
-
 
 
 # --- Result 4: zero-shot vs adapted + RL ----------------------------------
