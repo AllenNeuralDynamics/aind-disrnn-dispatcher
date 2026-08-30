@@ -49,11 +49,25 @@ comparison into a manual join. Recorded in the variant's notes.
 
 ## Running
 
-    python run_hb.py --estimator two_stage --subject-ratio 0.049 --output two_stage_d30.json
-    python run_hb.py --estimator one_stage --subject-ratio 0.049 --output one_stage_d30.json
+HB goes through the **same entrypoint as every other model** — there is no HB-specific
+script, and therefore nothing HB-specific to keep in sync:
 
-Both estimators are run because two-stage is an approximation to one-stage; it is promoted
-to full scale only if it matches. See `docs/design-hb-baseline.md` decision 15.
+    python -m run_hpc data=mice_snapshot_scaling model=hb_hattori data.subject_ratio=0.049
+
+`run_hpc` is shared by HPC/SLURM and Beaker, so the same command works on both backends.
+Data selection comes from `code/config/data/mice_snapshot_scaling.yaml` — the file study 01
+uses — rather than being restated, so the two cannot drift apart.
+
+The ladder rungs:
+
+    sbatch variants/one-stage-ladder/production.sbatch 0.016 d10  "$LAUNCH_ID"
+    sbatch variants/one-stage-ladder/production.sbatch 0.049 d30  "$LAUNCH_ID"
+    sbatch variants/one-stage-ladder/production.sbatch 0.163 d100 "$LAUNCH_ID"
+
+Both estimators exist; `estimator=one_stage` is the default and the reference. Two-stage
+matches it to within 0.00027 on held-out likelihood while costing ~5x the compute, so it is
+a fallback for scales where the joint fit will not converge. Override with
+`model.estimator=two_stage`.
 
 ## Status
 

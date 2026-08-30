@@ -1,0 +1,42 @@
+# Hierarchical Bayesian Hattori2019 baseline: partial pooling across a subject's sessions,
+# with a population level so held-out subjects can be scored the way the neural models are.
+#
+# Runs through the same entrypoint as every other model, so HPC and Beaker need no
+# HB-specific plumbing:
+#   python -m run_hpc data=mice_snapshot_scaling model=hb_hattori data.subject_ratio=0.049
+#
+# The model itself lives in aind-dynamic-foraging-models and knows nothing about this stack.
+# Design rationale: that package's docs/design-decisions.md, and the dispatcher's ADRs 1-6.
+type: hb
+
+_target_: model_trainers.hb_trainer.HBTrainer
+
+architecture:
+  multisubject: true          # the hierarchy is over subjects; single-subject is not a mode
+output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+
+# ── Estimator ────────────────────────────────────────────────────────────
+# one_stage infers population, subject and session levels jointly. two_stage fits each
+# subject alone and then a population over those posteriors: it matches one_stage to within
+# 0.00027 on held-out likelihood but costs ~5x the compute, so it is a fallback for scales
+# where the joint fit will not converge, not the default.
+estimator: one_stage
+
+# ── Sampler ──────────────────────────────────────────────────────────────
+num_warmup: 500
+num_samples: 500
+num_chains: 4                 # vectorized across chains; they share one device
+beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
+
+# ── Held-out scoring ─────────────────────────────────────────────────────
+# The matched rung conditions on exactly the sessions the GRU fine-tunes on and the
+# per-mouse MLE baseline fits, so the three land on one axis. It is what gets published
+# under heldout/eval_likelihood. The k sweep is a separate, weaker claim: k=0 is zero-shot.
+eval_every_n: 2               # must match data.eval_every_n
+few_shot_k: [0, 1, 2, 4, 8]
+
+# Posterior draws, diagnostics and provenance. A cohort fit costs hours; without this every
+# later question -- a new rung, a calibration check, a figure -- means refitting.
+artifact_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}/hb_artifacts
+
+run_name_component: hb_${.estimator}

@@ -1,4 +1,10 @@
 #!/bin/bash
+# HB scaling ladder, launched exactly like any other model in this stack.
+#
+#   sbatch production.sbatch <subject_ratio> <label> <launch_id> [note]
+#
+# The same command runs on Beaker: run_hpc is the shared entrypoint for both backends
+# (see aind-disrnn-wrapper/beaker/smoke.yaml), so there is no HB-specific plumbing.
 #SBATCH --job-name=hb-prod
 #SBATCH --partition=aind
 #SBATCH --gres=gpu:a100:1
@@ -6,7 +12,6 @@
 #SBATCH --mem=64G
 #SBATCH --time=24:00:00
 set -euo pipefail
-# Fail fast rather than silently writing one_stage_.json or landing in a stray W&B group.
 if [ $# -lt 3 ]; then
   echo "usage: production.sbatch <subject_ratio> <label> <launch_id> [note]" >&2
   exit 2
@@ -15,14 +20,18 @@ RATIO=$1
 LABEL=$2
 LAUNCH_ID=$3
 NOTE=${4:-"HB one-stage scaling ladder rung ${LABEL}; matched-conditioning held-out likelihood against study 01's GRU at the same D"}
+
 B=/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-hb-gpu/bin
-D=/home/han.hou/code/aind-disrnn-dispatcher/studies/08-hb-vs-gru-heldout
-cd "$D"
+cd /home/han.hou/code/aind-disrnn-wrapper/code
 nvidia-smi --query-gpu=name --format=csv,noheader
-mkdir -p "$D/artifacts/$LABEL"
-$B/python -u run_hb.py \
-  --estimator one_stage --subject-ratio "$RATIO" --seed 0 --few-shot-k 0 \
-  --launch-id "$LAUNCH_ID" \
-  --note "$NOTE" \
-  --artifact-dir "$D/artifacts/$LABEL" \
-  --output "$D/one_stage_${LABEL}.json"
+
+DISRNN_META_STUDY=08-hb-vs-gru-heldout \
+DISRNN_META_VARIANT=one-stage-ladder \
+DISRNN_META_LAUNCH_ID="$LAUNCH_ID" \
+DISRNN_META_LABEL="$LABEL" \
+DISRNN_META_NOTE="$NOTE" \
+$B/python -m run_hpc \
+  data=mice_snapshot_scaling \
+  model=hb_hattori \
+  data.subject_ratio="$RATIO" \
+  seed=0
