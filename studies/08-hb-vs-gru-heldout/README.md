@@ -7,6 +7,22 @@ cohort**, so its held-out likelihood is directly comparable with the GRU numbers
 Recovery and validation live in `aind-dynamic-foraging-models` (standalone, synthetic data).
 This study is the real-data comparison only.
 
+## The stack
+
+Which repo owns which part of the fit, and where the held-out boundary sits.
+The image is a still; **[open the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)** to pan, zoom,
+search and trace a single relationship.
+
+[![HB stack across three repos](figures/hb-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)
+
+`figures/hb-stack.architecture.json` is the source; the HTML is generated from it:
+
+    node ~/.claude/skills/archify/bin/archify.mjs deliver architecture \
+      figures/hb-stack.architecture.json figures/hb-stack.html --quality showcase
+
+GitHub renders neither the HTML nor the SVG inline, hence the PNG plus the
+raw.githack link.
+
 ## Cohort
 
 `data.subject_ratio` against the ~614 pool, matching study 01's D dial:

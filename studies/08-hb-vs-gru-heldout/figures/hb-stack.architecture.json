@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Hierarchical Bayes Baseline Across Three Repos",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1380,
+      520
+    ]
+  },
+  "components": [
+    {
+      "id": "db",
+      "type": "database",
+      "label": "AIND foraging database",
+      "sublabel": "snapshot 20260603",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "loader",
+      "type": "backend",
+      "label": "load_mice_database.py",
+      "sublabel": "curricula + session filters",
+      "pos": [
+        400,
+        40
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "likelihood",
+      "type": "backend",
+      "label": "likelihood.py",
+      "sublabel": "JAX Hattori2019 dynamics",
+      "pos": [
+        760,
+        40
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "two_stage",
+      "type": "backend",
+      "label": "two_stage.py",
+      "sublabel": "per-subject, then population",
+      "pos": [
+        1120,
+        40
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "run_hb",
+      "type": "cloud",
+      "label": "run_hb.py",
+      "sublabel": "SLURM aind · 1×A100",
+      "pos": [
+        40,
+        190
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "trainer",
+      "type": "backend",
+      "label": "HBTrainer",
+      "sublabel": "ModelTrainer interface",
+      "pos": [
+        400,
+        190
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "model",
+      "type": "backend",
+      "label": "model.py",
+      "sublabel": "NumPyro three-level NUTS",
+      "pos": [
+        760,
+        190
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "heldout",
+      "type": "backend",
+      "label": "heldout.py",
+      "sublabel": "batched adaptation + lppd",
+      "pos": [
+        1120,
+        190
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "metric",
+      "type": "backend",
+      "label": "Per-trial likelihood",
+      "sublabel": "exp(Σ log p / n trials)",
+      "pos": [
+        400,
+        320
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "study01",
+      "type": "frontend",
+      "label": "analyze_scaling.py",
+      "sublabel": "study 01 D-scaling curve",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "wandb",
+      "type": "external",
+      "label": "W&B mice_data_scaling",
+      "sublabel": "group hb-one_stage@<id>",
+      "pos": [
+        400,
+        440
+      ],
+      "size": [
+        220,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "aind-disrnn-dispatcher · studies/08",
+      "wraps": [
+        "run_hb",
+        "study01"
+      ],
+      "pad": 20
+    },
+    {
+      "kind": "region",
+      "label": "aind-disrnn-wrapper @ feat/hb-trainer",
+      "wraps": [
+        "loader",
+        "trainer",
+        "metric"
+      ],
+      "pad": 20
+    },
+    {
+      "kind": "region",
+      "label": "aind-dynamic-foraging-models @ feat/hierarchical-bayes",
+      "wraps": [
+        "likelihood",
+        "two_stage",
+        "model",
+        "heldout"
+      ],
+      "pad": 20
+    }
+  ],
+  "connections": [
+    {
+      "from": "db",
+      "to": "loader",
+      "label": "snapshot read"
+    },
+    {
+      "from": "loader",
+      "to": "run_hb",
+      "label": "train / held-out split",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [
+        [
+          510,
+          145
+        ],
+        [
+          150,
+          145
+        ]
+      ]
+    },
+    {
+      "from": "run_hb",
+      "to": "trainer",
+      "label": "DatasetBundle",
+      "variant": "emphasis"
+    },
+    {
+      "from": "trainer",
+      "to": "model",
+      "label": "one_stage: joint fit",
+      "variant": "emphasis"
+    },
+    {
+      "from": "likelihood",
+      "to": "model",
+      "label": "session log-lik",
+      "labelAt": [
+        870,
+        145
+      ]
+    },
+    {
+      "from": "model",
+      "to": "two_stage",
+      "label": "two-level fits",
+      "variant": "dashed"
+    },
+    {
+      "from": "model",
+      "to": "heldout",
+      "label": "population frozen",
+      "variant": "emphasis",
+      "labelAt": [
+        1004,
+        272
+      ]
+    },
+    {
+      "from": "heldout",
+      "to": "metric",
+      "label": "log-lik + trial counts",
+      "labelAt": [
+        880,
+        336
+      ]
+    },
+    {
+      "from": "metric",
+      "to": "wandb",
+      "label": "heldout/eval_likelihood",
+      "variant": "emphasis",
+      "labelAt": [
+        510,
+        410
+      ]
+    },
+    {
+      "from": "wandb",
+      "to": "study01",
+      "label": "onto the GRU axis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Where the seams are",
+      "items": [
+        "Statistics live in aind-dynamic-foraging-models and import nothing from the disRNN stack",
+        "The wrapper owns data loading, the ModelTrainer interface and the held-out metric",
+        "The dispatcher owns only cohort choice, launch and provenance"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "What keeps held-out held out",
+      "items": [
+        "The population level is fitted on training subjects only, then frozen",
+        "A scored session's own parameters are never inferred; they are drawn fresh",
+        "The matched rung conditions on exactly the sessions the per-mouse MLE fits"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Measured, not assumed",
+      "items": [
+        "One-stage joint fit at D≈30 took 3 h 32 m; sequential two-stage passed 5 h 45 m unfinished",
+        "likelihood.py is validated by parity against the numpy foragers, not against Stan",
+        "artifacts.save_fit persists posterior draws beside both repos' git SHAs"
+      ]
+    }
+  ]
+}
