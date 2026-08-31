@@ -20,7 +20,7 @@ with the `combined/history_pattern_comparison_abstract` media panels logged on e
 generative run in `generative-v{1,2}@20260623-18074*`.
 
 That is a presentational match, NOT a quantitative one. Those GRU rollouts predate wrapper
-PR #60, so ~17% of their sessions were simulated as the wrong task family (a default
+PR #60, so an unmeasured share of their sessions was simulated as the wrong task family (a default
 uncoupled-baiting task); these RL rollouts are post-#60 and build the task from each
 session's own curriculum. The two sides therefore do not share task-family construction --
 see r9's Caveats. Pairing them in one side-by-side claim is what the pending GRU rerun is
@@ -184,9 +184,9 @@ def main() -> None:
                   "generative rollout, 614 mice", y=0.985)
     # The asymmetry is on the figure, not only in the report: the GRU rollout predates
     # wrapper #60 and the RL rollouts do not, so this is a provisional comparison.
-    fig2.text(0.5, 0.945, "provisional — GRU rollout predates wrapper #60 "
-                          "(~17% of sessions simulated as the wrong task family); "
-                          "RL rollouts are post-#60",
+    fig2.text(0.5, 0.945, "provisional — GRU rollout predates wrapper #60, so some sessions "
+                          "were simulated as the wrong task family (fraction at D=614 "
+                          "unmeasured); RL rollouts are post-#60",
               ha="center", va="top", fontsize=12, color="#8c3b3b")
     fig2.tight_layout(rect=(0, 0.22, 1, 0.90))
     fig2.savefig(f"{COMPARE_STEM}.png")

@@ -6204,7 +6204,7 @@ z
    <text style="font-size: 18px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="702" y="20.196" transform="rotate(-0 702 20.196)">P(switch | previous 3 trials) — population GRU vs per-mouse classical RL, generative rollout, 614 mice</text>
   </g>
   <g id="text_63">
-   <text style="font-size: 12px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #8c3b3b" x="702" y="33.552" transform="rotate(-0 702 33.552)">provisional — GRU rollout predates wrapper #60 (~17% of sessions simulated as the wrong task family); RL rollouts are post-#60</text>
+   <text style="font-size: 12px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #8c3b3b" x="702" y="33.552" transform="rotate(-0 702 33.552)">provisional — GRU rollout predates wrapper #60, so some sessions were simulated as the wrong task family (fraction at D=614 unmeasured); RL rollouts are post-#60</text>
   </g>
   <g id="legend_1">
    <g id="line2d_693">

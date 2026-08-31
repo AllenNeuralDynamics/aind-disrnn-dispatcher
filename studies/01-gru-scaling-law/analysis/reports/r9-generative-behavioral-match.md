@@ -302,6 +302,27 @@ r4) is what makes it publishable, and would emit the stats JSON directly.
   reflect wrong-task rollouts that the RL numbers don't. It does **not** affect the RL-vs-disRNN
   comparison in study 05's r4, which runs both models on the same post-#60 code. Re-running this
   report's own GRU rollouts on the fixed wrapper is tracked (see r4) but not yet done.
+  - *Scope of the 17%, since it is easy to over-read (added 2026-08-31):* it is the share of the
+    **D=10** cohort's 249 sessions whose `curriculum_name` was stored as the literal string
+    `'None'` (40) or as null (2), measured in `65f621d`. It is **not** a D=614 number, and the
+    D=614 fraction has never been measured. The only D=614 count on record is from `e477074`:
+    Random Walk sessions, 9 sessions / 3 subjects / 8,284 trials. Quantifying the D=614 share
+    would mean tabulating `curriculum_name` over that cohort's sessions.
+  - *What #60 fixed, in three commits:* `ba9fa5f` — sessions whose `curriculum_name` is NaN
+    (off-curriculum mice) **crashed** the rollout; now the pseudo-curriculum is rebuilt from the
+    subject's most-common `task`, the same rule the data split already used. `65f621d` — the
+    silent half: `curriculum_name` stored as the literal string `'None'` matched no family and
+    fell through to a default uncoupled-baiting task with no warning. `e477074` — Random Walk
+    sessions likewise fell through to that default; now they build the gym's `RandomWalkTask`,
+    and an unknown family raises instead of defaulting.
+  - *What #60 did NOT fix, and still has not been:* the task is matched to the curriculum
+    **family only**, with the gym's **default** block/reward (and random-walk) parameters. The
+    session's stage-specific parameters are still ignored — `current_stage_actual` is logged and
+    unused — so a curriculum spanning several stages collapses into one generic task. This is
+    flagged as an `IMPORTANT LIMITATION (TODO)` in `_build_curriculum_matched_task` and tracked
+    in `FUTURE_DIRECTIONS.md` §5. It applies to **both** sides of every figure in this report,
+    pre- and post-#60 alike, and is the reason absolute "how mouse-like" statements are softer
+    than the correlations suggest.
 
 ## Related
 
