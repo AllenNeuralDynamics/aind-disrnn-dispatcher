@@ -122,3 +122,34 @@ best of those (compare-to-threshold) is the single worst model on the history cu
 interpretation: [r4](../../analysis/reports/r4-generative-behavioral-match.md) finding 4.
 
 **Status.** ✅ **done 3/3** (2026-07-15 11:2x PT). This closes the study's active-compute phase.
+
+## The pattern scatter was recovered later, not re-run (2026-08-31)
+
+Skipping `_save_*_figures()` cost more than the per-session scatters it was aimed at: it also
+dropped the **pattern-comparison** scatter (model-vs-animal P(switch) per history pattern), which
+is cheap — and the trimmed `quantitative_summary` we committed carries r / RMSE and per-pattern
+*deltas* but not the two absolute coordinates that scatter needs. So r4 and study 01's r9 could
+quote the numbers with no way to draw the plot.
+
+The full stats dicts were still on the shared filesystem
+(`/allen/aind/scratch/han.hou/tmp/rlgen/<alias>/analysis/<wrapper_alias>/history_dependent_switch_stats_no_figures.json`,
+~1.5 GB each), so nothing had to be re-simulated. `extract_history_patterns.py` streams each
+file — top-level keys sit at two-space indent under `json.dumps(indent=2)`, so a block runs from
+its key line to the next such line, and 1.5 GB never enters memory — and freezes the `config` /
+`comparison` / `subject_aggregate` / `session_aggregate` blocks to
+`rl_rollout_summaries/{alias}_history_patterns.json` (~123 KB each). Each output carries a
+`_meta` block keyed by the **sha256 of the 1.5 GB source** plus the baseline's W&B run id, and the
+extractor asserts its `subject_aggregate.abstract["3"].summary` equals the already-committed
+`quantitative_summary.subject_mean.abstract["3"]` — it did, for all three. The per-mouse
+`subject_level` rows (the bulk of the file) were left on the cluster.
+
+Ran as a 1-CPU `aind_debug` batch job, not on the login node (AGENTS.md §5). The figure itself is
+drawn offline by study 01's [`analysis/pswitch_history_patterns.py`](../../../01-gru-scaling-law/analysis/pswitch_history_patterns.py)
+→ `fig_pswitch_history3_rl.png`, wired into that study's `make r9`; the two RMSE definitions it
+exposes are reconciled in [r9](../../../01-gru-scaling-law/analysis/reports/r9-generative-behavioral-match.md)'s
+Provenance section.
+
+**Lesson for the next stats-only rerun:** skip only `_save_switch_figures` /
+`_save_history_dependent_switch_figures`'s **per-session** panels, or persist the returned stats
+dict whole rather than a trimmed summary. The trim is what forced the recovery, not the missing
+figure.
