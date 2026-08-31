@@ -179,7 +179,7 @@ at `/allen/aind/scratch/han.hou/tmp/rlgen/<alias>/analysis/<wrapper_alias>/histo
 (~1.5 GB each, written 2026-07-15).
 [`extract_history_patterns.py`](../../../05-disrnn-scaling-law/variants/generative-rl-baseline/extract_history_patterns.py)
 streams each file and lifts out the `config` / `comparison` / `subject_aggregate` /
-`session_aggregate` blocks (~123 KB per alias), committed as
+`session_aggregate` blocks (~177 KB per alias), committed as
 `rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json`. Each carries a `_meta` block
 with the source path, byte count, **sha256 of the 1.5 GB source**, and the baseline's W&B run
 id ([`lmg1i9yd`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/lmg1i9yd) /

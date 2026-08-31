@@ -137,7 +137,7 @@ The full stats dicts were still on the shared filesystem
 file — top-level keys sit at two-space indent under `json.dumps(indent=2)`, so a block runs from
 its key line to the next such line, and 1.5 GB never enters memory — and freezes the `config` /
 `comparison` / `subject_aggregate` / `session_aggregate` blocks to
-`rl_rollout_summaries/{alias}_history_patterns.json` (~123 KB each). Each output carries a
+`rl_rollout_summaries/{alias}_history_patterns.json` (~177 KB each). Each output carries a
 `_meta` block keyed by the **sha256 of the 1.5 GB source** plus the baseline's W&B run id, and the
 extractor asserts its `subject_aggregate.abstract["3"].summary` equals the already-committed
 `quantitative_summary.subject_mean.abstract["3"]` — it did, for all three. The per-mouse

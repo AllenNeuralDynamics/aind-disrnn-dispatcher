@@ -17,7 +17,7 @@ WHAT IT DOES. Streams each 1.5 GB file line-by-line and lifts out four top-level
 summary — what the wrapper's own figure plots), and `session_aggregate`. Top-level keys sit
 at exactly two-space indent because the source was written with `json.dumps(indent=2)`, so
 a block runs from its own key line to the next line starting with `  "`. That avoids
-loading 1.5 GB into memory. Output is ~123 KB per alias, small enough to commit, and is
+loading 1.5 GB into memory. Output is ~177 KB per alias, small enough to commit, and is
 the frozen source of truth for the figure producer (per AGENTS.md §12 / the
 `posthoc-reporting` skill: producers read committed files, never a live handle).
 

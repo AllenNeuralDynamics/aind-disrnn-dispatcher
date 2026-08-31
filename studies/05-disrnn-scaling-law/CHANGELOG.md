@@ -4,7 +4,7 @@
 
 ### Added
 - `variants/generative-rl-baseline/extract_history_patterns.py` + three
-  `rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json` (~123 KB each) — the frozen
+  `rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json` (~177 KB each) — the frozen
   per-pattern `animal_mean` / `simulated_mean` (± SEM) rows for the history-dependent switch
   curve, streamed out of the 1.5 GB `history_dependent_switch_stats_no_figures.json` caches
   still on `/allen/aind/scratch/han.hou/tmp/rlgen/`. No re-simulation, no re-fit; each output
