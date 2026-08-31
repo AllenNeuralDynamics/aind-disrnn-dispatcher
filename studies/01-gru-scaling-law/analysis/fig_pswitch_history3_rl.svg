@@ -1473,21 +1473,20 @@ L -2.5 -0
    </g>
    <g id="text_15">
     <g id="patch_5">
-     <path d="M 108.192794 130.407215 
-L 199.628107 130.407215 
-Q 204.528107 130.407215 204.528107 125.507215 
+     <path d="M 108.192794 117.111317 
+L 199.628107 117.111317 
+Q 204.528107 117.111317 204.528107 112.211317 
 L 204.528107 85.61952 
 Q 204.528107 80.71952 199.628107 80.71952 
 L 108.192794 80.71952 
 Q 103.292794 80.71952 103.292794 85.61952 
-L 103.292794 125.507215 
-Q 103.292794 130.407215 108.192794 130.407215 
+L 103.292794 112.211317 
+Q 103.292794 117.111317 108.192794 117.111317 
 z
 " style="fill: #ffffff; opacity: 0.9; stroke: #b2b2b2; stroke-linejoin: miter"/>
     </g>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(108.192794 96.328016)">r = 0.931</text>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(108.192794 109.623915)">RMSE = 0.059</text>
-    <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(108.192794 122.919813)">n = 32</text>
    </g>
    <g id="text_16">
     <text style="font-size: 15px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="215.551274" y="66.284" transform="rotate(-0 215.551274 66.284)">Compare-to-threshold</text>
@@ -3246,21 +3245,20 @@ L 556.646 210.163306
    </g>
    <g id="text_30">
     <g id="patch_9">
-     <path d="M 456.24657 130.407215 
-L 547.681883 130.407215 
-Q 552.581883 130.407215 552.581883 125.507215 
+     <path d="M 456.24657 117.111317 
+L 547.681883 117.111317 
+Q 552.581883 117.111317 552.581883 112.211317 
 L 552.581883 85.61952 
 Q 552.581883 80.71952 547.681883 80.71952 
 L 456.24657 80.71952 
 Q 451.34657 80.71952 451.34657 85.61952 
-L 451.34657 125.507215 
-Q 451.34657 130.407215 456.24657 130.407215 
+L 451.34657 112.211317 
+Q 451.34657 117.111317 456.24657 117.111317 
 z
 " style="fill: #ffffff; opacity: 0.9; stroke: #b2b2b2; stroke-linejoin: miter"/>
     </g>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(456.24657 96.328016)">r = 0.956</text>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(456.24657 109.623915)">RMSE = 0.066</text>
-    <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(456.24657 122.919813)">n = 32</text>
    </g>
    <g id="text_31">
     <text style="font-size: 15px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="563.60505" y="66.284" transform="rotate(-0 563.60505 66.284)">Bari 2019</text>
@@ -4603,21 +4601,20 @@ L 904.746926 153.719476
    </g>
    <g id="text_45">
     <g id="patch_13">
-     <path d="M 804.300346 130.407215 
-L 895.735659 130.407215 
-Q 900.635659 130.407215 900.635659 125.507215 
+     <path d="M 804.300346 117.111317 
+L 895.735659 117.111317 
+Q 900.635659 117.111317 900.635659 112.211317 
 L 900.635659 85.61952 
 Q 900.635659 80.71952 895.735659 80.71952 
 L 804.300346 80.71952 
 Q 799.400346 80.71952 799.400346 85.61952 
-L 799.400346 125.507215 
-Q 799.400346 130.407215 804.300346 130.407215 
+L 799.400346 112.211317 
+Q 799.400346 117.111317 804.300346 117.111317 
 z
 " style="fill: #ffffff; opacity: 0.9; stroke: #b2b2b2; stroke-linejoin: miter"/>
     </g>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(804.300346 96.328016)">r = 0.965</text>
     <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(804.300346 109.623915)">RMSE = 0.058</text>
-    <text style="font-size: 14px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif" transform="translate(804.300346 122.919813)">n = 32</text>
    </g>
    <g id="text_46">
     <text style="font-size: 15px; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="911.658826" y="66.284" transform="rotate(-0 911.658826 66.284)">Hattori 2019</text>

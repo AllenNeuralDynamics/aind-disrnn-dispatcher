@@ -4,6 +4,40 @@ Per-study log per [`docs/posthoc-analysis.md`](../../docs/posthoc-analysis.md). 
 entry per merged PR (or coherent unreleased batch). Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — r9 gets the GRU side of the history-pattern scatter
+
+**2026-08-31.** The GRU counterpart of the RL scatter, recovered from Beaker rather than
+re-run. `launch_generative.py` logs only the summary scalars and figure PNGs to W&B, but the
+task's `--output-dir` is `/results`, so `history_dependent_switch_stats.json` was in each
+task's result dataset all along.
+
+### Added
+- `analysis/fetch_gru_history_patterns.py` — walks W&B → Beaker → dataset storage and
+  stream-extracts the per-pattern rows from the ~1.55 GB stats file without landing it on
+  disk. Carries the resolved Beaker experiment/job/dataset ids for the two r9 generative
+  groups, whose launch records were never committed.
+- `analysis/gru_history_patterns/v{1,2}_d614_s0_combined_history_patterns.json` (~177 KB each)
+  — GRU v2 and v1, H=128, D=614, seed 0, `combined` partition; each keyed by the sha256 of its
+  streamed source. The extracted panel summary reproduces the independently fetched
+  `model_vs_animal_quantitative_summary.json` scalars (v2 0.98212 / 0.02850).
+- `analysis/fig_pswitch_history3_gru_vs_rl.png` / `.svg` — four panels, GRU v2 then the three
+  RL baselines, shared axes and colour map. GRU roughly halves the across-pattern RMSE (0.029
+  vs 0.058–0.066) at higher correlation (0.982 vs 0.931–0.965). The `#60` asymmetry is printed
+  **on the figure**, so it cannot be separated from the image on a slide.
+- `Makefile` — `r9-fetch-gru` target, deliberately outside `r9` (needs BEAKER_TOKEN + network;
+  the rows are committed so `r9` stays offline).
+
+### Changed
+- `analysis/pswitch_history_patterns.py` — panel drawing factored into `draw_panel()` and
+  reused for both figures; verified the RL-only figure still regenerates byte-identically.
+  `n = 32` dropped from the annotation box (Han): it is the dot count, not a sample size.
+- `reports/r9-generative-behavioral-match.md` — new figure + caption naming where each model
+  fails (compare-to-threshold saturates at P(switch) ≈ 0.40; Bari under-switches at the high
+  end; Hattori overshoots; the GRU misses on `aba`), and a provenance subsection with the id
+  table, the H/D argument (H=128 is the only hidden size with generative rollouts; the N×D grid
+  has none), and the v1-vs-v2 distinction (both declare scalar session encoding, only v2
+  activates it). Frontmatter gains `gru_pattern_rows` / `gru_vs_rl_pattern_figure`.
+
 ## [Unreleased] — r9 gets the RL history-pattern scatter
 
 **2026-08-31.** r9 tables (d)-(f) have reported the RL baselines' generative behavioral match as

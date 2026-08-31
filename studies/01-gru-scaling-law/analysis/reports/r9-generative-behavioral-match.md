@@ -14,11 +14,17 @@ inputs:
     - analysis/fig_generative_match_history.png
     - analysis/generative_match_verdict.md
   rl_reference: ../05-disrnn-scaling-law/variants/generative-rl-baseline/rl_rollout_summaries/{ctt,bari,hattori}_quantitative_summary.json
-  related_scripts: analysis/pswitch_history_patterns.py
+  related_scripts:
+    - analysis/pswitch_history_patterns.py
+    - analysis/fetch_gru_history_patterns.py
   rl_pattern_rows: ../05-disrnn-scaling-law/variants/generative-rl-baseline/rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json
+  gru_pattern_rows: analysis/gru_history_patterns/v{1,2}_d614_s0_combined_history_patterns.json
   rl_pattern_figure: analysis/fig_pswitch_history3_rl.png
+  gru_vs_rl_pattern_figure: analysis/fig_pswitch_history3_gru_vs_rl.png
 reproduce: |
   python studies/01-gru-scaling-law/analysis/generative_match.py
+  # once, needs BEAKER_TOKEN + network (beaker.org, data.beaker.org); streams ~3.1 GB:
+  python studies/01-gru-scaling-law/analysis/fetch_gru_history_patterns.py
   python studies/01-gru-scaling-law/analysis/pswitch_history_patterns.py
 ---
 
@@ -37,6 +43,21 @@ Roll each trained GRU out as a generative agent on the curriculum task and compa
 ![history-dependent match](../fig_generative_match_history.png)
 
 *History-pattern curve: P(switch | last 3 trials' (choice, reward) sequence), abstract encoding (32 bins).*
+
+![GRU vs RL history-pattern scatter](../fig_pswitch_history3_gru_vs_rl.png)
+
+*The 2nd-order comparison this report exists to make, as a scatter: P(switch | previous 3
+trials) for the population GRU (v2, H=128, D=614, seed 0) against the three per-mouse classical
+RL baselines, one dot per abstract 3-back pattern, subject-mean ± SEM over the same 614 mice,
+`combined` session partition. The GRU roughly **halves** the across-pattern RMSE (0.029 vs
+0.058-0.066) and sits above all three on correlation (0.982 vs 0.931-0.965). The panels also
+localise each model's failure, which the scalars hide: compare-to-threshold **saturates** near
+P(switch) ≈ 0.40 and cannot follow mice past it; Bari sits below the diagonal at the high end
+(under-switching); Hattori overshoots there; the GRU tracks the diagonal throughout, with one
+clear miss on `aba` (~0.51 animal vs ~0.36 model — under-switching on alternate-then-lose
+histories). **Provisional, and the figure says so on its face:** the GRU rollout predates
+wrapper #60 and the RL rollouts do not, so the two sides were not simulated on the same task
+families. Producer `analysis/pswitch_history_patterns.py`.*
 
 ![RL history-pattern scatter](../fig_pswitch_history3_rl.png)
 
@@ -219,14 +240,51 @@ differently**: compare-to-threshold is the best model on the subject-balanced RM
 mid-pack on the across-pattern RMSE (0.0590), while remaining the worst on correlation
 (0.9313). Cite one and name which.
 
-**Still open: no GRU panel.** The equivalent GRU rows are not in the repo — W&B carries the
-GRU history-pattern figure only as a media PNG plus flattened summary scalars, and the
-underlying `history_dependent_switch_stats.json` sits inside each generative task's Beaker
-result dataset. That is recoverable, but the wrapper-version asymmetry in the ⚠️ caveat below
-is the reason not to bother: pairing a pre-#60 GRU panel against these post-#60 RL panels in
-one side-by-side figure would make that asymmetry load-bearing rather than a footnote.
-Re-running this report's GRU rollouts on the fixed wrapper (already tracked, see r4) produces
-the panel and its stats JSON directly and is the right way to get the GRU side.
+### The GRU side, recovered from Beaker (2026-08-31)
+
+The GRU rows are not in W&B and never were: `launch_generative.py`'s in-container step logs
+only the flattened numeric leaves of `model_vs_animal_quantitative_summary.json` plus
+`figures/*.png`. But the task's `--output-dir` is `/results`, which **is** its Beaker result
+dataset, so `history_dependent_switch_stats.json` was on S3 the whole time.
+[`analysis/fetch_gru_history_patterns.py`](../fetch_gru_history_patterns.py) walks
+W&B → Beaker → dataset storage and streams it.
+
+The launch records for these two groups were never committed, so the resolved ids live in that
+script's `TASKS` table and in every output's `_meta`:
+
+| | v2 (session conditioning **active**) | v1 (declared, never activated) |
+|---|---|---|
+| W&B group | `generative-v2@20260623-180750` | `generative-v1@20260623-180747` |
+| W&B run | [`bfdmcyfd`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/bfdmcyfd) | [`yqjbjiq5`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/yqjbjiq5) |
+| Beaker experiment | `01KVVJPKT31HTFWA4Y9SRY141M` | `01KVVJPGA55QSMHJMSRFA5WMHK` |
+| Beaker job | `generative-v2-d1-0-s0` | `generative-v1-d1-0-s0` |
+| result dataset | `01KVVJPN3M6S3QA8KWF8SDMC1G` | `01KVVJPJMHZH5D8JREBF4X90C7` |
+| source pretrain exp | `01KVRMSAAJTRSJMFV5JT7JAP6X` | `01KVQ7EJ3C5YJ8FJVNJB8C8N36` |
+| streamed | 1,554,869,831 B | 1,555,005,621 B |
+| r / RMSE (abstract n=3, subject-mean) | 0.98212 / 0.02850 | 0.98301 / 0.02894 |
+
+Frozen to `analysis/gru_history_patterns/v{1,2}_d614_s0_combined_history_patterns.json`
+(~177 KB each), same four blocks and same `_meta` discipline as the RL extracts, keyed by the
+sha256 of the streamed source. The 1.55 GB never lands on disk: the extractor streams the
+response and lifts the four top-level blocks out of the byte stream.
+
+**What "D=614, H=128" means here, and why there is no choice.** Every task in both groups was
+trained with `model.architecture.hidden_size=128` (read off the source pretrain task spec), and
+D is `subject_ratio × 614`, so D=614 is `subject_ratio=1.0`. The N×D grid at
+N ∈ {16, 64, 128, 256} is a **separate** Beaker experiment with no generative rollouts, so H=128
+is the only hidden size for which this figure can exist at all. v1 and v2 both declare
+`session_encoding_type=scalar`; only v2 carries the schedule that activates it
+(`session_n_pretrain_steps=30000`, `session_n_warmup_steps=20000`). Seed 0 of 3; the figure
+shows v2 only, and v1 is committed alongside because the two agree to within 0.001 in r and
+0.0005 in RMSE — consistent with this report's finding that SC adds little at 2nd order.
+
+**Cross-check.** The streamed `subject_aggregate.abstract["3"].summary` reproduces the
+`model_vs_animal_quantitative_summary.json` scalars fetched independently over the same API
+(0.98212 / 0.02850), so the two recovery paths agree.
+
+⚠️ **These rows are pre-#60** — see the caveat below. The comparison figure is a provisional
+look, not a result; re-running the D=614 generative task on current wrapper main (tracked in
+r4) is what makes it publishable, and would emit the stats JSON directly.
 
 ## Caveats
 
