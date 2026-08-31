@@ -44,8 +44,10 @@ Roll each trained GRU out as a generative agent on the curriculum task and compa
 each of the three per-mouse classical RL baselines, one dot per abstract 3-back pattern (32),
 subject-mean ± SEM over the 614 fitted mice, identity line dashed. Same aggregation level,
 annotation contents and 32-colour map as the wrapper's own
-`combined/history_pattern_comparison_abstract` panels logged on the GRU generative runs, so
-the two are directly comparable. Producer `analysis/pswitch_history_patterns.py`; see
+`combined/history_pattern_comparison_abstract` panels logged on the GRU generative runs, so the
+two can be read side by side — but they are **not quantitatively pairable**: the GRU panels are
+pre-#60 and these are post-#60, so the two sides do not share task-family construction (see
+Caveats). Producer `analysis/pswitch_history_patterns.py`; see
 Provenance below for where the coordinates came from and why the box RMSE differs from table
 (e)'s RMSE column.*
 
@@ -207,8 +209,9 @@ deviation panel is ever wanted.
 | Hattori | 0.9648 | 0.0584 | 0.0313 |
 
 The box annotates `quantitative_summary.subject_mean.abstract["3"].rmse` — deviation from the
-diagonal averaged over *patterns*, which is what the wrapper's own panel prints and therefore
-what keeps these panels comparable with the GRU media panels. Table (e) reports
+diagonal averaged over *patterns*, which is what the wrapper's own panel prints — so the box is
+at least the same *statistic* the GRU media panels annotate, even though the pre-/post-#60 split
+means the two are not measured on the same simulated task families. Table (e) reports
 `delta_significance_summary.abstract["3"].subject_balanced_error_summary.mean_squared_error`,
 square-rooted — deltas averaged within each mouse first, then across mice, so pattern-level
 scatter partly cancels and the values are roughly half as large. **They rank the models

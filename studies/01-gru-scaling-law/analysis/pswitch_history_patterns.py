@@ -15,9 +15,16 @@ AGENTS.md §12.
 
 Panel geometry, aggregation level, annotation contents and the 32-colour map all reproduce
 the wrapper's own `_plot_history_pattern_comparison_figure`
-(`post_training_analysis/generative_analysis.py`), so these panels are directly comparable
+(`post_training_analysis/generative_analysis.py`), so these panels can be read side by side
 with the `combined/history_pattern_comparison_abstract` media panels logged on every GRU
 generative run in `generative-v{1,2}@20260623-18074*`.
+
+That is a presentational match, NOT a quantitative one. Those GRU rollouts predate wrapper
+PR #60, so ~17% of their sessions were simulated as the wrong task family (a default
+uncoupled-baiting task); these RL rollouts are post-#60 and build the task from each
+session's own curriculum. The two sides therefore do not share task-family construction --
+see r9's Caveats. Pairing them in one side-by-side claim is what the pending GRU rerun is
+for.
 
 Note on the two RMSEs. The box in each panel prints the RMSE **across the 32 pattern rows**
 of subject-mean values — the quantity the wrapper's own panel annotates, and the one stored
