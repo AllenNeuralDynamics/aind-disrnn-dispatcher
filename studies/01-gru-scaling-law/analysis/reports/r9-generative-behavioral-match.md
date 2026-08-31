@@ -324,6 +324,37 @@ r4) is what makes it publishable, and would emit the stats JSON directly.
     pre- and post-#60 alike, and is the reason absolute "how mouse-like" statements are softer
     than the correlations suggest.
 
+## Open — deferred, not forgotten (2026-08-31)
+
+Noted here rather than fixed; none of it blocks reading the figures above, and each item names
+what it would take.
+
+1. **Measure the D=614 wrong-task fraction.** The `~17%` in the Caveats is a D=10 number; the
+   D=614 share is unmeasured, which is why the comparison figure says "fraction at D=614
+   unmeasured" rather than quoting a value. `resolved_run.json` sits in each generative task's
+   Beaker result dataset (3.4 MB) and should carry per-session `curriculum_name`; tabulating it
+   over the D=614 cohort turns the open-ended caveat into a number. Minutes, no rerun.
+2. **Re-run the D=614 GRU rollout on post-#60 wrapper main** (tracked in study 05's r4). This is
+   what makes the GRU-vs-RL figure publishable rather than provisional, and it emits the
+   per-pattern stats JSON directly — no Beaker stream-extraction needed. Worth folding item 3
+   into the same job.
+3. **Raise `n_rollouts_per_session` above 1.** Both this report's GRU rollouts and the RL
+   rollouts used a single replicate per session. The machinery for more already exists
+   (`derive_session_seed(..., rollout_index)`, and every *simulated* aggregation runs with
+   `average_rollouts_by_source=True`), so it is a flag, not a code change. It would cut
+   within-mouse sampling noise and — more importantly — stop mice being excluded from a dot
+   because one stochastic rollout happened not to produce 5 instances of a rare pattern, which
+   currently confounds real behavioral differences with single-rollout luck (Bari loses 79 mice
+   on `aba`, Hattori 15). Cost scales linearly; the RL side (4-6 h/model at k=1) binds.
+4. **Document the ignore-trial asymmetry in the history statistic.** Trials with no response are
+   *deleted* rather than left as gaps, and the pattern window is built over the compacted
+   sequence — so "previous 3 trials" means *previous 3 responded trials* for the animal and the
+   literal previous 3 for the model, and the two sides of each dot differ by ~10% in trial count
+   (8.71 M animal vs 9.60 M simulated at 3-back). The wrapper's 3-way mode would remove it; these
+   runs are 2-action.
+5. **Stage-specific task parameters** — the limitation #60 did *not* address (see Caveats).
+   Tracked in `FUTURE_DIRECTIONS.md` §5.
+
 ## Related
 
 - [[r1-heldout-scaling-curve]] — 1st-order (next-trial LL) D-scaling that this 2nd-order check corroborates.
