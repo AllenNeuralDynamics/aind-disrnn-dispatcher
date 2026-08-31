@@ -14,7 +14,12 @@ inputs:
     - analysis/fig_generative_match_history.png
     - analysis/generative_match_verdict.md
   rl_reference: ../05-disrnn-scaling-law/variants/generative-rl-baseline/rl_rollout_summaries/{ctt,bari,hattori}_quantitative_summary.json
-reproduce: python studies/01-gru-scaling-law/analysis/generative_match.py
+  related_scripts: analysis/pswitch_history_patterns.py
+  rl_pattern_rows: ../05-disrnn-scaling-law/variants/generative-rl-baseline/rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json
+  rl_pattern_figure: analysis/fig_pswitch_history3_rl.png
+reproduce: |
+  python studies/01-gru-scaling-law/analysis/generative_match.py
+  python studies/01-gru-scaling-law/analysis/pswitch_history_patterns.py
 ---
 
 # Result 9 — generative model-vs-animal behavioral match vs D (2nd-order validation)
@@ -32,6 +37,17 @@ Roll each trained GRU out as a generative agent on the curriculum task and compa
 ![history-dependent match](../fig_generative_match_history.png)
 
 *History-pattern curve: P(switch | last 3 trials' (choice, reward) sequence), abstract encoding (32 bins).*
+
+![RL history-pattern scatter](../fig_pswitch_history3_rl.png)
+
+*The scatter behind the history-pattern column of table (e): P(switch | previous 3 trials) for
+each of the three per-mouse classical RL baselines, one dot per abstract 3-back pattern (32),
+subject-mean ± SEM over the 614 fitted mice, identity line dashed. Same aggregation level,
+annotation contents and 32-colour map as the wrapper's own
+`combined/history_pattern_comparison_abstract` panels logged on the GRU generative runs, so
+the two are directly comparable. Producer `analysis/pswitch_history_patterns.py`; see
+Provenance below for where the coordinates came from and why the box RMSE differs from table
+(e)'s RMSE column.*
 
 ## Methods — what the two curves are
 
@@ -143,6 +159,71 @@ The wrapper writes `model_vs_animal_quantitative_summary.json` per session parti
 The other un-pulled scalars (`mae`, `bias`, `weighted_*`, `session_mean`, `pooled`, all `train/`/`eval/` partition variants) are available in W&B for any (variant, D, seed) run and can be added to `generative_match.py` with one extra `s.get(...)` per scalar.
 
 What does **not** exist anywhere in the wrapper: no win-stay-lose-shift (`wsls`), no logistic / history-regression on choices, no choice autocorrelation. The N=1 `detailed` history (4 bins `L/l/R/r`) functionally subsumes WSLS — its column in table (c) is the closest you'll get to a WSLS scaling curve.
+
+## Provenance — the RL history-pattern scatter (added 2026-08-31)
+
+Tables (d)-(f) landed 2026-07-15 as scalars only; the scatter behind them could not be drawn
+from the repo until now. Nothing was re-simulated and nothing was re-fit — this is a recovery
+of data that already existed.
+
+**Why it was missing.** Study 05's `reanalyze_stats_only.py` computed the full
+`history_dependent_switch_stats` dict but skipped `_save_*_figures()` wholesale, because the
+*per-session* scatters (18,124 points) cost 20-25 min apiece and had already killed two jobs
+on wall clock. The cheap pattern-comparison scatter went down with them. Only the trimmed
+`quantitative_summary` / `delta_significance_summary` blocks were committed to
+`rl_rollout_summaries/`, and those carry r, RMSE and per-pattern *deltas* — not the two
+absolute coordinates (`animal_mean`, `simulated_mean`) a model-vs-animal scatter needs.
+
+**Where the coordinates came from.** The full stats dicts survived on the shared filesystem
+at `/allen/aind/scratch/han.hou/tmp/rlgen/<alias>/analysis/<wrapper_alias>/history_dependent_switch_stats_no_figures.json`
+(~1.5 GB each, written 2026-07-15).
+[`extract_history_patterns.py`](../../../05-disrnn-scaling-law/variants/generative-rl-baseline/extract_history_patterns.py)
+streams each file and lifts out the `config` / `comparison` / `subject_aggregate` /
+`session_aggregate` blocks (~123 KB per alias), committed as
+`rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json`. Each carries a `_meta` block
+with the source path, byte count, **sha256 of the 1.5 GB source**, and the baseline's W&B run
+id ([`lmg1i9yd`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/lmg1i9yd) /
+[`bg3nzqz9`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/bg3nzqz9) /
+[`unhmbrk4`](https://wandb.ai/AIND-disRNN/mice_data_scaling/runs/unhmbrk4)) as the immutable
+key. The extractor asserts that its `subject_aggregate.abstract["3"].summary` reproduces the
+already-committed `quantitative_summary.subject_mean.abstract["3"]` values exactly; that
+assertion passed for all three. The per-mouse `subject_level` rows (the bulk of the 1.5 GB)
+were deliberately left on the cluster.
+
+**Error bars are present but sub-marker.** Each dot carries `animal_sem` on x and
+`simulated_sem` on y, drawn at `capsize=2.5`. They are invisible at this scale by construction,
+not by omission: SEM over ~614 mice is 0.0033 (median) to 0.0062 (max) in probability units,
+which at the rendered panel size is a half-bar of 0.8-1.4 pt against a 4 pt marker radius. The
+paired within-subject `delta_sem` (median 0.0034, max 0.0077) is the more informative
+uncertainty for "does this dot sit off the diagonal" and is available in the same rows if a
+deviation panel is ever wanted.
+
+**The panel box RMSE is not table (e)'s RMSE.** Two different quantities, both stored:
+
+| model | r (both) | panel box: RMSE across the 32 pattern rows | table (e): sqrt(subject-balanced MSE) |
+|---|---|---|---|
+| compare-to-threshold | 0.9313 | 0.0590 | 0.0216 |
+| Bari | 0.9561 | 0.0661 | 0.0403 |
+| Hattori | 0.9648 | 0.0584 | 0.0313 |
+
+The box annotates `quantitative_summary.subject_mean.abstract["3"].rmse` — deviation from the
+diagonal averaged over *patterns*, which is what the wrapper's own panel prints and therefore
+what keeps these panels comparable with the GRU media panels. Table (e) reports
+`delta_significance_summary.abstract["3"].subject_balanced_error_summary.mean_squared_error`,
+square-rooted — deltas averaged within each mouse first, then across mice, so pattern-level
+scatter partly cancels and the values are roughly half as large. **They rank the models
+differently**: compare-to-threshold is the best model on the subject-balanced RMSE (0.0216) and
+mid-pack on the across-pattern RMSE (0.0590), while remaining the worst on correlation
+(0.9313). Cite one and name which.
+
+**Still open: no GRU panel.** The equivalent GRU rows are not in the repo — W&B carries the
+GRU history-pattern figure only as a media PNG plus flattened summary scalars, and the
+underlying `history_dependent_switch_stats.json` sits inside each generative task's Beaker
+result dataset. That is recoverable, but the wrapper-version asymmetry in the ⚠️ caveat below
+is the reason not to bother: pairing a pre-#60 GRU panel against these post-#60 RL panels in
+one side-by-side figure would make that asymmetry load-bearing rather than a footnote.
+Re-running this report's GRU rollouts on the fixed wrapper (already tracked, see r4) produces
+the panel and its stats JSON directly and is the right way to get the GRU side.
 
 ## Caveats
 

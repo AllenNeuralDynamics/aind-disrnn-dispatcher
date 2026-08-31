@@ -4,6 +4,39 @@ Per-study log per [`docs/posthoc-analysis.md`](../../docs/posthoc-analysis.md). 
 entry per merged PR (or coherent unreleased batch). Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — r9 gets the RL history-pattern scatter
+
+**2026-08-31.** r9 tables (d)-(f) have reported the RL baselines' generative behavioral match as
+scalars since 2026-07-15 with no way to draw the scatter behind them. Recovered, not re-run: the
+per-pattern coordinates were still in the 1.5 GB stats caches on `/allen/…/tmp/rlgen/` and are now
+frozen alongside study 05's variant (see that study's changelog).
+
+### Added
+- `analysis/pswitch_history_patterns.py` — offline producer (reads study 05's committed frozen
+  rows, never W&B) for `analysis/fig_pswitch_history3_rl.png` / `.svg`: P(switch | previous 3
+  trials), one panel per baseline, 32 abstract patterns, subject-mean ± SEM over 614 mice.
+  Reproduces the wrapper's own `_plot_history_pattern_comparison_figure` geometry, annotation and
+  colour map, so the panels are comparable with the `combined/history_pattern_comparison_abstract`
+  media panels on the GRU generative runs.
+- `Makefile` — `r9` now chains `pswitch_history_patterns.py` after `generative_match.py`.
+
+### Changed
+- `reports/r9-generative-behavioral-match.md` — new figure and a **Provenance** section (outside
+  the `result-9` markers, so no producer-owned region is touched): where the coordinates came
+  from and how they were verified, why the per-dot SEM error bars are drawn yet sub-marker
+  (0.0033-0.0062 → 0.8-1.4 pt half-bar against a 4 pt marker radius), and a reconciliation of
+  the panel-box RMSE (across the 32 pattern rows: 0.0590 / 0.0661 / 0.0584) against table (e)'s
+  RMSE column (sqrt subject-balanced MSE: 0.0216 / 0.0403 / 0.0313) — different quantities that
+  rank the three models differently. Frontmatter gains `related_scripts`, `rl_pattern_rows`,
+  `rl_pattern_figure`; `reproduce` is now a two-line block.
+
+### Still open
+- No GRU panel for this metric. The GRU per-pattern rows are only inside the generative tasks'
+  Beaker result datasets, and r9's GRU rollouts predate wrapper #60 — pairing them against these
+  post-#60 RL panels in one figure would make that asymmetry load-bearing. Re-running r9's GRU
+  rollouts on the fixed wrapper (tracked in study 05's r4) is the right fix and yields the panel
+  directly.
+
 ## [Unreleased] — classical-RL baseline suite (Bari / Hattori / CTT)
 
 **2026-07-13.** Fit the full classical-RL baseline suite that issue #20 asks for, on the
