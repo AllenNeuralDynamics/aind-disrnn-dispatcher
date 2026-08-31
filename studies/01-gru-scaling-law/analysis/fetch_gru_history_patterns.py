@@ -85,11 +85,23 @@ WRAPPER_CAVEAT = (
 )
 
 
+def beaker_token() -> str:
+    """Return BEAKER_TOKEN, or exit with an actionable message rather than a KeyError."""
+    token = os.environ.get("BEAKER_TOKEN")
+    if not token:
+        raise SystemExit(
+            "BEAKER_TOKEN is not set. This script reads the generative tasks' Beaker result\n"
+            "datasets directly. Get a token from https://beaker.org/user (or `beaker account "
+            "token`)\nand export it:\n\n    export BEAKER_TOKEN=...\n"
+        )
+    return token
+
+
 def storage_for(dataset_id: str) -> tuple[str, dict]:
     """Return (files_root_url, auth_headers) for a Beaker dataset's storage backend."""
     req = urllib.request.Request(
         f"{BEAKER_API}/datasets/{dataset_id}",
-        headers={"Authorization": f"Bearer {os.environ['BEAKER_TOKEN']}"},
+        headers={"Authorization": f"Bearer {beaker_token()}"},
     )
     with urllib.request.urlopen(req, timeout=120) as response:
         meta = json.load(response)

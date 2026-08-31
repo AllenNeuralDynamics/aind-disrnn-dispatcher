@@ -35,7 +35,6 @@ import argparse
 import datetime
 import hashlib
 import json
-import os
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -116,8 +115,8 @@ def main() -> None:
 
         panel = blocks["subject_aggregate"]["abstract"]["3"]
         if args.summaries:
-            committed = json.load(
-                open(Path(args.summaries) / f"{alias}_quantitative_summary.json")
+            committed = json.loads(
+                (Path(args.summaries) / f"{alias}_quantitative_summary.json").read_text()
             )["history_dependent"]["quantitative_summary"]["subject_mean"]["abstract"]["3"]
             for field in ("correlation", "rmse", "n_rows", "total_weight"):
                 assert panel["summary"][field] == committed[field], (
@@ -152,11 +151,18 @@ def main() -> None:
         }
         dest = out / f"{alias}_history_patterns.json"
         dest.write_text(json.dumps(payload, indent=2))
+        # /allen scratch hands out ACL-restricted modes, and the job's transfer step has to
+        # read these back, so widen explicitly rather than trusting the cluster umask. Done
+        # in-process (no shell, no interpolated path) and non-fatally: the payload is already
+        # on disk by this point, so a refused chmod is worth reporting, not dying over.
+        for path, mode in ((out, 0o755), (dest, 0o644)):
+            try:
+                path.chmod(mode)
+            except OSError as exc:
+                print(f"  warning: chmod {oct(mode)} on {path} failed: {exc}", flush=True)
         print(f"  -> {dest} ({dest.stat().st_size} bytes) | "
               f"abstract n=3: {len(panel['rows'])} rows, "
               f"r={panel['summary']['correlation']:.5f}", flush=True)
-
-    os.system(f"chmod -R u+rwX {out}")
 
 
 if __name__ == "__main__":
