@@ -16,6 +16,7 @@ Science, the Claude API/Agent SDK, ...).
 | `study-conventions` | Study/variant folder layout, W&B group naming, provenance, study wrap-up |
 | `posthoc-reporting` | Report/JSON contracts, launch records, regeneration rules |
 | `git-session-isolation` | Concurrent sessions on one shared repo + dual-repo provenance and the origin-is-truth git rules (Mac + HPC) |
+| `issue-tracking` | Filing issues and putting them on the AIND-behavior-fm project board with Status/Priority/Size |
 
 ## Structure & authoring convention (progressive disclosure)
 
@@ -43,6 +44,32 @@ This keeps the always-loaded core small while nothing is lost.
   `code/beaker/README.md` / `code/hpc/README.md` in the dispatcher.
 - `AGENTS.md` (both repos) stays the always-loaded terse guardrail layer; it
   points into this pack for detail.
+- **`codebase-map` is a map, not a rulebook.** It answers "where is X" and "which skill
+  next" and deliberately does not restate rules owned by `AGENTS.md` or another skill.
+  This is load-bearing: it once carried the Beaker cluster allowlist and kept two revoked
+  clusters listed as verified exceptions for weeks after both upstream copies were fixed.
+  Since it is the first skill loaded, a stale copy there is read first.
+
+## Maintaining the pack
+
+**This repo is the source of truth. The copies imported into agent catalogs are read-only
+mirrors, and editing a mirror does not reach anyone.** In Claude Science, `host.skills.edit`
+touches only the platform copy — the repo is untouched, so installed Claude Code agents
+never see the change, and the next re-import silently reverts it.
+
+So every skill edit lands here, by PR:
+
+1. Branch off `origin/main`, edit under `skills/<name>/`, open a PR
+   (never squash-merge — `gh pr merge <n> --merge`, per AGENTS.md §9).
+2. Bump `version` in `.claude-plugin/plugin.json`.
+3. Re-import the plugin in Claude Code (`/plugin` — updates are pull-based, not automatic).
+4. If the skill's `description` changed, note it in the PR: descriptions are the triggering
+   mechanism, so a description change alters *when* the skill loads, not just its content.
+
+Authoring rule (progressive disclosure): **new hard rules and commands go in `SKILL.md`;
+new lessons, mechanisms, and evidence go in a `references/` file** with a one-line pointer
+from `SKILL.md`. `SKILL.md` is loaded in full every time the skill triggers, so its length
+is a running cost paid by every agent; `references/` is free until read.
 
 ## Import
 

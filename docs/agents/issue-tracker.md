@@ -2,6 +2,16 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+> **Two project-specific rules the `gh` conventions below do not cover — see the
+> `issue-tracking` skill in `aind-behavior-foundation-model-skills/`.**
+> 1. Every tracked issue also goes on the **AIND-behavior-fm** org project board
+>    (<https://github.com/orgs/AllenNeuralDynamics/projects/184/>) with **Status, Priority
+>    and Size** set. `gh` cannot set ProjectV2 fields; the skill ships
+>    `scripts/board.py`, which files the issue and sets all three in one call.
+> 2. **The Claude Science Mac sandbox has no `gh` CLI.** Every `gh` command below has to be
+>    the REST or GraphQL call instead (`GITHUB_TOKEN`, `Authorization: Bearer`). The skill's
+>    `references/board-api.md` has the calls.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.

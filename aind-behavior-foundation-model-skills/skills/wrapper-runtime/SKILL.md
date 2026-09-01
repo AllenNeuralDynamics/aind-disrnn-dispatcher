@@ -77,10 +77,19 @@ discriminate generalization.
 
 ## Post-training analysis (no retraining)
 
-`run_analysis.py` is the unified CLI — one sub-command per analysis
-(`generative`, `likelihood-comparison`, `likelihood-advantage`, `embedding`,
-`baseline-rl`, `finetune`, `from-histories`); all take a saved run dir via
-`resolve_model_run(model_dir, split=…, checkpoint_policy=best_eval|best_heldout|final)`.
+`run_analysis.py` is the unified CLI — **12 sub-commands**, all taking a saved run dir via
+`resolve_model_run(model_dir, split=…, checkpoint_policy=best_eval|best_heldout|final)`:
+
+| Family | Sub-commands |
+|---|---|
+| Behavior / likelihood | `generative`, `from-histories`, `likelihood-comparison`, `likelihood-advantage` |
+| RNN state space | `state-space-condition`, `state-space-subject`, `state-space-overview` |
+| Baseline-RL Q space | `q-space-condition`, `q-space-subject` |
+| Subject embedding | `embedding` |
+| Model-specific | `baseline-rl`, `finetune` (training-adjacent — uses trainers) |
+
+`--help` on the sub-command is authoritative for flags; `POST_TRAINING_ANALYSIS.md` is
+authoritative for what each one measures.
 
 ```bash
 cd ../aind-disrnn-wrapper/code

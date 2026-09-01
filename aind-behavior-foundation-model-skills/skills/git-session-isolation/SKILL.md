@@ -1,6 +1,6 @@
 ---
 name: git-session-isolation
-description: Run multiple concurrent Claude Science sessions on the SAME shared local git repo (e.g. under /Users/han.hou/Scripts) without colliding on branches or dirty files. Works around the Mac sandbox rule forbidding creation of any path named .git (why git init/clone/worktree-add fail); each session gets a private external-git-dir checkout on its own feat branch and integrates via GitHub PRs. Also covers dual-repo provenance for a Mac-orchestrates-HPC workflow (dispatcher plus wrapper, two paired git SHAs) and the origin-is-truth rules — never launch a deliverable from a dirty or unpushed commit, never let local main diverge from origin, one branch per workstream, reset local checkouts after merge. Load when isolating parallel sessions, when git init/clone/worktree fails, or when deciding how to commit, launch, or provenance-stamp runs across Mac and HPC checkouts.
+description: Commit, branch, push, and provenance-stamp work in the disRNN repos from a sandboxed Mac session. Covers the private external-git-dir checkout that lets concurrent sessions share one local repo without colliding, the workaround for git init/clone/worktree-add failing on the sandbox's .git rule, and the origin-is-truth provenance rules pairing dispatcher+wrapper SHAs. Load whenever git init/clone/worktree fails, when isolating parallel sessions, or before launching a deliverable.
 ---
 
 # git-session-isolation
@@ -31,10 +31,28 @@ GIT_DIR=<workspace>/store GIT_WORK_TREE=<workspace>/tree git init   # succeeds
 
 Then fetch / branch / checkout / commit / push all work normally.
 
-**Verification status (probed 2026-07-04):** init, fetch, branch, checkout -b,
-and commit are run-confirmed. GitHub push is **auth-confirmed** (`git ls-remote`
-with the token-in-URL returns exit 0) but an actual `git push` was not executed
-in-session — treat the push step as auth-confirmed, not run-confirmed.
+**Verification status (re-probed 2026-09-01):** init, fetch, branch, checkout -b, commit,
+and `git push` to GitHub are all run-confirmed, including under the sandbox's **COARSE**
+git mode.
+
+**Do not be talked out of this route by the coarse-mode banner.** When the write grants
+contain many repositories, the sandbox announces that ".git structures are write-denied in
+every writable location and git init/clone is blocked." That refers to creating a path
+*named* `.git` — the external-git-dir route below is unaffected and was confirmed working
+on the same session that printed the banner. Read the banner as "you cannot make a `.git`",
+not as "git is unavailable".
+
+**One extra step under coarse mode:** if the repo contains a directory the sandbox
+write-denies (`.claude/` in both disRNN repos), a plain checkout aborts with
+`fatal: cannot create directory at '.claude'`. Exclude it with a non-cone sparse checkout
+before checking out — files outside the sparse set stay in the index, so your commits do
+not delete them:
+
+```bash
+git config core.sparseCheckout true
+git config core.sparseCheckoutCone false
+printf '/*\n!/.claude/\n' > "$GIT_DIR/info/sparse-checkout"
+```
 
 ## Why not just share the working tree
 
@@ -96,7 +114,9 @@ Env knobs: `ISO_WS` (workspace root for checkouts, default `./iso-sessions`),
   embedded in the origin URL authenticates regardless.
 - This retires the older "develop as plain files + `git apply` patch + land via
   the GitHub Contents API" workaround — a real branch-per-session checkout with
-  normal `git push` is simpler and gives proper diffs and history.
+  normal `git push` is simpler and gives proper diffs and history. (The Git *Data*
+  API survives as the no-checkout fallback in rule 4 below; the *Contents*-API
+  patch-staging flow is gone.)
 
 ## Dual-repo provenance (dispatcher + wrapper) and the origin-is-truth rule
 
@@ -137,13 +157,15 @@ commit, work that lived only in a working tree.
    compute nodes import wrapper from there, so pushing to the Mac clone alone
    does nothing to a job.
 
-4. **Author on a branch off `origin/main`; land via the GitHub Data API; then
-   checkout on the login node.** The Mac sandbox cannot `git worktree add` (see
-   the sandbox rule above), so the clean flow is: author files, commit to a
-   branch via the GitHub Git Data API (blobs, tree, commit, update ref; leaves
-   EVERY working tree untouched), then `git fetch && checkout <branch>` on the
-   login node for the launch. This achieves `dispatcher_git_dirty=no` without a
-   local worktree.
+4. **Author on a branch off `origin/main`, push it, then checkout on the login node.**
+   Use the external-git-dir checkout above: author files, commit, `git push`, then
+   `git fetch && checkout <branch>` on the login node for the launch. This achieves
+   `dispatcher_git_dirty=no` without touching any shared working tree.
+
+   The GitHub Git Data API (blobs → tree → commit → update ref) is the **fallback** for
+   the one case the checkout cannot cover: landing a commit when you have no checkout at
+   all, or when even the sparse checkout is blocked. It leaves every working tree
+   untouched but gives you no local diff to inspect, so prefer branch + push.
 
 5. **Sync by branch, not by file copy.** Base64-staging a file onto the login
    node is fine for a one-off probe, but it decouples the two machines' state and
@@ -166,10 +188,10 @@ commit, work that lived only in a working tree.
 
 ### Division of labor by capability
 
-- **Mac Claude Science (sandboxed):** orchestration; branch creation via the
-  GitHub Data API; commit/push into EXISTING checkouts (in-memory
-  `x-access-token`, remote URL stays clean); read-only git surveying. Cannot
-  create `.git` (coarse mode) and cannot `git reset --hard`.
+- **Mac Claude Science (sandboxed):** orchestration; branch + commit + push from a
+  private external-git-dir checkout (in-memory `x-access-token`, remote URL stays clean);
+  the Git Data API as the no-checkout fallback; read-only git surveying of the shared
+  trees. Cannot create a path named `.git`, and cannot `git reset --hard`.
 - **Claude Code CLI on the HPC login node:** full git; runs the launches; does
   the `git fetch`/`checkout`/`pull`/`reset` on the login-node checkouts.
 - **The user:** `git reset --hard` on the Mac, VPN up/down, final PR merges.
@@ -180,18 +202,8 @@ commit, work that lived only in a working tree.
 to local `main`; never launch a deliverable from a dirty or unpushed commit;
 pair the two repo SHAs; reset local checkouts after merge.
 
-## Maintaining this skill (canonical source = the dispatcher repo pack)
+## Where this skill lives
 
-This skill is distributed to Claude Code agents via the AIND FM skills pack in
-the dispatcher repo (`aind-behavior-foundation-model-skills/skills/`). The
-platform copy under `~/.claude-science/.../skills/` and the repo pack copy are
-TWO separate files. **A `host.skills.edit` only touches the platform copy — it
-does NOT update the repo, so the change never reaches the installed agents.**
-
-Whenever you edit this (or any) pack skill, ALSO mirror the change into the repo
-pack and commit it (branch off `origin/main`, land via the GitHub Data API,
-open a PR — see the dual-repo section above), then re-import the plugin in Claude
-Code. Repo path for this skill:
-`aind-behavior-foundation-model-skills/skills/git-session-isolation/`
-(`SKILL.md` + `scripts/isolate_session.sh`). The repo pack is the source of
-truth; the platform copy is a convenience mirror.
+Source of truth is the dispatcher repo pack; the platform copy is a read-only mirror.
+Pack-wide maintenance policy (including why `host.skills.edit` is not enough) is in the
+pack `README.md` → "Maintaining the pack".

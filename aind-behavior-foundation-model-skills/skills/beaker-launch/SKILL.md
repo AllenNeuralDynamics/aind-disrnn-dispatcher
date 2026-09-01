@@ -12,17 +12,11 @@ resumable mechanics).
 
 ## Hard rules first
 
-1. **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`).
-   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`)
-   even if idle — they belong to other science units.
-   **REVOKED 2026-08-22 (confirmed by Han):** `ai1/octo.ai-aws-g6e` and
-   `ai1/octo.ai-aws-p5en` are **no longer available to us** and were formerly
-   documented here as verified exceptions. Do not target them even as fallback
-   entries — jobs silently never schedule. Observed the same day: g6e showed 0
-   schedulable with **2075** queued jobs, p5en 1 schedulable with **1008** queued.
-   Treat `references/scheduling-lessons.md`'s g6e/p5en guidance as historical.
-   There are now **no** non-hub exceptions; submit only to `octo-hub-*` /
-   `octo.hub-*` / `aihub-*`.
+1. **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`) — there are
+   **no exceptions.** Never target a non-hub cluster (`aipbd-*`, `siti-*`, `dev-*`, any
+   other `octo.ai-*`) even if it shows idle GPUs: they belong to other science units, and
+   a job sent there silently never schedules rather than failing. The two formerly-verified
+   exceptions were revoked 2026-08-22 — history in `references/scheduling-lessons.md`.
 2. **Never run the launch's compute on the login node** — the launcher itself is fine
    (it only submits), the training is not.
 3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
@@ -58,11 +52,10 @@ python code/check_gpu_availability.py --beaker   # Beaker only (no VPN needed)
 python code/check_gpu_availability.py --hpc      # HPC only (needs Allen network / VPN)
 ```
 
-Raw counts lie: Beaker advertises `free.gpu_count` on **cordoned** nodes (not
-schedulable), and `sinfo` counts `drain`/`down` nodes — the script strips both.
-If all Beaker clusters show 0 schedulable, route to HPC (`hpc-launch` skill); the
-two backends load-balance. If VPN is down, HPC is unreachable and Beaker is the
-only option (preemptible jobs burst as capacity frees / nodes uncordon).
+Raw counts lie — Beaker advertises `free.gpu_count` on **cordoned** nodes and `sinfo`
+counts `drain`/`down` ones; the script strips both. Routing: all hub clusters at 0
+schedulable → go to HPC (`hpc-launch`), the two backends load-balance. VPN down → HPC is
+unreachable, so Beaker is the only option (preemptible jobs burst as nodes uncordon).
 
 ## Cluster choice
 
@@ -156,40 +149,24 @@ It sets the W&B group to `<variant>@<launch_id>` and injects `DISRNN_META_*`
 provenance (see the study-conventions skill). Requires
 `training.checkpoint_every_n_steps > 0` for resume to work.
 
-> **⚠️ Grids above ~15 tasks: Beaker rejects the single-experiment payload with a misleading 409.**
-> Render with `--no-submit` first, check the resolved-JSON size, and split into ≤~15-task chunks
-> submitted directly if it's too big — see `references/scheduling-lessons.md` "Resolved-JSON payload
-> ceiling."
+Three things silently go wrong with this launcher. Each is a one-line rule here;
+the mechanism and the evidence are in `references/resumable-launch-traps.md`.
 
-> **⚠️ Set `wandb.project=` in the sweep `command:` for resumable launches.** Unlike
-> the native launcher (whose `wandb agent` sweep controller owns the project), the
-> resumable launcher sets only the W&B **group**, not the project — each task runs
-> `run_hpc` directly, so the project comes from Hydra's `wandb.project`, which
-> **defaults to `test`**. Omitting it silently lands every run in the `test` project.
-> Add `wandb.project=<study_project>` (and `wandb.entity=AIND-disRNN`) to the sweep's
-> `command:` list, next to `wandb.tags`. The sweep's top-level `project:` field is read
-> only by the native sweep controller, NOT by the resumable launcher.
+- **≤ ~15 tasks per experiment.** A bigger grid is rejected with a misleading 409 —
+  render with `--no-submit`, check the resolved-JSON size, submit in chunks.
+- **Put `wandb.project=<study_project>` in the sweep's `command:` list** (next to
+  `wandb.tags`, with `wandb.entity=AIND-disRNN`). This launcher sets only the W&B
+  *group*; the project comes from Hydra and **defaults to `test`**, so omitting it
+  lands the whole grid in `test`. The sweep's top-level `project:` is read only by
+  the native controller.
+- **Pin `WRAPPER_REF` / `DISPATCHER_REF` to a full SHA, never a branch.** A preempted
+  task re-checks-out the ref on resume, so a branch can vanish (GitHub deletes it on PR
+  merge) or advance — the second half of a run then executes different code than the
+  first. Get the SHA from the remote, since the container fetches from origin:
 
-> **⚠️ Pin `WRAPPER_REF`/`DISPATCHER_REF` to a full commit SHA, not a branch, for
-> resumable/preemptible launches.** A preempted task auto-resumes by re-running
-> `entrypoint.sh`, which re-checks-out the ref. A branch ref is mutable, so a resume can:
-> (1) **fail** if the branch was deleted meanwhile — e.g. GitHub auto-deletes it on PR
-> merge, so merging the fix branch mid-run breaks every resume; or (2) **silently run
-> different code** than the first attempt if the branch advanced — the second half of a
-> preempted run executes the new tip. A SHA is immutable: the resume re-checks-out the
-> *same* commit, always resolvable. The launch record logs the commit for provenance, but
-> that records *intent* — only pinning the ref to a SHA makes the *executed* code match it.
-> The entrypoint already accepts a SHA (`git fetch --depth 1 origin <sha>`). Grab it at
-> launch time from the branch you're about to run:
->
-> ```bash
-> git ls-remote origin <branch> | cut -f1   # -> the SHA to paste as WRAPPER_REF/DISPATCHER_REF
-> ```
->
-> (Resolve against the **remote** — the SHA must be pushed, since the container fetches
-> from origin.) A branch ref is fine only for one-shot, non-resumable jobs (no resume
-> window). If branch-pinning ever recurs as a footgun, teach the launcher to resolve the
-> branch→SHA at submit time so you keep typing branch names but the task spec pins the SHA.
+  ```bash
+  git ls-remote origin <branch> | cut -f1   # -> WRAPPER_REF / DISPATCHER_REF
+  ```
 
 Native alternative (real `wandb agent` sweep, not preemption-resilient):
 `python code/launch_beaker.py --sweep <sweep.yaml> --experiment <experiment.yaml>`.
@@ -236,6 +213,9 @@ the fan-out. Routine repeats of known-good launches: fan out directly.
   re-score held-out only (`resume_heldout_beaker.py`), and **backfill a lost metric
   from its surviving table artifact** (no GPU — try before re-scoring; includes the
   verified trial-weighted-geometric aggregation).
-- `references/scheduling-lessons.md` — the verified g6e exception, priority-tier
-  measurements, bundle over-assignment, cross-cloud S3, the resolved-JSON payload
-  ceiling, **exit-0-with-a-missing-metric**, verify-with-data.
+- `references/scheduling-lessons.md` — the (now historical) g6e/p5en exception and its
+  revocation, priority-tier measurements, bundle over-assignment, cross-cloud S3, the
+  resolved-JSON payload ceiling, **exit-0-with-a-missing-metric**, verify-with-data.
+- `references/resumable-launch-traps.md` — why each of the three resumable-launcher
+  rules above exists: the 409 payload ceiling, the `wandb.project` default, and the
+  branch-vs-SHA resume failure modes.
