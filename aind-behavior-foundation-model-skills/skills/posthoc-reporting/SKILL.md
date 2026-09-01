@@ -103,27 +103,36 @@ producer on the reproducible path reads a committed CSV/JSON and touches no live
 so it has nothing to gain from a compute node — and an `sbatch` round-trip adds queue wait,
 a second checkout to keep in sync, and a log file to go fetch, in exchange for nothing.
 
-The split is decidable from the source, so check rather than guess:
+The discriminator is **not** "does it read W&B" — it is whether the script needs something
+the sandbox genuinely lacks. Three things do:
 
 ```bash
-grep -lE 'wandb\.Api|import wandb|/allen/|BEAKER_TOKEN' analysis/*.py
+# scripts that need a node; everything else runs locally
+grep -lE 'wandb\.Api\(|^\s*import wandb|from wandb|/allen/|BEAKER_TOKEN' analysis/*.py
 ```
 
-- **No match → run it locally.** These are the formatters: they read the frozen file and
-  rewrite report markers or redraw a figure (`update_final_report_nxd.py`, `update_r8.py`,
-  `pswitch_history_patterns.py` in study-01; `update_reports.py` in study-02).
-- **Match → HPC (or a node with the credential).** These are *extraction*, not reporting:
-  live W&B pulls (`nxd_scaling.py`, `scaling.py`, `bootstrap_scaling.py`), the `/allen`
-  mount (`rl_baseline.py`, which needs both), or Beaker artifact streaming
-  (`fetch_gru_history_patterns.py` — `BEAKER_TOKEN` plus ~3.1 GB over the network).
+- **The `wandb` Python SDK** — `wandb.Api()` cannot start in the sandbox (it spawns a
+  `wandb-core` helper the sandbox blocks). `nxd_scaling.py`, `bootstrap_scaling.py`,
+  `build_report.py`, `generative_match.py`, `mature_fewshot_curve.py`.
+- **The `/allen` mount** — HPC-only. `rl_baseline.py` (needs both).
+- **Large artifact streaming** — `fetch_gru_history_patterns.py` (`BEAKER_TOKEN`, ~3.1 GB).
 
-So a `make r<n>` target can mix both classes — study-01's `r7` runs `nxd_scaling.py`
-(HPC) then `update_final_report_nxd.py` (local). Run the extraction where it has to run,
-commit the frozen file, and do the report step locally off that commit. Splitting them this
-way is also what makes the report step reproducible by anyone without cluster access.
+Everything else is local, **including W&B reads over GraphQL.** `api.wandb.ai` + `requests`
+works fine in the sandbox and only needs `WANDB_API_KEY` exported — that is what
+`references/wandb-graphql-sandbox.md` is for. Study-02's `scaling.py` pulls W&B this way and
+runs locally; study-01's `nxd_scaling.py` pulls the same data through the SDK and cannot.
+**Same data, different route, different answer** — so read the import, don't assume from the
+fact that a producer mentions W&B.
 
-Practical note: the sandbox cannot run the extraction half even if you want it to — the
-`wandb` Python SDK cannot start its local service there, and `/allen` is not mounted.
+Pure formatters are the clear-cut local case: they read the frozen file and rewrite report
+markers or redraw a figure (`update_final_report_nxd.py`, `update_r8.py`,
+`pswitch_history_patterns.py`, `embedding_param_decode.py`; study-02's `update_reports.py`).
+
+A single `make r<n>` target can span both classes — study-01's `r7` runs `nxd_scaling.py`
+(node) then `rl_baseline.py` (node) then `update_final_report_nxd.py` (local) — so the rule
+is per script, not per target. Run the extraction where it has to run, commit the frozen
+file, and do the report step locally off that commit. That split is also what lets someone
+without cluster access reproduce the report half.
 
 ## Layout (per study)
 

@@ -33,9 +33,10 @@ README wins.**
 ## Not everything belongs on HPC
 
 Report generation runs **locally**, not through `sbatch` — a producer on the reproducible
-path reads a committed file and touches no live service, so a compute node buys nothing.
-Only the *extraction* half (live W&B pulls, `/allen`, Beaker artifact streaming) needs a
-node. The decidable check and the per-script split: the `posthoc-reporting` skill.
+path reads a committed file, so a compute node buys nothing. Only scripts needing the
+`wandb` SDK (which cannot start in the sandbox), the `/allen` mount, or large artifact
+streaming need a node; W&B reads over GraphQL run locally fine. The check and the
+per-script split: the `posthoc-reporting` skill.
 
 ## Check available resources FIRST (mandatory for large jobs)
 
