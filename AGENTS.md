@@ -21,9 +21,8 @@ in this file. **Load the relevant skill before you act, not after something brea
 
 **This file states rules; it does not enumerate the data a rule ranges over.** "Submit only
 to hub clusters" belongs here and cannot go stale; the *list of clusters* belongs to
-`beaker-launch` and did go stale — §10 kept two revoked clusters listed as verified
-exceptions for weeks after the skill was fixed. So when a rule below needs a name, a path, a
-number, or a table to act on, that detail is in the named skill and this file points at it.
+`beaker-launch`, because a list can. So when a rule below needs a name, a path, a number, or
+a table to act on, that detail is in the named skill and this file points at it.
 
 If a skill and this file ever disagree, that is a **bug, not a precedence question**: follow
 whichever side is more restrictive and fix both in the same PR.

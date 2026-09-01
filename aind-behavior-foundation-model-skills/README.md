@@ -46,17 +46,14 @@ This keeps the always-loaded core small while nothing is lost.
   points into this pack for detail.
 - **A skill/`AGENTS.md` disagreement is a bug, not a precedence question.** Don't write
   "X wins on conflict" between a skill and the always-loaded summary: `AGENTS.md` is terse
-  and has no update contract, so a stale line there can outrank a corrected skill. (It did:
-  §10 listed two revoked Beaker clusters as verified exceptions after `beaker-launch` was
-  fixed.) Deferring to a *code-adjacent living doc* — the wrapper's `TRAINING.md`,
+  and has no update contract, so a stale line there can outrank a corrected skill.
+  Deferring to a *code-adjacent living doc* — the wrapper's `TRAINING.md`,
   `code/beaker/README.md` — is fine, because those are updated with the code they describe.
   Until a disagreement is resolved, follow whichever side is more restrictive, and fix both
   copies in one PR.
 - **`codebase-map` is a map, not a rulebook.** It answers "where is X" and "which skill
   next" and deliberately does not restate rules owned by `AGENTS.md` or another skill.
-  This is load-bearing: it once carried the Beaker cluster allowlist and kept two revoked
-  clusters listed as verified exceptions for weeks after both upstream copies were fixed.
-  Since it is the first skill loaded, a stale copy there is read first.
+  Since it is the first skill loaded, a stale copy there is the first thing read.
 
 ## Maintaining the pack
 

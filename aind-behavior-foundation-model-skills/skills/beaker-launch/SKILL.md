@@ -10,19 +10,15 @@ hard rules in summary form. Deep detail: `references/` here and `code/beaker/REA
 (flow, cluster + **image** tables, memory pitfalls, resumable mechanics).
 
 **If this skill and `AGENTS.md` §10 disagree, that is a bug — not a precedence question.**
-This file used to say §10 wins on conflict, which was exactly backwards in the one case it
-mattered: §10 kept listing two revoked non-hub clusters as verified exceptions after this
-skill was corrected, so "§10 wins" would have sent jobs to clusters where they silently
-never schedule. Until both are fixed, **follow whichever is more restrictive**, and fix
-both in the same PR.
+`AGENTS.md` is terse and has no update contract, so a stale line there can outrank a
+corrected skill. Follow whichever side is more restrictive, and fix both in the same PR.
 
 ## Hard rules first
 
 1. **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`) — there are
    **no exceptions.** Never target a non-hub cluster (`aipbd-*`, `siti-*`, `dev-*`, any
-   other `octo.ai-*`) even if it shows idle GPUs: they belong to other science units, and
-   a job sent there silently never schedules rather than failing. The two formerly-verified
-   exceptions were revoked 2026-08-22 — history in `references/scheduling-lessons.md`.
+   other `octo.ai-*`) even if it shows idle GPUs: they belong to other science units, and a
+   job sent there silently never schedules rather than failing.
 2. **Never run the launch's compute on the login node** — the launcher itself is fine
    (it only submits), the training is not.
 3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
@@ -219,9 +215,9 @@ the fan-out. Routine repeats of known-good launches: fan out directly.
   re-score held-out only (`resume_heldout_beaker.py`), and **backfill a lost metric
   from its surviving table artifact** (no GPU — try before re-scoring; includes the
   verified trial-weighted-geometric aggregation).
-- `references/scheduling-lessons.md` — the (now historical) g6e/p5en exception and its
-  revocation, priority-tier measurements, bundle over-assignment, cross-cloud S3, the
-  resolved-JSON payload ceiling, **exit-0-with-a-missing-metric**, verify-with-data.
+- `references/scheduling-lessons.md` — priority-tier measurements, bundle over-assignment,
+  cross-cloud S3, the resolved-JSON payload ceiling,
+  **exit-0-with-a-missing-metric**, verify-with-data.
 - `references/resumable-launch-traps.md` — why each of the three resumable-launcher
   rules above exists: the 409 payload ceiling, the `wandb.project` default, and the
   branch-vs-SHA resume failure modes.

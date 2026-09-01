@@ -78,10 +78,8 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
 
 **This map answers "where is X" and "which skill next"; it deliberately does not state
 the rules themselves.** Each rule has one owner, and a copy here is a second copy that
-rots while the owner is corrected — this section used to carry the Beaker cluster
-allowlist and still listed two revoked non-hub clusters as verified exceptions weeks
-after `beaker-launch` *and* `code/beaker/README.md` were both fixed. Since this is the
-first skill loaded, that stale copy was the first thing every agent read.
+rots while the owner is corrected. Since this is the first skill loaded, a stale copy
+here is the first thing every agent reads — so the rules stay with their owners.
 
 | To do / know | Load |
 |---|---|
