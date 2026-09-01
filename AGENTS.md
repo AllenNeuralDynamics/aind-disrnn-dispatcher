@@ -6,6 +6,27 @@ The four-principle backbone (Think Before Coding, Simplicity First, Surgical Cha
 
 Tradeoff: These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## 0. Load the Right Skill First
+
+Operational detail lives in the skills pack (`aind-behavior-foundation-model-skills/`), not
+in this file. **Load the relevant skill before you act, not after something breaks:**
+
+- Any repo work → **codebase-map** and **git-session-isolation**
+- Any Beaker job → **beaker-launch**
+- Any HPC job → **hpc-launch**
+- Any training config, run interpretation, W&B metrics, or post-training analysis → **wrapper-runtime**
+- Any study or variant work → **study-conventions**
+- Any analysis or figure work → **posthoc-reporting**
+- Filing an issue, updating its status, or touching the project board → **issue-tracking**
+
+**This file states rules; it does not enumerate the data a rule ranges over.** "Submit only
+to hub clusters" belongs here and cannot go stale; the *list of clusters* belongs to
+`beaker-launch`, because a list can. So when a rule below needs a name, a path, a number, or
+a table to act on, that detail is in the named skill and this file points at it.
+
+If a skill and this file ever disagree, that is a **bug, not a precedence question**: follow
+whichever side is more restrictive and fix both in the same PR.
+
 ## 1. Think Before Coding
 
 Don't assume. Don't hide confusion. Surface tradeoffs.
@@ -63,26 +84,19 @@ These guidelines are working when diffs contain fewer unnecessary changes, solut
 
 ## 5. HPC Execution Safety
 
-**Never run *any* Python on the login node (where the agent runs) — no exceptions.**
-This covers training, sweeps, analysis, synthetic data generation, and "quick" smoke
-tests or single-worker checks, whether run interactively or shipped ad-hoc via
-`call_command`/SSH.
+**Never run *any* Python on the login node (where the agent runs) — no exceptions.** This
+covers training, sweeps, analysis, data generation, and "quick" smoke tests or single-worker
+checks, interactive or shipped ad-hoc via `call_command`/SSH. All workload Python goes
+through `srun`/`sbatch`/`salloc` onto a compute node.
 
-- All workload Python goes through `srun`/`sbatch`/`salloc` onto a compute node.
-- The **only** Python permitted on the login node is a *submit-only launcher*
-  (`launch_hpc.py`, `launch_beaker*.py`, `check_gpu_availability.py`) that creates a
-  W&B sweep, submits jobs, or probes capacity and returns — it never imports the
-  wrapper data loader, model, or training code, and never starts a `multiprocessing`
-  Pool.
-- Why: even a "small" login-node job shares the node with every other user. A bug in
-  one — e.g. an unguarded `multiprocessing` spawn-Pool that re-imports its own script
-  as `__main__` and recursively forks without bound — can trigger a runaway
-  process-spawn cascade that hammers the whole node. (Real incident: an ad-hoc
-  data-gen smoke test left a 260 MB log with 65k+ process-spawn errors on hpc-code.)
+The only exception is a *submit-only launcher* that creates a sweep, submits, or probes
+capacity and returns — never importing loader/model/training code, never starting a
+`multiprocessing` Pool. Which scripts qualify, and the real incident behind this rule (an
+unguarded spawn-Pool that forked into a 260 MB / 65k-error cascade): **hpc-launch**.
 
 ## 6. Semantic Commit Messages
 
-Use [Conventional Commits](https://www.conventionalcommits.org/) format for every commit:
+[Conventional Commits](https://www.conventionalcommits.org/):
 
 ```text
 <type>(<optional scope>): <short imperative summary>
@@ -92,145 +106,78 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format for ever
 <optional footer, e.g. "Refs #123" or "BREAKING CHANGE: ...">
 ```
 
-Allowed `<type>` values:
+`<type>` ∈ `feat` `fix` `docs` `refactor` `perf` `test` `build` `ci` `chore` `revert`.
 
-- `feat` — new user-visible feature
-- `fix` — bug fix
-- `docs` — documentation only
-- `refactor` — code change that neither fixes a bug nor adds a feature
-- `perf` — performance improvement
-- `test` — add or fix tests
-- `build` — build system, dependencies, or packaging
-- `ci` — CI configuration or scripts
-- `chore` — maintenance, tooling, or housekeeping with no src/test impact
-- `revert` — revert a prior commit
-
-Rules:
-
-- Summary line in the imperative mood, no trailing period, <= 72 chars.
-- One logical change per commit; split unrelated changes into separate commits.
-- Use `<scope>` for the affected area when helpful (e.g. `feat(launcher): ...`, `docs(readme): ...`).
-- Mark breaking changes with `!` after the type/scope (e.g. `feat(api)!: ...`) and a `BREAKING CHANGE:` footer.
-- Body explains the motivation and any non-obvious consequences; don't restate the diff.
+- Summary imperative, no trailing period, <= 72 chars; `<scope>` names the affected area.
+- One logical change per commit; split unrelated changes.
+- Breaking changes: `!` after the type/scope plus a `BREAKING CHANGE:` footer.
+- The body explains motivation and non-obvious consequences — don't restate the diff.
 
 ## 7. Human-Facing Logs & Reporting
 
-When logging progress or writing anything for a human to read (status updates, README
-status logs, run reports, PR/commit notes), make it directly readable for the user:
-
-- **Use Seattle time** (`America/Los_Angeles`), not UTC. Stamp times like `10:48 PT`
-  (`TZ=America/Los_Angeles date`). Avoid forcing the reader to convert from UTC.
-- **Link the W&B sweep/run.** When reporting a metric or run, include its W&B link so the
-  reader can click through (e.g. the project `https://wandb.ai/<entity>/<project>` or the
-  specific run URL). Beaker experiments aren't W&B sweeps — link the W&B project/run, and
-  the Beaker experiment id/link when relevant.
+Anything a human reads (status updates, run reports, PR/commit notes) uses **Seattle time**
+(`TZ=America/Los_Angeles`, stamped like `10:48 PT`), not UTC, and **links the W&B
+project/run** so the reader can click through. Beaker experiments aren't W&B sweeps — link
+the W&B run, plus the Beaker experiment id when relevant.
 
 ## 8. Study & Experiment Organization
 
-One folder per study under `studies/<name>/`; variants as self-contained subfolders
-`variants/<variant>/`; one W&B project per study, one group per variant
-(`<variant>@<launch_id>`). A study answers one scientific question — variants are not
-separate studies. Full conventions + the provenance/`meta` scheme: the
-**`study-conventions` skill** (`aind-behavior-foundation-model-skills/skills/study-conventions/`).
+One folder per study under `studies/<name>/`; variants as self-contained subfolders; one W&B
+project per study, one group per variant. A study answers one scientific question — variants
+are not separate studies. Layout, naming, group scheme, provenance `meta.*`, interventions:
+**study-conventions**.
 
 ## 9. Merging Pull Requests
 
-**Never squash-merge a PR.** Merge with a **merge commit** (no fast-forward, e.g.
-`gh pr merge <n> --merge`) so the branch's individual commits — and their per-commit
-history/provenance — are preserved on the target branch. Squashing collapses that history
-and is not allowed.
+**Never squash-merge a PR.** Merge with a merge commit (`gh pr merge <n> --merge`) so the
+branch's individual commits and their provenance survive on the target branch.
 
 ## 10. Beaker / AI Hub Launch & Scheduling
 
-- If you trigger jobs from Allen's HPC, use the `disrnn-cpu` conda env
-  (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`), not base. Treat this as the
-  launcher/control-plane environment for `wandb`, `beaker`, and YAML tooling.
-- **Scientific Beaker jobs must submit immutable source refs.** Source templates may
-  use readable branch/tag values with inline comments, but both Beaker launchers
-  resolve `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF` to full
-  40-character GitHub SHAs before creating a W&B sweep or submitting to Beaker; the
-  saved rendered YAML contains those SHAs. Mutable refs are only acceptable for
-  direct smoke/development jobs. If bypassing the launchers with
-  `beaker experiment create`, pin all three refs manually.
-- **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
-  **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
-  — they're not ours. Verified exceptions (non-hub `octo.ai-aws-*`, but admit our
-  **low-priority preemptible** jobs — AWS, reach S3): `ai1/octo.ai-aws-g6e` (L40S bundle)
-  and `ai1/octo.ai-aws-p5en` (H200 141 GB bundle).
-- **Check schedulable capacity BEFORE launching any large job (> 4 GPUs / > 4 concurrent
-  tasks): `python code/check_gpu_availability.py`** (Beaker + HPC). Route to whichever backend
-  has room. "Free" is not "schedulable": Beaker reports GPUs on **cordoned** nodes as free
-  (unschedulable), and `sinfo` counts `drain`/`down` nodes — the script strips both. Do not
-  trust `beaker cluster list` / raw `sinfo` free counts, and never assume the cluster order
-  below has open slots.
-- Cluster choice: pick by **live schedulable capacity first**. `ai1/octo.ai-aws-g6e` (L40S,
-  low/preemptible-only exception) and `ai1/octo-hub-aws-l40s` (L40S) for general jobs;
-  `ai1/octo-hub-onprem-h200` / `ai1/octo.ai-aws-p5en` (the H200 preemptible exception)
-  **only when a task needs the 141 GB** (wide `hidden_size=256`
-  OOMs a 48 GB L40S). **H200 is not inherently faster than L40S/g6e** — do not prefer it on
-  speed grounds. When all Beaker clusters are saturated/cordoned, HPC SLURM (`aind` partition)
-  is the GPU overflow — check it with `--hpc` and launch there (§13 load-balancing).
-- Heavy work never on the login node (see §5).
-- **Three job-protection tiers in our workspace:** (1) **4 allocated** slots — protected
-  non-preemptible (`{normal/high, preemptible: false}`), never evicted; (2) **8 unallocated**
-  slots — normal-priority preemptible, hard cap; (3) **~unlimited low-preemptible**
-  (`{low, preemptible: true}`) — bursts past the 8-cap onto spare GPUs, evicted first,
-  auto-resumes. Default fan-outs → tier 3 (`priority: low`); must-finish runs → tier 1.
-- Scheduling detail — the tier table/measurements, GPU-bundle sizing (`--memory 90GiB --cpu 12`
-  = 1 L40s GPU), the g6e/p5en exceptions, cross-cloud S3 caveat, quota debugging, one-unit
-  validation: the **`beaker-launch` skill** (`aind-behavior-foundation-model-skills/skills/beaker-launch/`,
-  read before any non-trivial launch).
+- **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`) — never to a
+  non-hub cluster even if it shows idle GPUs, and there are **no exceptions**. A job sent to
+  one silently never schedules rather than failing.
+- **Check schedulable capacity before any large launch** (> 4 GPUs / > 4 concurrent tasks)
+  and route to the backend with room. "Free" is not "schedulable": Beaker reports GPUs on
+  cordoned nodes as free and `sinfo` counts `drain`/`down` nodes, so raw counts lie.
+- **Scientific jobs submit immutable source refs.** Templates may carry readable branch
+  values, but the launchers resolve every runtime ref to a full SHA before submitting. Pin
+  manually when bypassing them.
+- Heavy work never on the login node (§5).
+- Which clusters are usable and why (memory limits, the S3 reachability rule), the capacity
+  command, priority/preemption tiers and their slot budgets, GPU-bundle sizing, resumable
+  launches, extend/re-score: **beaker-launch**, before any non-trivial launch.
 
 ## 11. Verify Mechanisms With Data Before Asserting
 
-When explaining *why* infra/scheduling/quota behaves a certain way, **pull the actual data
-first** (`beaker ... --format json`, `cluster get`, the W&B API) and cite the field. Label
-observed fact ("verified: …") vs inference ("likely, unconfirmed: …"); don't present a
-hypothesis as a conclusion; isolate variables before attributing cause. Worked examples:
-the `beaker-launch` skill, `references/scheduling-lessons.md`.
+When explaining *why* infra/scheduling/quota behaves a certain way, pull the data first and
+cite the field. Label observed fact ("verified: …") vs inference ("likely, unconfirmed: …");
+don't present a hypothesis as a conclusion; isolate variables before attributing cause.
+Worked examples: **beaker-launch**, `references/scheduling-lessons.md`.
 
 ## 12. Post-hoc Analysis & Reporting
 
-Reports are code: committed, regenerable, one producer per artifact. Every analysis JSON
-carries a `_meta` block; every report file under `studies/<study>/analysis/reports/r*.md`
-has YAML frontmatter (`id`, `status`, `wandb_groups`, `inputs`, `reproduce`) and uses
-`<!-- BEGIN result-N -->` / `<!-- END result-N -->` markers around any region a script
-regenerates. W&B pull caches are `.gitignore`'d. Full conventions — folder layout, file
-contracts, `Makefile` convention, enforcement layers, multi-agent collaboration rules: the
-**`posthoc-reporting` skill** (`aind-behavior-foundation-model-skills/skills/posthoc-reporting/`);
-mirror a normalized study (e.g. `studies/01-gru-scaling-law/`).
+Reports are code: committed, regenerable, one producer per artifact, provenance inside the
+artifact. Numbers are frozen in a committed file and keyed by an immutable digest — never
+read live from W&B on the reproducible path. File contracts, marker syntax, `_meta` schema,
+Makefile and `.gitignore` policy, multi-agent rules: **posthoc-reporting**; mirror a
+normalized study (e.g. `studies/01-gru-scaling-law/`).
 
 ## 13. Claude Science Workflow
 
-The agent runs on the user's Mac (persistent brain); GitHub is the source of truth.
-Two checkouts track it: the Mac clone (`~/Scripts/aind-disrnn-dispatcher`, authoring)
-and the HPC login node (`/home/han.hou/code/...`, pull-only runtime). Load balancing:
-CPU jobs → HPC SLURM, GPU jobs → Beaker — both launchers live here and only submit, so
-one repo drives both. The sandbox cannot create a `.git` dir in a granted path, so the
-user owns cloning (and SSO auth); the agent edits/commits/pushes into existing checkouts.
-Full scheme — task-to-host table, W&B-from-sandbox access, credentials: the
-**`codebase-map` skill**, `references/claude-science-workflow.md`.
+The agent runs on the user's Mac (persistent brain); GitHub `origin` is the source of truth,
+and every local checkout — Mac authoring clone, HPC pull-only runtime — is a disposable
+cache of it. Load balancing: CPU jobs → HPC SLURM, GPU jobs → Beaker; both launchers live
+here and only submit, so one repo drives both.
 
-- **Launching from the Claude Science Mac sandbox** (no HPC hop): the launchers
-  (`code/launch_beaker.py`, `beaker_client.py`, `launch_beaker_resumable.py`) are
-  sandbox-safe (W&B GraphQL + `Config(user_token=$BEAKER_TOKEN)` directly). Run from
-  `code/` as `PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py ... --no-submit`
-  (`PYTHONSAFEPATH=1` in the sandbox breaks sibling imports otherwise; `--no-submit`
-  is the safe dry-run). `beaker.org` + `api.wandb.ai` each need a one-time
-  `request_network_access` grant. Full recipe: the `beaker-launch` skill,
-  `references/sandbox-launch.md`.
-- **Verify the image name before submitting.** Old example specs
-  (`experiment_h100/h200/pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`,
-  which no longer exists (→ `ImageNotFound`/404). Current:
-  `han-hou/disrnn-wrapper-main-20260712` (see `code/beaker/README.md` "Available
-  images"); list live images with
-  `beaker workspace images ai1/aind-dynamic-foraging-foundation-model`. Code is
-  pulled fresh at startup (`entrypoint.sh` checks out `WRAPPER_REF`/`DISPATCHER_REF`/
-  `FORAGING_MODELS_REF`), so code/config edits need **no** rebuild — only a stale
-  image or changed dependencies do.
-- **Transient node failure ≠ code bug.** A job dying in ~5 s with
-  `status.message: "no space left on device"` / `started=None` is a full-NVMe node;
-  resubmit (lands elsewhere) instead of debugging training code.
+- Checkout paths, task-to-host table, W&B-from-sandbox access, credentials: **codebase-map**,
+  `references/claude-science-workflow.md`.
+- Committing and pushing from the sandbox, which git operations the sandbox blocks, and
+  pairing the two repo SHAs on a deliverable: **git-session-isolation**.
+- Launching from the sandbox (import quirk, dry-run, network grants), **verifying the image
+  name before submitting** — a stale image fails with no logs — and telling a transient node
+  failure from a code bug: **beaker-launch**, `references/sandbox-launch.md`. The live image
+  table is `code/beaker/README.md`.
 
 ## Agent skills
 

@@ -1,6 +1,6 @@
 ---
 name: posthoc-reporting
-description: Post-hoc analysis and reporting conventions for studies — report files with YAML frontmatter and BEGIN/END result markers, JSON _meta blocks, launch_record results.md stubs, Makefile targets, cache .gitignore policy, one-producer-per-artifact. Use when writing/regenerating analysis reports, figures, or JSON summaries from finished W&B groups.
+description: Post-hoc analysis and reporting conventions for studies — report files with YAML frontmatter and BEGIN/END result markers, JSON _meta blocks, launch_record results.md stubs, Makefile targets, cache .gitignore policy, one-producer-per-artifact, and running report generation locally rather than on HPC. Use when writing/regenerating analysis reports, figures, or JSON summaries from finished W&B groups.
 ---
 
 # Post-hoc analysis & reporting
@@ -94,6 +94,45 @@ committed file** — the git diff is the audit trail. The offline producer never
   is not pinned: `environment.lock` pins the wrapper commit that produced the
   *metrics*, not matplotlib/freetype. A PNG diff after regenerating on a different
   box is expected and is **not** evidence that results changed — confirm via the JSON.
+
+## Run report generation LOCALLY, not on HPC
+
+**A report producer runs in the local sandbox by default. Reaching for `sbatch` is the
+error.** This follows from the freeze rule above rather than being a separate policy: a
+producer on the reproducible path reads a committed CSV/JSON and touches no live service,
+so it has nothing to gain from a compute node — and an `sbatch` round-trip adds queue wait,
+a second checkout to keep in sync, and a log file to go fetch, in exchange for nothing.
+
+The discriminator is **not** "does it read W&B" — it is whether the script needs something
+the sandbox genuinely lacks. Three things do:
+
+```bash
+# scripts that need a node; everything else runs locally
+grep -lE 'wandb\.Api\(|^\s*import wandb|from wandb|/allen/|BEAKER_TOKEN' analysis/*.py
+```
+
+- **The `wandb` Python SDK** — `wandb.Api()` cannot start in the sandbox (it spawns a
+  `wandb-core` helper the sandbox blocks). `nxd_scaling.py`, `bootstrap_scaling.py`,
+  `build_report.py`, `generative_match.py`, `mature_fewshot_curve.py`.
+- **The `/allen` mount** — HPC-only. `rl_baseline.py` (needs both).
+- **Large artifact streaming** — `fetch_gru_history_patterns.py` (`BEAKER_TOKEN`, ~3.1 GB).
+
+Everything else is local, **including W&B reads over GraphQL.** `api.wandb.ai` + `requests`
+works fine in the sandbox and only needs `WANDB_API_KEY` exported — that is what
+`references/wandb-graphql-sandbox.md` is for. Study-02's `scaling.py` pulls W&B this way and
+runs locally; study-01's `nxd_scaling.py` pulls the same data through the SDK and cannot.
+**Same data, different route, different answer** — so read the import, don't assume from the
+fact that a producer mentions W&B.
+
+Pure formatters are the clear-cut local case: they read the frozen file and rewrite report
+markers or redraw a figure (`update_final_report_nxd.py`, `update_r8.py`,
+`pswitch_history_patterns.py`, `embedding_param_decode.py`; study-02's `update_reports.py`).
+
+A single `make r<n>` target can span both classes — study-01's `r7` runs `nxd_scaling.py`
+(node) then `rl_baseline.py` (node) then `update_final_report_nxd.py` (local) — so the rule
+is per script, not per target. Run the extraction where it has to run, commit the frozen
+file, and do the report step locally off that commit. That split is also what lets someone
+without cluster access reproduce the report half.
 
 ## Layout (per study)
 

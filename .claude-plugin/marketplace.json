@@ -8,7 +8,7 @@
     {
       "name": "aind-behavior-foundation-model-skills",
       "source": "./aind-behavior-foundation-model-skills",
-      "description": "Skills pack: dispatcher codebase map, Beaker (AI Hub) launching, Allen on-prem SLURM launching, study organization, post-hoc reporting."
+      "description": "Skills pack: dispatcher codebase map, Beaker (AI Hub) launching, Allen on-prem SLURM launching, wrapper training/analysis runtime, study organization, post-hoc reporting, git session isolation and provenance, issue/project-board tracking."
     }
   ]
 }

@@ -3,45 +3,15 @@
 Deep detail behind the hard rules in SKILL.md. (Absorbed from the former
 `docs/beaker-playbook.md`; this file is now the canonical home.)
 
-> ## ⚠ HISTORICAL — the g6e and p5en exceptions no longer apply
->
-> **Revoked 2026-08-22 (confirmed by Han):** `ai1/octo.ai-aws-g6e` and
-> `ai1/octo.ai-aws-p5en` are no longer available to our workspace. Do not target
-> either, even as a fallback entry — jobs silently never schedule. Live snapshot
-> that day: g6e 0 schedulable / **2075** queued; p5en 1 schedulable / **1008**
-> queued. There are now **no** non-hub exceptions.
->
-> The two sections below are kept for the *mechanism* they document
-> (`allowPreemptibleRestrictionExceptions` is how a non-hub cluster can admit
-> low-priority preemptible jobs, and how to check it) — not as routing advice.
-> Usable S3-backed targets are `octo-hub-aws-h200`, `octo-hub-onprem-h200`,
-> `octo-hub-aws-l40s`.
+## Cluster eligibility
 
-## The verified g6e exception (2026-06-23)
+Submit only to `hub` clusters (`octo-hub-*`, `octo.hub-*`, `aihub-*`). There are no
+non-hub exceptions. A job sent to a non-hub cluster silently never schedules rather than
+failing, so the symptom is a task that pends forever, not an error.
 
-`ai1/octo.ai-aws-g6e` is non-hub but has
-`allowPreemptibleRestrictionExceptions: True`, so **low-priority preemptible**
-jobs are admitted past its user-whitelist (a `{priority: low, preemptible: true}`
-task scheduled in ~3 s). It is **AWS** (reaches S3, unlike GCP) with the **same
-NVIDIA L40S bundle as `octo-hub-aws-l40s`** (≈93 GiB + 12 CPU/GPU → size
-`--memory 90GiB --cpu 12` for 1 GPU); 4 nodes × 4 GPUs = 16 slots. Use it as
-**extra preemptible burst capacity for S3-backed offline jobs only** — never
-assume guaranteed slots there. Other `octo.ai-*` / `aipbd-*` / `siti-*` clusters
-remain off-limits unless similarly verified (probe
-`beaker cluster get --format json` for `allowPreemptibleRestrictionExceptions`).
-
-## The verified p5en exception (2026-07-12)
-
-`ai1/octo.ai-aws-p5en` is the second non-hub `octo.ai-aws-*` cluster verified the
-same way: `beaker cluster get` reports `allowPreemptibleRestrictionExceptions:
-True` (identical to g6e), so **low-priority preemptible** jobs are admitted past
-its user-whitelist. It is **AWS** (reaches S3) with **NVIDIA H200 141 GB** GPUs,
-**3 nodes × 8 = 24 slots**. This is the **preemptible route to H200 memory** — use
-it for wide `hidden_size=256` (which OOMs a 48 GB L40S) when the on-prem H200 pool
-is full, as burst capacity only (never assume guaranteed slots). Bundle sizing is
-the H200 shape, not the L40S `--memory 90GiB --cpu 12` — size to one H200 bundle
-and confirm `BEAKER_ASSIGNED_GPU_COUNT=1`. As with g6e, H200 is chosen here for
-**memory, not speed**.
+Usable for S3/DB-backed training: `octo-hub-aws-h200`, `octo-hub-onprem-h200`,
+`octo-hub-aws-l40s`. GCP hub clusters cannot reach the AWS S3 parquet cache and are
+unusable for any mice-data run. Canonical table: `code/beaker/README.md`.
 
 ## Priority tiers (verified on onprem-H200 + aws-L40s, 2026-06-22)
 
@@ -89,7 +59,7 @@ where the workload needs it. Check `BEAKER_ASSIGNED_GPU_COUNT` /
 
 GCP clusters (e.g. `gcp-h100`) **cannot reach AWS S3**
 (`aind-scratch-data.s3.amazonaws.com` DNS fails cross-cloud) — never route
-S3/DB-backed data jobs to GCP. AWS clusters (l40s, h200, g6e) reach S3 fine. The
+S3/DB-backed data jobs to GCP. AWS hub clusters (l40s, h200) reach S3 fine. The
 trial/session database is public AWS S3
 (`s3://aind-scratch-data/aind-dynamic-foraging-cache`, us-west-2).
 

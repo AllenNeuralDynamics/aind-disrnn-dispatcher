@@ -30,23 +30,29 @@ README wins.**
    producers using the GraphQL route need `WANDB_API_KEY` exported — see the
    posthoc-reporting skill) and Beaker in `~/.beaker/config.yml`.
 
+## Not everything belongs on HPC
+
+Report generation runs **locally**, not through `sbatch` — a producer on the reproducible
+path reads a committed file, so a compute node buys nothing. Only scripts needing the
+`wandb` SDK (which cannot start in the sandbox), the `/allen` mount, or large artifact
+streaming need a node; W&B reads over GraphQL run locally fine. The check and the
+per-script split: the `posthoc-reporting` skill.
+
 ## Check available resources FIRST (mandatory for large jobs)
 
 **Before launching any large job (> 4 GPUs / > 4 concurrent array tasks), check
-schedulable capacity** and route to whichever backend (HPC vs Beaker) has room.
-Hard rule (AGENTS.md §10).
+schedulable capacity** and route to whichever backend has room. Hard rule (AGENTS.md §10).
 
 ```bash
 python code/check_gpu_availability.py --hpc     # this partition (default: aind)
 python code/check_gpu_availability.py           # HPC + Beaker, to load-balance
 ```
 
-`sinfo` free counts include `drain`/`down`/reserved nodes. The script reports the
-real figure — `CfgTRES.gres/gpu − AllocTRES.gres/gpu` on non-drained nodes —
-broken down by GPU type (a100/h200/v100/l40s/…). HPC often has genuinely idle GPUs
-when all Beaker hub clusters are saturated/cordoned, so it is the natural overflow
-for large GPU grids. Requires the Allen network (login node, or the sandbox with
-VPN up).
+The script reports `CfgTRES.gres/gpu − AllocTRES.gres/gpu` on non-drained nodes, broken
+down by GPU type (a100/h200/v100/l40s/…), because raw `sinfo` free counts include
+`drain`/`down`/reserved nodes. Needs the Allen network (login node, or the sandbox with
+VPN up). HPC is the natural overflow for large GPU grids: it often has genuinely idle
+GPUs while every Beaker hub cluster is saturated or cordoned.
 
 ## Standard launch (W&B sweep + SLURM array)
 
@@ -120,31 +126,21 @@ detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
 
 ## Recording an intervention (resubmit / rescue / probe / backfill)
 
-`launch_hpc.py` writes **no launch-record JSON** — unlike the Beaker launchers, it leaves no
-file behind describing what was submitted. So anything you do after the initial sweep
-(resubmitting dead array tasks, rescuing a wedged job, a diagnostic rerun, recovering a metric
-post-hoc) must be recorded by hand or it is lost:
+`launch_hpc.py` writes **no launch-record JSON** — unlike the Beaker launchers, it leaves
+nothing behind describing what was submitted. So every post-sweep action (resubmitting dead
+array tasks, rescuing a wedged job, a diagnostic rerun, recovering a metric post-hoc) must
+be recorded by hand with `studies/util/launch_record.py::write_intervention(...,
+platform="hpc")` or it is lost. **Schema, required fields, and the full example live in the
+`study-conventions` skill** — it owns the contract; don't re-derive it here.
 
-```python
-import sys
-from pathlib import Path
+Two HPC-specific points:
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "util"))
-from launch_record import write_intervention
-write_intervention(
-    path=variant / "launch_record" / "hpc_<label>.json",
-    kind="resubmit", platform="hpc",
-    wandb_group="<variant>@<launch_id>",
-    study_root=STUDY,
-    job_refs=[{"type": "wandb_sweep", "id": sweep_id},          # PREFER this
-              {"type": "slurm_array_job", "id": array_job_id}],  # ages out of sacct
-    trigger={"symptom": "array tasks 3-7 died", "cause": "node OOM"},
-)
-```
-
-**Record the W&B sweep id, not just the SLURM id.** SLURM job ids are recycled and drop out of
-`sacct` history within days, so a sweep id is the only handle that still resolves later. Schema
-and the wrap-up validator: the `study-conventions` skill.
+- **Record the W&B sweep id, not just the SLURM id** (`job_refs=[{"type": "wandb_sweep",
+  "id": sweep_id}]`). SLURM ids are recycled and drop out of `sacct` within days; the sweep
+  id is the only handle that still resolves later. Add the array id alongside if you like,
+  never instead.
+- `platform="hpc"` — the validator reconciles on `wandb_group`, so that field is what ties
+  the record back to the runs.
 
 ## Monitoring
 

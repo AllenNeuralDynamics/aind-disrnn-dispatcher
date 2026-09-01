@@ -26,8 +26,7 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
 
 | Path | What it is |
 |---|---|
-| `code/run_capsule.py` | Hydra entrypoint: composes `code/config/` into JSON job specs (see root `README.md` for override examples) |
-| `code/config/` | Hydra config groups (`data=mice\|synthetic`, `model=disrnn\|baseline_rl\|...`) |
+| `code/config/` | Hydra config groups (`data=mice\|synthetic`, `model=disrnn\|baseline_rl\|...`) — composed here, consumed by the wrapper's `run_capsule.py` |
 | `code/launch_beaker_resumable.py` | Preferred Beaker launcher: grid sweep → one resumable preemptible task per grid point |
 | `code/launch_beaker.py` | Native-route Beaker launcher: `wandb sweep` + `wandb agent` replicas |
 | `code/beaker/` | Beaker sweep/experiment YAMLs + `README.md` (control-plane detail) |
@@ -37,18 +36,28 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
 | `code/check_gpu_availability.py` | Schedulable-GPU probe (Beaker + HPC) — mandatory before large launches (AGENTS.md §10) |
 | `code/beaker_client.py` | Sandbox-safe Beaker/W&B client helpers used by the launchers |
 | `studies/<study>/` | One folder per scientific question (`NN-{model}-{purpose}`); variants + analysis (see study-conventions skill) |
-| `studies/util/` | Shared analysis helpers: `_meta.py` (provenance block), `plot_style.py` |
-| `docs/` | Canonical deep-dive docs (see index below) |
-| `AGENTS.md` | Behavioral guardrails — the terse rules; docs hold the detail |
+| `studies/util/` | Shared helpers: `_meta.py` (provenance block), `plot_style.py`, `launch_record.py` (intervention records), `validate_provenance.py` (wrap-up reconciler), `watch_runs.py` (poll Beaker+W&B, append timestamped snapshots so transitions between check-ins aren't lost) |
+| `docs/` | Design records + pointer stubs (index below) |
+| `AGENTS.md` | Behavioral guardrails — the terse rules; this pack and the code-adjacent docs hold the detail |
 
 ## Where knowledge lives (one canonical home per topic)
 
 - **AGENTS.md** — always-loaded terse guardrails (both repos).
 - **This skills pack** — canonical for cross-cutting *operational* knowledge:
   launching (beaker-launch, hpc-launch), study conventions (study-conventions),
-  reporting (posthoc-reporting), the Claude Science workflow
-  (`references/claude-science-workflow.md`). The former `docs/*.md` playbooks were
-  absorbed into these skills and are now pointer stubs.
+  reporting (posthoc-reporting), git/provenance (git-session-isolation), the Claude
+  Science workflow (`references/claude-science-workflow.md`). The former `docs/*.md`
+  playbooks were absorbed into these skills and are now pointer stubs — update the
+  skill, not the stub.
+- **`docs/` design records** — canonical for *forward-looking modeling decisions*, which
+  no skill covers. Read the relevant one before touching that modeling direction:
+  - `docs/design-hb-baseline.md` — settled decision record for the hierarchical-Bayesian
+    cognitive-model baseline (implementation state lives in dispatcher issue #72, not the
+    note). Relevant to `studies/08-hb-vs-gru-heldout/`.
+  - `docs/design-hierarchical-vi-foundation-model.md` — design/plan (not yet implemented)
+    for a hierarchical mixed-effects foundation model via amortized VI.
+  - `docs/repo-split-plan.md` — why the dispatcher/wrapper split is shaped as it is; read
+    before moving code across the two repos.
 - **Code-adjacent living docs** — canonical for code-coupled reference; skills
   defer to them:
   - `../aind-disrnn-wrapper/code/TRAINING.md` — **§1.5 "Run lifecycle & key
@@ -65,26 +74,24 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
     pitfalls, resumable-run mechanics.
   - `code/hpc/README.md` — SLURM setup, launch variants, monitoring.
 
-## Non-negotiable rules (from AGENTS.md)
+## Which skill next — and why the rules are not on this page
 
-- **Never run heavy work on the login node** — always `srun`/`sbatch` (HPC) or Beaker.
-- Beaker: **submit only to `hub` clusters** (+ the verified `octo.ai-aws-g6e` and
-  `octo.ai-aws-p5en` low/preemptible exceptions) — see the beaker-launch skill.
-- **Check schedulable capacity before any large launch** (> 4 GPUs / > 4 concurrent
-  tasks): `python code/check_gpu_availability.py` — raw `beaker cluster list`/`sinfo`
-  counts include cordoned/drained nodes and lie.
-- Control-plane conda env on Allen HPC: `disrnn-cpu`
-  (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`), not base.
-- Conventional Commits; never squash-merge PRs (`gh pr merge <n> --merge`).
-- Human-facing logs: Seattle time (`TZ=America/Los_Angeles`), include W&B links.
-- Verify infra claims with data (`beaker ... --format json`, W&B API) before asserting;
-  label "verified:" vs "likely, unconfirmed:".
+**This map answers "where is X" and "which skill next"; it deliberately does not state
+the rules themselves.** Each rule has one owner, and a copy here is a second copy that
+rots while the owner is corrected. Since this is the first skill loaded, a stale copy
+here is the first thing every agent reads — so the rules stay with their owners.
 
-## Which skill next
+| To do / know | Load |
+|---|---|
+| Submit to Beaker: cluster allowlist, capacity, sizing, priority, resumable launches | **beaker-launch** |
+| Launch on Allen on-prem SLURM; the login-node prohibition; `disrnn-cpu` | **hpc-launch** |
+| Interpret logs/metrics, held-out numbers, checkpoints/resume; training + analysis code | **wrapper-runtime** |
+| Create a study/variant, name W&B groups, record an intervention | **study-conventions** |
+| Write or regenerate reports, figures, curated JSON | **posthoc-reporting** |
+| Commit / branch / push, provenance SHAs, concurrent sessions on a shared checkout | **git-session-isolation** |
+| File an issue, set its project-board fields, link a PR | **issue-tracking** |
+| Commit style, merge policy, Seattle-time logs, verify-with-data | `AGENTS.md` (always loaded) |
 
-- Launch on Beaker / AI Hub → **beaker-launch**
-- Launch on Allen on-prem SLURM → **hpc-launch**
-- Interpret a run's logs/metrics, held-out numbers, checkpoints/resume, or the
-  training/analysis code itself → **wrapper-runtime**
-- Set up a new study/variant or name W&B groups → **study-conventions**
-- Write or regenerate analysis reports → **posthoc-reporting**
+No exceptions to that, including for the rules it would be most tempting to repeat (the
+login-node prohibition, the capacity check). `AGENTS.md` is always loaded and states both;
+a copy here would add nothing except a second thing to keep correct.
