@@ -1,6 +1,7 @@
 # Design note: hierarchical Bayesian (HB) cognitive-model baseline
 
-**Status:** design, settled. All specifics in §7 are decided; implementation not yet started.
+**Status:** settled decision record. The decisions here are final; implementation state
+lives in the tracker (dispatcher issue #72), not in this note.
 Written 2026-08-28 17:58 PT.
 
 **One-line goal.** Reimplement the published hierarchical Bayesian Q-learning model in

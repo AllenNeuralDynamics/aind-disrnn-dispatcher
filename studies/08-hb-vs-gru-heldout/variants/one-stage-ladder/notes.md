@@ -8,8 +8,8 @@ held-out cohort with matched conditioning.
 | **W&B group** | `hb-one_stage@20260829-181251` |
 | **W&B project** | `mice_data_scaling` — **study 01's project, not a new one** (see deviation below) |
 | **Runs** | `hb-one_stage-D{10,30,101}-s0` |
-| **SLURM** | 25489921 (D10), 25489922 (D30), 25489923 (D100) |
-| **Status** | running, launched 2026-08-29 11:12 PT |
+| **SLURM** | superseded — see the launch record; no rung has run on the current code |
+| **Status** | not yet run. The entrypoint moved to `run_hpc` after those jobs, so they do not reflect this variant |
 
 ## What differs
 
@@ -51,7 +51,9 @@ Comparators already on record:
 
 ## Known limits
 
-Held-out scoring is 153 subjects × one adaptation fit per rung, run sequentially. Measured
-at roughly 4 h per rung, which is why production scores only `matched` + `k=0` rather than
-the full `k ∈ {0,1,2,4,8}` sweep. Batching the adaptation fits across subjects would make
-the full sweep affordable and is the outstanding work.
+Held-out scoring originally ran one adaptation fit per subject, sequentially: roughly 4 h
+per rung over the 153-subject cohort, which forced production down to `matched` + `k=0`.
+
+Adaptation and session scoring are both batched now, so a rung costs minutes and
+`production.sbatch` runs the full `k ∈ {0,1,2,4,8}` sweep from the model config rather than
+overriding it. The `--few-shot-k 0` in the superseded launch record reflects the old cost.

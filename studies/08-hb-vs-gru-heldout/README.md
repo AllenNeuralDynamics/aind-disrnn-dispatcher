@@ -66,4 +66,10 @@ a fallback for scales where the joint fit will not converge. Override with
 
 ## Status
 
-D~30 launched 2026-08-29. D~100 follows if D~30 is clean.
+Per-variant, in the variant's own notes — this README would only rot as a second copy:
+
+| variant | status |
+|---|---|
+| [`one-stage-ladder`](variants/one-stage-ladder/notes.md) | see notes |
+
+Live plan and open items: dispatcher issue #72.
