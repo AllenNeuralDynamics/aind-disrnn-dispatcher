@@ -104,8 +104,7 @@ fetch itself is fast on AWS (~5 s for all ~12.5M trials; scales with CPU count).
 
 Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200` or other
 non-hub clusters. **There are NO exceptions** — a job sent to a non-hub cluster silently
-never schedules rather than failing, so the symptom is a task that pends forever. Access
-2026-08-22 and jobs submitted there silently never schedule.
+never schedules rather than failing, so the symptom is a task that pends forever.
 
 Pick one with free slots (`beaker cluster list ai1`); a job queues if none are
 free. Slot caps (Allocated = non-preemptible, Unallocated = preemptible) are in
