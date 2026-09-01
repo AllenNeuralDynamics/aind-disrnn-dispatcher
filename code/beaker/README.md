@@ -76,19 +76,28 @@ so re-check with `beaker cluster list ai1` or https://beaker.org/.)
 Hub clusters — use these (resources measured 2026-06-21; re-check with
 `beaker cluster list ai1` / `beaker node get <id> --format json`):
 
-Preferred order for known-good low/preemptible S3-backed jobs: `ai1/octo.ai-aws-g6e`
-first (verified exception; L40S has been faster than H200 for our current workloads and
-has many slots), then `ai1/octo-hub-onprem-h200`, then `ai1/octo-hub-aws-l40s`. For jobs
-that need H200 memory (wide H256) preemptibly, `ai1/octo.ai-aws-p5en` is the second
-verified exception (H200 141 GB) when the on-prem H200 pool is full.
+> **Access change 2026-08-22 (confirmed by Han).** `ai1/octo.ai-aws-g6e` and
+> `ai1/octo.ai-aws-p5en` are **no longer available to us**. Do not target either,
+> even as a fallback entry — jobs silently never schedule (that day: g6e 0
+> schedulable / 2075 queued, p5en 1 / 1008). There are now **no** non-hub
+> exceptions; the rows below are kept only as history.
+
+Preferred order for low/preemptible S3-backed jobs: `ai1/octo-hub-aws-h200`,
+`ai1/octo-hub-onprem-h200`, `ai1/octo-hub-aws-l40s` — chosen by **live schedulable
+capacity** (free AND uncordoned) rather than a fixed ranking, since all three are
+S3-capable. Note that on-prem reaches S3 fine (verified 2026-08-22: a probe read
+the snapshot session table, `S3_PARQUET_OK sessions= 23868`), and it is frequently
+the emptiest pool. Watch for a study saturating one cluster with its **own** tasks
+— check how many slots your running jobs already hold before adding a variant, and
+spread variants across these three.
 
 | Cluster | GPU (mem) | Host RAM/node | Reaches DB? | Notes |
 |---|---|---|---|---|
-| `ai1/octo.ai-aws-g6e` | L40S (48 GB) | ~93 GiB/GPU bundle | ✅ AWS | **verified exception for low/preemptible jobs only**; preferred first for known-good S3-backed jobs |
+| ~~`ai1/octo.ai-aws-g6e`~~ | L40S (48 GB) | ~93 GiB/GPU bundle | n/a | ⛔ **ACCESS REVOKED 2026-08-22** — do not target; jobs never schedule |
 | `ai1/octo-hub-aws-l40s` | L40s (48 GB) | ~373 GiB (1 node, 4 slots) | ✅ AWS | default; fine for H128. 48 GB GPU OOMs a *wide* (hidden_size=256) full-cohort eval unless chunked |
 | `ai1/octo-hub-aws-h200` | H200 (141 GB) | large | ✅ AWS | large training; often full (32/32) |
-| `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem | large training; usually has free slots — best for wide H256 |
-| `ai1/octo.ai-aws-p5en` | H200 (141 GB) | large (8/node, 3 nodes = 24 slots) | ✅ AWS | **verified exception for low/preemptible jobs only**; the preemptible route to H200 memory when on-prem H200 is full |
+| `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem (S3 verified 2026-08-22) | large training; usually the emptiest pool — best for wide H256. Needs a CURRENT image: the 2026-06-18 `disrnn-wrapper-pck-integration` fails to pull here (`No such image`), `disrnn-wrapper-main-20260712` works |
+| ~~`ai1/octo.ai-aws-p5en`~~ | H200 (141 GB) | large (8/node, 3 nodes = 24 slots) | n/a | ⛔ **ACCESS REVOKED 2026-08-22** — do not target; jobs never schedule |
 | `ai1/octo-hub-gcp-h100` | H100 (80 GB) | ~1.83 TiB | ❌ **cannot reach AWS S3 DB** | lots of free CPU/RAM, but DB reads fail (DNS / SSL-cert errors) — only for compute that doesn't touch the DB |
 | `ai1/octo.hub-gcp-h200` | H200 (141 GB) | large | ❌ GCP (S3 unreliable) | |
 | `ai1/octo-hub-aws-l40s-dev` | L40s (48 GB) | — | ✅ AWS | dev |
@@ -101,9 +110,10 @@ us-west-2); **GCP clusters cannot reliably read it** (intermittent
 fetch itself is fast on AWS (~5 s for all ~12.5M trials; scales with CPU count).
 
 Do **not** use (other units' allocations, not hub): `ai1/aipbd-aws-h200` or other
-non-hub clusters. The current exceptions are `ai1/octo.ai-aws-g6e` (L40S) and
-`ai1/octo.ai-aws-p5en` (H200 141 GB) for verified **low-priority preemptible**
-jobs only — both report `allowPreemptibleRestrictionExceptions: True` and reach S3.
+non-hub clusters. **There are currently NO exceptions:** `ai1/octo.ai-aws-g6e` and
+`ai1/octo.ai-aws-p5en` were previously verified via
+`allowPreemptibleRestrictionExceptions: True`, but our access was revoked
+2026-08-22 and jobs submitted there silently never schedule.
 
 Pick one with free slots (`beaker cluster list ai1`); a job queues if none are
 free. Slot caps (Allocated = non-preemptible, Unallocated = preemptible) are in

@@ -15,9 +15,14 @@ resumable mechanics).
 1. **Submit ONLY to `hub` clusters** (`octo-hub-*`, `octo.hub-*`, `aihub-*`).
    **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`)
    even if idle — they belong to other science units.
-   Verified exceptions: `ai1/octo.ai-aws-g6e` (L40S) and `ai1/octo.ai-aws-p5en`
-   (H200 141 GB) accept our **low-priority preemptible** jobs only
-   (see `references/scheduling-lessons.md`).
+   **REVOKED 2026-08-22 (confirmed by Han):** `ai1/octo.ai-aws-g6e` and
+   `ai1/octo.ai-aws-p5en` are **no longer available to us** and were formerly
+   documented here as verified exceptions. Do not target them even as fallback
+   entries — jobs silently never schedule. Observed the same day: g6e showed 0
+   schedulable with **2075** queued jobs, p5en 1 schedulable with **1008** queued.
+   Treat `references/scheduling-lessons.md`'s g6e/p5en guidance as historical.
+   There are now **no** non-hub exceptions; submit only to `octo-hub-*` /
+   `octo.hub-*` / `aihub-*`.
 2. **Never run the launch's compute on the login node** — the launcher itself is fine
    (it only submits), the training is not.
 3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
@@ -63,17 +68,54 @@ only option (preemptible jobs burst as capacity frees / nodes uncordon).
 
 Pick by **live schedulable capacity first**, then by these properties:
 
-- `ai1/octo.ai-aws-g6e` — L40S 48GB, many slots; **low/preemptible only** (a
-  verified non-hub exception).
-- `ai1/octo-hub-aws-l40s` — L40S 48GB, same class.
-- `ai1/octo-hub-onprem-h200` — H200 141GB. **Use only when a task needs the memory**
-  (wide `hidden_size=256` OOMs a 48GB L40S). **H200 is NOT inherently faster than
-  L40S/g6e** for our workloads — do not prefer it on speed grounds.
-- `ai1/octo.ai-aws-p5en` — H200 141GB (8/node); **low/preemptible only** (the other
-  verified non-hub exception). The preemptible route to H200 memory when the on-prem
-  H200 pool is full.
+- `ai1/octo-hub-aws-h200` — H200 141GB. Usable for S3-backed jobs.
+- `ai1/octo-hub-onprem-h200` — H200 141GB, on-prem but **reaches AWS S3 fine**
+  (verified 2026-08-22: a probe read the snapshot session table and printed
+  `S3_PARQUET_OK sessions= 23868`). Often the emptiest pool, and study-01's H128
+  column trained here. **H200 is NOT inherently faster than L40S** for our
+  workloads — do not prefer it on speed grounds, prefer it on free slots.
+- `ai1/octo-hub-aws-l40s` — L40S 48GB. Note wide `hidden_size=256` OOMs 48GB.
 
-**GCP clusters cannot reach AWS S3** — never route DB/S3-backed jobs there.
+### The S3 rule — decides cluster choice before capacity does
+
+**GCP clusters cannot reach the AWS S3 parquet cache**
+(`s3://aind-scratch-data/aind-dynamic-foraging-cache`, us-west-2): intermittent
+`Could not resolve hostname` / `SSL CA cert` `IOException`s mid-fetch. This rules
+out `ai1/octo-hub-gcp-h100` and `ai1/octo.hub-gcp-h200` for **every mice-data
+run**, however many GPUs they show free — and they frequently show the most free,
+which is the trap. They are usable only for compute that touches no DB (e.g.
+in-process synthetic data). Canonical list in `code/beaker/README.md`'s cluster
+table; read it *before* running a capacity survey, not after.
+
+**Usable for S3/DB-backed training:** `octo-hub-aws-h200`,
+`octo-hub-onprem-h200`, `octo-hub-aws-l40s`.
+
+### Don't let one study serialize itself
+
+Live free-GPU count is not the same as *available to you*. A multi-variant study
+can saturate a cluster with its **own** tasks, so later tasks queue behind
+earlier ones and a parallel grid silently becomes serial (observed 2026-08-22:
+11 running + 10 queued on `aws-h200`, all from one study, while
+`onprem-h200` sat idle with 16 schedulable). Before launching a second variant,
+check how many slots *your own* running tasks already hold, and spread variants
+across the usable clusters.
+
+If you split a grid across clusters, say so in the variant notes: the swept axis
+and the cluster become **correlated**, so a cluster-level artifact would alias
+onto that axis. Cheap mitigation — run one grid point on *both* clusters as a
+cross-cluster check.
+
+### Image ≠ pullable
+
+`b.image.get(name)` succeeding only proves the image is **registered**, not that a
+cluster can pull it. A stale image copied from an old study variant's
+`experiment.yaml` failed to start on one cluster while working on another
+(`Failed to start job: ... No such image: gcr.io/...: image not found`, ~2 min,
+**no logs**, `exit_code=None` — the reason appears only on `job.status.message`).
+When reusing an old template, re-point `image.beaker` at the current image and, on
+an untried cluster, probe with a one-task job that echoes a marker before spending
+a grid. Note `b.image.list()` does not exist in `beaker-py<2`; call
+`b.image.get(name)` per candidate.
 
 ## Priority & preemption
 
