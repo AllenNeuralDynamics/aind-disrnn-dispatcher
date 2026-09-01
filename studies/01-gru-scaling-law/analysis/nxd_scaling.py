@@ -44,11 +44,16 @@ PROJECT = "AIND-disRNN/mice_data_scaling"
 NXD_GROUPS = [
     "nxd-grid@20260623-102649",
     "nxd-grid@20260624-141106",
+    # H=512 capacity row (study-01 nxd-h512). Only D in {10,30,100}: the 3 D=614
+    # seeds could not be landed (host-RAM OOM on HPC AND on Beaker, both memory
+    # ceilings tried, still climbing when killed -- logged as an unattainable
+    # cell in variants/nxd-h512/notes.md, not a data gap to backfill later).
+    "nxd-h512@20260720-195322",
 ]
 H128_GROUP = "v2-sc-active@20260622-144622"
 RATIO_D = {0.016: 10, 0.049: 30, 0.163: 100, 1.0: 614}
 TARGET_RATIOS = sorted(RATIO_D.keys())
-TARGET_HS = [16, 64, 128, 256]
+TARGET_HS = [16, 64, 128, 256, 512]
 OUTDIR = Path(__file__).parent
 
 
@@ -86,7 +91,10 @@ def collect():
             by_cell[key] = r
 
     target = len(TARGET_HS) * len(TARGET_RATIOS) * 3
-    print(f"  unique (N, D, seed) cells: {len(by_cell)} (target {target} = 4x{len(TARGET_RATIOS)}x3)")
+    print(f"  unique (N, D, seed) cells: {len(by_cell)} "
+          f"(rectangular target {target} = {len(TARGET_HS)}x{len(TARGET_RATIOS)}x3; "
+          f"H=512 is missing D=614, so the achievable max is "
+          f"{target - 1 * 3} = {len(TARGET_HS)-1}x{len(TARGET_RATIOS)}x3 + 1x{len(TARGET_RATIOS)-1}x3)")
 
     cell = defaultdict(dict)
     no_scalar = 0
