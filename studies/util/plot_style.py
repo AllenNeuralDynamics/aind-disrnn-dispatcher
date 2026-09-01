@@ -32,10 +32,16 @@ def t975(n: int) -> float:
 
 
 def apply_presentation_style() -> None:
-    """Set presentation-grade rcParams (large fonts, no top/right spines)."""
+    """Set presentation-grade rcParams (large fonts, no top/right spines).
+
+    Font (Han, 2026-08): Helvetica by default, falling back to Arial / DejaVu
+    Sans on hosts where Helvetica isn't installed (e.g. Linux compute).
+    """
     mpl.rcParams.update({
         "figure.dpi": 140, "savefig.dpi": 200,
         "axes.spines.top": False, "axes.spines.right": False,
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"],
         "font.size": 15,
         "axes.labelsize": 17,
         "axes.titlesize": 15,
