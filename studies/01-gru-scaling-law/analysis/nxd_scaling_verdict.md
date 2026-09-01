@@ -14,7 +14,7 @@ H128 column re-used from `v2-sc-active@20260622-144622` (predates per-subject lo
 | 64 | 0.7218 | 0.7247 | 0.7264 | 0.7270 | +0.0006 | 88% |
 | 128 | 0.7218 | 0.7249 | 0.7273 | 0.7282 | +0.0009 | 85% |
 | 256 | 0.7214 | 0.7251 | 0.7273 | 0.7290 | +0.0017 | 77% |
-| 512 | 0.7213 | 0.7253 | 0.7278 | nan | +nan | nan |
+| 512 | 0.7213 | 0.7253 | 0.7278 | n/a | n/a (no D=614) | n/a |
 
 ## Per-D gain from scaling N
 
@@ -23,7 +23,7 @@ H128 column re-used from `v2-sc-active@20260622-144622` (predates per-subject lo
 | 10 | 0.7177 | 0.7218 | 0.7218 | 0.7214 | 0.7213 | +0.0036 |
 | 30 | 0.7200 | 0.7247 | 0.7249 | 0.7251 | 0.7253 | +0.0053 |
 | 100 | 0.7220 | 0.7264 | 0.7273 | 0.7273 | 0.7278 | +0.0058 |
-| 614 | 0.7226 | 0.7270 | 0.7282 | 0.7290 | nan | +nan |
+| 614 | 0.7226 | 0.7270 | 0.7282 | 0.7290 | n/a | n/a (N=512 has no D=614 cell) |
 
 ## Parametric fits
 
@@ -45,7 +45,7 @@ H128 column re-used from `v2-sc-active@20260622-144622` (predates per-subject lo
 ## Interpretation
 
 - **D saturates by ~100 across all N.** Mean fraction of total D-gain captured by D=100: **85%**. Saturation persists from H=16 to H=256, so it is NOT a hidden-size artifact.
-- **N effect at every D is small, but GROWS with D.** N=16->512 gain: at D=10 = +0.0036; at D=614 = +nan. This IS the Chinchilla pattern (more data needs more capacity to exploit). The gap nearly doubles (nanx), giving qualitative support for an N x D interaction. But the absolute magnitudes are small (<0.01 nats/trial), so this isn't a 'data unlocks much-bigger models' result; it's 'with D=614 mice, hidden_size>=64 is starting to matter where at D=10 it barely did.'
+- **N effect at every D is small, but grows with D.** N=16->512 gain at D=10 = +0.0036 (N=512 has no D=614 cell -- host-RAM OOM, see variants/nxd-h512/notes.md -- so the D=614 comparison below uses N=16->256, the largest N that has one). N=16->256 gain at D=614 = +0.0064. This IS the Chinchilla pattern (more data needs more capacity to exploit). The gap grows (1.8x), giving qualitative support for an N x D interaction. But the absolute magnitudes are small (<0.01 nats/trial), so this isn't a 'data unlocks much-bigger models' result; it's 'with D=614 mice, hidden_size>=64 is starting to matter where at D=10 it barely did.'
 - **Single irreducible floor E ~ 0.729** that all (N, D) cells approach. Exponents alpha=1.37, beta=0.60: N-axis dominates.
 - **Model comparison:** interaction fit's delta-AIC = -21.5 but the C-term is degenerate with the B-term (C ~ -B, gamma ~ 0). So the parametric model is ambiguous; the qualitative N x D interaction is better read off the raw delta(N=16->256) growing from +0.004 (D=10) to +0.006 (D=614).
 
@@ -54,4 +54,4 @@ H128 column re-used from `v2-sc-active@20260622-144622` (predates per-subject lo
 - `eval_likelihood` is bounded in [0, 1] (per-trial choice probability); saturation could reflect a per-trial task-noise ceiling. Generative behavioral-match (corr~0.96+) corroborates the near-ceiling claim from a 2nd metric.
 - H128 column re-uses `v2-sc-active` runs (same SC-active lambda-forward + gated-early-stop recipe as the other Ns in `nxd-grid`). No new H128 runs were trained for this scan.
 - v2-sc-active's N=128 has 5 D points (10/30/100/300/614); only {10, 30, 100, 614} used here for grid symmetry.
-- 20 fit points vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N=256 is not warranted.
+- 19 fit points (20 rectangular grid cells, 1 unattainable -- see variants/nxd-h512/notes.md) vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N=512 is not warranted.

@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/nxd_scaling.py",
-    "produced_at_pt": "2026-09-01T13:09:52-07:00",
-    "dispatcher_git_sha": "850879a4cd8bdf3e69e183fb7e52e97aee4d976f",
+    "produced_at_pt": "2026-09-01T13:56:23-07:00",
+    "dispatcher_git_sha": "821ef22b85ac6d68b316732182883be55ecf977d",
     "wrapper_git_sha": "870e6ddd56c0bfba4d2a314b63af0e056ef0153c",
     "wandb_groups": [
       "nxd-grid@20260623-102649",

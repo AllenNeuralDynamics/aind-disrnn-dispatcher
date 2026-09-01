@@ -35,7 +35,7 @@ def _cell(grid: list[list[float]], ns: list[int], ds: list[int], n: int, d: int)
 
 def _pct(v: float) -> str:
     if math.isnan(v):
-        return "nan"
+        return "n/a"
     return f"{v * 100:.0f}%"
 
 
