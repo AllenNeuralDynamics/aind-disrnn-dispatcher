@@ -13,7 +13,11 @@ Which repo owns which part of the fit, and where the held-out boundary sits.
 The image is a still; **[open the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)** to pan, zoom,
 search and trace a single relationship.
 
-[![HB stack across three repos](figures/hb-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)
+[**HB stack across three repos — open the interactive diagram**](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)
+
+_The PNG still shows the pre-Hydra layout with a `run_hb.py` entrypoint that no longer
+exists; regenerating it needs Chrome, which this host does not have. The linked HTML is
+current._
 
 `figures/hb-stack.architecture.json` is the source; the HTML is generated from it:
 
