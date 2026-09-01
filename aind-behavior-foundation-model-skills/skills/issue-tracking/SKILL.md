@@ -5,9 +5,13 @@ description: File GitHub issues for the AIND behavior foundation model repos and
 
 # Issue & project-board tracking
 
-**Every piece of tracked work starts with an issue, and every issue goes on the board with
-Status, Priority, and Size set.** An issue nobody can find on the board is invisible at
-planning time, and a PR with no issue leaves the *why* only in a diff. File first, then work.
+**Every piece of tracked work starts with an issue; every issue is assigned to an owner and
+goes on the board with Status, Priority, and Size set.** An issue nobody can find on the
+board is invisible at planning time, an unassigned issue has no one it belongs to, and a PR
+with no issue leaves the *why* only in a diff. File first, then work.
+
+Default assignee is **`hanhou`** — assign at creation rather than later, so the issue is
+never briefly ownerless. Override with `--assignee` when the work belongs to someone else.
 
 Board: <https://github.com/orgs/AllenNeuralDynamics/projects/184/> ("AIND-behavior-fm").
 Issues live on the repo the work touches — usually `aind-disrnn-dispatcher`, or
@@ -27,13 +31,19 @@ python scripts/board.py --repo aind-disrnn-dispatcher \
 That script does all four steps and prints the issue URL. Do them by hand only if you need
 something it does not cover — the calls are below.
 
-1. **Create the issue** (REST `POST /repos/{org}/{repo}/issues`) with `labels`.
+1. **Create the issue** (REST `POST /repos/{org}/{repo}/issues`) with `labels` and
+   `assignees`. GitHub **silently drops** an assignee the repo cannot assign — it returns
+   200 with an empty `assignees` array rather than erroring — so read the response back and
+   say so if the login did not stick. The script does this check.
 2. **Add it to the board** (GraphQL `addProjectV2ItemById`) — returns the *item* id, which
    is what the field mutations take. An issue node id is not an item id.
 3. **Set Status, Priority, Size** (GraphQL `updateProjectV2ItemFieldValue`, once per field,
    `value: {singleSelectOptionId: ...}`).
 4. **Read the item back** and confirm all three fields landed. The mutations return success
    for a valid-but-wrong option id, so a read-back is the only proof.
+
+The board's `Assignees` column mirrors the issue's assignee, so there is no separate field
+to set — assigning the issue in step 1 is enough.
 
 ## Choosing the field values
 

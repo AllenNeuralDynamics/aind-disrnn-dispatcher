@@ -22,6 +22,7 @@ import urllib.request
 
 ORG = "AllenNeuralDynamics"
 PROJECT_NUMBER = 184
+DEFAULT_ASSIGNEE = "hanhou"
 # Cached 2026-09-01; --discover re-reads them.
 PROJECT_ID = "PVT_kwDOBa47bs4BIeG5"
 FIELDS = {
@@ -105,12 +106,39 @@ def discover():
     return proj
 
 
-def create_issue(repo, title, body, labels):
+def create_issue(repo, title, body, labels, assignees=None):
+    if assignees is None:
+        assignees = [DEFAULT_ASSIGNEE]
     issue = _request(
         "https://api.github.com/repos/{}/{}/issues".format(ORG, repo),
-        {"title": title, "body": body, "labels": labels or []}, method="POST")
+        {"title": title, "body": body, "labels": labels or [],
+         "assignees": assignees}, method="POST")
     print("issue #{}: {}".format(issue["number"], issue["html_url"]))
+    got = [a["login"] for a in issue.get("assignees") or []]
+    if set(assignees) - set(got):
+        # GitHub silently drops assignees the repo can't assign; say so rather than
+        # leaving an unassigned issue that looks assigned.
+        print("  WARNING: requested {} but GitHub set {} — assign by hand"
+              .format(assignees, got or "nobody"))
+    else:
+        print("  assigned: {}".format(", ".join(got)))
     return issue
+
+
+def ensure_assignee(repo, number, current, assignees=None):
+    """Add the assignee to an existing issue if it has none of them."""
+    if assignees is None:
+        assignees = [DEFAULT_ASSIGNEE]
+    have = [a["login"] for a in current or []]
+    missing = [a for a in assignees if a not in have]
+    if not missing:
+        print("  assigned: {}".format(", ".join(have)))
+        return
+    out = _request(
+        "https://api.github.com/repos/{}/{}/issues/{}/assignees".format(ORG, repo, number),
+        {"assignees": missing}, method="POST")
+    print("  assigned: {}".format(
+        ", ".join(a["login"] for a in out.get("assignees") or [])))
 
 
 def get_issue(repo, number):
@@ -200,6 +228,9 @@ def main():
     ap.add_argument("--body-file", help="path to a markdown file for the issue body")
     ap.add_argument("--body", default="")
     ap.add_argument("--labels", nargs="*", default=[])
+    ap.add_argument("--assignee", action="append", default=None, metavar="LOGIN",
+                    help="issue assignee; repeatable. Defaults to "
+                         + DEFAULT_ASSIGNEE + " — every issue gets an owner.")
     ap.add_argument("--status", choices=sorted(FIELDS["Status"][1]))
     ap.add_argument("--priority", choices=sorted(FIELDS["Priority"][1]))
     ap.add_argument("--size", choices=sorted(FIELDS["Size"][1]))
@@ -222,6 +253,7 @@ def main():
     if args.existing:
         issue = get_issue(args.repo, args.existing)
         print("issue #{}: {}".format(issue["number"], issue["html_url"]))
+        ensure_assignee(args.repo, args.existing, issue.get("assignees"), args.assignee)
         body = issue.get("body") or ""
         if args.check or args.check_all:
             body, ticked = tick_boxes(args.repo, args.existing, body,
@@ -243,7 +275,7 @@ def main():
         if not args.title:
             sys.exit("--title is required unless --existing is given")
         body = open(args.body_file).read() if args.body_file else args.body
-        issue = create_issue(args.repo, args.title, body, args.labels)
+        issue = create_issue(args.repo, args.title, body, args.labels, args.assignee)
 
     item_id = add_to_board(issue["node_id"])
     set_fields(item_id, {"Status": args.status,
