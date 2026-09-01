@@ -5,11 +5,13 @@ and stay true regardless of which studies exist, which is why they live here rat
 any one `studies/<study>/figures/` — those hold a study's own results.
 
 Each diagram is a typed JSON source plus a generated HTML viewer and a PNG still.
-Regenerate after editing the source:
+Regenerate after editing the source, from the repository root:
 
-    node ~/.claude/skills/archify/bin/archify.mjs deliver architecture \
+    ARCHIFY=<path to the archify skill>/bin/archify.mjs   # e.g. ~/.claude/skills/archify/...
+
+    node "$ARCHIFY" deliver architecture \
       docs/diagrams/<name>.architecture.json docs/diagrams/<name>.html --quality showcase
-    node ~/.claude/skills/archify/bin/archify.mjs visual-check docs/diagrams/<name>.html
+    node "$ARCHIFY" visual-check docs/diagrams/<name>.html
 
 `visual-check` needs Chrome and writes the screenshots the PNG is cropped from; it reports
 `skipped` on hosts without it (the HPC login node, for one), so regenerate stills on a

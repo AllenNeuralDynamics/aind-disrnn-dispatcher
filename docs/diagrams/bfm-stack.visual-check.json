@@ -5,7 +5,7 @@
   "status": "pass",
   "visualReview": "pending",
   "artifact": {
-    "path": "/tmp/archify-bfm/bfm-stack.html",
+    "path": "docs/diagrams/bfm-stack.html",
     "sha256": "9edc63f5ec28441929b1d588764defcfa11d0d121f8c17d81b8237d252ba3f2d",
     "bytes": 719773
   },

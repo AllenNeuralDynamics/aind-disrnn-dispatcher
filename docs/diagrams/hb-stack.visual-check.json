@@ -5,7 +5,7 @@
   "status": "pass",
   "visualReview": "pending",
   "artifact": {
-    "path": "/Users/han.hou/Scripts/aind-disrnn-dispatcher/docs/diagrams/hb-stack.html",
+    "path": "docs/diagrams/hb-stack.html",
     "sha256": "ea898fe5eff108244fdd9bcb358eac617a0604371237f83b9b82b4dd75ed4e6f",
     "bytes": 719332
   },
