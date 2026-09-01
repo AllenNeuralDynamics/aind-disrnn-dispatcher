@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 """nxd-h512 grid-progress report generator.
 
-Reads a SLURM snapshot (written by the launching session via the compute
-transport into ./slurm_state.txt), queries W&B for live per-run progress, and
-renders a job-status board: overall progress bar (authoritative from SLURM —
-catches queued tasks W&B can't see), per-job progress + per-job ETA from each
-run's actual steps/sec, Seattle/Pacific time on the header, and a grid ETA.
+Queries W&B for live per-run progress and renders a job-status board: overall
+progress bar, per-job progress + per-job ETA from each run's actual
+steps/sec, Seattle/Pacific time on the header, and a grid ETA. Overall counts
+(done/running/queued) are derived ENTIRELY from per-cell W&B run state, not
+from the parsed SLURM snapshot -- deliberately: SLURM's own COMPLETED status
+does not distinguish a crashed run (`wandb agent` can exit 0 on a child crash)
+from a genuinely finished one, so W&B is the source of truth for "done" here.
+`parse_slurm()` still reads a SLURM snapshot (written by the launching session
+via the compute transport into ./slurm_state.txt) for `tasks`/`coll`/`squeue`,
+but as of this version that parsed state is not consulted by `build_report()`
+-- it is a currently-unused input, not a fallback that "catches queued tasks
+W&B can't see" as an earlier draft of this docstring claimed.
 
 Usage:
     WANDB_API_KEY=... python report_nxd_h512.py [handoff/slurm_state.txt]

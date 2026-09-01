@@ -21,7 +21,7 @@ END = "<!-- END result-7 -->"
 
 def _fmt(v: float) -> str:
     if v is None or math.isnan(v):
-        return "nan"
+        return "n/a"
     return f"{v:.4f}"
 
 
@@ -43,6 +43,7 @@ def build_block(data: dict) -> str:
     ns = data["Ns"]
     ds = data["Ds"]
     grid = data["mean_grid"]
+    n_actual_cells = sum(1 for row in grid for v in row if v is not None)
     fit_add = data["fit_additive"]
     fit_int = data["fit_interaction"]
     fit_ll = data.get("fit_loglog_interaction", {})
@@ -91,7 +92,9 @@ def build_block(data: dict) -> str:
         "",
         "*Heatmap and paired slices through the N×D grid. D saturates by ~100 mice at each hidden size, while the fixed-D N gain grows modestly from D=10 to D=614.*",
         "",
-        f"Grid: N (hidden_size) ∈ {{{', '.join(str(n) for n in ns)}}} × D ∈ {{{', '.join(str(d) for d in ds)}}} × 3 seeds ({len(ns) * len(ds)} (N,D) cells). H128 column re-used from `v2-sc-active`; D=30 for H16/H64/H256 comes from the g6e gap-fill. Metric: aggregate `heldout/final/eval_likelihood` across the same fixed held-out mouse set (~149 mice).",
+        f"Grid: N (hidden_size) ∈ {{{', '.join(str(n) for n in ns)}}} × D ∈ {{{', '.join(str(d) for d in ds)}}} × 3 seeds "
+         f"({n_actual_cells} of {len(ns) * len(ds)} rectangular (N,D) cells -- "
+         f"{len(ns) * len(ds) - n_actual_cells} unattainable, see notes.md). H128 column re-used from `v2-sc-active`; D=30 for H16/H64/H256 comes from the g6e gap-fill. Metric: aggregate `heldout/final/eval_likelihood` across the same fixed held-out mouse set (~149 mice).",
         "",
         "Mean L grid (held-out eval likelihood):",
         "",

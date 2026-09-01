@@ -296,7 +296,7 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
         return float(mean_grid[row_idx, j])
 
     def fmt(v):
-        return "nan" if np.isnan(v) else f"{v:.4f}"
+        return "n/a" if np.isnan(v) else f"{v:.4f}"
 
     lines = []
     lines.append("# N x D joint scaling - verdict")
@@ -319,12 +319,14 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     for i, N in enumerate(Ns):
         vals = [float(mean_grid[i, j]) for j in range(len(Ds))]
         l10, l100, l614 = val_at(i, 10), val_at(i, 100), val_at(i, 614)
-        tot = l614 - l10
-        late = l614 - l100
-        frac = (l100 - l10) / tot if abs(tot) > 1e-9 else float("nan")
+        have_d614 = not np.isnan(l614) and not np.isnan(l10)
+        tot = (l614 - l10) if have_d614 else float("nan")
+        late = (l614 - l100) if (have_d614 and not np.isnan(l100)) else float("nan")
+        frac = (l100 - l10) / tot if (have_d614 and not np.isnan(l100) and abs(tot) > 1e-9) else float("nan")
         vstr = " | ".join(fmt(v) for v in vals)
-        frac_str = "nan" if np.isnan(frac) else f"{frac*100:.0f}%"
-        lines.append(f"| {N} | {vstr} | {late:+.4f} | {frac_str} |")
+        late_str = f"{late:+.4f}" if not np.isnan(late) else "n/a (no D=614)"
+        frac_str = "n/a" if np.isnan(frac) else f"{frac*100:.0f}%"
+        lines.append(f"| {N} | {vstr} | {late_str} | {frac_str} |")
     lines.append("")
 
     lines.append("## Per-D gain from scaling N")
@@ -334,8 +336,10 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     lines.append("|---|" + "---|" * (len(Ns) + 1))
     for j, D in enumerate(Ds):
         row = [mean_grid[i, j] for i in range(len(Ns))]
-        rstr = " | ".join(f"{v:.4f}" for v in row)
-        lines.append(f"| {D} | {rstr} | {row[-1]-row[0]:+.4f} |")
+        rstr = " | ".join(fmt(v) for v in row)
+        have_delta = not np.isnan(row[-1]) and not np.isnan(row[0])
+        delta_str = f"{row[-1]-row[0]:+.4f}" if have_delta else f"n/a (N={Ns[-1]} has no D={D} cell)"
+        lines.append(f"| {D} | {rstr} | {delta_str} |")
     lines.append("")
 
     lines.append("## Parametric fits")
@@ -387,10 +391,28 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     mean_frac_by100 = float(np.nanmean(sat_per_N))
     lines.append(f"- **D saturates by ~100 across all N.** Mean fraction of total D-gain captured by D=100: **{mean_frac_by100*100:.0f}%**. Saturation persists from H=16 to H=256, so it is NOT a hidden-size artifact.")
 
-    diff_at_D614 = val_at(-1, 614) - val_at(0, 614)
     diff_at_D10 = val_at(-1, 10) - val_at(0, 10)
-    grows = "GROWS" if diff_at_D614 > diff_at_D10 + 0.001 else "FLAT/SHRINKS"
-    lines.append(f"- **N effect at every D is small, but GROWS with D.** N={Ns[0]}->{Ns[-1]} gain: at D=10 = {diff_at_D10:+.4f}; at D=614 = {diff_at_D614:+.4f}. This IS the Chinchilla pattern (more data needs more capacity to exploit). The gap nearly doubles ({diff_at_D614/max(diff_at_D10,1e-9):.1f}x), giving qualitative support for an N x D interaction. But the absolute magnitudes are small (<0.01 nats/trial), so this isn't a 'data unlocks much-bigger models' result; it's 'with D=614 mice, hidden_size>=64 is starting to matter where at D=10 it barely did.'")
+    # N=Ns[-1] may have no D=614 cell (H=512's D=614 seeds host-RAM-OOM'd; see
+    # variants/nxd-h512/notes.md) -- fall back to the largest N that actually has
+    # a D=614 value so this claim is computed from real data, not NaN.
+    n_idx_d614 = max((i for i, _ in enumerate(Ns) if not np.isnan(val_at(i, 614))), default=None)
+    if n_idx_d614 is None:
+        diff_at_D614 = float("nan")
+        d614_note = f"N={Ns[0]}->{Ns[-1]} gain: at D=10 = {diff_at_D10:+.4f}; at D=614 = n/a (no N has a D=614 cell)."
+    elif Ns[n_idx_d614] == Ns[-1]:
+        diff_at_D614 = val_at(-1, 614) - val_at(0, 614)
+        d614_note = f"N={Ns[0]}->{Ns[-1]} gain: at D=10 = {diff_at_D10:+.4f}; at D=614 = {diff_at_D614:+.4f}."
+    else:
+        n_hi = Ns[n_idx_d614]
+        diff_at_D614 = val_at(n_idx_d614, 614) - val_at(0, 614)
+        d614_note = (f"N={Ns[0]}->{Ns[-1]} gain at D=10 = {diff_at_D10:+.4f} "
+                     f"(N={Ns[-1]} has no D=614 cell -- host-RAM OOM, see variants/nxd-h512/notes.md -- "
+                     f"so the D=614 comparison below uses N={Ns[0]}->{n_hi}, the largest N that has one). "
+                     f"N={Ns[0]}->{n_hi} gain at D=614 = {diff_at_D614:+.4f}.")
+    grows = "GROWS" if (not np.isnan(diff_at_D614) and diff_at_D614 > diff_at_D10 + 0.001) else (
+            "FLAT/SHRINKS" if not np.isnan(diff_at_D614) else "unknown (n/a at D=614)")
+    ratio_text = f"{diff_at_D614/max(diff_at_D10,1e-9):.1f}x" if not np.isnan(diff_at_D614) else "n/a"
+    lines.append(f"- **N effect at every D is small, but {grows.lower()} with D.** {d614_note} This IS the Chinchilla pattern (more data needs more capacity to exploit). The gap grows ({ratio_text}), giving qualitative support for an N x D interaction. But the absolute magnitudes are small (<0.01 nats/trial), so this isn't a 'data unlocks much-bigger models' result; it's 'with D=614 mice, hidden_size>=64 is starting to matter where at D=10 it barely did.'")
 
     if "error" not in fit_add:
         dominates = "D-axis dominates" if abs(fit_add['beta']) > abs(fit_add['alpha']) else "N-axis dominates"
@@ -418,7 +440,9 @@ def write_verdict(Ns, Ds, mean_grid, se_grid, fit_add, fit_int, fit_ll, seed_sca
     lines.append("- `eval_likelihood` is bounded in [0, 1] (per-trial choice probability); saturation could reflect a per-trial task-noise ceiling. Generative behavioral-match (corr~0.96+) corroborates the near-ceiling claim from a 2nd metric.")
     lines.append("- H128 column re-uses `v2-sc-active` runs (same SC-active lambda-forward + gated-early-stop recipe as the other Ns in `nxd-grid`). No new H128 runs were trained for this scan.")
     lines.append("- v2-sc-active's N=128 has 5 D points (10/30/100/300/614); only {10, 30, 100, 614} used here for grid symmetry.")
-    lines.append(f"- {len(Ns) * len(Ds)} fit points vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N=256 is not warranted.")
+    n_fit_pts = fit_add.get("n") if "error" not in fit_add else sum(1 for row in mean_grid for v in row if not np.isnan(v))
+    n_rect = len(Ns) * len(Ds)
+    lines.append(f"- {n_fit_pts} fit points ({n_rect} rectangular grid cells, {n_rect - n_fit_pts} unattainable -- see variants/nxd-h512/notes.md) vs 5-8 params: fits are descriptive not predictive. Extrapolation past D=614 / N={Ns[-1]} is not warranted.")
     out_md.write_text("\n".join(lines) + "\n")
     print(f"  wrote {out_md}")
 
