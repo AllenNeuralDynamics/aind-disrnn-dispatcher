@@ -50,6 +50,11 @@ def build_block(data: dict) -> str:
 
     d_cols = " | ".join(f"D={d}" for d in ds)
     align = "|---|" + "---|" * (len(ds) + 2)
+    # Ragged-grid guard: a hidden size may be missing the D=614 column (e.g. H=512
+    # -- the 3 D=614 seeds host-RAM-OOM'd on both HPC and Beaker and were logged
+    # as unattainable rather than retried; see variants/nxd-h512/notes.md). _cell
+    # returns None for a missing (N, D) combination -- treat late/frac/diff as
+    # "n/a" for that row/column rather than crashing on a None arithmetic op.
     rows = []
     sat_fracs = []
     for i, n in enumerate(ns):
@@ -57,17 +62,22 @@ def build_block(data: dict) -> str:
         l10 = _cell(grid, ns, ds, n, 10)
         l100 = _cell(grid, ns, ds, n, 100)
         l614 = _cell(grid, ns, ds, n, 614)
-        tot = l614 - l10
-        late = l614 - l100
-        frac = (l100 - l10) / tot if abs(tot) > 1e-9 else float("nan")
+        have_d614 = l614 is not None and l10 is not None
+        tot = (l614 - l10) if have_d614 else float("nan")
+        late = (l614 - l100) if (have_d614 and l100 is not None) else float("nan")
+        frac = (l100 - l10) / tot if (have_d614 and l100 is not None and abs(tot) > 1e-9) else float("nan")
         sat_fracs.append(frac)
         row_vals = " | ".join(_fmt(v) for v in vals)
-        rows.append(f"| {n} | {row_vals} | {late:+.4f} | {_pct(frac)} |")
+        late_text = f"{late:+.4f}" if not math.isnan(late) else "n/a (no D=614)"
+        rows.append(f"| {n} | {row_vals} | {late_text} | {_pct(frac)} |")
 
-    mean_frac = sum(sat_fracs) / len(sat_fracs)
+    sat_fracs_valid = [f for f in sat_fracs if not math.isnan(f)]
+    mean_frac = sum(sat_fracs_valid) / len(sat_fracs_valid) if sat_fracs_valid else float("nan")
     diff_d10 = _cell(grid, ns, ds, ns[-1], 10) - _cell(grid, ns, ds, ns[0], 10)
-    diff_d614 = _cell(grid, ns, ds, ns[-1], 614) - _cell(grid, ns, ds, ns[0], 614)
-    ratio = diff_d614 / diff_d10 if abs(diff_d10) > 1e-9 else float("nan")
+    d614_hi, d614_lo = _cell(grid, ns, ds, ns[-1], 614), _cell(grid, ns, ds, ns[0], 614)
+    have_diff_d614 = d614_hi is not None and d614_lo is not None
+    diff_d614 = (d614_hi - d614_lo) if have_diff_d614 else float("nan")
+    ratio = diff_d614 / diff_d10 if (have_diff_d614 and abs(diff_d10) > 1e-9) else float("nan")
 
     d_aic = fit_int["aic"] - fit_add["aic"] if "error" not in fit_int and "error" not in fit_add else float("nan")
     interaction = fit_ll.get("interaction", {})
@@ -90,7 +100,8 @@ def build_block(data: dict) -> str:
         *rows,
         "",
         f"- *D saturates by ~100 across every N tested* (mean {mean_frac * 100:.0f}% of D-gain captured by D=100). Saturation is *not* a hidden-size artifact — it persists from H=16 to H=256.",
-        f"- *N-axis gain at fixed D grows weakly with D* (Chinchilla-style interaction). N={ns[0]}→{ns[-1]} gain: {diff_d10:+.4f} at D=10, {diff_d614:+.4f} at D=614 ({ratio:.1f}×). Qualitative support for an N×D synergy, but absolute magnitudes are small (<0.01 nats/trial).",
+        f"- *N-axis gain at fixed D grows weakly with D* (Chinchilla-style interaction). N={ns[0]}\u2192{ns[-1]} gain: {diff_d10:+.4f} at D=10, "
+         + (f"{diff_d614:+.4f} at D=614 ({ratio:.1f}\u00d7)." if have_diff_d614 else f"n/a at D=614 (N={ns[-1]} has no D=614 cell -- see notes.md).") + " Qualitative support for an N\u00d7D synergy, but absolute magnitudes are small (<0.01 nats/trial).",
         f"- Additive fit `L = E + A·N^{{-α}} + B·D^{{-β}}`: E≈{fit_add['E']:.3f} (single irreducible floor), α≈{fit_add['alpha']:.2f} (N), β≈{fit_add['beta']:.2f} (D); {'D-axis dominates' if abs(fit_add['beta']) > abs(fit_add['alpha']) else 'N-axis dominates'} within this grid.",
         f"- Interaction-term fit ΔAIC vs additive: {d_aic:+.1f}; log-log interaction p={p_text}. Treat the nonlinear interaction fit as descriptive because the grid remains small relative to the number of fit parameters.",
         f"- *Verdict*: same predictability ceiling story as Result 1; adding D=30 fills the low-data bend but does not by itself create new headroom. RL reference (trial-weighted pooled **0.7143**, dashed line on slice panels) sits below every (N, D) cell. See `nxd_scaling_verdict.md` for the fit details.",
