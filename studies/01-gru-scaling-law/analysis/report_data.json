@@ -1,8 +1,9 @@
 {
   "_meta": {
     "produced_by": "analysis/build_report.py",
-    "produced_at_pt": "2026-06-25T02:00:37-07:00",
-    "dispatcher_git_sha": "52a40000fd41aa880f1180bb784258e1d47b7c25",
+    "produced_at_pt": "2026-09-01T13:55:57-07:00",
+    "dispatcher_git_sha": "821ef22b85ac6d68b316732182883be55ecf977d",
+    "wrapper_git_sha": "870e6ddd56c0bfba4d2a314b63af0e056ef0153c",
     "wandb_groups": [
       "heldout-rerun-v1-retry@20260623-011405",
       "heldout-rerun-v1-retry@20260623-011406",

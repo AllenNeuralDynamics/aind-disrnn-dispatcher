@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "analysis/rl_baseline.py",
-    "produced_at_pt": "2026-07-13T05:29:22-07:00",
-    "dispatcher_git_sha": "1fc289fb17d66905dc81626da430be36b23d54b1",
+    "produced_at_pt": "2026-09-01T13:57:21-07:00",
+    "dispatcher_git_sha": "821ef22b85ac6d68b316732182883be55ecf977d",
     "wrapper_git_sha": "870e6ddd56c0bfba4d2a314b63af0e056ef0153c",
     "wandb_groups": [
       "heldout-rerun-v1-retry@20260623-011405",
