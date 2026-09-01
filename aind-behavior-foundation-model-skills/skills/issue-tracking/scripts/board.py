@@ -208,11 +208,28 @@ def remaining_boxes(body):
     return [ln.strip() for ln in body.splitlines() if ln.lstrip().startswith("- [ ]")]
 
 
-def verify(item_id):
+def verify(item_id, expected=None):
+    """Read the item back and CONFIRM the requested values landed.
+
+    A field mutation returns success for a valid-but-wrong option id, so printing
+    the result is not verification -- the values have to be compared. Exits non-zero
+    on mismatch so a stale cached option id fails loudly instead of silently
+    setting the wrong field.
+    """
     node = gql(READ_ITEM, {"i": item_id})["node"]
     got = {fv["field"]["name"]: fv["name"]
            for fv in node["fieldValues"]["nodes"] if fv.get("field")}
     print("on board: #{} {}".format(node["content"]["number"], got))
+    wrong = []
+    for name, want in (expected or {}).items():
+        if want is None:
+            continue
+        if got.get(name) != want:
+            wrong.append("{}: requested {!r}, board has {!r}".format(
+                name, want, got.get(name)))
+    if wrong:
+        sys.exit("board field mismatch — the cached option IDs may be stale, "
+                 "re-read them with --discover:\n  " + "\n  ".join(wrong))
     return got
 
 
@@ -274,13 +291,17 @@ def main():
     else:
         if not args.title:
             sys.exit("--title is required unless --existing is given")
-        body = open(args.body_file).read() if args.body_file else args.body
+        if args.body_file:
+            with open(args.body_file, encoding="utf-8") as fh:
+                body = fh.read()
+        else:
+            body = args.body
         issue = create_issue(args.repo, args.title, body, args.labels, args.assignee)
 
+    requested = {"Status": args.status, "Priority": args.priority, "Size": args.size}
     item_id = add_to_board(issue["node_id"])
-    set_fields(item_id, {"Status": args.status,
-                         "Priority": args.priority, "Size": args.size})
-    verify(item_id)
+    set_fields(item_id, requested)
+    verify(item_id, requested)
 
 
 if __name__ == "__main__":

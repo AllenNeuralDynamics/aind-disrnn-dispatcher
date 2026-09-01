@@ -75,6 +75,22 @@ literally the acceptance criteria) → **Notes** (constraints, gotchas, links).
 State what you *verified* versus what you *suspect*, per AGENTS.md §11. A finding with a
 file:line reference is actionable; "the docs seem stale" is not.
 
+## Keep it short
+
+**An issue is scanned later, not read.** Write the body so someone can act from it, and keep
+every update comment to **~5 sentences or fewer** — a comment's job is to record a state
+change, not to re-explain the work. The diff, the PR, and the "Done when" boxes already
+carry the detail; a long comment buries the one line that mattered.
+
+Practical limits: body sections stay tight (Context, Root cause, Findings table, Done when,
+Notes — no narration between them); update comments say what changed and what is left, in a
+sentence or two each. If an update needs more than that, it is usually a finding that belongs
+in the body as a new row or checkbox, not a comment. Never restate the audit trail — reviewers
+can read the commits.
+
+Replies to PR review comments follow the same rule, point-to-point, and are written **after**
+the fix is applied so each answers with what shipped rather than what is planned.
+
 ## Linking the PR
 
 Put `Closes #<n>` in the PR body so the merge closes the issue, move the board item to

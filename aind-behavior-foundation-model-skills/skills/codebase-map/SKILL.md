@@ -92,7 +92,6 @@ here is the first thing every agent reads — so the rules stay with their owner
 | File an issue, set its project-board fields, link a PR | **issue-tracking** |
 | Commit style, merge policy, Seattle-time logs, verify-with-data | `AGENTS.md` (always loaded) |
 
-Two `AGENTS.md` rules are worth repeating anywhere, because breaking them costs a job or
-a dataset rather than a correction: **never run heavy work on the login node**, and
-**check schedulable capacity before any large launch** — raw `beaker cluster list` /
-`sinfo` counts include cordoned and drained nodes.
+No exceptions to that, including for the rules it would be most tempting to repeat (the
+login-node prohibition, the capacity check). `AGENTS.md` is always loaded and states both;
+a copy here would add nothing except a second thing to keep correct.

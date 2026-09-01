@@ -1,6 +1,8 @@
 # Issue tracker: GitHub
 
-Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+Issues and specs for this repo live as GitHub issues. The `gh` commands below are the
+reference form; **in the Claude Science Mac sandbox there is no `gh` CLI**, so each one
+becomes the equivalent REST or GraphQL call (see the note directly below).
 
 > **Two project-specific rules the `gh` conventions below do not cover — see the
 > `issue-tracking` skill in `aind-behavior-foundation-model-skills/`.**
