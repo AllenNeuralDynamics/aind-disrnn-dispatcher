@@ -174,3 +174,7 @@ artifacts/
 
 # Claude Code per-user/per-machine settings (shared settings.json stays tracked)
 .claude/settings.local.json
+
+# Study 08: local run outputs and figures artifacts
+studies/08-hb-vs-gru-heldout/smoke_*.json
+studies/08-hb-vs-gru-heldout/artifacts/
