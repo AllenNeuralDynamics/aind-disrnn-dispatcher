@@ -5,10 +5,16 @@ description: Launch, size, and monitor training jobs on Beaker (AI Hub) for the 
 
 # Launching on Beaker (AI Hub)
 
-This skill is the source of truth for Beaker launching (hard rules mirrored from
-`AGENTS.md` §10, which wins on conflict). Deep detail: `references/` here and
-`code/beaker/README.md` (flow, cluster + **image** tables, memory pitfalls,
-resumable mechanics).
+This skill is the source of truth for Beaker launching; `AGENTS.md` §10 carries the same
+hard rules in summary form. Deep detail: `references/` here and `code/beaker/README.md`
+(flow, cluster + **image** tables, memory pitfalls, resumable mechanics).
+
+**If this skill and `AGENTS.md` §10 disagree, that is a bug — not a precedence question.**
+This file used to say §10 wins on conflict, which was exactly backwards in the one case it
+mattered: §10 kept listing two revoked non-hub clusters as verified exceptions after this
+skill was corrected, so "§10 wins" would have sent jobs to clusters where they silently
+never schedule. Until both are fixed, **follow whichever is more restrictive**, and fix
+both in the same PR.
 
 ## Hard rules first
 

@@ -154,21 +154,23 @@ and is not allowed.
   `beaker experiment create`, pin all three refs manually.
 - **Submit ONLY to `hub` clusters** (the team's pools: `octo-hub-*`, `octo.hub-*`, `aihub-*`).
   **NEVER** to non-hub clusters (`aipbd-*`, `siti-*`, `dev-*`, other `octo.ai-*`) even if idle
-  — they're not ours. Verified exceptions (non-hub `octo.ai-aws-*`, but admit our
-  **low-priority preemptible** jobs — AWS, reach S3): `ai1/octo.ai-aws-g6e` (L40S bundle)
-  and `ai1/octo.ai-aws-p5en` (H200 141 GB bundle).
+  — they're not ours. **There are no exceptions.** `ai1/octo.ai-aws-g6e` and
+  `ai1/octo.ai-aws-p5en` were documented here as verified low-priority-preemptible
+  exceptions until our access was **revoked 2026-08-22** (confirmed by Han); a job sent
+  to either now silently never schedules rather than failing. Do not target them even as
+  fallback entries.
 - **Check schedulable capacity BEFORE launching any large job (> 4 GPUs / > 4 concurrent
   tasks): `python code/check_gpu_availability.py`** (Beaker + HPC). Route to whichever backend
   has room. "Free" is not "schedulable": Beaker reports GPUs on **cordoned** nodes as free
   (unschedulable), and `sinfo` counts `drain`/`down` nodes — the script strips both. Do not
   trust `beaker cluster list` / raw `sinfo` free counts, and never assume the cluster order
   below has open slots.
-- Cluster choice: pick by **live schedulable capacity first**. `ai1/octo.ai-aws-g6e` (L40S,
-  low/preemptible-only exception) and `ai1/octo-hub-aws-l40s` (L40S) for general jobs;
-  `ai1/octo-hub-onprem-h200` / `ai1/octo.ai-aws-p5en` (the H200 preemptible exception)
-  **only when a task needs the 141 GB** (wide `hidden_size=256`
-  OOMs a 48 GB L40S). **H200 is not inherently faster than L40S/g6e** — do not prefer it on
-  speed grounds. When all Beaker clusters are saturated/cordoned, HPC SLURM (`aind` partition)
+- Cluster choice: pick by **live schedulable capacity first**. `ai1/octo-hub-aws-l40s`
+  (L40S 48 GB) for general jobs; `ai1/octo-hub-aws-h200` / `ai1/octo-hub-onprem-h200`
+  (141 GB) when a task needs the memory (wide `hidden_size=256` OOMs a 48 GB L40S) or
+  when they simply have the free slots. **H200 is not inherently faster than L40S** — do
+  not prefer it on speed grounds. GCP hub clusters cannot reach the AWS S3 parquet cache,
+  so they are unusable for any mice-data run however many GPUs they show free. When all Beaker clusters are saturated/cordoned, HPC SLURM (`aind` partition)
   is the GPU overflow — check it with `--hpc` and launch there (§13 load-balancing).
 - Heavy work never on the login node (see §5).
 - **Three job-protection tiers in our workspace:** (1) **4 allocated** slots — protected
@@ -177,8 +179,8 @@ and is not allowed.
   (`{low, preemptible: true}`) — bursts past the 8-cap onto spare GPUs, evicted first,
   auto-resumes. Default fan-outs → tier 3 (`priority: low`); must-finish runs → tier 1.
 - Scheduling detail — the tier table/measurements, GPU-bundle sizing (`--memory 90GiB --cpu 12`
-  = 1 L40s GPU), the g6e/p5en exceptions, cross-cloud S3 caveat, quota debugging, one-unit
-  validation: the **`beaker-launch` skill** (`aind-behavior-foundation-model-skills/skills/beaker-launch/`,
+  = 1 L40s GPU), the now-revoked g6e/p5en exceptions and their history, cross-cloud S3
+  caveat, quota debugging, one-unit validation: the **`beaker-launch` skill** (`aind-behavior-foundation-model-skills/skills/beaker-launch/`,
   read before any non-trivial launch).
 
 ## 11. Verify Mechanisms With Data Before Asserting
