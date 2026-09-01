@@ -9,23 +9,14 @@ This study is the real-data comparison only.
 
 ## The stack
 
-Which repo owns which part of the fit, and where the held-out boundary sits.
-The image is a still; **[open the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)** to pan, zoom,
-search and trace a single relationship.
+Which repo owns which part of the fit, and where the held-out boundary sits, is
+documented once for the whole stack rather than per study:
+**[docs/diagrams/hb-stack](../../docs/diagrams/)** — open
+[the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/hb-stack.html)
+to pan, zoom, search and trace a single relationship.
 
-[**HB stack across three repos — open the interactive diagram**](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/studies/08-hb-vs-gru-heldout/figures/hb-stack.html)
-
-_The PNG still shows the pre-Hydra layout with a `run_hb.py` entrypoint that no longer
-exists; regenerating it needs Chrome, which this host does not have. The linked HTML is
-current._
-
-`figures/hb-stack.architecture.json` is the source; the HTML is generated from it:
-
-    node ~/.claude/skills/archify/bin/archify.mjs deliver architecture \
-      figures/hb-stack.architecture.json figures/hb-stack.html --quality showcase
-
-GitHub renders neither the HTML nor the SVG inline, hence the PNG plus the
-raw.githack link.
+The figures in this folder are this study's own results; the stack diagram is
+architecture and is true whether or not this study exists.
 
 ## Cohort
 
