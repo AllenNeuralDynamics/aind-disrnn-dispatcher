@@ -1,6 +1,6 @@
 ---
 name: posthoc-reporting
-description: Post-hoc analysis and reporting conventions for studies — report files with YAML frontmatter and BEGIN/END result markers, JSON _meta blocks, launch_record results.md stubs, Makefile targets, cache .gitignore policy, one-producer-per-artifact. Use when writing/regenerating analysis reports, figures, or JSON summaries from finished W&B groups.
+description: Post-hoc analysis and reporting conventions for studies — report files with YAML frontmatter and BEGIN/END result markers, JSON _meta blocks, launch_record results.md stubs, Makefile targets, cache .gitignore policy, one-producer-per-artifact, and running report generation locally rather than on HPC. Use when writing/regenerating analysis reports, figures, or JSON summaries from finished W&B groups.
 ---
 
 # Post-hoc analysis & reporting
@@ -94,6 +94,36 @@ committed file** — the git diff is the audit trail. The offline producer never
   is not pinned: `environment.lock` pins the wrapper commit that produced the
   *metrics*, not matplotlib/freetype. A PNG diff after regenerating on a different
   box is expected and is **not** evidence that results changed — confirm via the JSON.
+
+## Run report generation LOCALLY, not on HPC
+
+**A report producer runs in the local sandbox by default. Reaching for `sbatch` is the
+error.** This follows from the freeze rule above rather than being a separate policy: a
+producer on the reproducible path reads a committed CSV/JSON and touches no live service,
+so it has nothing to gain from a compute node — and an `sbatch` round-trip adds queue wait,
+a second checkout to keep in sync, and a log file to go fetch, in exchange for nothing.
+
+The split is decidable from the source, so check rather than guess:
+
+```bash
+grep -lE 'wandb\.Api|import wandb|/allen/|BEAKER_TOKEN' analysis/*.py
+```
+
+- **No match → run it locally.** These are the formatters: they read the frozen file and
+  rewrite report markers or redraw a figure (`update_final_report_nxd.py`, `update_r8.py`,
+  `pswitch_history_patterns.py` in study-01; `update_reports.py` in study-02).
+- **Match → HPC (or a node with the credential).** These are *extraction*, not reporting:
+  live W&B pulls (`nxd_scaling.py`, `scaling.py`, `bootstrap_scaling.py`), the `/allen`
+  mount (`rl_baseline.py`, which needs both), or Beaker artifact streaming
+  (`fetch_gru_history_patterns.py` — `BEAKER_TOKEN` plus ~3.1 GB over the network).
+
+So a `make r<n>` target can mix both classes — study-01's `r7` runs `nxd_scaling.py`
+(HPC) then `update_final_report_nxd.py` (local). Run the extraction where it has to run,
+commit the frozen file, and do the report step locally off that commit. Splitting them this
+way is also what makes the report step reproducible by anyone without cluster access.
+
+Practical note: the sandbox cannot run the extraction half even if you want it to — the
+`wandb` Python SDK cannot start its local service there, and `/allen` is not mounted.
 
 ## Layout (per study)
 

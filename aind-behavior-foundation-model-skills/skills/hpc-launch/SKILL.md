@@ -30,6 +30,13 @@ README wins.**
    producers using the GraphQL route need `WANDB_API_KEY` exported — see the
    posthoc-reporting skill) and Beaker in `~/.beaker/config.yml`.
 
+## Not everything belongs on HPC
+
+Report generation runs **locally**, not through `sbatch` — a producer on the reproducible
+path reads a committed file and touches no live service, so a compute node buys nothing.
+Only the *extraction* half (live W&B pulls, `/allen`, Beaker artifact streaming) needs a
+node. The decidable check and the per-script split: the `posthoc-reporting` skill.
+
 ## Check available resources FIRST (mandatory for large jobs)
 
 **Before launching any large job (> 4 GPUs / > 4 concurrent array tasks), check
