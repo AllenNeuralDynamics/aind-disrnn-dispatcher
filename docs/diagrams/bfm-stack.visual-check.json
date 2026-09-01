@@ -5,9 +5,9 @@
   "status": "pass",
   "visualReview": "pending",
   "artifact": {
-    "path": "/Users/han.hou/Scripts/aind-disrnn-dispatcher/docs/diagrams/hb-stack.html",
-    "sha256": "ea898fe5eff108244fdd9bcb358eac617a0604371237f83b9b82b4dd75ed4e6f",
-    "bytes": 719332
+    "path": "/tmp/archify-bfm/bfm-stack.html",
+    "sha256": "9edc63f5ec28441929b1d588764defcfa11d0d121f8c17d81b8237d252ba3f2d",
+    "bytes": 719773
   },
   "state": {
     "detail": "read",
@@ -36,7 +36,7 @@
         "diagramWidth": 1346,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 8.778260869565218,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -67,7 +67,7 @@
         "diagramWidth": 1506,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -98,7 +98,7 @@
         "diagramWidth": 1826,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -129,7 +129,7 @@
         "diagramWidth": 1870,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -166,7 +166,7 @@
         "diagramWidth": 1346,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 8.778260869565218,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -197,7 +197,7 @@
         "diagramWidth": 1506,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -228,7 +228,7 @@
         "diagramWidth": 1826,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -259,7 +259,7 @@
         "diagramWidth": 1870,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -295,7 +295,7 @@
         "diagramWidth": 1346,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 8.778260869565218,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -326,7 +326,7 @@
         "diagramWidth": 1506,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -357,7 +357,7 @@
         "diagramWidth": 1826,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -388,7 +388,7 @@
         "diagramWidth": 1870,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -424,7 +424,7 @@
         "diagramWidth": 1346,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 8.778260869565218,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -439,7 +439,7 @@
         "viewerChromeActive": true,
         "viewerChromeOk": true,
         "resolvedTheme": "light",
-        "file": "hb-stack.visual-check.1440x900.light.png"
+        "file": "bfm-stack.visual-check.1440x900.light.png"
       },
       {
         "width": 1440,
@@ -456,7 +456,7 @@
         "diagramWidth": 1346,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 8.778260869565218,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -471,7 +471,7 @@
         "viewerChromeActive": true,
         "viewerChromeOk": true,
         "resolvedTheme": "dark",
-        "file": "hb-stack.visual-check.1440x900.dark.png"
+        "file": "bfm-stack.visual-check.1440x900.dark.png"
       },
       {
         "width": 2048,
@@ -488,7 +488,7 @@
         "diagramWidth": 1870,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -503,7 +503,7 @@
         "viewerChromeActive": true,
         "viewerChromeOk": true,
         "resolvedTheme": "light",
-        "file": "hb-stack.visual-check.2048x1320.light.png"
+        "file": "bfm-stack.visual-check.2048x1320.light.png"
       },
       {
         "width": 2048,
@@ -520,7 +520,7 @@
         "diagramWidth": 1870,
         "viewBoxWidth": 1380,
         "minimumProjectedNodeTextPx": 9,
-        "minimumProjectedNodeText": "snapshot 20260603",
+        "minimumProjectedNodeText": "DuckDB parquet snapshot",
         "minimumProjectedNodeTextDetail": "context",
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -535,13 +535,13 @@
         "viewerChromeActive": true,
         "viewerChromeOk": true,
         "resolvedTheme": "dark",
-        "file": "hb-stack.visual-check.2048x1320.dark.png"
+        "file": "bfm-stack.visual-check.2048x1320.dark.png"
       }
     ],
-    "contactSheet": "hb-stack.visual-check.html"
+    "contactSheet": "bfm-stack.visual-check.html"
   },
   "sidecars": {
-    "receipt": "hb-stack.visual-check.json",
-    "contactSheet": "hb-stack.visual-check.html"
+    "receipt": "bfm-stack.visual-check.json",
+    "contactSheet": "bfm-stack.visual-check.html"
   }
 }

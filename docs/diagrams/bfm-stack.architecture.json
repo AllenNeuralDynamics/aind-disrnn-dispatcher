@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Behavioral Foundation Model Stack",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1380,
+      520
+    ]
+  },
+  "components": [
+    {
+      "id": "db",
+      "type": "database",
+      "label": "AIND foraging database",
+      "sublabel": "DuckDB parquet snapshot",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "hydra",
+      "type": "backend",
+      "label": "config/model/*.yaml",
+      "sublabel": "_target_ picks the trainer",
+      "pos": [
+        40,
+        195
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "launchers",
+      "type": "cloud",
+      "label": "launch_hpc / launch_beaker",
+      "sublabel": "W&B sweep → SLURM · Beaker",
+      "pos": [
+        40,
+        330
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "loader",
+      "type": "backend",
+      "label": "DatasetLoader",
+      "sublabel": "mice · synthetic · hierarchical",
+      "pos": [
+        401,
+        60
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "runner",
+      "type": "backend",
+      "label": "training_runner.run_training",
+      "sublabel": "instantiate(cfg.model)",
+      "pos": [
+        401,
+        195
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "gru",
+      "type": "backend",
+      "label": "GruTrainer",
+      "sublabel": "multi-subject GRU",
+      "pos": [
+        790,
+        60
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "disrnn",
+      "type": "backend",
+      "label": "DisrnnTrainer",
+      "sublabel": "disentangled RNN bottleneck",
+      "pos": [
+        790,
+        150
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "baseline_rl",
+      "type": "backend",
+      "label": "BaselineRLTrainer",
+      "sublabel": "per-session MLE foragers",
+      "pos": [
+        790,
+        240
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "hb",
+      "type": "backend",
+      "label": "HBTrainer",
+      "sublabel": "partial pooling + population",
+      "pos": [
+        790,
+        330
+      ],
+      "size": [
+        215,
+        52
+      ]
+    },
+    {
+      "id": "drnn_lib",
+      "type": "external",
+      "label": "disentangled_rnns",
+      "sublabel": "DeepMind · JAX + optax",
+      "pos": [
+        1112,
+        105
+      ],
+      "size": [
+        230,
+        52
+      ]
+    },
+    {
+      "id": "adfm",
+      "type": "external",
+      "label": "aind-dynamic-foraging-models",
+      "sublabel": "MLE + hierarchical Bayes",
+      "pos": [
+        1112,
+        285
+      ],
+      "size": [
+        230,
+        52
+      ]
+    },
+    {
+      "id": "wandb",
+      "type": "external",
+      "label": "Weights & Biases",
+      "sublabel": "one held-out axis per study",
+      "pos": [
+        401,
+        440
+      ],
+      "size": [
+        215,
+        52
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "aind-disrnn-dispatcher · control plane",
+      "wraps": [
+        "hydra",
+        "launchers"
+      ],
+      "pad": 20
+    },
+    {
+      "kind": "region",
+      "label": "aind-disrnn-wrapper · training runtime",
+      "wraps": [
+        "loader",
+        "runner",
+        "gru",
+        "disrnn",
+        "baseline_rl",
+        "hb"
+      ],
+      "pad": 20
+    }
+  ],
+  "connections": [
+    {
+      "from": "db",
+      "to": "loader",
+      "label": "snapshot read"
+    },
+    {
+      "from": "hydra",
+      "to": "runner",
+      "label": "composed config"
+    },
+    {
+      "from": "launchers",
+      "to": "runner",
+      "label": "sbatch / Beaker task"
+    },
+    {
+      "from": "loader",
+      "to": "runner",
+      "label": "DatasetBundle",
+      "variant": "emphasis",
+      "labelAt": [
+        509,
+        153
+      ]
+    },
+    {
+      "from": "runner",
+      "to": "gru",
+      "label": "gru",
+      "variant": "emphasis",
+      "labelAt": [
+        645,
+        80
+      ]
+    },
+    {
+      "from": "runner",
+      "to": "disrnn",
+      "label": "disrnn",
+      "variant": "emphasis",
+      "labelAt": [
+        650,
+        170
+      ]
+    },
+    {
+      "from": "runner",
+      "to": "baseline_rl",
+      "label": "baseline_rl",
+      "variant": "emphasis",
+      "labelAt": [
+        658,
+        262
+      ]
+    },
+    {
+      "from": "runner",
+      "to": "hb",
+      "label": "hb_hattori",
+      "variant": "emphasis",
+      "labelAt": [
+        656,
+        352
+      ]
+    },
+    {
+      "from": "gru",
+      "to": "drnn_lib",
+      "label": "rnn_utils"
+    },
+    {
+      "from": "disrnn",
+      "to": "drnn_lib",
+      "label": "disrnn + multisubject"
+    },
+    {
+      "from": "baseline_rl",
+      "to": "adfm",
+      "label": "generative_model"
+    },
+    {
+      "from": "hb",
+      "to": "adfm",
+      "label": "hierarchical_bayes"
+    },
+    {
+      "from": "runner",
+      "to": "wandb",
+      "label": "heldout/eval_likelihood",
+      "variant": "emphasis",
+      "labelAt": [
+        509,
+        343
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One interface, four variants",
+      "items": [
+        "Every model implements ModelTrainer.fit(bundle, loggers) and nothing else",
+        "Hydra's _target_ names the class, so instantiate(cfg.model) needs no branch",
+        "Adding a variant adds a config file, not a code path"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "What each variant actually fits",
+      "items": [
+        "GRU and disRNN train in JAX/optax through DeepMind's disentangled_rnns",
+        "baseline_rl fits each session independently by maximum likelihood",
+        "HB partial-pools sessions within a subject and subjects within a population"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Why they are comparable",
+      "items": [
+        "All four report heldout/eval_likelihood: per-trial geometric-mean likelihood",
+        "The same DatasetBundle, subject split and trial filters reach every trainer",
+        "That shared axis is what lets a cognitive baseline sit on the GRU scaling curve"
+      ]
+    }
+  ]
+}
