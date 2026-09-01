@@ -10,6 +10,8 @@ scopes, SSO-authorized for AllenNeuralDynamics.
 
     python board.py --discover                 # re-read field/option ids from the board
     python board.py --existing 88 --status "In review"   # move an already-filed issue
+    python board.py --existing 88 --check codebase-map --check wrapper-runtime
+    python board.py --existing 88 --check-all --status Done --close
 """
 import argparse
 import json
@@ -132,6 +134,52 @@ def set_fields(item_id, values):
                         "f": field_id, "o": options[choice]})
 
 
+def tick_boxes(repo, number, body, substrings, check_all=False):
+    """Flip '- [ ]' -> '- [x]' on unticked lines matching each substring.
+
+    Only the matched lines change, so concurrent browser edits elsewhere in the body
+    survive. A substring matching no unticked box is an error rather than a silent
+    no-op -- a typo there would otherwise look like success.
+    """
+    lines = body.splitlines()
+    unticked = [i for i, ln in enumerate(lines) if ln.lstrip().startswith("- [ ]")]
+    if not unticked:
+        print("no unticked boxes in #{}".format(number))
+        return body, []
+    if check_all:
+        targets = list(unticked)
+    else:
+        targets, missing = [], []
+        for sub in substrings:
+            hits = [i for i in unticked if sub.lower() in lines[i].lower()]
+            if not hits:
+                missing.append(sub)
+            targets.extend(hits)
+        if missing:
+            sys.exit("no unticked box matches: {}\nunticked boxes are:\n{}".format(
+                ", ".join(repr(m) for m in missing),
+                "\n".join("  " + lines[i].strip() for i in unticked)))
+    for i in sorted(set(targets)):
+        lines[i] = lines[i].replace("- [ ]", "- [x]", 1)
+        print("  ticked: {}".format(lines[i].strip()[:88]))
+    return "\n".join(lines) + ("\n" if body.endswith("\n") else ""), sorted(set(targets))
+
+
+def update_body(repo, number, body):
+    _request("https://api.github.com/repos/{}/{}/issues/{}".format(ORG, repo, number),
+             {"body": body}, method="PATCH")
+
+
+def close_issue(repo, number):
+    _request("https://api.github.com/repos/{}/{}/issues/{}".format(ORG, repo, number),
+             {"state": "closed"}, method="PATCH")
+    print("closed #{}".format(number))
+
+
+def remaining_boxes(body):
+    return [ln.strip() for ln in body.splitlines() if ln.lstrip().startswith("- [ ]")]
+
+
 def verify(item_id):
     node = gql(READ_ITEM, {"i": item_id})["node"]
     got = {fv["field"]["name"]: fv["name"]
@@ -155,15 +203,42 @@ def main():
     ap.add_argument("--status", choices=sorted(FIELDS["Status"][1]))
     ap.add_argument("--priority", choices=sorted(FIELDS["Priority"][1]))
     ap.add_argument("--size", choices=sorted(FIELDS["Size"][1]))
+    ap.add_argument("--check", action="append", default=[], metavar="SUBSTRING",
+                    help="tick the unticked 'Done when' box(es) matching this substring; "
+                         "repeatable. Requires --existing.")
+    ap.add_argument("--check-all", action="store_true",
+                    help="tick every remaining box (use when the last work has landed)")
+    ap.add_argument("--close", action="store_true",
+                    help="close the issue; refuses while boxes remain unticked")
     args = ap.parse_args()
 
     if args.discover:
         discover()
         return
 
+    if (args.check or args.check_all or args.close) and not args.existing:
+        sys.exit("--check/--check-all/--close need --existing <issue number>")
+
     if args.existing:
         issue = get_issue(args.repo, args.existing)
         print("issue #{}: {}".format(issue["number"], issue["html_url"]))
+        body = issue.get("body") or ""
+        if args.check or args.check_all:
+            body, ticked = tick_boxes(args.repo, args.existing, body,
+                                      args.check, check_all=args.check_all)
+            if ticked:
+                update_body(args.repo, args.existing, body)
+        left = remaining_boxes(body)
+        if left:
+            print("{} box(es) still open:".format(len(left)))
+            for ln in left:
+                print("  " + ln[:88])
+        if args.close:
+            if left:
+                sys.exit("refusing to close #{}: {} box(es) still unticked. Tick them, "
+                         "strike them with a reason, or move them to a follow-up issue."
+                         .format(args.existing, len(left)))
+            close_issue(args.repo, args.existing)
     else:
         if not args.title:
             sys.exit("--title is required unless --existing is given")

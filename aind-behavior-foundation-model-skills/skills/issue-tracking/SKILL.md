@@ -72,6 +72,39 @@ Put `Closes #<n>` in the PR body so the merge closes the issue, move the board i
 issue, write `Refs #<n>` instead and leave the issue open — an auto-closed issue with
 unfinished "Done when" boxes is worse than an open one.
 
+## Closing the loop — tick the boxes
+
+**The "Done when" list is live state, not a plan you wrote once.** Update it whenever work
+lands, and whenever the user asks where something stands. Two failure modes this prevents:
+a closed issue whose boxes are all unticked (so nobody can tell what actually shipped from
+what got dropped), and a months-old open issue whose boxes are stale (so its remaining work
+has to be re-derived from the diff).
+
+When to update, and to what:
+
+| Moment | Do |
+|---|---|
+| A box's work is **merged** | Tick it: `- [ ]` → `- [x]` |
+| Work is done but the PR is **open** | Leave unticked; comment naming the PR and which boxes it covers |
+| A box turns out unnecessary or is deferred | Don't tick it — strike it (`~~...~~`) with a one-line why, or move it to a follow-up issue and say which |
+| The user asks for status | Reconcile the boxes first, then answer from them |
+| Last box ticked | Close the issue and move the board item to `Done` |
+
+**Tick a box only when you have verified the thing, not when you believe you did it.** A
+ticked box is a claim someone will rely on instead of re-checking. If you edited a file but
+never confirmed the result, the box stays open — that is what the "PR open" row is for.
+
+Ticking by hand means re-uploading the whole issue body, which risks clobbering edits made
+in the browser. Use the script, which flips only the lines you name:
+
+```bash
+python scripts/board.py --existing 88 --check codebase-map --check wrapper-runtime
+python scripts/board.py --existing 88 --check-all --status Done --close
+```
+
+It refuses a `--check` substring that matches no unticked box, so a typo fails loudly
+instead of silently ticking nothing. Nothing else in the body is touched.
+
 Labels available on the dispatcher: `bug`, `documentation`, `enhancement`, `evaluation`,
 `extension`, `interpretability`, `baselines`, `training/pipeline`, `validation`, `blocked`,
 `ready-for-agent`, `rename-migration`, `question`, `priority:P0/P1/P2`. The `priority:*`
