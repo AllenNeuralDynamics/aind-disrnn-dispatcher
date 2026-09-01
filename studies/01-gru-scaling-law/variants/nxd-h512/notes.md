@@ -1,83 +1,95 @@
 # Variant nxd-h512
 
+**Status.** ✅ Shipped, feeding r7. D=614 excluded — logged as an unattainable
+cell (host-RAM OOM, unresolved root cause), not a data gap to backfill later.
+
 **What differs from the siblings.** Adds a new capacity row `hidden_size=512` to
-the N×D joint-scaling grid (r7), across the same four D columns
-(`subject_ratio ∈ {0.016, 0.049, 0.163, 1.0}` → D ≈ 10 / 30 / 100 / 614) × 3
-seeds = **12 tasks**. Every other knob is identical to `nxd-grid` /
+the N×D joint-scaling grid (r7). Every other knob is identical to `nxd-grid` /
 `v2-sc-active` (scalar session conditioning, λ-forward full SC @50k,
-`n_steps=150k`, `lr=1e-5`, gated early-stop @70k, length bucketing,
-`checkpoint_run_heldout_eval=false`).
+`n_steps=150k`, `lr=1e-5`, gated early-stop @70k, length bucketing).
 
 **Why.** r7 shows D saturates by ~100 mice and the N×D interaction is weak up to
 H=256. This tests whether that story holds one capacity octave higher (H=256→512).
-Unlike the H=128 row (reused from `v2-sc-active`), there is **no existing H=512
-column** — all 12 cells are trained fresh here.
 
-**Expected cost (from measured nxd-grid wall-clock).** Existing runs early-stop at
-~90.5k steps; per-step time rises with H (H16→256: 0.264→0.350 s/step). Fitting
-that to H=512 gives ~0.36 s/step (log-linear) to ~0.59 s/step (quadratic, GRU
-gate matmuls are O(H²)) → **per-job median ≈ 10–15 h**, D-dependent:
-~11 h (D=10) → ~15 h (D=100) → ~18–20 h (D=614, worst cell). With the ~6-GPU
-`aind` QOS concurrency, 12 jobs run in ~2 waves ⇒ **~1.5 days** of run time plus
-queue. NOTE: H=512 is larger than anything trained so far (max H=256); confirm the
-per-task memory bundle is sufficient at launch.
+## Timeline
 
-**Launch (HPC SLURM; Beaker was saturated at launch time).**
-```
-conda activate disrnn-cpu
-python code/launch_hpc.py \
-  --sweep-yaml studies/01-gru-scaling-law/variants/nxd-h512/sweep.yaml \
-  --mode gpu \
-  --sbatch-extra='--array=0-11 --time=24:00:00' \
-  --label nxd-h512 \
-  --note "H=512 capacity row for the r7 N×D grid: does D-saturation / weak N×D interaction persist one octave above H=256?"
-```
-`--array=0-11` ⇒ 12 array tasks; launcher computes AGENT_COUNT=ceil(12/12)=1
-(one W&B run per task). `--time=24:00:00` overrides the slurm script's 5 h
-default (H=512 needs 10–20 h). Add `--gpu-type <tier>` to pick a faster GPU than
-the v100 default if capacity allows.
+**Launch 1 (a100) — FAILED, all 12 crashed at step 0.** sweep `5iy5qnb2`, group
+`nxd-h512@20260718-192434`, array `23241259`. GPU OOM (`RESOURCE_EXHAUSTED`) — the
+`aind` a100s are full 40 GB PCIE cards and H=512 at `batch_size=2048` exceeds that
+at peak. Nothing to salvage (W&B confirms `_step=0` on all 12).
 
-**Status.** 🟡 RESUBMITTED on h200 (2026-07-20 19:53 PT). First launch FAILED.
+**Launch 2 (h200) — 9/12 landed.** sweep `ajsw1a8h`, group
+`nxd-h512@20260720-195322`, array `23263174`. D=10/30/100 × 3 seeds (9 cells)
+finished cleanly on h200 (full 141 GB fits H=512). The 3 **D=614** seeds
+(`subject_ratio=1.0`, full 614-mouse dataset) failed with a **host-RAM OOM**
+(`slurmstepd oom_kill`, MaxRSS 81–95 GB against a 128G cgroup) — not a GPU issue.
 
-- **Launch 1 (a100) — FAILED, all 12 OOM.** sweep `5iy5qnb2`, group
-  `nxd-h512@20260718-192434`, array `23241259`. Queued ~19 h, scheduled
-  2026-07-19 14:50 PT, every task crashed at **step 0** with JAX
-  `RESOURCE_EXHAUSTED` (GPU OOM). Root cause: the `aind` a100s are **40 GB PCIE**
-  cards; H=512 at `batch_size=2048` exceeds 40 GB at peak (the log shows a ~14.6 GiB
-  allocation failing on top of a ~14 GiB working set, with XLA pre-reserving most of
-  the card on top of that). It fits on h200 (141 GB). (An earlier note called these
-  "MIG ~16–20 GB slices" — that was an unverified guess and is wrong; the cards are
-  full 40 GB, H=512 simply needs >40 GB.) SLURM mislabeled 11/12 COMPLETED because
-  `wandb agent` exits 0 on child crash; task 10 flagged OUT_OF_MEMORY.
-  W&B confirms `_step=0`/None on all 12 → no training, nothing to salvage.
-- **Launch 2 (h200) — SUBMITTED, queued (PENDING).** Same sweep.yaml, `--gpu-type h200`, batch size
-  UNCHANGED (2048) — h200 full 141 GB fits H=512, keeping optimization identical
-  to the rest of the r7 grid. sweep `ajsw1a8h`
-  (https://wandb.ai/AIND-disRNN/mice_data_scaling/sweeps/ajsw1a8h),
-  group `nxd-h512@20260720-195322`, array `23263174` (`--array=0-11`,
-  `--gres=gpu:h200:1 --time=24:00:00`), autostop `23263175`.
-  `sbatch --test-only` est. start 2026-07-23 00:28 PT (~2.2 d; h200 was the
-  fastest of h200/l40s/a100 as well as the only full-mem fit).
+**D=614 recovery attempts — all failed, root cause never resolved.**
+- Resubmit at `--mem=256G` (sweep `aw04872p`, array `23302804`): OOM'd again,
+  MaxRSS 230–257 GB and *still climbing* when killed — ruled out "just needs a
+  bit more memory."
+- RAM-profiling investigation (throwaway CPU probes on `aind_debug`, never the
+  login node): decomposed the RSS trace into two candidate mechanisms. The
+  length-bucketing JAX-compile-cache hypothesis was **falsified** by a control
+  probe with bucketing disabled — it OOM'd identically. A JAX async-dispatch
+  backpressure hypothesis (added `jax.block_until_ready` per step) was also
+  **falsified** — OOM'd at native speed too, confirmed the edit was genuinely
+  live. Three hypotheses tried; the leak was never localized to a specific line.
+- **Beaker reproduction (decisive):** relaunched the 3 D=614 cells on Beaker
+  h200 (experiment `01KYWJ3JYVE7BJVEVVM5CCT6Q5`, matching the known-good
+  H=256/D=614 spec exactly except memory). OOM'd again, at a similar wall-clock
+  to the HPC probes. This ruled out both the SLURM/cgroup backend and the CPU
+  vs GPU backend as the cause — **the leak is backend-independent**, tied to
+  something in the D=614 training path itself (18,124 sessions vs ~3,000 at
+  D=100 is the only structural difference; the mechanism was never isolated
+  beyond that).
 
-- **Launch 2 outcome (2026-07-23):** 9/12 cells FINISHED cleanly on h200
-  (D=10/30/100 × 3 seeds, early-stopped 80k–90k steps, 8–13 h each across 3 waves
-  of 4 — the per-user h200 QOS cap is 4, verified via `sacctmgr`). The 3 **D=614**
-  seeds (tasks 9/10/11, `subject_ratio=1.0` = full 614-mouse dataset) FAILED with a
-  **host-RAM OOM** (SLURM `OUT_OF_MEMORY`, exit `0:125`, `slurmstepd oom_kill`;
-  MaxRSS 81–95 GB, true peak > the `--mem=128G` cgroup limit) during data loading at
-  step 0 — NOT a GPU OOM (h200 was fine).
-- **Launch 3 (d614 resubmit) — SUBMITTED, queued.** Only the 3 D=614 seeds, on h200,
-  `--mem=256G` (batch size unchanged), via `sweep_d614.yaml`. sweep `aw04872p`
-  (https://wandb.ai/AIND-disRNN/mice_data_scaling/sweeps/aw04872p), group
-  `nxd-h512@20260723-125804`, array `23302804` (`--array=0-2 --time=24:00:00
-  --mem=256G`), autostop `23302805`.
+**Decision (Han, 2026-08):** stop debugging. Log the D=614 OOM as an
+unattainable cell and ship the H=512 row as **D ∈ {10, 30, 100} only**, exactly
+like D=300 is already excluded from r7 for a different reason (grid
+rectangularity). Unlike D=300 (real data, just not plotted in the joint grid),
+D=614/H=512 genuinely does not exist — no successful run at that cell on any
+backend tried (HPC SLURM at 128G/256G, Beaker at 256G).
 
-**W&B groups.** The H=512 row now spans TWO groups (nxd_scaling.py must collect both):
-`nxd-h512@20260720-195322` (D=10/30/100, 9 cells) + `nxd-h512@20260723-125804`
-(D=614, 3 cells), project `AIND-disRNN/mice_data_scaling`.
+**Held-out metric backfill (separate bug, fixed).** The 9 surviving cells
+initially carried no `heldout/final/eval_likelihood` at all — the end-of-training
+auto held-out fine-tune silently failed with `[Errno 13] Permission denied:
+'/results'` (that path exists in the Beaker/Code Ocean container, not on HPC).
+This was a **second occurrence** of a bug already patched once for study-02's
+sweeps only; fixed properly this time in `launch_hpc.py` (PR #68, merged to
+`main`, auto-injects `auto_heldout_finetune.output_root` on every HPC sweep).
+The 9 already-trained cells were backfilled from their saved checkpoints
+(SLURM array `24991820`, ~1 h/cell, no retraining) rather than relaunched.
 
-**Downstream analysis wiring (pending; do AFTER runs finish).** To add the H=512
-row to r7, `analysis/nxd_scaling.py` needs: (1) `TARGET_HS` → `[16,64,128,256,512]`;
-(2) add the group `nxd-h512@20260718-192434` to `NXD_GROUPS`. The D=300 note is
-unaffected (H=512 uses the same four rectangular D columns). Then re-run the r7
-producer chain and update the report + README Variants index.
+## Corrected finding (retraction)
+
+An earlier read of this row's results used the wrong metric (a top-level
+`likelihood` field — an in-training diagnostic, not the held-out adaptation
+metric) before the backfill above existed, and concluded H=512 "overfits
+catastrophically" at low D. **That claim is retracted.** With the correct
+`heldout/final/eval_likelihood`, H=512 shows no overfitting and tracks H=256
+closely:
+
+| D | H=512 | H=256 |
+|---|---|---|
+| 10 | 0.7213 | 0.7214 |
+| 30 | 0.7253 | 0.7251 |
+| 100 | 0.7278 | 0.7273 |
+
+A normal, modest continuation of the N-scaling trend — not a capacity-vs-data
+crisis. See `fig_nxd_scaling.png` / `reports/r7-nxd-joint-scaling-grid.md`.
+
+## Final state
+
+**W&B group feeding r7:** `nxd-h512@20260720-195322` (9 cells, D∈{10,30,100}),
+project `AIND-disRNN/mice_data_scaling`. The a100 group
+(`nxd-h512@20260718-192434`, all-failed) and the D=614 groups
+(`nxd-h512@20260723-125804`, `01KYWJ3JYVE7BJVEVVM5CCT6Q5`, both all-failed)
+have nothing to collect and are not in `NXD_GROUPS`.
+
+**Analysis wiring — done.** `analysis/nxd_scaling.py`: `TARGET_HS` includes 512;
+`NXD_GROUPS` includes the group above. `analysis/update_final_report_nxd.py` was
+patched to render the missing D=614 cell as "n/a" instead of crashing on the
+ragged grid (a `None - float` TypeError the first regen attempt hit). r7 and its
+figure were regenerated on an HPC compute node (`aind_debug`, never the login
+node — see AGENTS.md §5) and committed.
