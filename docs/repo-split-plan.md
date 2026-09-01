@@ -27,7 +27,7 @@ Split `aind-disrnn-dispatcher` at the framework/application seam:
   `studies/`, keeping the `studies/` path prefix (see Decision below), one
   study per subfolder, each self-contained per `docs/study-organization.md`.
 
-All five studies (`01`–`05`) move in one pass. Preserve per-file history via
+All eight studies (`01`–`08`) move in one pass. Preserve per-file history via
 `git filter-repo`.
 
 ## Decision (2026-07-16): split now
@@ -72,6 +72,31 @@ Execution notes: the sandbox cannot create `.git` directories, so
 `gh repo create` and the initial clones on the Mac and HPC checkouts are the
 user's steps; everything else is delegable. Prereq 1 below re-verified
 2026-07-16: no open PRs, `git log origin/main..HEAD -- studies/` empty.
+
+### Re-verified 2026-09-01 (deltas since the 2026-07-16 decision)
+
+The decision to split stands. Three of its inputs have moved; the counts above
+are left as the dated observations they were.
+
+- **Eight studies now exist**, not five (`01-gru-scaling-law` …
+  `08-hb-vs-gru-heldout`). Seven carry a `Makefile` (`01`–`07`);
+  `08-hb-vs-gru-heldout` has only `README.md`, `figures/` and `variants/`, so it
+  is not yet normalized to the posthoc-reporting layout and will not satisfy the
+  `make all` gate in the verification checklist below.
+- **Prereq 1 no longer holds.** Open PRs exist against both repos — dispatcher
+  #73 and wrapper #65. The extract must wait for them: a commit that is not on
+  `main` when `git filter-repo` runs is dropped from the studies repo silently,
+  with no error and no warning. This is the one prerequisite whose failure mode
+  is data loss rather than churn.
+- **The target repo name is gated on the rename.** #74 renames the project
+  identity `disrnn` -> `behavior-fm` and is sequenced *before* this split, so the
+  new repo is created as **`aind-behavior-fm-studies`** and the cross-repo shell
+  path below becomes `../aind-behavior-fm-dispatcher/code/...`. Rename first:
+  this plan writes that dispatcher path into every study README, `notes.md` and
+  sweep-YAML comment, so splitting first means sweeping the same files twice —
+  the second time in a new repo where the rename's CI guardrail does not yet
+  exist. Every `aind-disrnn-studies` / `aind-disrnn-dispatcher` string below
+  should be read as the post-rename name.
 
 ## Should we do this now? (discussion 2026-06-30 — the "not yet" lean is SUPERSEDED by the 2026-07-16 decision above; the analysis-layer findings and contract hardening below still stand)
 
@@ -386,7 +411,9 @@ conda activate disrnn-cpu
 for s in studies/0*/; do (cd "$s" && make all); done
 ```
 
-- [ ] `make all` exits 0 in all five studies.
+- [ ] `make all` exits 0 in every study that has one (`01`–`07`).
+      `08-hb-vs-gru-heldout` has no `Makefile` yet — see the 2026-09-01
+      re-verification; either normalize it first or record it as a known gap.
 - [ ] Regenerated JSONs are byte-identical to pre-split (aside from
       `_meta.produced_at_pt`/`dispatcher_git_sha`).
 - [ ] Study 01's reports re-render identically between the `BEGIN/END`

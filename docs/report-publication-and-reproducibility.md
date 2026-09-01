@@ -13,8 +13,13 @@ status: proposed
 # Report publication & reproducibility layers
 
 > **Status:** proposed 2026-07-16, alongside the approved repo split
-> ([[repo-split-plan]]). All layers live in the future `aind-disrnn-studies`
-> repo and sequence *after* the split.
+> ([[repo-split-plan]]). All layers live in the future studies repo and
+> sequence *after* the split. Re-verified 2026-09-01; the layer-1 gap list
+> below has grown since the draft.
+>
+> The studies repo is created **after** the `disrnn` -> `behavior-fm` rename
+> (#74), so its name is `aind-behavior-fm-studies`; read the
+> `aind-disrnn-studies` strings below as the post-rename name.
 
 ## Priorities (in order)
 
@@ -45,13 +50,19 @@ truth, so `make` runs offline."*
 
 **Gaps** (the whole layer-1 work list):
 
-- **Study 01**: five of the seven producers in `make all`
-  (`bootstrap_scaling.py`, `build_report.py`, `generative_match.py`,
-  `nxd_scaling.py`, `rl_baseline.py`) open `wandb.Api()` directly — it
+- **Study 01**: producers in `make all` open `wandb.Api()` directly — it
   predates the convention. (`update_final_report_nxd.py` and `update_r8.py`
-  already read committed JSONs only.)
-- **Study 05, r4** (`generative_report.py` path): reads W&B rollout
-  histories directly instead of a committed input.
+  already read committed JSONs only.) Five at the 2026-07-16 count:
+  `bootstrap_scaling.py`, `build_report.py`, `generative_match.py`,
+  `nxd_scaling.py`, `rl_baseline.py`. **Re-checked 2026-09-01: now six** —
+  `mature_fewshot_curve.py` has since been added and follows the same
+  live-handle pattern. The gap is widening, not holding steady; each new
+  study-01 producer written before layer 1 lands adds to the backlog.
+- **Study 05, r4**: reads W&B rollout histories directly instead of a
+  committed input. (Re-checked 2026-09-01: the producer is
+  `analysis/generative_match.py`; the `generative_report.py` named in the
+  2026-07-16 draft does not exist in the tree. `analysis/pull_grid.py` also
+  calls `wandb.Api()`, but that one is the sanctioned *pull* step, not a gap.)
 
 An earlier idea — a `DISRNN_WANDB_CACHE` env var with the raw W&B pull cache
 attached as a CO data asset — is **rejected**: committed curated grids are
@@ -65,8 +76,10 @@ that write committed curated CSVs; make report producers read them. After
 this, `for s in studies/0*/; do make -C "$s" all; done` succeeds offline from
 a fresh clone. This single property is what every later layer runs on.
 
--> verify: `make all` in all five studies exits 0 with `WANDB_API_KEY` unset
-   and network to `api.wandb.ai` blocked.
+-> verify: `make all` exits 0 with `WANDB_API_KEY` unset and network to
+   `api.wandb.ai` blocked, in every study that has a `Makefile` (`01`–`07` as
+   of 2026-09-01; `08-hb-vs-gru-heldout` is not yet normalized to the
+   posthoc-reporting layout and has no `Makefile` to run).
 
 ## Layer 2 — CI regeneration check (AI-native, always-on)
 
@@ -78,6 +91,29 @@ contract ("my regeneration matches what's committed") instead of a manual
 convention.
 
 Cheap because of layer 1: CPU-only, no secrets in CI.
+
+**Diff the JSON, never the PNG** (added 2026-09-01). The `posthoc-reporting`
+skill already measured why a naive check fails: *"Figure PNGs are bit-identical
+only on the same machine. Across machines the bytes (and ~6% of pixels —
+text/AA rendering) differ, because the plotting env is not pinned:
+`environment.lock` pins the wrapper commit that produced the metrics, not
+matplotlib/freetype."* CI is by definition a different machine from the one
+that produced the committed figures, so a `make all`-then-check-dirty job
+scoped to include `*.png` fails on every figure on every run. Scope the dirty
+check to the curated JSON/CSV and the `BEGIN/END` report blocks, and exclude
+figures — the skill's rule is that a PNG diff *"is not evidence that results
+changed — confirm via the JSON."* Layer 3 still serves the committed PNGs;
+they are simply not the regeneration oracle.
+
+**Fold this into the enforcement script the skill already reserves.**
+`posthoc-reporting/references/report-contracts.md` § *Enforcement (target)*
+specifies `scripts/check_analysis_artifacts.py` (pre-commit + CI, **not yet
+implemented**) validating report frontmatter keys, matched `BEGIN/END` marker
+pairs, `_meta` presence with a real `produced_by` path, `results.md` presence
+for settled launch records, no two scripts writing the same figure path, and
+cache patterns in `.gitignore`. That is *structural* validation; this layer is
+*regeneration fidelity*. They are complementary and belong in one workflow —
+build layer 2 as that script's second half rather than as a parallel check.
 
 ## Layer 3 — docs website (always-visible reports)
 
@@ -118,16 +154,28 @@ that signals layer 1 has regressed — fix that instead.
 
 ## Sequencing
 
-1. Repo split ([[repo-split-plan]], approved).
-2. Layer 1 (study 01 + 05-r4 normalization) — the only real code work.
-3. Layer 2 + 3 together (one CI workflow: check, then publish site).
-4. Layer 4 when a study freezes. Never blocks anything.
+0. Merge the open PRs (dispatcher #73, wrapper #65) — split prerequisite 1;
+   anything not on `main` is dropped from the extract silently.
+1. Identity rename `disrnn` -> `behavior-fm` (#74), so the studies repo is
+   born with its final name and the cross-repo shell path is written once.
+2. Repo split ([[repo-split-plan]], approved).
+3. Layer 1 (study 01 + 05-r4 normalization) — the only real code work.
+4. Layer 2 + 3 together (one CI workflow: check, then publish site).
+5. Layer 4 when a study freezes. Never blocks anything.
 
 ## Related
 
 - [[repo-split-plan]] — the split this builds on; committed-artifacts policy;
   the CO "launch surface and archive, not a home" decision this refines.
-- [[posthoc-analysis]] — the "freeze the numbers" / curated-grid convention
-  that layer 1 finishes rolling out.
-- [[study-organization]] — study self-containment that makes per-study
-  `make all` the natural unit.
+- **`posthoc-reporting` skill** (`aind-behavior-foundation-model-skills/skills/posthoc-reporting/`)
+  — the canonical home of the "freeze the numbers" / curated-grid convention
+  that layer 1 finishes rolling out, the cross-machine PNG caveat layer 2 must
+  respect, and the `check_analysis_artifacts.py` enforcement slot layer 2
+  should fill. Note that "freeze the numbers" is already a **hard rule** there,
+  so layer 1 is a compliance backlog against an existing rule, not a new
+  convention awaiting approval.
+- **`study-conventions` skill** (`aind-behavior-foundation-model-skills/skills/study-conventions/`)
+  — study self-containment that makes per-study `make all` the natural unit.
+- `docs/posthoc-analysis.md` and `docs/study-organization.md` are redirect
+  stubs only; the 2026-07-16 draft linked them as `[[posthoc-analysis]]` /
+  `[[study-organization]]` before the content moved into the skills above.
