@@ -7,14 +7,15 @@ tags:
   - planning
   - migration
   - one-shot
-status: proposed
+status: approved
 ---
 
 # Repo-split plan: extract `studies/` into `aind-disrnn-studies`
 
-> **Status:** proposed, not executed. Delegated to a separate agent for execution.
-> Written after the `posthoc-analysis` standard-structure migration on the
-> integration line, ending at commit `122abfd` and later merged to `main`.
+> **Status:** approved 2026-07-16, not yet executed. Delegated to a separate
+> agent for execution. Originally written 2026-06-30 after the
+> `posthoc-analysis` standard-structure migration (ending at commit `122abfd`,
+> later merged to `main`); revised 2026-07-16 when the split was approved.
 
 ## TL;DR
 
@@ -23,15 +24,83 @@ Split `aind-disrnn-dispatcher` at the framework/application seam:
 - **`aind-disrnn-dispatcher`** (this repo, stays) — launchers (`code/`),
   framework docs (`docs/`), Docker env, CO capsule metadata, root `AGENTS.md`.
 - **`aind-disrnn-studies`** (new sibling repo) — everything currently under
-  `studies/`, one study per subfolder, each self-contained per
-  `docs/study-organization.md`.
+  `studies/`, keeping the `studies/` path prefix (see Decision below), one
+  study per subfolder, each self-contained per `docs/study-organization.md`.
 
-Pilot: `studies/data-scaling-law/` (the only study today and the most
-standard-conformant one). Preserve per-file history via `git filter-repo`.
+All eight studies (`01`–`08`) move in one pass. Preserve per-file history via
+`git filter-repo`.
 
-## Should we do this now? (discussion 2026-06-30)
+## Decision (2026-07-16): split now
 
-**Current lean: not yet.** The split is a defensible long-term direction but
+The 2026-06-30 discussion below leaned "not yet," with the explicit revisit
+trigger *"when there is a second study."* Re-measured 2026-07-16, every
+load-bearing fact has flipped:
+
+- **Five studies exist** (`01-gru-scaling-law` … `05-disrnn-scaling-law`),
+  each with its own `Makefile`, `analysis/`, and reports.
+- **Studies dominate the repo.** Last 3 months: 255 non-merge commits touched
+  `studies/` vs ~175 file-touches under `code/`. Tracked `studies/` content is
+  ~43 MB vs ~3 MB for everything the runtime needs. Framework changes are
+  drowned out, and every study commit advances `main`, so pinned
+  `DISPATCHER_REF` SHAs churn for reasons meaningless to the runtime. Beaker
+  jobs re-clone the dispatcher at startup (`entrypoint.sh`), so the split also
+  keeps that clone permanently light.
+- **Coupling is thin.** Of the 255 study commits, only 11 (~4%) also touched
+  `code/` or `environment/` — cross-repo PRs will be rare. Verified again:
+  zero Python imports from `studies/**` onto `code/**`; the only references
+  are shell-path launch commands in READMEs/notes and comment lines in sweep
+  YAMLs. (Study 04's analysis scripts `sys.path`-insert the *wrapper* sibling
+  clone — cross-repo side-by-side consumption is already the working
+  convention.)
+- **Packaging `code/` is NOT a prerequisite** (reverses the 2026-06-30
+  sequencing note below, restoring the original Non-goals bullet). The real
+  interface is a CLI that takes the `sweep.yaml` path as an argument;
+  `launch_hpc.py` and `launch_beaker_resumable.py` only parse the
+  `studies/<study>/variants/<variant>` components out of that path to derive
+  the W&B group. A sibling clone
+  (`python ../aind-disrnn-dispatcher/code/launch_....py studies/...`) works
+  today with no code change. Packaging remains a good follow-up, not a
+  blocker.
+- **Path prefix (was Open Question Q1): keep `studies/` — resolved, and not
+  just for lower churn.** The launchers' study/variant derivation searches for
+  the literal `studies` path component (`launch_hpc.py:218`,
+  `launch_beaker_resumable.py:135`); a flat layout silently breaks W&B group
+  naming unless both launchers are patched. Prefixed it is; flatten later only
+  together with a launcher change.
+
+Execution notes: the sandbox cannot create `.git` directories, so
+`gh repo create` and the initial clones on the Mac and HPC checkouts are the
+user's steps; everything else is delegable. Prereq 1 below re-verified
+2026-07-16: no open PRs, `git log origin/main..HEAD -- studies/` empty.
+
+### Re-verified 2026-09-01 (deltas since the 2026-07-16 decision)
+
+The decision to split stands. Three of its inputs have moved; the counts above
+are left as the dated observations they were.
+
+- **Eight studies now exist**, not five (`01-gru-scaling-law` …
+  `08-hb-vs-gru-heldout`). Seven carry a `Makefile` (`01`–`07`);
+  `08-hb-vs-gru-heldout` has only `README.md`, `figures/` and `variants/`, so it
+  is not yet normalized to the posthoc-reporting layout and will not satisfy the
+  `make all` gate in the verification checklist below.
+- **Prereq 1 no longer holds.** Open PRs exist against both repos — dispatcher
+  #73 and wrapper #65. The extract must wait for them: a commit that is not on
+  `main` when `git filter-repo` runs is dropped from the studies repo silently,
+  with no error and no warning. This is the one prerequisite whose failure mode
+  is data loss rather than churn.
+- **The target repo name is gated on the rename.** #74 renames the project
+  identity `disrnn` -> `behavior-fm` and is sequenced *before* this split, so the
+  new repo is created as **`aind-behavior-fm-studies`** and the cross-repo shell
+  path below becomes `../aind-behavior-fm-dispatcher/code/...`. Rename first:
+  this plan writes that dispatcher path into every study README, `notes.md` and
+  sweep-YAML comment, so splitting first means sweeping the same files twice —
+  the second time in a new repo where the rename's CI guardrail does not yet
+  exist. Every `aind-disrnn-studies` / `aind-disrnn-dispatcher` string below
+  should be read as the post-rename name.
+
+## Should we do this now? (discussion 2026-06-30 — the "not yet" lean is SUPERSEDED by the 2026-07-16 decision above; the analysis-layer findings and contract hardening below still stand)
+
+**Lean at the time: not yet.** The split is a defensible long-term direction but
 premature today, and separating the *analysis* layer — not the whole `studies/`
 tree — is the sharper cut. Reasoning, from a 2-people-plus-AI project's point of
 view (don't over-engineer):
@@ -141,27 +210,30 @@ aind-disrnn-dispatcher/
 aind-disrnn-studies/
 ├── AGENTS.md                    # studies-specific rules; Related: back to dispatcher AGENTS
 ├── README.md                    # index of studies; how to clone alongside dispatcher
-├── data-scaling-law/            # (was studies/data-scaling-law/, promoted to root)
-│   ├── analysis/
-│   ├── variants/
-│   ├── reports/
-│   ├── Makefile
-│   ├── environment.lock
-│   ├── CHANGELOG.md
-│   └── README.md
+├── studies/                     # prefix KEPT — see resolved Q1
+│   ├── 01-gru-scaling-law/
+│   │   ├── analysis/
+│   │   ├── variants/
+│   │   ├── Makefile
+│   │   ├── environment.lock
+│   │   ├── CHANGELOG.md
+│   │   └── README.md
+│   ├── 02-gru-scaling-law-ignore/
+│   ├── 03-disrnn-beta-scan/
+│   ├── 04-gru-vs-disrnn-embedding-recovery/
+│   ├── 05-disrnn-scaling-law/
+│   └── util/
 └── .gitignore                   # ignore per-study analysis/_cache_*.json, etc.
 ```
 
-Alternative: keep the `studies/<name>/` wrapper (i.e. mirror the current
-prefix). Trade-off:
-- **Flat** (`data-scaling-law/` at root): tighter for a repo whose sole
-  purpose is studies; matches "one folder per study" cleanly.
-- **Prefixed** (`studies/data-scaling-law/`): zero-diff paths for docs,
-  Makefile, tools that hardcode the `studies/` prefix; easier `filter-repo`.
-  Recommended for the first split; can flatten later.
-
-**Decision needed** — see Open Questions Q1. This plan assumes **prefixed**
-below to minimise churn.
+Path prefix trade-off (resolved 2026-07-16, see Decision above and Q1):
+- **Flat** (`01-gru-scaling-law/` at root): tighter for a repo whose sole
+  purpose is studies — but **breaks the launchers' W&B group derivation**,
+  which searches for the literal `studies` path component.
+- **Prefixed** (`studies/01-gru-scaling-law/`): zero-diff paths for docs,
+  Makefiles, launchers, and tools that hardcode the `studies/` prefix; easier
+  `filter-repo`. **Chosen.** Flatten later only together with a launcher
+  change.
 
 ## What moves, what stays
 
@@ -201,16 +273,21 @@ python ../aind-disrnn-dispatcher/code/launch_beaker_resumable.py ...
 Ditto for content references (`code/config/model/gru_scaling.yaml` becomes
 `../aind-disrnn-dispatcher/code/config/model/gru_scaling.yaml`).
 
-Files to update in the studies repo after extraction (search for
-`code/launch|code/config|code/hpc|code/beaker`):
+Files to update in the studies repo after extraction: **regenerate the list at
+execution time** —
 
-- `studies/data-scaling-law/README.md`
-- `studies/data-scaling-law/variants/*/notes.md`
-- `studies/data-scaling-law/variants/*/sweep.yaml` (comment lines only)
-- `studies/data-scaling-law/variants/*/launch_record/*.yaml` (comment lines only)
-- `studies/data-scaling-law/launch_heldout_rerun.py` (docstring line 14)
-- `studies/data-scaling-law/analysis/rl_baseline_verdict.md`
-- `studies/data-scaling-law/analysis/rl_baseline.py` (line 486 error message string)
+```bash
+rg -l 'code/launch|code/config|code/hpc|code/beaker' studies/
+```
+
+As of 2026-07-16 this hits ~20 files across studies 01–05: per-study
+`README.md`s, `variants/*/notes.md`, `variants/*/sweep.yaml` and
+`variants/*/experiment.yaml` (comment lines only),
+`variants/*/launch_record/*.yaml` (comment lines only),
+`01-gru-scaling-law/launch_heldout_rerun.py` (docstring),
+`01-gru-scaling-law/analysis/rl_baseline_verdict.md`, and
+`01-gru-scaling-law/analysis/rl_baseline.py` (an error-message string). Nearly
+all are docs/comments; only the last two are code strings.
 
 Long-term (out of scope for this split): promote the launchers to a proper
 Python package with console-script entrypoints so the shell path drops out
@@ -231,13 +308,15 @@ git filter-repo --path studies/
 ```
 
 Result: `extract/` now contains only files under `studies/`, with per-file
-history preserved (`git log --follow studies/data-scaling-law/analysis/rl_baseline.py`
-should show every commit that touched it).
+history preserved (`git log --follow studies/01-gru-scaling-law/analysis/rl_baseline.py`
+should show every commit that touched it, across the
+`data-scaling-law` → `01-gru-scaling-law` rename — verified working on the
+source repo 2026-07-16).
 
--> verify: `git log --oneline | wc -l` in `extract/` is > 20 (matches the
-   number of dispatcher commits that touched `studies/`).
--> verify: `git log --follow --oneline studies/data-scaling-law/analysis/rl_baseline.py`
-   shows at least commits `1e30716`, `6b0ecd5`, `122abfd`, etc.
+-> verify: `git log --oneline | wc -l` in `extract/` is > 250 (255 non-merge
+   commits touched `studies/` in the last 3 months alone).
+-> verify: `git log --follow --oneline studies/01-gru-scaling-law/analysis/rl_baseline.py`
+   shows at least commits `1e30716`, `342f5ae`, `122abfd`, etc.
 
 ### Step 2 — Add fresh top-level files
 
@@ -308,7 +387,7 @@ repo's initial commit for the split source revision).
 Open a PR; **merge with merge commit** (not squash) per AGENTS.md §9.
 
 -> verify: dispatcher's CI still passes (if any).
--> verify: `git log --follow studies/data-scaling-law/analysis/rl_baseline.py`
+-> verify: `git log --follow studies/01-gru-scaling-law/analysis/rl_baseline.py`
    in dispatcher still shows history up to the removal commit.
 
 ### Step 6 — Update Beaker / CO workflows
@@ -323,20 +402,24 @@ Verify by launching one small variant end-to-end after the split.
 
 ## Verification checklist (end-to-end)
 
-Run in `aind-disrnn-studies/studies/data-scaling-law/` after the split:
+Run in `aind-disrnn-studies/` after the split — every study has a `Makefile`;
+study 01 is the deepest regeneration test, but run all five:
 
 ```bash
 source /allen/aind/scratch/han.hou/miniforge3/etc/profile.d/conda.sh
 conda activate disrnn-cpu
-make all      # regenerates r1, r3, r4, r5, r7, r8 outputs
+for s in studies/0*/; do (cd "$s" && make all); done
 ```
 
-- [ ] `make all` exits 0.
+- [ ] `make all` exits 0 in every study that has one (`01`–`07`).
+      `08-hb-vs-gru-heldout` has no `Makefile` yet — see the 2026-09-01
+      re-verification; either normalize it first or record it as a known gap.
 - [ ] Regenerated JSONs are byte-identical to pre-split (aside from
       `_meta.produced_at_pt`/`dispatcher_git_sha`).
-- [ ] `reports/r7-nxd-joint-scaling-grid.md` and `reports/r8-gru-vs-rl-baseline.md`
-      re-render identically between the `BEGIN/END` markers.
-- [ ] `git log --follow analysis/rl_baseline.py` shows commits going back to `1e30716`.
+- [ ] Study 01's reports re-render identically between the `BEGIN/END`
+      markers.
+- [ ] `git log --follow studies/01-gru-scaling-law/analysis/rl_baseline.py`
+      shows commits going back to `1e30716`.
 - [ ] Dispatcher `git status` clean after the removal PR merges.
 - [ ] One trial launch from the studies repo (`launch_beaker_resumable.py
       --help` at minimum) succeeds pointing at sibling dispatcher.
@@ -374,37 +457,99 @@ do not duplicate here.
 - **Do not** rewrite dispatcher history (only `studies/` is filter-repo'd,
   and only in the extract clone).
 
-## Open questions (resolve before executing, or in-line)
+## Open questions (Q1, Q2, Q4 resolved 2026-07-16; Q3, Q6 resolve at execution)
 
-1. **Path prefix in the new repo.** Flat (`data-scaling-law/` at root) vs.
-   prefixed (`studies/data-scaling-law/`)? This plan assumes prefixed for
-   minimum diff. Flat is cleaner long-term.
-2. **`.codeocean/` capsule scope.** Does the CO capsule need the studies
-   folder present to function, or only the launchers? If the former, either
-   ship a submodule/subclone step in the capsule entrypoint or accept that
-   post-split the capsule no longer builds studies.
+1. **Path prefix in the new repo.** ~~Flat vs. prefixed?~~ **RESOLVED:
+   prefixed** (`studies/01-gru-scaling-law/`). Not just lower churn — the
+   launchers derive the W&B group by finding the literal `studies` path
+   component (`launch_hpc.py:218`, `launch_beaker_resumable.py:135`); flat
+   silently breaks group naming. See Decision section.
+2. **`.codeocean/` capsule scope.** **RESOLVED: launchers only.** Verified
+   via `.codeocean/app-panel.json`: the capsule's Reproducible Run executes
+   `code/launch_beaker.py` against `code/beaker/sweep_mvp.yaml` and writes a
+   launch record to `/results` — it never touches `studies/`. Nothing to
+   change in the capsule.
 3. **`code/config/`, `code/beaker/` templates.** Some templates
    (`sweep_scaling.yaml`, `sweep_gru_scaling.yaml`) are named after
-   data-scaling-law but live in dispatcher. Do they move with the studies
+   study 01 but live in dispatcher. Do they move with the studies
    extract, or stay as reusable dispatcher templates? Recommend: stay in
    dispatcher for now; extract to study-specific `variants/*/sweep.yaml`
-   only if a second study needs a different one.
-4. **`aind-disrnn-wrapper` version pin.** The current
-   `studies/data-scaling-law/environment.lock` pins the wrapper at commit
-   `870e6dd`. After split, that pin migrates with the study. Should the
-   studies repo also pin dispatcher itself (e.g. via a
-   `dispatcher_commit_sha` file in the study root)? Recommend: yes,
-   one-line file `.dispatcher_pin` alongside `environment.lock`.
+   only if a study needs a diverging copy.
+4. **`aind-disrnn-wrapper` version pin.** Each study's `environment.lock`
+   pins the wrapper; after the split those pins migrate with the studies.
+   **RESOLVED: yes**, the studies repo also pins dispatcher — one-line file
+   `.dispatcher_pin` alongside each `environment.lock`, stamped at launch
+   time like `_meta.dispatcher_git_sha` already is in analysis JSONs.
 5. **CI.** Dispatcher has no `.github/workflows/` today. If CI is added
    before the split, does it run study Makefiles? If yes, split it too.
 6. **Existing branches on dispatcher.** After `studies/` is removed from
    `main`, any long-lived feature branch that touched `studies/` becomes
    painful to merge. Enumerate open branches first
    (`gh pr list --state open --json headRefName,files`), rebase or close
-   before Step 5.
+   before Step 5. (Checked 2026-07-16: zero open PRs — re-check at
+   execution time.)
+
+## Code Ocean: launch surface and archive, not a home (decided 2026-07-16)
+
+Considered and rejected: migrating `studies/` + the Makefile mechanism into
+the Code Ocean ecosystem. The current division of labor is correct and the
+split does not change it — CO = launch control plane (the capsule's app panel
+runs `launch_beaker.py`), Beaker/HPC = compute, W&B = experiment record,
+git = code and living documents. Three reasons:
+
+- **Wrong data plane.** Every analysis producer opens `wandb.Api()` and pulls
+  by group name; there is no local-data input. CO's core value (immutable
+  mounted data assets, lineage) buys nothing when the input is a cloud API —
+  a capsule "Reproducible Run" would still depend on mutable external W&B
+  state. The provenance actually relied on (`_meta` git SHAs,
+  `environment.lock`, W&B group names) already travels with git.
+- **Wrong iteration model.** The reports-are-code loop — edit producer,
+  `make rN` in seconds against `.gitignore`'d W&B caches, diff the
+  regenerated `BEGIN/END` region, review in a PR — is incremental and
+  git-native. A capsule has one entrypoint, no incremental targets, no cache
+  persistence between runs, and immutable per-run results. Study history is
+  full of `fix(study-04): correct overstated claim` commits: reports are
+  living documents corrected under review, git's home turf.
+- **A fourth home that retires none of the other three,** for a
+  2-person-plus-AI team with no external consumers of intermediate state.
+
+**Where CO does earn its place — a hermetic analysis-regeneration capsule**
+(analysis only; it never triggers Beaker/HPC — that stays the existing launch
+capsule's job). Because studies 03–05 already follow the "freeze the numbers"
+convention (committed curated grid CSVs; `make all` runs offline), a capsule
+that clones the studies repo at a pinned SHA and runs every study's `make
+all` needs no W&B secret, no network, and no data asset. Design, priorities
+(CO explicitly last), and the remaining normalization work (study 01,
+study 05 r4): [[report-publication-and-reproducibility]]. Out of scope for
+this split.
+
+## Committed artifacts policy: keep committing figures & CSVs (decided 2026-07-16)
+
+Measured 2026-07-16: `studies/` tracks 45 PNGs (21 MB) and 46 CSVs (5.2 MB);
+largest single files ~1–1.5 MB (study 04 JSONs/CSVs). Decision: **keep
+committing them, in the new studies repo.** Rationale:
+
+- Reports embed the figures; without committed PNGs the `r*.md` reports are
+  unreadable on GitHub, defeating reports-are-code.
+- Regenerated-artifact diffs are a real review signal (history shows them
+  catching dropped CSV rows and overstated claims).
+- "Regenerable from W&B" decays: if runs are deleted or age out, the
+  committed artifacts are the only durable record of a study's answer.
+- The dispatcher-weight concern is solved by the split itself — study
+  artifacts no longer ride along in the runtime clone that Beaker jobs pull
+  at startup.
+
+Discipline in the studies repo: W&B pull caches stay `.gitignore`'d (never
+commit them); keep single artifacts under a few MB (downsample figures,
+aggregate CSVs — raw pulls belong in the cache layer); revisit git-LFS only
+if the repo's pack size approaches a few hundred MB, which at the current
+~27 MB of history-blob weight is years away.
 
 ## Related
 
+- [[report-publication-and-reproducibility]] — the post-split publication
+  layers (freeze-the-numbers completion, CI regen check, docs site, CO
+  analysis capsule) that build on this split.
 - [[study-organization]] — the intra-study layout that already anticipates
   this split ("one folder per study", "self-contained variants").
 - [[posthoc-analysis]] — analysis conventions that already live *inside*
