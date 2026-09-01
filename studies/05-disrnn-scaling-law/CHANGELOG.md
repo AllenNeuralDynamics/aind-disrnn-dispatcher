@@ -1,5 +1,22 @@
 # Changelog — 05-disrnn-scaling-law
 
+## 2026-08-31
+
+### Added
+- `variants/generative-rl-baseline/extract_history_patterns.py` + three
+  `rl_rollout_summaries/{ctt,bari,hattori}_history_patterns.json` (~177 KB each) — the frozen
+  per-pattern `animal_mean` / `simulated_mean` (± SEM) rows for the history-dependent switch
+  curve, streamed out of the 1.5 GB `history_dependent_switch_stats_no_figures.json` caches
+  still on `/allen/aind/scratch/han.hou/tmp/rlgen/`. No re-simulation, no re-fit; each output
+  is keyed by the sha256 of its source and the baseline's W&B run id, and the extractor asserts
+  it reproduces the already-committed `quantitative_summary.subject_mean.abstract["3"]` values.
+
+### Notes
+- `variants/generative-rl-baseline/notes.md` — new section on why the pattern scatter was
+  missing (the `_save_*_figures()` skip was aimed at the per-session panels but took the cheap
+  pattern-comparison panel with it, and the committed summary keeps only per-pattern deltas,
+  not the absolute coordinates) and what to persist instead next time.
+
 ## 2026-07-13
 
 - Study created to close the disRNN half of

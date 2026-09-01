@@ -54,5 +54,15 @@ r8:
 # r9: generative behavioral-match vs D (switch-triggered + history-dependent).
 # Pulls W&B groups generative-v{1,2}@*; writes generative_match.json,
 # fig_generative_match.png, fig_generative_match_history.png.
+# pswitch_history_patterns.py is offline (reads study 05's committed frozen
+# per-pattern rows) and writes the RL companion scatter.
 r9:
 	python analysis/generative_match.py
+	python analysis/pswitch_history_patterns.py
+
+# One-off, NOT part of `r9`: streams ~3.1 GB out of the two D=614 generative tasks' Beaker
+# result datasets and freezes the GRU per-pattern rows into analysis/gru_history_patterns/.
+# Needs BEAKER_TOKEN and network access to beaker.org + data.beaker.org. The rows are
+# committed, so `r9` stays offline; re-run this only to add another D / seed / partition.
+r9-fetch-gru:
+	python analysis/fetch_gru_history_patterns.py

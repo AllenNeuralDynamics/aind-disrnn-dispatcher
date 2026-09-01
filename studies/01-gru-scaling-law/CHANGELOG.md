@@ -4,6 +4,73 @@ Per-study log per [`docs/posthoc-analysis.md`](../../docs/posthoc-analysis.md). 
 entry per merged PR (or coherent unreleased batch). Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — r9 gets the GRU side of the history-pattern scatter
+
+**2026-08-31.** The GRU counterpart of the RL scatter, recovered from Beaker rather than
+re-run. `launch_generative.py` logs only the summary scalars and figure PNGs to W&B, but the
+task's `--output-dir` is `/results`, so `history_dependent_switch_stats.json` was in each
+task's result dataset all along.
+
+### Added
+- `analysis/fetch_gru_history_patterns.py` — walks W&B → Beaker → dataset storage and
+  stream-extracts the per-pattern rows from the ~1.55 GB stats file without landing it on
+  disk. Carries the resolved Beaker experiment/job/dataset ids for the two r9 generative
+  groups, whose launch records were never committed.
+- `analysis/gru_history_patterns/v{1,2}_d614_s0_combined_history_patterns.json` (~177 KB each)
+  — GRU v2 and v1, H=128, D=614, seed 0, `combined` partition; each keyed by the sha256 of its
+  streamed source. The extracted panel summary reproduces the independently fetched
+  `model_vs_animal_quantitative_summary.json` scalars (v2 0.98212 / 0.02850).
+- `analysis/fig_pswitch_history3_gru_vs_rl.png` / `.svg` — four panels, GRU v2 then the three
+  RL baselines, shared axes and colour map. GRU roughly halves the across-pattern RMSE (0.029
+  vs 0.058–0.066) at higher correlation (0.982 vs 0.931–0.965). The `#60` asymmetry is printed
+  **on the figure**, so it cannot be separated from the image on a slide.
+- `Makefile` — `r9-fetch-gru` target, deliberately outside `r9` (needs BEAKER_TOKEN + network;
+  the rows are committed so `r9` stays offline).
+
+### Changed
+- `analysis/pswitch_history_patterns.py` — panel drawing factored into `draw_panel()` and
+  reused for both figures; verified the RL-only figure still regenerates byte-identically.
+  `n = 32` dropped from the annotation box (Han): it is the dot count, not a sample size.
+- `reports/r9-generative-behavioral-match.md` — new figure + caption naming where each model
+  fails (compare-to-threshold saturates at P(switch) ≈ 0.40; Bari under-switches at the high
+  end; Hattori overshoots; the GRU misses on `aba`), and a provenance subsection with the id
+  table, the H/D argument (H=128 is the only hidden size with generative rollouts; the N×D grid
+  has none), and the v1-vs-v2 distinction (both declare scalar session encoding, only v2
+  activates it). Frontmatter gains `gru_pattern_rows` / `gru_vs_rl_pattern_figure`.
+
+## [Unreleased] — r9 gets the RL history-pattern scatter
+
+**2026-08-31.** r9 tables (d)-(f) have reported the RL baselines' generative behavioral match as
+scalars since 2026-07-15 with no way to draw the scatter behind them. Recovered, not re-run: the
+per-pattern coordinates were still in the 1.5 GB stats caches on `/allen/…/tmp/rlgen/` and are now
+frozen alongside study 05's variant (see that study's changelog).
+
+### Added
+- `analysis/pswitch_history_patterns.py` — offline producer (reads study 05's committed frozen
+  rows, never W&B) for `analysis/fig_pswitch_history3_rl.png` / `.svg`: P(switch | previous 3
+  trials), one panel per baseline, 32 abstract patterns, subject-mean ± SEM over 614 mice.
+  Reproduces the wrapper's own `_plot_history_pattern_comparison_figure` geometry, annotation and
+  colour map, so the panels are comparable with the `combined/history_pattern_comparison_abstract`
+  media panels on the GRU generative runs.
+- `Makefile` — `r9` now chains `pswitch_history_patterns.py` after `generative_match.py`.
+
+### Changed
+- `reports/r9-generative-behavioral-match.md` — new figure and a **Provenance** section (outside
+  the `result-9` markers, so no producer-owned region is touched): where the coordinates came
+  from and how they were verified, why the per-dot SEM error bars are drawn yet sub-marker
+  (0.0033-0.0062 → 0.8-1.4 pt half-bar against a 4 pt marker radius), and a reconciliation of
+  the panel-box RMSE (across the 32 pattern rows: 0.0590 / 0.0661 / 0.0584) against table (e)'s
+  RMSE column (sqrt subject-balanced MSE: 0.0216 / 0.0403 / 0.0313) — different quantities that
+  rank the three models differently. Frontmatter gains `related_scripts`, `rl_pattern_rows`,
+  `rl_pattern_figure`; `reproduce` is now a two-line block.
+
+### Still open
+- No GRU panel for this metric. The GRU per-pattern rows are only inside the generative tasks'
+  Beaker result datasets, and r9's GRU rollouts predate wrapper #60 — pairing them against these
+  post-#60 RL panels in one figure would make that asymmetry load-bearing. Re-running r9's GRU
+  rollouts on the fixed wrapper (tracked in study 05's r4) is the right fix and yields the panel
+  directly.
+
 ## [Unreleased] — classical-RL baseline suite (Bari / Hattori / CTT)
 
 **2026-07-13.** Fit the full classical-RL baseline suite that issue #20 asks for, on the
