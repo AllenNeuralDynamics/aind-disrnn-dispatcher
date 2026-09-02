@@ -4,7 +4,7 @@
 #
 # See code/hpc/README.md for usage and tradeoffs vs. W&B sweeps. Typical use:
 #
-#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper code/hpc/slurm/hydra_multirun_cpu.slurm
+#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper code/hpc/slurm/hydra_multirun_cpu.slurm
 #
 #SBATCH -J disrnn_hydra_cpu
 #SBATCH -p aind
@@ -19,7 +19,7 @@
 source "${CONDA_SH:?CONDA_SH not set; source code/hpc/slurm/user.env before sbatch}"
 conda activate disrnn-cpu
 
-WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.py or pass --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper}"
+WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.py or pass --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper}"
 cd "$WRAPPER_ROOT/code"
 export PYTHONPATH="$WRAPPER_ROOT/code:${PYTHONPATH:-}"
 export HYDRA_FULL_ERROR=1

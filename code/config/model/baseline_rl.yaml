@@ -1,5 +1,5 @@
 # Baseline RL model config. Values mirror the wrapper pck_dev source of truth
-# (aind-disrnn-wrapper@a790cc0 code/configs/config_baseline_rl.yaml, "baseline_rl, multi-subject").
+# (aind-behavior-fm-wrapper@a790cc0 code/configs/config_baseline_rl.yaml, "baseline_rl, multi-subject").
 # See https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models
 type: baseline_rl
 

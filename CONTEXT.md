@@ -1,4 +1,4 @@
-# aind-disrnn-dispatcher
+# aind-behavior-fm-dispatcher
 
 Control plane for training and evaluating sequence models (GRU, disRNN) and cognitive-model
 baselines on rodent dynamic-foraging behaviour. This glossary fixes the vocabulary shared by

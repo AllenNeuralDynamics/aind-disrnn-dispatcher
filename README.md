@@ -1,4 +1,4 @@
-# aind-disrnn-dispatcher
+# aind-behavior-fm-dispatcher
 
 The dispatcher capsule in the AIND-disRNN MLOps stack
 
@@ -10,9 +10,9 @@ All four model variants — GRU, disRNN, baseline RL and the hierarchical Bayes 
 reach the same `ModelTrainer.fit` through a Hydra `_target_`, and report the same held-out
 likelihood. That shared axis is what makes them comparable.
 
-[![Behavioral foundation model stack](docs/diagrams/bfm-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/bfm-stack.html)
+[![Behavioral foundation model stack](docs/diagrams/bfm-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher/main/docs/diagrams/bfm-stack.html)
 
-The still is a snapshot; **[open the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/bfm-stack.html)**
+The still is a snapshot; **[open the interactive version](https://raw.githack.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher/main/docs/diagrams/bfm-stack.html)**
 to pan, zoom, search and trace a single relationship. Sources and further diagrams:
 [`docs/diagrams/`](docs/diagrams/).
 

@@ -182,7 +182,7 @@
  "boundaries": [
   {
    "kind": "region",
-   "label": "aind-disrnn-dispatcher \u00b7 studies/08",
+   "label": "aind-behavior-fm-dispatcher \u00b7 studies/08",
    "wraps": [
     "hydra_cfg",
     "study01"
@@ -191,7 +191,7 @@
   },
   {
    "kind": "region",
-   "label": "aind-disrnn-wrapper \u00b7 shared with GRU / disRNN / baseline_rl",
+   "label": "aind-behavior-fm-wrapper \u00b7 shared with GRU / disRNN / baseline_rl",
    "wraps": [
     "run_hpc",
     "loader",

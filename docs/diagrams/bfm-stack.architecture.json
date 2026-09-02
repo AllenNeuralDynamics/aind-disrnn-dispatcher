@@ -182,7 +182,7 @@
   "boundaries": [
     {
       "kind": "region",
-      "label": "aind-disrnn-dispatcher · control plane",
+      "label": "aind-behavior-fm-dispatcher · control plane",
       "wraps": [
         "hydra",
         "launchers"
@@ -191,7 +191,7 @@
     },
     {
       "kind": "region",
-      "label": "aind-disrnn-wrapper · training runtime",
+      "label": "aind-behavior-fm-wrapper · training runtime",
       "wraps": [
         "loader",
         "runner",

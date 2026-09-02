@@ -19,7 +19,7 @@ machine that has a browser.
 
 GitHub renders neither the HTML nor inline SVG, so the PNG is what appears inline below and
 each one links through to the interactive viewer via
-[raw.githack](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/).
+[raw.githack](https://raw.githack.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher/main/docs/diagrams/).
 
 | diagram | subject |
 |---|---|
@@ -28,8 +28,8 @@ each one links through to the interactive viewer via
 
 ## bfm-stack
 
-[![Behavioral foundation model stack](bfm-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/bfm-stack.html)
+[![Behavioral foundation model stack](bfm-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher/main/docs/diagrams/bfm-stack.html)
 
 ## hb-stack
 
-[![HB baseline across three repos](hb-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-disrnn-dispatcher/main/docs/diagrams/hb-stack.html)
+[![HB baseline across three repos](hb-stack.png)](https://raw.githack.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher/main/docs/diagrams/hb-stack.html)

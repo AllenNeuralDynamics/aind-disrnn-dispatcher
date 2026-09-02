@@ -260,7 +260,7 @@ session filters and hoping they match the neural models'.
 ## 8. Staging
 
 Live status is tracked in issue #72, with per-repo work in
-`aind-dynamic-foraging-models#62` and `aind-disrnn-wrapper#64`. This section holds only the
+`aind-dynamic-foraging-models#62` and `aind-behavior-fm-wrapper#64`. This section holds only the
 sequence and its verification gates, which are spec rather than state.
 
     1. JAX Hattori2019 likelihood
