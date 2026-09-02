@@ -41,7 +41,7 @@ tasks:
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key     # Beaker secret holding your W&B key
-      - name: DISRNN_OUTPUT_DIR
+      - name: BFM_OUTPUT_DIR
         value: /results
       # branch/tag/SHA to run; a SHA pins for reproducibility
       - name: WRAPPER_REF

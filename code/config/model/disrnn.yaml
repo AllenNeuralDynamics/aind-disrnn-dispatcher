@@ -69,7 +69,7 @@ training:
   # Extend-later: set to a prior run's W&B id to CONTINUE from its checkpoint (staged
   # horizons). run_hpc downloads that run's training-output artifact before training so
   # the trainer resumes from it and skips warmup. null => normal fresh run. See wrapper
-  # beaker/README.md section 3b. (env DISRNN_RESTORE_FROM_RUN_ID overrides this.)
+  # beaker/README.md section 3b. (env BFM_RESTORE_FROM_RUN_ID overrides this.)
   restore_from_run_id: null
   checkpoint_every_n_steps: 10
   checkpoint_eval_on_eval_split: true
@@ -113,7 +113,7 @@ training:
 
 seed: ${seed}  # Seed for model trainer
 
-output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # will be overridden with wandb run folder
+output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}  # will be overridden with wandb run folder
 
 # Your template for the model part of the run name
 run_name_component: disrnn_beta${.penalties.beta}_lr${.training.lr}

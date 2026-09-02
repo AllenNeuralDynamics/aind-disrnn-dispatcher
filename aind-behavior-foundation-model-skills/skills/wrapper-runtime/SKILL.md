@@ -44,7 +44,7 @@ discriminate generalization.
 - **Resume (within one experiment)** — preemption recovery; automatic
   (`auto_resume`, default true). Skips warmup (already folded into the checkpoint).
 - **Extend (across experiments)** — `model.training.restore_from_run_id=<W&B run>`
-  (env `DISRNN_RESTORE_FROM_RUN_ID` wins) + larger `n_steps`; source run must have
+  (env `BFM_RESTORE_FROM_RUN_ID` wins) + larger `n_steps`; source run must have
   **finished**. Launch-side detail: beaker-launch / hpc-launch skills.
 
 ## Conventions that surprise people

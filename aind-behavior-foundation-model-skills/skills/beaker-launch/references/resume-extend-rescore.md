@@ -10,14 +10,14 @@ A preempted `preemptible: true` task restarts as the *same* task with the *same*
 and continues (skipping warmup). Needs `checkpoint_every_n_steps > 0` + the
 trainer gate `training.auto_resume` (default; distinct from Beaker's own
 `autoResume` spec field). No flags, no new experiment. Each task sets
-`DISRNN_RESUMABLE_OUTPUT_DIR=/results/run` so outputs anchor at a fixed path the
+`BFM_RESUMABLE_OUTPUT_DIR=/results/run` so outputs anchor at a fixed path the
 restart re-finds. (Beaker-only: HPC `aind` jobs are not preempted.)
 
 ## 2. Extend a finished run to a longer horizon — ACROSS experiments
 
 Launch a *new* experiment with
 `model.training.restore_from_run_id=<source W&B run name>` (or per-cell env
-`DISRNN_RESTORE_FROM_RUN_ID` — env wins, so a sweep can pass a per-cell id) and a
+`BFM_RESTORE_FROM_RUN_ID` — env wins, so a sweep can pass a per-cell id) and a
 **larger** `n_steps`. Before training, the entrypoint downloads the source run's
 `<mtype>-output-<run_id>:latest` artifact (`mtype` ∈ {`disrnn`,`gru`}) into
 `outputs/`, so the trainer resumes from its checkpoint and skips warmup.

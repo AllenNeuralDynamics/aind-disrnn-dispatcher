@@ -303,7 +303,7 @@ def _inject_lineage_into_command(
     if not any("auto_heldout_finetune.output_root" in str(c) for c in cmd):
         cmd.append(
             "model.training.auto_heldout_finetune.output_root="
-            "'${oc.env:DISRNN_HELDOUT_ROOT,${oc.env:HOME}/outputs/heldout_subject_finetuning}'"
+            "'${oc.env:BFM_HELDOUT_ROOT,${oc.env:DISRNN_HELDOUT_ROOT,${oc.env:HOME}/outputs/heldout_subject_finetuning}}'"
         )
     sweep_cfg["command"] = cmd
     return sweep_cfg
@@ -495,10 +495,10 @@ def main() -> None:
     group = f"{variant}@{launch_id}"
     provenance_env = {
         "WANDB_RUN_GROUP": group,
-        "DISRNN_META_STUDY": study,
-        "DISRNN_META_VARIANT": variant,
-        "DISRNN_META_LAUNCH_ID": launch_id,
-        "DISRNN_META_CONFIG_HASH": config_hash,
+        "BFM_META_STUDY": study,
+        "BFM_META_VARIANT": variant,
+        "BFM_META_LAUNCH_ID": launch_id,
+        "BFM_META_CONFIG_HASH": config_hash,
     }
 
     print(

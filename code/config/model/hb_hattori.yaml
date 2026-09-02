@@ -13,7 +13,7 @@ _target_: model_trainers.hb_trainer.HBTrainer
 
 architecture:
   multisubject: true          # the hierarchy is over subjects; single-subject is not a mode
-output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}
 
 # ── Estimator ────────────────────────────────────────────────────────────
 # one_stage infers population, subject and session levels jointly. two_stage fits each
@@ -48,6 +48,6 @@ few_shot_k: [0, 1, 2, 4, 8]
 
 # Posterior draws, diagnostics and provenance. A cohort fit costs hours; without this every
 # later question -- a new rung, a calibration check, a figure -- means refitting.
-artifact_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}/hb_artifacts
+artifact_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}/hb_artifacts
 
 run_name_component: hb_${.estimator}

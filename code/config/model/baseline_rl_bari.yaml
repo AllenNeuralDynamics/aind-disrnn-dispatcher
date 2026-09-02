@@ -16,7 +16,7 @@ _target_: model_trainers.baseline_rl_trainer.BaselineRLTrainer
 
 architecture:
   multisubject: true
-output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}
+output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}
 multisubject_subject_workers: 6
 fit_bounds_override: {}
 clamp_params: {}

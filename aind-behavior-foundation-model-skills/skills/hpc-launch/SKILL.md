@@ -111,7 +111,7 @@ detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
 
 - **Extend a finished run to a longer horizon.** Set
   `model.training.restore_from_run_id=<source W&B run name>` (or env
-  `DISRNN_RESTORE_FROM_RUN_ID`) and a **larger** `n_steps`. `run_hpc.py` downloads the
+  `BFM_RESTORE_FROM_RUN_ID`) and a **larger** `n_steps`. `run_hpc.py` downloads the
   source run's `<mtype>-output-<run_id>` artifact (`mtype` ∈ {`disrnn`,`gru`}) into
   `outputs/` before training, so it resumes from the checkpoint and skips warmup.
   Trainer-agnostic. Prereq: the source run must have FINISHED (its `training-output`
