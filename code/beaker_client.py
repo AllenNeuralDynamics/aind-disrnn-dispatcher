@@ -51,8 +51,8 @@ import yaml
 WANDB_GQL_URL = "https://api.wandb.ai/graphql"
 GITHUB_API_URL = "https://api.github.com"
 RUNTIME_REF_REPOSITORIES = {
-    "WRAPPER_REF": "aind-behavior-fm-wrapper",
-    "DISPATCHER_REF": "aind-behavior-fm-dispatcher",
+    "WRAPPER_REF": "aind-dynamic-foraging-bfm-wrapper",
+    "DISPATCHER_REF": "aind-dynamic-foraging-bfm-dispatcher",
     "FORAGING_MODELS_REF": "aind-dynamic-foraging-models",
 }
 _FULL_GIT_SHA = re.compile(r"^[0-9a-fA-F]{40}$")

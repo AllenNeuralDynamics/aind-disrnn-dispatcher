@@ -1,4 +1,4 @@
-# aind-behavior-fm-dispatcher
+# aind-dynamic-foraging-bfm-dispatcher
 
 Control plane for training and evaluating sequence models (GRU, disRNN) and cognitive-model
 baselines on rodent dynamic-foraging behaviour. This glossary fixes the vocabulary shared by
@@ -96,7 +96,7 @@ symbols carrying it (`DisrnnTrainer`, `MultisubjectDisRnn`, `models/disrnn_netwo
 `disrnn_config`, `create_disrnn_dataset`) are frozen by ADR-0007.
 _Avoid_: using "disrnn" for the project as a whole
 
-**behavior-fm**:
+**dynamic-foraging-bfm**:
 The project — a behavioural foundation model for dynamic foraging — spanning the dispatcher,
 the wrapper runtime, and the HB baseline. Names the repos, the W&B entity, the conda envs,
 and the `BFM_*` env-var prefix. Distinct from disRNN, which is one architecture inside it.

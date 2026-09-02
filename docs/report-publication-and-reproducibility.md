@@ -17,9 +17,9 @@ status: proposed
 > sequence *after* the split. Re-verified 2026-09-01; the layer-1 gap list
 > below has grown since the draft.
 >
-> The studies repo is created **after** the `disrnn` -> `behavior-fm` rename
+> The studies repo is created **after** the `disrnn` -> `dynamic-foraging-bfm` rename
 > (#74), which has since landed (ADR-0007), so its name is
-> `aind-behavior-fm-studies`.
+> `aind-dynamic-foraging-bfm-studies`.
 
 ## Priorities (in order)
 
@@ -137,7 +137,7 @@ jobs). The analysis capsule never triggers Beaker/HPC/training — its
 Reproducible Run is exactly:
 
 ```text
-clone aind-behavior-fm-studies @ <pinned SHA>
+clone aind-dynamic-foraging-bfm-studies @ <pinned SHA>
 for s in studies/0*/; do make -C "$s" all; done
 copy regenerated reports + figures to /results
 ```
@@ -156,7 +156,7 @@ that signals layer 1 has regressed — fix that instead.
 
 0. Merge the open PRs (dispatcher #73, wrapper #65) — split prerequisite 1;
    anything not on `main` is dropped from the extract silently.
-1. Identity rename `disrnn` -> `behavior-fm` (#74), so the studies repo is
+1. Identity rename `disrnn` -> `dynamic-foraging-bfm` (#74), so the studies repo is
    born with its final name and the cross-repo shell path is written once.
 2. Repo split ([[repo-split-plan]], approved).
 3. Layer 1 (study 01 + 05-r4 normalization) — the only real code work.

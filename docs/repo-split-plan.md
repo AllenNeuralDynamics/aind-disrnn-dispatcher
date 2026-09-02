@@ -2,7 +2,7 @@
 aliases:
   - repo split plan
   - split studies
-  - aind-behavior-fm-studies
+  - aind-dynamic-foraging-bfm-studies
 tags:
   - planning
   - migration
@@ -10,7 +10,7 @@ tags:
 status: approved
 ---
 
-# Repo-split plan: extract `studies/` into `aind-behavior-fm-studies`
+# Repo-split plan: extract `studies/` into `aind-dynamic-foraging-bfm-studies`
 
 > **Status:** approved 2026-07-16, not yet executed. Delegated to a separate
 > agent for execution. Originally written 2026-06-30 after the
@@ -19,11 +19,11 @@ status: approved
 
 ## TL;DR
 
-Split `aind-behavior-fm-dispatcher` at the framework/application seam:
+Split `aind-dynamic-foraging-bfm-dispatcher` at the framework/application seam:
 
-- **`aind-behavior-fm-dispatcher`** (this repo, stays) — launchers (`code/`),
+- **`aind-dynamic-foraging-bfm-dispatcher`** (this repo, stays) — launchers (`code/`),
   framework docs (`docs/`), Docker env, CO capsule metadata, root `AGENTS.md`.
-- **`aind-behavior-fm-studies`** (new sibling repo) — everything currently under
+- **`aind-dynamic-foraging-bfm-studies`** (new sibling repo) — everything currently under
   `studies/`, keeping the `studies/` path prefix (see Decision below), one
   study per subfolder, each self-contained per `docs/study-organization.md`.
 
@@ -58,7 +58,7 @@ load-bearing fact has flipped:
   `launch_hpc.py` and `launch_beaker_resumable.py` only parse the
   `studies/<study>/variants/<variant>` components out of that path to derive
   the W&B group. A sibling clone
-  (`python ../aind-behavior-fm-dispatcher/code/launch_....py studies/...`) works
+  (`python ../aind-dynamic-foraging-bfm-dispatcher/code/launch_....py studies/...`) works
   today with no code change. Packaging remains a good follow-up, not a
   blocker.
 - **Path prefix (was Open Question Q1): keep `studies/` — resolved, and not
@@ -89,9 +89,9 @@ are left as the dated observations they were.
   with no error and no warning. This is the one prerequisite whose failure mode
   is data loss rather than churn.
 - **The target repo name is gated on the rename.** #74 renames the project
-  identity `disrnn` -> `behavior-fm` and is sequenced *before* this split, so the
-  new repo is created as **`aind-behavior-fm-studies`** and the cross-repo shell
-  path below becomes `../aind-behavior-fm-dispatcher/code/...`. Rename first:
+  identity `disrnn` -> `dynamic-foraging-bfm` and is sequenced *before* this split, so the
+  new repo is created as **`aind-dynamic-foraging-bfm-studies`** and the cross-repo shell
+  path below becomes `../aind-dynamic-foraging-bfm-dispatcher/code/...`. Rename first:
   this plan writes that dispatcher path into every study README, `notes.md` and
   sweep-YAML comment, so splitting first means sweeping the same files twice —
   the second time in a new repo where the rename's CI guardrail does not yet
@@ -112,7 +112,7 @@ view (don't over-engineer):
   contributor who only touches studies* — either gives the seam a concrete job.
 - **Package before you split.** The launch-side coupling
   (`studies/*/variants/` → `code/` launchers) is a *shell path* (`python
-  ../aind-behavior-fm-dispatcher/code/launch_*.py`), not a real interface. That is
+  ../aind-dynamic-foraging-bfm-dispatcher/code/launch_*.py`), not a real interface. That is
   fragile in containers and unversioned. The clean boundary only exists once
   `code/` is a pip-installable package the studies repo depends on with a pinned
   version — exactly how the study already consumes the wrapper via
@@ -126,7 +126,7 @@ The "analysis" concept is *already* bisected across the two existing repos, alon
 a natural axis, with **W&B as the boundary**:
 
 - **Producer (per-run, in the wrapper):**
-  `aind-behavior-fm-wrapper/code/post_training_analysis/` (`generative_analysis.py`,
+  `aind-dynamic-foraging-bfm-wrapper/code/post_training_analysis/` (`generative_analysis.py`,
   `heldout_finetuning.py`, `likelihood_*`, `baseline_rl_analysis.py`,
   `embedding_space_analysis.py`), invoked in the capsule via
   `run_analysis.py <subcommand>` (generative / from-histories /
@@ -187,12 +187,12 @@ whether or not analysis ever becomes its own repo.
 
 ## Target state
 
-### `aind-behavior-fm-dispatcher/` (framework, unchanged root)
+### `aind-dynamic-foraging-bfm-dispatcher/` (framework, unchanged root)
 
 ```text
-aind-behavior-fm-dispatcher/
+aind-dynamic-foraging-bfm-dispatcher/
 ├── AGENTS.md                    # framework behaviour rules
-├── README.md                    # pointer to aind-behavior-fm-studies in "Studies" section
+├── README.md                    # pointer to aind-dynamic-foraging-bfm-studies in "Studies" section
 ├── docs/                        # posthoc-analysis, study-organization, beaker-playbook
 ├── code/                        # launchers (launch_beaker*.py, launch_hpc.py, ...)
 │   ├── beaker/                  # shared beaker templates
@@ -204,10 +204,10 @@ aind-behavior-fm-dispatcher/
 └── (no studies/)
 ```
 
-### `aind-behavior-fm-studies/` (new sibling repo)
+### `aind-dynamic-foraging-bfm-studies/` (new sibling repo)
 
 ```text
-aind-behavior-fm-studies/
+aind-dynamic-foraging-bfm-studies/
 ├── AGENTS.md                    # studies-specific rules; Related: back to dispatcher AGENTS
 ├── README.md                    # index of studies; how to clone alongside dispatcher
 ├── studies/                     # prefix KEPT — see resolved Q1
@@ -239,7 +239,7 @@ Path prefix trade-off (resolved 2026-07-16, see Decision above and Q1):
 
 | Path | Action |
 |---|---|
-| `studies/**` (tracked files only) | -> `aind-behavior-fm-studies/studies/**` |
+| `studies/**` (tracked files only) | -> `aind-dynamic-foraging-bfm-studies/studies/**` |
 | `code/**` | stays in dispatcher |
 | `docs/**` | stays in dispatcher; studies repo links back |
 | `environment/**` | stays in dispatcher |
@@ -256,8 +256,8 @@ shell. The conventional layout the two READMEs assume is **side-by-side clones**
 
 ```text
 ~/code/
-├── aind-behavior-fm-dispatcher/
-└── aind-behavior-fm-studies/
+├── aind-dynamic-foraging-bfm-dispatcher/
+└── aind-dynamic-foraging-bfm-studies/
 ```
 
 Study docs are updated so that:
@@ -267,11 +267,11 @@ Study docs are updated so that:
 python code/launch_beaker_resumable.py ...
 
 # after (from studies repo root, dispatcher cloned as sibling)
-python ../aind-behavior-fm-dispatcher/code/launch_beaker_resumable.py ...
+python ../aind-dynamic-foraging-bfm-dispatcher/code/launch_beaker_resumable.py ...
 ```
 
 Ditto for content references (`code/config/model/gru_scaling.yaml` becomes
-`../aind-behavior-fm-dispatcher/code/config/model/gru_scaling.yaml`).
+`../aind-dynamic-foraging-bfm-dispatcher/code/config/model/gru_scaling.yaml`).
 
 Files to update in the studies repo after extraction: **regenerate the list at
 execution time** —
@@ -301,7 +301,7 @@ Run in a scratch clone (never on the working repo):
 
 ```bash
 mkdir -p /scratch/repo-split && cd /scratch/repo-split
-git clone --no-local https://github.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher.git extract
+git clone --no-local https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher.git extract
 cd extract
 pip install git-filter-repo   # if not already installed
 git filter-repo --path studies/
@@ -331,29 +331,29 @@ In `extract/`, add:
 Commit as **one commit** with message:
 
 ```text
-chore: initialise aind-behavior-fm-studies from aind-behavior-fm-dispatcher
+chore: initialise aind-dynamic-foraging-bfm-studies from aind-dynamic-foraging-bfm-dispatcher
 
-Extracted studies/ from aind-behavior-fm-dispatcher via git filter-repo.
+Extracted studies/ from aind-dynamic-foraging-bfm-dispatcher via git filter-repo.
 Source revision: <dispatcher HEAD sha at split time>
 ```
 
 ### Step 3 — Create the GitHub repo and push
 
 ```bash
-gh repo create AllenNeuralDynamics/aind-behavior-fm-studies --public --confirm
-git remote add origin git@github.com:AllenNeuralDynamics/aind-behavior-fm-studies.git
+gh repo create AllenNeuralDynamics/aind-dynamic-foraging-bfm-studies --public --confirm
+git remote add origin git@github.com:AllenNeuralDynamics/aind-dynamic-foraging-bfm-studies.git
 git push -u origin main
 ```
 
--> verify: `gh repo view AllenNeuralDynamics/aind-behavior-fm-studies` succeeds.
+-> verify: `gh repo view AllenNeuralDynamics/aind-dynamic-foraging-bfm-studies` succeeds.
 
 ### Step 4 — Update the new repo's cross-repo references
 
 Sweep the files listed under "Cross-repo runtime dependency" above; prefix
-`code/...` -> `../aind-behavior-fm-dispatcher/code/...`. Commit:
+`code/...` -> `../aind-dynamic-foraging-bfm-dispatcher/code/...`. Commit:
 
 ```text
-docs: point launcher references at sibling aind-behavior-fm-dispatcher clone
+docs: point launcher references at sibling aind-dynamic-foraging-bfm-dispatcher clone
 ```
 
 -> verify: `rg -n "python code/launch" studies/` returns no matches.
@@ -371,16 +371,16 @@ git rm -r studies/
 ```
 
 Update dispatcher `README.md` "Studies" section to link to
-`aind-behavior-fm-studies`. Update `AGENTS.md` to remove study-specific rules
+`aind-dynamic-foraging-bfm-studies`. Update `AGENTS.md` to remove study-specific rules
 that migrate (if any — most are framework-general and stay).
 
 Commit:
 
 ```text
-chore(dispatcher): remove studies/ after extraction to aind-behavior-fm-studies
+chore(dispatcher): remove studies/ after extraction to aind-dynamic-foraging-bfm-studies
 
 Studies extracted with full history to
-https://github.com/AllenNeuralDynamics/aind-behavior-fm-studies (see that
+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-studies (see that
 repo's initial commit for the split source revision).
 ```
 
@@ -394,7 +394,7 @@ Open a PR; **merge with merge commit** (not squash) per AGENTS.md §9.
 
 Anywhere the CO capsule or Beaker templates hardcode `studies/...` paths,
 either:
-- update the path to point at `../aind-behavior-fm-studies/...` (side-by-side
+- update the path to point at `../aind-dynamic-foraging-bfm-studies/...` (side-by-side
   layout also inside the container), or
 - clone the studies repo inside the container entrypoint.
 
@@ -402,7 +402,7 @@ Verify by launching one small variant end-to-end after the split.
 
 ## Verification checklist (end-to-end)
 
-Run in `aind-behavior-fm-studies/` after the split — every study has a `Makefile`;
+Run in `aind-dynamic-foraging-bfm-studies/` after the split — every study has a `Makefile`;
 study 01 is the deepest regeneration test, but run all five:
 
 ```bash
@@ -427,21 +427,21 @@ for s in studies/0*/; do (cd "$s" && make all); done
 ## Studies-repo `AGENTS.md` template
 
 ```markdown
-# AGENTS.md — aind-behavior-fm-studies
+# AGENTS.md — aind-dynamic-foraging-bfm-studies
 
 Behavioural rules for this repo. Framework-wide rules (HPC safety,
 Conventional Commits, PR merge policy, Beaker scheduling, verify-with-data,
 posthoc-analysis, human-facing logs) live in the sibling repo
-`aind-behavior-fm-dispatcher` at `AGENTS.md` and are inherited by reference —
+`aind-dynamic-foraging-bfm-dispatcher` at `AGENTS.md` and are inherited by reference —
 do not duplicate here.
 
 ## Studies-repo-specific rules
 
 - Every study is a subfolder of this repo root, laid out per
-  [`aind-behavior-fm-dispatcher/docs/study-organization.md`](../aind-behavior-fm-dispatcher/docs/study-organization.md).
+  [`aind-dynamic-foraging-bfm-dispatcher/docs/study-organization.md`](../aind-dynamic-foraging-bfm-dispatcher/docs/study-organization.md).
 - Post-hoc analysis and reporting: per
-  [`aind-behavior-fm-dispatcher/docs/posthoc-analysis.md`](../aind-behavior-fm-dispatcher/docs/posthoc-analysis.md).
-- Launch commands assume `../aind-behavior-fm-dispatcher/` exists as a sibling
+  [`aind-dynamic-foraging-bfm-dispatcher/docs/posthoc-analysis.md`](../aind-dynamic-foraging-bfm-dispatcher/docs/posthoc-analysis.md).
+- Launch commands assume `../aind-dynamic-foraging-bfm-dispatcher/` exists as a sibling
   clone. See top-level `README.md` for the layout.
 ```
 
@@ -475,7 +475,7 @@ do not duplicate here.
    extract, or stay as reusable dispatcher templates? Recommend: stay in
    dispatcher for now; extract to study-specific `variants/*/sweep.yaml`
    only if a study needs a diverging copy.
-4. **`aind-behavior-fm-wrapper` version pin.** Each study's `environment.lock`
+4. **`aind-dynamic-foraging-bfm-wrapper` version pin.** Each study's `environment.lock`
    pins the wrapper; after the split those pins migrate with the studies.
    **RESOLVED: yes**, the studies repo also pins dispatcher — one-line file
    `.dispatcher_pin` alongside each `environment.lock`, stamped at launch

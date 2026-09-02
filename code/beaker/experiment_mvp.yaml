@@ -2,7 +2,7 @@
 ##
 ## Dispatcher control-plane artifact: the Beaker job the dispatcher launches.
 ## The image is built/maintained in the wrapper repo
-## (aind-behavior-fm-wrapper/beaker) and refreshes the wrapper, dispatcher, and
+## (aind-dynamic-foraging-bfm-wrapper/beaker) and refreshes the wrapper, dispatcher, and
 ## foraging-models repos at runtime, so this spec never needs the image rebuilt
 ## for code changes.
 ##

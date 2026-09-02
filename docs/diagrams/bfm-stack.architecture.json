@@ -182,7 +182,7 @@
   "boundaries": [
     {
       "kind": "region",
-      "label": "aind-behavior-fm-dispatcher · control plane",
+      "label": "aind-dynamic-foraging-bfm-dispatcher · control plane",
       "wraps": [
         "hydra",
         "launchers"
@@ -191,7 +191,7 @@
     },
     {
       "kind": "region",
-      "label": "aind-behavior-fm-wrapper · training runtime",
+      "label": "aind-dynamic-foraging-bfm-wrapper · training runtime",
       "wraps": [
         "loader",
         "runner",

@@ -1,21 +1,37 @@
-# The project renames to behavior-fm; the disRNN architecture and the run record do not
+# The project renames to dynamic-foraging-bfm; the disRNN architecture and the run record do not
 
 The project outgrew its name. Studies 01 and 07 are GRU, 08 is HB-vs-GRU, and the tracking
 issue is already titled "Behavioral Foundation Model for Dynamic Foraging" — but the repos,
 the W&B entity, the conda envs and the env-var contract still say `disrnn`. The **project
-identity** renames to `behavior-fm`:
+identity** renames to `dynamic-foraging-bfm`:
 
 | Thing | From | To |
 |---|---|---|
-| Repos | `aind-disrnn-{dispatcher,wrapper}` | `aind-behavior-fm-{dispatcher,wrapper}` |
-| W&B entity | `AIND-disRNN` | `AIND-behavior-fm` |
-| Conda envs | `disrnn-{cpu,gpu}` | `behavior-fm-{cpu,gpu}` |
+| Repos | `aind-disrnn-{dispatcher,wrapper}` | `aind-dynamic-foraging-bfm-{dispatcher,wrapper}` |
+| W&B entity | `AIND-disRNN` | `AIND-dynamic-foraging-bfm` |
+| Conda envs | `disrnn-{cpu,gpu}` | `dynamic-foraging-bfm-{cpu,gpu}` |
 | Env-var prefix | `DISRNN_*` | `BFM_*` |
-| Python distribution | `aind-disrnn-wrapper` | `aind-behavior-fm-wrapper` |
+| Python distribution | `aind-disrnn-wrapper` | `aind-dynamic-foraging-bfm-wrapper` |
 
 `aind_disrnn_utils` was a third owned repo when this rename was scoped. It has since been
 retired rather than renamed: its code is vendored into the wrapper and the wrapper's
 `pyproject.toml` no longer depends on it. The repo stays for history; it is not renamed.
+
+### Why `dynamic-foraging-bfm` and not `behavior-fm`
+
+`behavior-fm` was the working name and is what the first cut of this ADR carried. It is
+wrong for AIND specifically: the institute runs several behaviour paradigms (VR foraging
+among them), so "the AIND behaviour foundation model" claims a scope this project does not
+have. Everything here is rodent dynamic foraging, and the generalisation being tested is
+across *subjects within that task* — held-out subject, zero-shot, few-shot — not across task
+families. `aind-dynamic-foraging-bfm-*` also joins the naming family this repo already
+depends on five times over (`aind-dynamic-foraging-models`, `-data-utils`,
+`-basic-analysis`, `-multisession-analysis`, `-database`).
+
+The `BFM_` env-var prefix is unaffected by the choice — it reads as "behaviour foundation
+model" either way — so nothing in the expand-contract migration below depends on it. If the
+model ever trains on other behaviours, this name becomes the misnomer; that trade was made
+knowingly, on the evidence that every study to date (01–08) is dynamic foraging.
 
 ## The boundary
 

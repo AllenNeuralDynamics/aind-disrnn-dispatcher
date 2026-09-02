@@ -1,5 +1,5 @@
 # Data config for MiceSnapshotDatasetLoader (database-backed), mirroring the
-# wrapper pck_dev source of truth (aind-behavior-fm-wrapper code/configs/data/mice_snapshot.yaml),
+# wrapper pck_dev source of truth (aind-dynamic-foraging-bfm-wrapper code/configs/data/mice_snapshot.yaml),
 # adapted to the dispatcher hierarchy (adds `type`, `multisubject`, `run_name_component`).
 #
 # Subjects are selected by the ratio-based pipeline (see
@@ -79,7 +79,7 @@ seed: ${seed}
 # automatically from the tensor width, so no model-block change is needed
 # (2 -> 5 with all three features on). Encoding: log(reaction_time) and raw
 # left/right counts, both standardized by default.
-# Implementation + rationale: aind-behavior-fm-wrapper code/utils/trial_timing_features.py
+# Implementation + rationale: aind-dynamic-foraging-bfm-wrapper code/utils/trial_timing_features.py
 # and TRAINING.md §6 "Optional timing inputs".
 timing_features:
   enabled: false               # master switch; false -> identical to the base model
