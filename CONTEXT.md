@@ -89,6 +89,20 @@ _Avoid_: naming by parameter count (e.g. "5params")
 Fitting each subject independently, then fitting a population distribution to the resulting
 subject-level posterior draws. The cheaper alternative to a single joint three-level fit.
 
+**disRNN**:
+The disentangled-RNN architecture, one of the sequence-model families trained here alongside
+GRU and the hierarchical-Bayesian baselines. Names a model, never the project: the code
+symbols carrying it (`DisrnnTrainer`, `MultisubjectDisRnn`, `models/disrnn_network.py`,
+`disrnn_config`, `create_disrnn_dataset`) are frozen by ADR-0007.
+_Avoid_: using "disrnn" for the project as a whole
+
+**behavior-fm**:
+The project — a behavioural foundation model for dynamic foraging — spanning the dispatcher,
+the wrapper runtime, and the HB baseline. Names the repos, the W&B entity, the conda envs,
+and the `BFM_*` env-var prefix. Distinct from disRNN, which is one architecture inside it.
+See ADR-0007 for which `disrnn` tokens rename and which are frozen.
+_Avoid_: disrnn (as a project name)
+
 ### Model parameters
 
 **Forgetting rate**:

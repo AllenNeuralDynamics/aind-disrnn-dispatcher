@@ -178,6 +178,11 @@ here and only submit, so one repo drives both.
   name before submitting** — a stale image fails with no logs — and telling a transient node
   failure from a code bug: **beaker-launch**, `references/sandbox-launch.md`. The live image
   table is `code/beaker/README.md`.
+- The project is named `behavior-fm`. A `disrnn` token is not automatically the project name:
+  in a code symbol it names the disRNN *architecture*, and under `studies/*/launch_record/`
+  or `studies/*/analysis/` it names what actually ran. **Never global find-replace `disrnn`**
+  — doing so renames a model family and falsifies the run record. Which tokens rename and
+  which are frozen: `docs/adr/0007-project-identity-rename-boundary.md`.
 
 ## Agent skills
 
