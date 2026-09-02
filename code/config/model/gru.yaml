@@ -1,5 +1,5 @@
 # GRU model config. Values mirror the wrapper pck_dev source of truth
-# (aind-behavior-fm-wrapper@a790cc0 code/configs/config_gru.yaml, "gru, multi-subject").
+# (aind-dynamic-foraging-bfm-wrapper@a790cc0 code/configs/config_gru.yaml, "gru, multi-subject").
 type: gru
 
 _target_: model_trainers.gru_trainer.GruTrainer

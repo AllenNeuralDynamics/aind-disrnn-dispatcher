@@ -1,5 +1,5 @@
 # Held-out subject finetuning config, mirroring the wrapper pck_dev source of truth
-# (aind-behavior-fm-wrapper code/configs/config_heldout_subject_finetuning.yaml).
+# (aind-dynamic-foraging-bfm-wrapper code/configs/config_heldout_subject_finetuning.yaml).
 # Consumed by the wrapper's run_analysis.py `finetune` command / run_heldout_subject_finetuning.py.
 source_run:
   model_dir: /path/to/trained/model_run

@@ -10,7 +10,7 @@
 #
 # Manual use (skips lineage injection and AGENT_COUNT auto-computation):
 #     wandb sweep code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml
-#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper code/hpc/slurm/wandb_sweep_{cpu,gpu}.slurm <SWEEP_ID>
+#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper code/hpc/slurm/wandb_sweep_{cpu,gpu}.slurm <SWEEP_ID>
 
 entity: AIND-disRNN  # Sweep routing: all sweep runs go to this W&B entity.
 project: hpc_test  # Sweep routing: all sweep runs go to this W&B project.

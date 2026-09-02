@@ -6,7 +6,7 @@ becomes the equivalent REST or GraphQL call (see the note directly below).
 
 > **Two project-specific rules the `gh` conventions below do not cover — see the
 > `issue-tracking` skill in `aind-behavior-foundation-model-skills/`.**
-> 1. Every tracked issue also goes on the **AIND-behavior-fm** org project board
+> 1. Every tracked issue also goes on the **AIND-dynamic-foraging-bfm** org project board
 >    (<https://github.com/orgs/AllenNeuralDynamics/projects/184/>) with **Status, Priority
 >    and Size** set. `gh` cannot set ProjectV2 fields; the skill ships
 >    `scripts/board.py`, which files the issue and sets all three in one call.

@@ -9,7 +9,7 @@
 #
 # Manual use (skips lineage injection and auto AGENT_COUNT):
 #     wandb sweep code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml
-#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>
+#     sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>
 #
 #SBATCH -J disrnn_wb_gpu
 #SBATCH -p aind
@@ -25,7 +25,7 @@
 source "${CONDA_SH:?CONDA_SH not set; source code/hpc/slurm/user.env before sbatch}"
 conda activate disrnn-gpu
 
-WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.py or pass --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper}"
+WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.py or pass --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper}"
 cd "$WRAPPER_ROOT/code"
 export PYTHONPATH="$WRAPPER_ROOT/code:${PYTHONPATH:-}"
 export HYDRA_FULL_ERROR=1
@@ -35,7 +35,7 @@ python -c "import jax; print('JAX devices:', jax.devices())"
 
 SWEEP_ID="$1"
 if [ -z "$SWEEP_ID" ]; then
-    echo "Usage: sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-behavior-fm-wrapper code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>" 1>&2
+    echo "Usage: sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>" 1>&2
     exit 1
 fi
 
