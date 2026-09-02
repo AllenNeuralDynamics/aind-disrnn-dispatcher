@@ -23,7 +23,7 @@ WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.p
 cd "$WRAPPER_ROOT/code"
 export PYTHONPATH="$WRAPPER_ROOT/code:${PYTHONPATH:-}"
 export HYDRA_FULL_ERROR=1
-export BFM_OUTPUT_DIR="$HOME/outputs/disrnn"
+export BFM_OUTPUT_DIR="${BFM_OUTPUT_DIR:-$HOME/outputs/disrnn}"
 
 python -m run_hpc -m \
   wandb.project=hpc_test \
