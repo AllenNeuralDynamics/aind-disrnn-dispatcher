@@ -2,13 +2,12 @@
 
 The project outgrew its name. Studies 01 and 07 are GRU, 08 is HB-vs-GRU, and the tracking
 issue is already titled "Behavioral Foundation Model for Dynamic Foraging" — but the repos,
-the W&B entity, the conda envs and the env-var contract still say `disrnn`. The **project
-identity** renames to `dynamic-foraging-bfm`:
+the conda envs and the env-var contract still say `disrnn`. The **project identity** renames
+to `dynamic-foraging-bfm`:
 
 | Thing | From | To |
 |---|---|---|
 | Repos | `aind-disrnn-{dispatcher,wrapper}` | `aind-dynamic-foraging-bfm-{dispatcher,wrapper}` |
-| W&B entity | `AIND-disRNN` | `AIND-dynamic-foraging-bfm` |
 | Conda envs | `disrnn-{cpu,gpu}` | `dynamic-foraging-bfm-{cpu,gpu}` |
 | Env-var prefix | `DISRNN_*` | `BFM_*` |
 | Python distribution | `aind-disrnn-wrapper` | `aind-dynamic-foraging-bfm-wrapper` |
@@ -49,6 +48,34 @@ model families a symbol belongs to.
 project and entity names, already-built Beaker image tags, and study folder names 03–06
 record what actually ran. Rewriting them falsifies history and breaks every link from a
 finished report to the run that produced it.
+
+### Amendment: the W&B entity stays `AIND-disRNN`
+
+The first version of this ADR listed the W&B entity as project identity, renaming to a new
+`AIND-dynamic-foraging-bfm` entity created alongside the old one. That is reversed here: **no
+new entity is created, and `AIND-disRNN` keeps carrying new runs.**
+
+Three findings, measured 2026-09-02:
+
+1. **It is the lab's namespace, not this project's name.** It holds 40 projects and 2,939
+   runs across at least four people — `pochen_mice_multisubject`, `alex_fip_test`,
+   `rachel_mice_grurnn_parascan`, and `LeJEPA`, which is not foraging work at all. Renaming
+   this project does not license renaming a namespace other people share.
+2. **W&B has no redirect.** The repo rename was cheap precisely because GitHub issues
+   permanent redirects, so pinned SHAs and existing clones keep resolving. W&B offers no
+   equivalent — which is why this ADR already forbids *renaming* the entity. The same fact
+   argues against *creating* one: the result is not a clean cut but a permanent split, 2,939
+   runs on one side and everything new on the other.
+3. **The entity is load-bearing in code.** `run_helpers` builds
+   `artifact_ref = f"{entity}/{project}/{mtype}-output-{run_id}:latest"`, so
+   `restore_from_run_id` — extend-a-finished-run and held-out re-scoring — resolves
+   checkpoints through `<entity>/<project>`. A second entity means new runs cannot extend or
+   re-score any existing run without cross-entity qualification that does not exist today.
+
+This is consistent with the boundary above rather than an exception to it: the same reasoning
+already keeps the `han-hou/disrnn-wrapper-*` image tags and the `/workspace/aind-disrnn-*`
+container paths. Entities are namespaces; projects are where the science lives, and new
+studies carry the new identity in their **project** names.
 
 **Out of scope.** `aind-disentangled-rnns` is a fork of `google-deepmind/disentangled_rnns`
 with live upstream merges. Renaming a fork you still pull from is friction for zero gain.
