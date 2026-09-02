@@ -39,7 +39,7 @@ tasks:
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
-      - name: DISRNN_OUTPUT_DIR
+      - name: BFM_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
         # full SHA required: entrypoint does `git fetch origin <ref>`, which

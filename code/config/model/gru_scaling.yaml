@@ -112,7 +112,7 @@ training:
 
 seed: ${seed}
 
-output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # run_hpc overrides to <run>/outputs
+output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}  # run_hpc overrides to <run>/outputs
 
 # Your template for the model part of the run name
 run_name_component: gru_H${.architecture.hidden_size}

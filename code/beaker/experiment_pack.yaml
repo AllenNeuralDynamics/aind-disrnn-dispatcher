@@ -33,7 +33,7 @@ tasks:
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key
-      - name: DISRNN_OUTPUT_DIR
+      - name: BFM_OUTPUT_DIR
         value: /results
       - name: WRAPPER_REF
         value: 0e95f807c22eb90266ffd6ee5545289d91c1b42c  # main

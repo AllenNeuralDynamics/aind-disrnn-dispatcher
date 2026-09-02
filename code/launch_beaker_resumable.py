@@ -9,7 +9,7 @@ grid point's overrides baked in. Combined with:
   * Beaker ``preemptible: true`` (the server applies ``autoResume: true`` for
     preemptible/low-priority tasks — verified via ``beaker experiment spec``), so
     a preempted task is restarted as the *same* task with the *same* /results,
-  * ``DISRNN_RESUMABLE_OUTPUT_DIR`` (run_hpc anchors outputs at a stable path
+  * ``BFM_RESUMABLE_OUTPUT_DIR`` (run_hpc anchors outputs at a stable path
     instead of the per-run W&B dir), and
   * the trainer's full-state checkpoint/resume,
 
@@ -163,7 +163,7 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
     # Provenance / tracking (see AGENTS §8): one launch == one pseudo-sweep.
     #  - W&B group = "<variant>@<launch_id>" uniquely names THIS launch (distinguishes
     #    repeats; readable: variant -> study folder, launch_id -> Seattle time).
-    #  - meta.* (study/variant/launch_id/label/note/config_hash) injected via DISRNN_META_*
+    #  - meta.* (study/variant/launch_id/label/note/config_hash) injected via BFM_META_*
     #    env; the wrapper stamps them into the run config alongside the platform-native
     #    BEAKER_EXPERIMENT_ID / BEAKER_JOB_ID / CO_COMPUTATION_ID. `note` = free-text
     #    "why this run + what we want to learn", readable straight from the run record.
@@ -176,15 +176,15 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
     group = f"{variant}@{launch_id}"            # W&B group = this launch (pseudo-sweep)
     id_base = _slug(f"{variant}-{launch_id}")    # slug-safe base for task names + run ids
     meta_env = [
-        {"name": "DISRNN_META_STUDY", "value": study},
-        {"name": "DISRNN_META_VARIANT", "value": variant},
-        {"name": "DISRNN_META_LAUNCH_ID", "value": launch_id},
-        {"name": "DISRNN_META_CONFIG_HASH", "value": config_hash},
+        {"name": "BFM_META_STUDY", "value": study},
+        {"name": "BFM_META_VARIANT", "value": variant},
+        {"name": "BFM_META_LAUNCH_ID", "value": launch_id},
+        {"name": "BFM_META_CONFIG_HASH", "value": config_hash},
     ]
     if label:
-        meta_env.append({"name": "DISRNN_META_LABEL", "value": label})
+        meta_env.append({"name": "BFM_META_LABEL", "value": label})
     if note:
-        meta_env.append({"name": "DISRNN_META_NOTE", "value": note})
+        meta_env.append({"name": "BFM_META_NOTE", "value": note})
     print(f"[resumable] study={study} variant={variant} launch_id={launch_id} "
           f"group={group} config_hash={config_hash}")
 
@@ -224,13 +224,13 @@ def build_spec(sweep_file: str, experiment_file: str, label: str | None = None,
             task["context"] = {"priority": "low", "preemptible": True}
 
         managed = {
-            "DISRNN_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
-            "DISRNN_META_STUDY", "DISRNN_META_VARIANT", "DISRNN_META_LAUNCH_ID",
-            "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL", "DISRNN_META_NOTE",
+            "BFM_RESUMABLE_OUTPUT_DIR", "WANDB_RUN_ID", "WANDB_RESUME", "WANDB_RUN_GROUP",
+            "BFM_META_STUDY", "BFM_META_VARIANT", "BFM_META_LAUNCH_ID",
+            "BFM_META_CONFIG_HASH", "BFM_META_LABEL", "BFM_META_NOTE",
         }
         env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
         env.extend([
-            {"name": "DISRNN_RESUMABLE_OUTPUT_DIR", "value": RESUMABLE_OUTPUT_DIR},
+            {"name": "BFM_RESUMABLE_OUTPUT_DIR", "value": RESUMABLE_OUTPUT_DIR},
             {"name": "WANDB_RUN_ID", "value": _run_id(id_base, overrides)},
             {"name": "WANDB_RESUME", "value": "allow"},
             {"name": "WANDB_RUN_GROUP", "value": group},

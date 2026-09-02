@@ -147,7 +147,7 @@ python code/launch_beaker_resumable.py \
 # --no-submit renders the spec for inspection without launching
 ```
 
-It sets the W&B group to `<variant>@<launch_id>` and injects `DISRNN_META_*`
+It sets the W&B group to `<variant>@<launch_id>` and injects `BFM_META_*`
 provenance (see the study-conventions skill). Requires
 `training.checkpoint_every_n_steps > 0` for resume to work.
 

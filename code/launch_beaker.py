@@ -84,15 +84,15 @@ def _render_experiment(experiment_file: str, sweep_id: str, group: str, meta_env
     """Render <SWEEP_ID> into the experiment spec and inject provenance env.
 
     Injects WANDB_RUN_GROUP (= <variant>@<launch_id>, consistent with the resumable
-    route) + DISRNN_META_* into every task, so the wrapper's start_wandb_run stamps the
+    route) + BFM_META_* into every task, so the wrapper's start_wandb_run stamps the
     portable meta.* alongside the native sweep + Beaker/CO ids. Pure (no I/O / network)
     so it's unit-testable.
     """
     spec = yaml.safe_load(Path(experiment_file).read_text().replace("<SWEEP_ID>", sweep_id))
     managed = {
-        "WANDB_RUN_GROUP", "DISRNN_META_STUDY", "DISRNN_META_VARIANT",
-        "DISRNN_META_LAUNCH_ID", "DISRNN_META_CONFIG_HASH", "DISRNN_META_LABEL",
-        "DISRNN_META_NOTE",
+        "WANDB_RUN_GROUP", "BFM_META_STUDY", "BFM_META_VARIANT",
+        "BFM_META_LAUNCH_ID", "BFM_META_CONFIG_HASH", "BFM_META_LABEL",
+        "BFM_META_NOTE",
     }
     for task in spec.get("tasks", []):
         env = [e for e in task.get("envVars", []) if e.get("name") not in managed]
@@ -169,15 +169,15 @@ def main() -> None:
     config_hash = hashlib.sha1(Path(args.sweep).read_bytes()).hexdigest()[:8]
     group = f"{variant}@{launch_id}"
     meta_env = [
-        {"name": "DISRNN_META_STUDY", "value": study},
-        {"name": "DISRNN_META_VARIANT", "value": variant},
-        {"name": "DISRNN_META_LAUNCH_ID", "value": launch_id},
-        {"name": "DISRNN_META_CONFIG_HASH", "value": config_hash},
+        {"name": "BFM_META_STUDY", "value": study},
+        {"name": "BFM_META_VARIANT", "value": variant},
+        {"name": "BFM_META_LAUNCH_ID", "value": launch_id},
+        {"name": "BFM_META_CONFIG_HASH", "value": config_hash},
     ]
     if args.label:
-        meta_env.append({"name": "DISRNN_META_LABEL", "value": args.label})
+        meta_env.append({"name": "BFM_META_LABEL", "value": args.label})
     if args.note:
-        meta_env.append({"name": "DISRNN_META_NOTE", "value": args.note})
+        meta_env.append({"name": "BFM_META_NOTE", "value": args.note})
     print(f"[launch_beaker] study={study} variant={variant} launch_id={launch_id} "
           f"group={group} config_hash={config_hash}")
 

@@ -41,7 +41,7 @@ in `AGENTS.md` §8).
   launch_id is also folded into run ids so repeated launches never collide.
 - **`meta.{study,variant,launch_id,label,note,config_hash}`** — portable across
   CO / Beaker / Allen HPC. `launch_beaker_resumable.py` derives study/variant from the
-  `studies/<study>/variants/<variant>/` path and injects `DISRNN_META_*` env; the
+  `studies/<study>/variants/<variant>/` path and injects `BFM_META_*` env; the
   wrapper's `start_wandb_run` stamps it onto the run.
 - **Always pass `--note`** ("why this run exists + what we want to learn") so the
   scientific intent is readable straight from the W&B record.

@@ -252,7 +252,7 @@ preempted task resume from its last checkpoint instead of restarting:
    dataset — verified live: a `beaker job preempt`ed run resumed from
    `/results/run/outputs/checkpoints/step_300/train_state.pkl`, skipped warmup,
    and continued with stable likelihood.
-2. **Stable output dir** — each task sets `DISRNN_RESUMABLE_OUTPUT_DIR=/results/run`
+2. **Stable output dir** — each task sets `BFM_RESUMABLE_OUTPUT_DIR=/results/run`
    so `run_hpc` anchors outputs at a fixed path (not the per-run W&B dir), so the
    restart re-finds `checkpoints/step_<N>/train_state.pkl`.
 3. **Full-state checkpoints** — the trainer writes params + optimizer + PRNG key

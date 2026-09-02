@@ -61,7 +61,7 @@ training:
 
 seed: ${seed}  # Seed for model trainer (dispatcher wiring; wrapper relies on global seed)
 
-output_dir: ${oc.env:DISRNN_OUTPUT_DIR,/results}  # will be overridden with wandb run folder
+output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}  # will be overridden with wandb run folder
 
 # Your template for the model part of the run name
 run_name_component: gru_H${.architecture.hidden_size}
