@@ -18,8 +18,8 @@ status: proposed
 > below has grown since the draft.
 >
 > The studies repo is created **after** the `disrnn` -> `behavior-fm` rename
-> (#74), so its name is `aind-behavior-fm-studies`; read the
-> `aind-disrnn-studies` strings below as the post-rename name.
+> (#74), which has since landed (ADR-0007), so its name is
+> `aind-behavior-fm-studies`.
 
 ## Priorities (in order)
 
@@ -137,7 +137,7 @@ jobs). The analysis capsule never triggers Beaker/HPC/training — its
 Reproducible Run is exactly:
 
 ```text
-clone aind-disrnn-studies @ <pinned SHA>
+clone aind-behavior-fm-studies @ <pinned SHA>
 for s in studies/0*/; do make -C "$s" all; done
 copy regenerated reports + figures to /results
 ```

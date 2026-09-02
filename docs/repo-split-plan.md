@@ -2,7 +2,7 @@
 aliases:
   - repo split plan
   - split studies
-  - aind-disrnn-studies
+  - aind-behavior-fm-studies
 tags:
   - planning
   - migration
@@ -10,7 +10,7 @@ tags:
 status: approved
 ---
 
-# Repo-split plan: extract `studies/` into `aind-disrnn-studies`
+# Repo-split plan: extract `studies/` into `aind-behavior-fm-studies`
 
 > **Status:** approved 2026-07-16, not yet executed. Delegated to a separate
 > agent for execution. Originally written 2026-06-30 after the
@@ -19,11 +19,11 @@ status: approved
 
 ## TL;DR
 
-Split `aind-disrnn-dispatcher` at the framework/application seam:
+Split `aind-behavior-fm-dispatcher` at the framework/application seam:
 
-- **`aind-disrnn-dispatcher`** (this repo, stays) — launchers (`code/`),
+- **`aind-behavior-fm-dispatcher`** (this repo, stays) — launchers (`code/`),
   framework docs (`docs/`), Docker env, CO capsule metadata, root `AGENTS.md`.
-- **`aind-disrnn-studies`** (new sibling repo) — everything currently under
+- **`aind-behavior-fm-studies`** (new sibling repo) — everything currently under
   `studies/`, keeping the `studies/` path prefix (see Decision below), one
   study per subfolder, each self-contained per `docs/study-organization.md`.
 
@@ -58,7 +58,7 @@ load-bearing fact has flipped:
   `launch_hpc.py` and `launch_beaker_resumable.py` only parse the
   `studies/<study>/variants/<variant>` components out of that path to derive
   the W&B group. A sibling clone
-  (`python ../aind-disrnn-dispatcher/code/launch_....py studies/...`) works
+  (`python ../aind-behavior-fm-dispatcher/code/launch_....py studies/...`) works
   today with no code change. Packaging remains a good follow-up, not a
   blocker.
 - **Path prefix (was Open Question Q1): keep `studies/` — resolved, and not
@@ -95,8 +95,8 @@ are left as the dated observations they were.
   this plan writes that dispatcher path into every study README, `notes.md` and
   sweep-YAML comment, so splitting first means sweeping the same files twice —
   the second time in a new repo where the rename's CI guardrail does not yet
-  exist. Every `aind-disrnn-studies` / `aind-disrnn-dispatcher` string below
-  should be read as the post-rename name.
+  exist. The rename has since landed (ADR-0007), so the repo names below are
+  the real ones.
 
 ## Should we do this now? (discussion 2026-06-30 — the "not yet" lean is SUPERSEDED by the 2026-07-16 decision above; the analysis-layer findings and contract hardening below still stand)
 
@@ -112,7 +112,7 @@ view (don't over-engineer):
   contributor who only touches studies* — either gives the seam a concrete job.
 - **Package before you split.** The launch-side coupling
   (`studies/*/variants/` → `code/` launchers) is a *shell path* (`python
-  ../aind-disrnn-dispatcher/code/launch_*.py`), not a real interface. That is
+  ../aind-behavior-fm-dispatcher/code/launch_*.py`), not a real interface. That is
   fragile in containers and unversioned. The clean boundary only exists once
   `code/` is a pip-installable package the studies repo depends on with a pinned
   version — exactly how the study already consumes the wrapper via
@@ -126,7 +126,7 @@ The "analysis" concept is *already* bisected across the two existing repos, alon
 a natural axis, with **W&B as the boundary**:
 
 - **Producer (per-run, in the wrapper):**
-  `aind-disrnn-wrapper/code/post_training_analysis/` (`generative_analysis.py`,
+  `aind-behavior-fm-wrapper/code/post_training_analysis/` (`generative_analysis.py`,
   `heldout_finetuning.py`, `likelihood_*`, `baseline_rl_analysis.py`,
   `embedding_space_analysis.py`), invoked in the capsule via
   `run_analysis.py <subcommand>` (generative / from-histories /
@@ -187,12 +187,12 @@ whether or not analysis ever becomes its own repo.
 
 ## Target state
 
-### `aind-disrnn-dispatcher/` (framework, unchanged root)
+### `aind-behavior-fm-dispatcher/` (framework, unchanged root)
 
 ```text
-aind-disrnn-dispatcher/
+aind-behavior-fm-dispatcher/
 ├── AGENTS.md                    # framework behaviour rules
-├── README.md                    # pointer to aind-disrnn-studies in "Studies" section
+├── README.md                    # pointer to aind-behavior-fm-studies in "Studies" section
 ├── docs/                        # posthoc-analysis, study-organization, beaker-playbook
 ├── code/                        # launchers (launch_beaker*.py, launch_hpc.py, ...)
 │   ├── beaker/                  # shared beaker templates
@@ -204,10 +204,10 @@ aind-disrnn-dispatcher/
 └── (no studies/)
 ```
 
-### `aind-disrnn-studies/` (new sibling repo)
+### `aind-behavior-fm-studies/` (new sibling repo)
 
 ```text
-aind-disrnn-studies/
+aind-behavior-fm-studies/
 ├── AGENTS.md                    # studies-specific rules; Related: back to dispatcher AGENTS
 ├── README.md                    # index of studies; how to clone alongside dispatcher
 ├── studies/                     # prefix KEPT — see resolved Q1
@@ -239,7 +239,7 @@ Path prefix trade-off (resolved 2026-07-16, see Decision above and Q1):
 
 | Path | Action |
 |---|---|
-| `studies/**` (tracked files only) | -> `aind-disrnn-studies/studies/**` |
+| `studies/**` (tracked files only) | -> `aind-behavior-fm-studies/studies/**` |
 | `code/**` | stays in dispatcher |
 | `docs/**` | stays in dispatcher; studies repo links back |
 | `environment/**` | stays in dispatcher |
@@ -256,8 +256,8 @@ shell. The conventional layout the two READMEs assume is **side-by-side clones**
 
 ```text
 ~/code/
-├── aind-disrnn-dispatcher/
-└── aind-disrnn-studies/
+├── aind-behavior-fm-dispatcher/
+└── aind-behavior-fm-studies/
 ```
 
 Study docs are updated so that:
@@ -267,11 +267,11 @@ Study docs are updated so that:
 python code/launch_beaker_resumable.py ...
 
 # after (from studies repo root, dispatcher cloned as sibling)
-python ../aind-disrnn-dispatcher/code/launch_beaker_resumable.py ...
+python ../aind-behavior-fm-dispatcher/code/launch_beaker_resumable.py ...
 ```
 
 Ditto for content references (`code/config/model/gru_scaling.yaml` becomes
-`../aind-disrnn-dispatcher/code/config/model/gru_scaling.yaml`).
+`../aind-behavior-fm-dispatcher/code/config/model/gru_scaling.yaml`).
 
 Files to update in the studies repo after extraction: **regenerate the list at
 execution time** —
@@ -301,7 +301,7 @@ Run in a scratch clone (never on the working repo):
 
 ```bash
 mkdir -p /scratch/repo-split && cd /scratch/repo-split
-git clone --no-local https://github.com/AllenNeuralDynamics/aind-disrnn-dispatcher.git extract
+git clone --no-local https://github.com/AllenNeuralDynamics/aind-behavior-fm-dispatcher.git extract
 cd extract
 pip install git-filter-repo   # if not already installed
 git filter-repo --path studies/
@@ -331,29 +331,29 @@ In `extract/`, add:
 Commit as **one commit** with message:
 
 ```text
-chore: initialise aind-disrnn-studies from aind-disrnn-dispatcher
+chore: initialise aind-behavior-fm-studies from aind-behavior-fm-dispatcher
 
-Extracted studies/ from aind-disrnn-dispatcher via git filter-repo.
+Extracted studies/ from aind-behavior-fm-dispatcher via git filter-repo.
 Source revision: <dispatcher HEAD sha at split time>
 ```
 
 ### Step 3 — Create the GitHub repo and push
 
 ```bash
-gh repo create AllenNeuralDynamics/aind-disrnn-studies --public --confirm
-git remote add origin git@github.com:AllenNeuralDynamics/aind-disrnn-studies.git
+gh repo create AllenNeuralDynamics/aind-behavior-fm-studies --public --confirm
+git remote add origin git@github.com:AllenNeuralDynamics/aind-behavior-fm-studies.git
 git push -u origin main
 ```
 
--> verify: `gh repo view AllenNeuralDynamics/aind-disrnn-studies` succeeds.
+-> verify: `gh repo view AllenNeuralDynamics/aind-behavior-fm-studies` succeeds.
 
 ### Step 4 — Update the new repo's cross-repo references
 
 Sweep the files listed under "Cross-repo runtime dependency" above; prefix
-`code/...` -> `../aind-disrnn-dispatcher/code/...`. Commit:
+`code/...` -> `../aind-behavior-fm-dispatcher/code/...`. Commit:
 
 ```text
-docs: point launcher references at sibling aind-disrnn-dispatcher clone
+docs: point launcher references at sibling aind-behavior-fm-dispatcher clone
 ```
 
 -> verify: `rg -n "python code/launch" studies/` returns no matches.
@@ -371,16 +371,16 @@ git rm -r studies/
 ```
 
 Update dispatcher `README.md` "Studies" section to link to
-`aind-disrnn-studies`. Update `AGENTS.md` to remove study-specific rules
+`aind-behavior-fm-studies`. Update `AGENTS.md` to remove study-specific rules
 that migrate (if any — most are framework-general and stay).
 
 Commit:
 
 ```text
-chore(dispatcher): remove studies/ after extraction to aind-disrnn-studies
+chore(dispatcher): remove studies/ after extraction to aind-behavior-fm-studies
 
 Studies extracted with full history to
-https://github.com/AllenNeuralDynamics/aind-disrnn-studies (see that
+https://github.com/AllenNeuralDynamics/aind-behavior-fm-studies (see that
 repo's initial commit for the split source revision).
 ```
 
@@ -394,7 +394,7 @@ Open a PR; **merge with merge commit** (not squash) per AGENTS.md §9.
 
 Anywhere the CO capsule or Beaker templates hardcode `studies/...` paths,
 either:
-- update the path to point at `../aind-disrnn-studies/...` (side-by-side
+- update the path to point at `../aind-behavior-fm-studies/...` (side-by-side
   layout also inside the container), or
 - clone the studies repo inside the container entrypoint.
 
@@ -402,7 +402,7 @@ Verify by launching one small variant end-to-end after the split.
 
 ## Verification checklist (end-to-end)
 
-Run in `aind-disrnn-studies/` after the split — every study has a `Makefile`;
+Run in `aind-behavior-fm-studies/` after the split — every study has a `Makefile`;
 study 01 is the deepest regeneration test, but run all five:
 
 ```bash
@@ -427,21 +427,21 @@ for s in studies/0*/; do (cd "$s" && make all); done
 ## Studies-repo `AGENTS.md` template
 
 ```markdown
-# AGENTS.md — aind-disrnn-studies
+# AGENTS.md — aind-behavior-fm-studies
 
 Behavioural rules for this repo. Framework-wide rules (HPC safety,
 Conventional Commits, PR merge policy, Beaker scheduling, verify-with-data,
 posthoc-analysis, human-facing logs) live in the sibling repo
-`aind-disrnn-dispatcher` at `AGENTS.md` and are inherited by reference —
+`aind-behavior-fm-dispatcher` at `AGENTS.md` and are inherited by reference —
 do not duplicate here.
 
 ## Studies-repo-specific rules
 
 - Every study is a subfolder of this repo root, laid out per
-  [`aind-disrnn-dispatcher/docs/study-organization.md`](../aind-disrnn-dispatcher/docs/study-organization.md).
+  [`aind-behavior-fm-dispatcher/docs/study-organization.md`](../aind-behavior-fm-dispatcher/docs/study-organization.md).
 - Post-hoc analysis and reporting: per
-  [`aind-disrnn-dispatcher/docs/posthoc-analysis.md`](../aind-disrnn-dispatcher/docs/posthoc-analysis.md).
-- Launch commands assume `../aind-disrnn-dispatcher/` exists as a sibling
+  [`aind-behavior-fm-dispatcher/docs/posthoc-analysis.md`](../aind-behavior-fm-dispatcher/docs/posthoc-analysis.md).
+- Launch commands assume `../aind-behavior-fm-dispatcher/` exists as a sibling
   clone. See top-level `README.md` for the layout.
 ```
 
@@ -475,7 +475,7 @@ do not duplicate here.
    extract, or stay as reusable dispatcher templates? Recommend: stay in
    dispatcher for now; extract to study-specific `variants/*/sweep.yaml`
    only if a study needs a diverging copy.
-4. **`aind-disrnn-wrapper` version pin.** Each study's `environment.lock`
+4. **`aind-behavior-fm-wrapper` version pin.** Each study's `environment.lock`
    pins the wrapper; after the split those pins migrate with the studies.
    **RESOLVED: yes**, the studies repo also pins dispatcher — one-line file
    `.dispatcher_pin` alongside each `environment.lock`, stamped at launch

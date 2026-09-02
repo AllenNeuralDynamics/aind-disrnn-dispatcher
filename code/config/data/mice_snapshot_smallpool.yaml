@@ -56,7 +56,7 @@ seed: ${seed}
 # automatically from the tensor width, so no model-block change is needed
 # (2 -> 5 with all three features on). Encoding: log(reaction_time) and raw
 # left/right counts, both standardized by default.
-# Implementation + rationale: aind-disrnn-wrapper code/utils/trial_timing_features.py
+# Implementation + rationale: aind-behavior-fm-wrapper code/utils/trial_timing_features.py
 # and TRAINING.md §6 "Optional timing inputs".
 timing_features:
   enabled: false               # master switch; false -> identical to the base model

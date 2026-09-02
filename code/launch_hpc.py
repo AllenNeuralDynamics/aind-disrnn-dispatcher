@@ -389,8 +389,9 @@ def main() -> None:
         "--wrapper-root",
         default=None,
         help=(
-            "Path to the sibling aind-disrnn-wrapper repo. Defaults to "
-            "../aind-disrnn-wrapper relative to the dispatcher root."
+            "Path to the sibling aind-behavior-fm-wrapper repo. Defaults to "
+            "../aind-behavior-fm-wrapper relative to the dispatcher root, "
+            "falling back to ../aind-disrnn-wrapper for pre-rename checkouts."
         ),
     )
     parser.add_argument(
@@ -420,11 +421,17 @@ def main() -> None:
     if not sweep_yaml.exists():
         raise FileNotFoundError(f"Sweep YAML not found: {sweep_yaml}")
 
-    wrapper_root = (
-        Path(args.wrapper_root).expanduser().resolve()
-        if args.wrapper_root
-        else (repo_root.parent / "aind-disrnn-wrapper").resolve()
-    )
+    if args.wrapper_root:
+        wrapper_root = Path(args.wrapper_root).expanduser().resolve()
+    else:
+        # Prefer the post-rename directory name, but keep resolving a checkout
+        # still called aind-disrnn-wrapper: the GitHub rename does not rename
+        # anyone's existing clone (ADR-0007).
+        candidates = [
+            (repo_root.parent / "aind-behavior-fm-wrapper").resolve(),
+            (repo_root.parent / "aind-disrnn-wrapper").resolve(),
+        ]
+        wrapper_root = next((c for c in candidates if c.exists()), candidates[0])
     if not wrapper_root.exists():
         raise FileNotFoundError(f"Wrapper repo not found: {wrapper_root}")
 
