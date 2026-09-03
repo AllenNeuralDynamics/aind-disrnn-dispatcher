@@ -23,9 +23,39 @@ output_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}
 estimator: one_stage
 
 # ── Sampler ──────────────────────────────────────────────────────────────
-num_warmup: 500
+# Warmup was 500 through the first completed D30 rung
+# (Beaker 01M1KKHNKZ67YGVVGRDH2G009B), which FAILED all three convergence gates:
+# r_hat 1.0255 (gate < 1.01), min bulk ESS 177 (gate >= 400), 8 divergences in 2000 draws
+# (gate 0). The failures were concentrated on the group-scale layer --
+# log_sigma_spread[forget_rate_unchosen] at r_hat 1.024 / ESS 205, and the subject-level
+# mu_p / log_sigma at r_hat ~1.025 / ESS ~180 -- which is a funnel signature rather than
+# bad luck. Population means were borderline (worst 1.0118).
+#
+# Raising warmup first, and only warmup, is the principled move rather than a guess:
+# divergences are curvature the integrator cannot follow, so more DRAWS do not fix them,
+# and adaptation quality cannot be recovered after the fact. The Stan reference for this
+# same likelihood (AllenNeuralDynamics/aind_stan_fit_sim) used 2500 warmup at Stan's
+# DEFAULT adapt_delta of 0.8 -- i.e. evidence that this posterior is tractable with default
+# geometry given enough warmup. 2000 buys most of that at 4/5 the cost.
+num_warmup: 2000
 num_samples: 500
 num_chains: 4                 # vectorized across chains; they share one device
+
+# Integrator geometry, previously hardcoded NumPyro defaults and unreachable from config.
+# target_accept_prob is the same quantity as Stan's adapt_delta. These stay at the defaults
+# here: the point of the warmup change is to test whether warmup ALONE clears the gates, and
+# raising both at once would confound the two. If divergences survive 2000 warmup, 0.9 is
+# the next step and needs no code change now.
+target_accept_prob: 0.8
+max_tree_depth: 10
+
+# Session-level parameters and per-session log likelihoods. Off by default because they are
+# the bulk of the artifact; ON here because production rungs must be replayable: the
+# decision-variable trajectories (#115) and PSIS-LOO/WAIC both need them, and a multi-hour
+# fit that ships without them cannot be replayed at all -- it has to be re-fit. The first
+# D30 was launched without them, which is why it has no DV trajectories.
+save_session_sites: true
+
 beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
 
 # Both NUTS keys -- the population fit and the held-out adaptation/scoring draws -- derive
