@@ -1,0 +1,105 @@
+# Allowlist for scripts/check_project_identity.py
+#
+# The checker rejects PROJECT-IDENTITY `disrnn` tokens in live paths. ADR-0007
+# (docs/adr/0007-project-identity-rename-boundary.md) defines the boundary; this
+# file is the machine-readable half of it, and the ADR points here.
+#
+# Every entry needs a `reason`. An entry without one is a bug waiting to be
+# copy-pasted: the point of this file is that a future reader can tell a
+# deliberate exception from an oversight.
+#
+# `paths` are fnmatch globs against the repo-relative path. `pattern` is a
+# regex; a line matching it in a matching file is exempt.
+
+# ---------------------------------------------------------------------------
+# Deliberate, permanent
+# ---------------------------------------------------------------------------
+
+[[allow]]
+pattern = 'oc\.env:DISRNN_[A-Z_]+'
+paths = ["code/config/**", "code/launch_hpc.py"]
+reason = """
+Expand-contract fallback chains: ${oc.env:BFM_X,${oc.env:DISRNN_X,default}}.
+The dispatcher emits BFM_* (#81), but a hand-set legacy variable or a task spec
+from an older dispatcher SHA must still resolve rather than silently falling
+through to the default. Removing the legacy leg is a deliberate future step,
+not cleanup.
+"""
+
+[[allow]]
+pattern = '\|\| conda activate disrnn-(cpu|gpu)'
+paths = ["code/hpc/slurm/*.slurm"]
+reason = """
+Tolerant conda activation added with the env rename (#83). These scripts are
+shared, and a teammate may have disrnn-cpu but not the new env yet. The old
+envs stay in place until nothing references them; this fallback is what makes
+that promise real. Retire with #102.
+"""
+
+[[allow]]
+pattern = 'aind-disrnn-(wrapper|dispatcher)'
+paths = ["code/launch_hpc.py"]
+reason = """
+Dual-name sibling resolution. The GitHub rename does not rename anyone's local
+checkout, so the launcher tries ../aind-dynamic-foraging-bfm-wrapper and falls
+back to ../aind-disrnn-wrapper. Mirrors utils.run_helpers.dispatcher_repo_dir
+in the wrapper.
+"""
+
+[[allow]]
+pattern = 'han-hou/disrnn-wrapper[a-z0-9-]*'
+paths = ["code/beaker/**", "docs/**"]
+reason = """
+Already-built Beaker image tags. Frozen provenance per ADR-0007: these name
+images that exist and that finished runs were produced by. Renaming them would
+falsify the record and break nothing usefully.
+"""
+
+# ---------------------------------------------------------------------------
+# Known debt — allowed so the check can run today, each with an issue
+# ---------------------------------------------------------------------------
+
+[[allow]]
+pattern = 'aind-disrnn-(wrapper|dispatcher)'
+paths = ["docs/diagrams/*.html"]
+reason = """
+KNOWN DEBT. Generated artifacts. The .architecture.json sources carry the new
+names, but regenerating the HTML needs Node + Chrome, which the HPC node lacks
+(archify). Regenerate on a machine that has them, then delete this entry.
+"""
+
+[[allow]]
+pattern = 'aind_disrnn_utils'
+paths = ["environment/Dockerfile", "code/config/model/disrnn.yaml", "code/beaker/README.md"]
+reason = """
+KNOWN DEBT. environment/Dockerfile still SHA-pins the retired aind_disrnn_utils
+for the Code Ocean capsule; ADR-0007 records that repo as retired and vendored
+into the wrapper. The other two are a doc URL and a historical note. Tracked
+separately -- changing a CO environment needs its own verification.
+"""
+
+[[allow]]
+pattern = 'DISRNN_WANDB_CACHE'
+paths = ["docs/report-publication-and-reproducibility.md"]
+reason = """
+Names an env var that was proposed and REJECTED, in the prose explaining why.
+Renaming it would misrepresent the historical proposal.
+"""
+
+[[allow]]
+pattern = 'aind-disrnn-(wrapper|dispatcher)|disrnn-(cpu|gpu)|DISRNN_'
+paths = ["aind-behavior-foundation-model-skills/**"]
+reason = """
+KNOWN DEBT. The skills pack documents sibling checkout paths and pre-rename
+history, and some genuinely stale repo-name references remain. Sweeping it is
+its own change with its own review -- the pack is read by every agent, so a
+careless edit there is higher blast radius than in a launcher.
+"""
+
+[[allow]]
+pattern = 'aind-disrnn-dispatcher'
+paths = [".claude/settings.json"]
+reason = """
+KNOWN DEBT. Tooling config naming the issue-tracker repo. Harmless today
+(GitHub redirects), but it should follow the rename.
+"""
