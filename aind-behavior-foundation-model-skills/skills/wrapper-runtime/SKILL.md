@@ -1,6 +1,6 @@
 ---
 name: wrapper-runtime
-description: Understand and work with the aind-disrnn-wrapper training/analysis runtime — the four run phases, the two DIFFERENT held-out switches, checkpoints/resume/extend, which W&B metric is the figure of merit, bottleneck-sigma conventions, trainer/data-loader architecture, post-training analysis CLI, and testing. Use when interpreting a run's logs or W&B metrics, debugging or extending training code, choosing config keys, or running post-training analysis on a saved run.
+description: Understand and work with the aind-dynamic-foraging-bfm-wrapper training/analysis runtime — the four run phases, the two DIFFERENT held-out switches, checkpoints/resume/extend, which W&B metric is the figure of merit, bottleneck-sigma conventions, trainer/data-loader architecture, post-training analysis CLI, and testing. Use when interpreting a run's logs or W&B metrics, debugging or extending training code, choosing config keys, or running post-training analysis on a saved run.
 ---
 
 # Wrapper runtime (training + post-training analysis)
@@ -92,7 +92,7 @@ discriminate generalization.
 authoritative for what each one measures.
 
 ```bash
-cd ../aind-disrnn-wrapper/code
+cd ../aind-dynamic-foraging-bfm-wrapper/code
 python run_analysis.py generative --model-dir <RUN_DIR> \
     --split train --checkpoint-policy best_eval --output-dir <OUT>
 ```

@@ -1,6 +1,6 @@
 ---
 name: issue-tracking
-description: File GitHub issues for the AIND behavior foundation model repos and put them on the AIND-behavior-fm org project board (project 184) with Status, Priority, and Size set. Covers the always-file-an-issue-first rule, the cached board field/option IDs, the REST+GraphQL calls (no gh CLI in the sandbox), how to pick P0/P1/P2 and XS-XL, and linking the PR back. Use before starting any tracked work in aind-disrnn-dispatcher or aind-disrnn-wrapper, whenever opening an issue or PR, or when a board field needs updating.
+description: File GitHub issues for the AIND behavior foundation model repos and put them on the AIND-behavior-fm org project board (project 184) with Status, Priority, and Size set. Covers the always-file-an-issue-first rule, the cached board field/option IDs, the REST+GraphQL calls (no gh CLI in the sandbox), how to pick P0/P1/P2 and XS-XL, and linking the PR back. Use before starting any tracked work in aind-dynamic-foraging-bfm-dispatcher or aind-dynamic-foraging-bfm-wrapper, whenever opening an issue or PR, or when a board field needs updating.
 ---
 
 # Issue & project-board tracking
@@ -14,15 +14,15 @@ Default assignee is **`hanhou`** — assign at creation rather than later, so th
 never briefly ownerless. Override with `--assignee` when the work belongs to someone else.
 
 Board: <https://github.com/orgs/AllenNeuralDynamics/projects/184/> ("AIND-behavior-fm").
-Issues live on the repo the work touches — usually `aind-disrnn-dispatcher`, or
-`aind-disrnn-wrapper` when the change is to the training/analysis payload. A two-repo
+Issues live on the repo the work touches — usually `aind-dynamic-foraging-bfm-dispatcher`, or
+`aind-dynamic-foraging-bfm-wrapper` when the change is to the training/analysis payload. A two-repo
 change gets one issue on the repo that owns the *decision*, with the second repo's PR
 cross-linked from it.
 
 ## The four steps
 
 ```bash
-python scripts/board.py --repo aind-disrnn-dispatcher \
+python scripts/board.py --repo aind-dynamic-foraging-bfm-dispatcher \
     --title "..." --body-file issue.md \
     --labels documentation priority:P1 \
     --status "In progress" --priority P1 --size M

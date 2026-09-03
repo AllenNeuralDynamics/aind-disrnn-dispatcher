@@ -1,6 +1,6 @@
 ---
 name: hpc-launch
-description: Launch and monitor disRNN training on the Allen on-premise SLURM HPC (AI1) — launch_hpc.py W&B sweep arrays, manual sbatch/Hydra multirun, dry-run/smoke-test patterns, GPU tiers, extend/restore and held-out re-scoring, squeue/sacct monitoring. Use whenever running jobs on the Allen cluster via srun/sbatch rather than Beaker.
+description: Launch and monitor dynamic-foraging-bfm (disRNN) training on the Allen on-premise SLURM HPC (AI1) — launch_hpc.py W&B sweep arrays, manual sbatch/Hydra multirun, dry-run/smoke-test patterns, GPU tiers, extend/restore and held-out re-scoring, squeue/sacct monitoring. Use whenever running jobs on the Allen cluster via srun/sbatch rather than Beaker.
 ---
 
 # Launching on Allen on-prem HPC (SLURM)
@@ -23,7 +23,7 @@ README wins.**
    (`/allen/aind/scratch/han.hou/miniforge3/envs/dynamic-foraging-bfm-cpu`). The SLURM script
    activates `dynamic-foraging-bfm-cpu` or `dynamic-foraging-bfm-gpu` on the compute node per `--mode`.
 3. Two-repo layout: the wrapper repo is expected as a sibling
-   (`../aind-disrnn-wrapper`); override with `--wrapper-root`.
+   (`../aind-dynamic-foraging-bfm-wrapper`); override with `--wrapper-root`.
 4. One-time setup per user: `cp code/hpc/slurm/user.env.example code/hpc/slurm/user.env`
    and edit (`SBATCH_*` vars for sbatch, `CONDA_SH` for env activation).
 5. Credentials on HPC live in files, not the env: W&B in `~/.netrc` (the SDK reads it;
@@ -94,11 +94,11 @@ python code/launch_hpc.py --mode gpu --gpu-type a100
 
 ```bash
 wandb sweep code/hpc/sweeps/<sweep>.yaml
-sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
+sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper \
   code/hpc/slurm/wandb_sweep_gpu.slurm <SWEEP_ID>
 
 # Deterministic Hydra multirun without a W&B sweep controller:
-sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
+sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper \
   code/hpc/slurm/hydra_multirun_gpu.slurm   # or _cpu.slurm
 ```
 
@@ -107,7 +107,7 @@ sbatch --export=ALL,WRAPPER_ROOT=/path/to/aind-disrnn-wrapper \
 HPC `aind` jobs are **not preempted** (queue / fair-share scheduling, not Beaker's
 preemptible-priority tiers), so the "resume after preemption" scenario does not arise
 here — that mechanism is Beaker-only. The other two work the same as on Beaker (full
-detail: wrapper `../aind-disrnn-wrapper/code/TRAINING.md` §1.5):
+detail: wrapper `../aind-dynamic-foraging-bfm-wrapper/code/TRAINING.md` §1.5):
 
 - **Extend a finished run to a longer horizon.** Set
   `model.training.restore_from_run_id=<source W&B run name>` (or env

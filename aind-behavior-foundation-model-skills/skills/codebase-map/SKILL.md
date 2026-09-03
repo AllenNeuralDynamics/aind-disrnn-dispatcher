@@ -1,24 +1,24 @@
 ---
 name: codebase-map
-description: Orient in the aind-disrnn-dispatcher codebase — the two-repo architecture (dispatcher = control plane, wrapper = training payload), Hydra config layout, where launchers/configs/docs/studies live, and which skill or doc to read next. Use when starting work in this repo, answering "where does X live", or deciding how to run/launch anything.
+description: Orient in the aind-dynamic-foraging-bfm-dispatcher codebase — the two-repo architecture (dispatcher = control plane, wrapper = training payload), Hydra config layout, where launchers/configs/docs/studies live, and which skill or doc to read next. Use when starting work in this repo, answering "where does X live", or deciding how to run/launch anything.
 ---
 
-# Codebase map — aind-disrnn-dispatcher
+# Codebase map — aind-dynamic-foraging-bfm-dispatcher
 
 ## Big picture (two-repo architecture)
 
-- **This repo (dispatcher)** is the *control plane* for the AIND-disRNN MLOps stack.
+- **This repo (dispatcher)** is the *control plane* for the dynamic-foraging-bfm MLOps stack.
   It composes Hydra configs into job specs and submits them to one of three backends:
   Code Ocean, Beaker (AI Hub), or Allen on-prem SLURM HPC.
-- **`aind-disrnn-wrapper`** (expected as a sibling checkout at
-  `../aind-disrnn-wrapper`) is the *compute/runtime payload*: training code, the
+- **`aind-dynamic-foraging-bfm-wrapper`** (expected as a sibling checkout at
+  `../aind-dynamic-foraging-bfm-wrapper`) is the *compute/runtime payload*: training code, the
   Beaker image, `run_hpc`. Job containers refresh the wrapper, dispatcher, and
   `aind-dynamic-foraging-models` sources at startup, so code edits need **no image
   rebuild** (pin via `WRAPPER_REF`, `DISPATCHER_REF`, and `FORAGING_MODELS_REF`).
 - W&B (`entity: AIND-disRNN`) is the experiment tracker across all backends.
 - **Claude Science layer** (AGENTS.md §13): the agent's persistent brain runs on the
   user's Mac; GitHub is the source of truth, tracked by the Mac authoring clone
-  (`~/Scripts/aind-disrnn-dispatcher`) and a pull-only HPC runtime checkout
+  (`~/Scripts/aind-dynamic-foraging-bfm-dispatcher`) and a pull-only HPC runtime checkout
   (`/home/han.hou/code/...`). Load balancing: CPU jobs → HPC SLURM, GPU jobs →
   Beaker. Full scheme + credentials: `references/claude-science-workflow.md`.
 
@@ -60,14 +60,14 @@ description: Orient in the aind-disrnn-dispatcher codebase — the two-repo arch
     before moving code across the two repos.
 - **Code-adjacent living docs** — canonical for code-coupled reference; skills
   defer to them:
-  - `../aind-disrnn-wrapper/code/TRAINING.md` — **§1.5 "Run lifecycle & key
+  - `../aind-dynamic-foraging-bfm-wrapper/code/TRAINING.md` — **§1.5 "Run lifecycle & key
     switches" first**: the four run phases, the `_step` warmup offset, the **two
     different held-out switches**, checkpoints/resumability/extendability.
     **Read before interpreting any run's logs or metrics** (distilled in the
     wrapper-runtime skill).
-  - `../aind-disrnn-wrapper/code/POST_TRAINING_ANALYSIS.md` — the analysis
+  - `../aind-dynamic-foraging-bfm-wrapper/code/POST_TRAINING_ANALYSIS.md` — the analysis
     codebase + `run_analysis.py` CLI.
-  - `../aind-disrnn-wrapper/beaker/README.md` — image build plane +
+  - `../aind-dynamic-foraging-bfm-wrapper/beaker/README.md` — image build plane +
     GPU-efficiency benchmarks (why L40S beats H200 here; batch/length-bucketing
     levers).
   - `code/beaker/README.md` — Beaker flow, cluster + **image** tables, memory

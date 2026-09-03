@@ -1,6 +1,6 @@
 ---
 name: git-session-isolation
-description: Commit, branch, push, and provenance-stamp work in the disRNN repos from a sandboxed Mac session. Covers the private external-git-dir checkout that lets concurrent sessions share one local repo without colliding, the workaround for git init/clone/worktree-add failing on the sandbox's .git rule, and the origin-is-truth provenance rules pairing dispatcher+wrapper SHAs. Load whenever git init/clone/worktree fails, when isolating parallel sessions, or before launching a deliverable.
+description: Commit, branch, push, and provenance-stamp work in the dynamic-foraging-bfm (disRNN) repos from a sandboxed Mac session. Covers the private external-git-dir checkout that lets concurrent sessions share one local repo without colliding, the workaround for git init/clone/worktree-add failing on the sandbox's .git rule, and the origin-is-truth provenance rules pairing dispatcher+wrapper SHAs. Load whenever git init/clone/worktree fails, when isolating parallel sessions, or before launching a deliverable.
 ---
 
 # git-session-isolation
@@ -43,7 +43,7 @@ on the same session that printed the banner. Read the banner as "you cannot make
 not as "git is unavailable".
 
 **One extra step under coarse mode:** if the repo contains a directory the sandbox
-write-denies (`.claude/` in both disRNN repos), a plain checkout aborts with
+write-denies (`.claude/` in both dynamic-foraging-bfm repos), a plain checkout aborts with
 `fatal: cannot create directory at '.claude'`. Exclude it with a non-cone sparse checkout
 before checking out — files outside the sparse set stay in the index, so your commits do
 not delete them:
@@ -91,7 +91,7 @@ GitHub (origin)  <-- integration point: PRs merge here
 
 ```bash
 source <path>/isolate_session.sh
-iso_open aind-disrnn-wrapper ai_hub_pck_integration feat/session-A
+iso_open aind-dynamic-foraging-bfm-wrapper ai_hub_pck_integration feat/session-A
 #   -> private checkout, own git-dir, on a fresh branch off the base
 # ...edit files under $ISO_TREE...
 iso_commit "your message"
@@ -122,9 +122,9 @@ Env knobs: `ISO_WS` (workspace root for checkouts, default `./iso-sessions`),
 
 The concurrency pattern above keeps sessions from colliding. This section covers
 the *other* failure mode learned the hard way: a run whose recorded provenance
-cannot reconstruct the code that produced it. It applies to the two-repo disRNN
-setup (`aind-disrnn-dispatcher` = launchers/sweeps/slurm, runs on the login
-node; `aind-disrnn-wrapper` = models/trainers, runs on the compute node) but the
+cannot reconstruct the code that produced it. It applies to the two-repo dynamic-foraging-bfm
+setup (`aind-dynamic-foraging-bfm-dispatcher` = launchers/sweeps/slurm, runs on the login
+node; `aind-dynamic-foraging-bfm-wrapper` = models/trainers, runs on the compute node) but the
 principles generalize to any Mac-orchestrates-HPC workflow.
 
 ### The one invariant

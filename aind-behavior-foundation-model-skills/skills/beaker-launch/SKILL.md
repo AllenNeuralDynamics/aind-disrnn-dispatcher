@@ -1,6 +1,6 @@
 ---
 name: beaker-launch
-description: Launch, size, and monitor training jobs on Beaker (AI Hub) for the disRNN stack — cluster allowlist, capacity checking, priority/preemption rules, GPU-bundle sizing, the resumable launcher, extend/restore and held-out re-scoring, and validation. Use whenever submitting, debugging, or scheduling Beaker experiments or W&B sweeps on AI Hub clusters.
+description: Launch, size, and monitor training jobs on Beaker (AI Hub) for the dynamic-foraging-bfm (disRNN) stack — cluster allowlist, capacity checking, priority/preemption rules, GPU-bundle sizing, the resumable launcher, extend/restore and held-out re-scoring, and validation. Use whenever submitting, debugging, or scheduling Beaker experiments or W&B sweeps on AI Hub clusters.
 ---
 
 # Launching on Beaker (AI Hub)

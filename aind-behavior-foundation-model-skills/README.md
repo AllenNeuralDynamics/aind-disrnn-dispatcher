@@ -86,7 +86,7 @@ is a running cost paid by every agent; `references/` is free until read.
 **Claude Code (whole pack via the repo's plugin marketplace):**
 
 ```
-/plugin marketplace add AllenNeuralDynamics/aind-disrnn-dispatcher
+/plugin marketplace add AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher
 /plugin install aind-behavior-foundation-model-skills@aind-behavior-foundation-model
 ```
 

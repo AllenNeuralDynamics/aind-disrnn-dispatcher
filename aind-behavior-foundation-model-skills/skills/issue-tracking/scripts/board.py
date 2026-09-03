@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""File an issue in an AIND disRNN repo and put it on the AIND-behavior-fm board.
+"""File an issue in an AIND dynamic-foraging-bfm repo and put it on the AIND-behavior-fm board.
 
 Does the four steps in the issue-tracking skill: create issue -> add to project ->
 set Status/Priority/Size -> read back and verify. Needs GITHUB_TOKEN with repo+project
 scopes, SSO-authorized for AllenNeuralDynamics.
 
-    python board.py --repo aind-disrnn-dispatcher --title "..." --body-file issue.md \
+    python board.py --repo aind-dynamic-foraging-bfm-dispatcher --title "..." --body-file issue.md \
         --labels documentation priority:P1 --status "In progress" --priority P1 --size M
 
     python board.py --discover                 # re-read field/option ids from the board
@@ -238,7 +238,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--discover", action="store_true",
                     help="print the board's field and option ids, then exit")
-    ap.add_argument("--repo", default="aind-disrnn-dispatcher")
+    ap.add_argument("--repo", default="aind-dynamic-foraging-bfm-dispatcher")
     ap.add_argument("--existing", type=int,
                     help="use this existing issue number instead of creating one")
     ap.add_argument("--title")

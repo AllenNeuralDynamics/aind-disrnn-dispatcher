@@ -1,7 +1,7 @@
 # Resuming, extending & re-scoring runs (three distinct mechanisms)
 
 Don't conflate them. Full lifecycle detail: wrapper
-`../aind-disrnn-wrapper/code/TRAINING.md` §1.5 "Run lifecycle & key switches".
+`../aind-dynamic-foraging-bfm-wrapper/code/TRAINING.md` §1.5 "Run lifecycle & key switches".
 
 ## 1. Preemption resume — automatic, WITHIN one experiment
 
