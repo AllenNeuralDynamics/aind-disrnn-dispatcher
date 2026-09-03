@@ -65,10 +65,12 @@ Comparators already on record:
 - **`launch_id` is UTC, not Seattle.** The launcher used `TZ=UTC`; conventions and
   AGENTS.md §7 both call for Seattle. Fixed in the launcher for subsequent launches; this
   group's id is left as-is because the runs are already stamped with it.
-The variant no longer deviates on sweep configs. It previously recorded "no `sweep.yaml`
-— these are direct `sbatch` submissions", which stopped being true when the Beaker surface
-landed: `sweep_beaker.yaml` and `sweep_beaker_smoke.yaml` are the sweep configs, and
-`launch_beaker_resumable.py` consumes them.
+- **Resolved, no longer a deviation — sweep configs.** This entry previously read "no
+  `sweep.yaml`: these are direct `sbatch` submissions", which stopped being true when the
+  Beaker surface landed. `sweep_beaker.yaml` and `sweep_beaker_smoke.yaml` are the sweep
+  configs and `launch_beaker_resumable.py` consumes them. Kept as a resolved entry rather
+  than deleted, so a reader of the 2026-08-29 records can still see why they have no sweep
+  file.
 
 ## Known limits
 
