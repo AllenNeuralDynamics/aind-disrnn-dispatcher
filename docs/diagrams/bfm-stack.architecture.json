@@ -5,8 +5,8 @@
     "title": "Behavioral Foundation Model Stack",
     "quality_profile": "showcase",
     "viewBox": [
-      1380,
-      520
+      1120,
+      540
     ]
   },
   "components": [
@@ -17,38 +17,66 @@
       "sublabel": "DuckDB parquet snapshot",
       "pos": [
         40,
-        60
+        40
       ],
       "size": [
-        215,
+        230,
         52
       ]
     },
     {
       "id": "hydra",
       "type": "backend",
-      "label": "config/model/*.yaml",
-      "sublabel": "_target_ picks the trainer",
+      "label": "code/config/",
+      "sublabel": "data= · model= · _target_",
       "pos": [
         40,
-        195
+        150
       ],
       "size": [
-        215,
+        230,
         52
       ]
     },
     {
-      "id": "launchers",
+      "id": "co",
       "type": "cloud",
-      "label": "launch_hpc / launch_beaker",
-      "sublabel": "W&B sweep → SLURM · Beaker",
+      "label": "launch_CO_wrapper.py",
+      "sublabel": "Code Ocean job dirs",
       "pos": [
         40,
-        330
+        250
       ],
       "size": [
-        215,
+        230,
+        52
+      ]
+    },
+    {
+      "id": "beaker",
+      "type": "cloud",
+      "label": "launch_beaker_resumable.py",
+      "sublabel": "W&B sweep → Beaker · AI Hub",
+      "pos": [
+        40,
+        322
+      ],
+      "size": [
+        230,
+        52
+      ]
+    },
+    {
+      "id": "hpc",
+      "type": "cloud",
+      "label": "launch_hpc.py",
+      "sublabel": "W&B sweep → SLURM array",
+      "pos": [
+        40,
+        394
+      ],
+      "size": [
+        230,
         52
       ]
     },
@@ -56,27 +84,27 @@
       "id": "loader",
       "type": "backend",
       "label": "DatasetLoader",
-      "sublabel": "mice · synthetic · hierarchical",
+      "sublabel": "mice · snapshot · synthetic",
       "pos": [
-        401,
-        60
+        430,
+        40
       ],
       "size": [
-        215,
+        240,
         52
       ]
     },
     {
       "id": "runner",
       "type": "backend",
-      "label": "training_runner.run_training",
-      "sublabel": "instantiate(cfg.model)",
+      "label": "run_capsule.py · run_hpc.py",
+      "sublabel": "training_runner.run_training",
       "pos": [
-        401,
+        430,
         195
       ],
       "size": [
-        215,
+        240,
         52
       ]
     },
@@ -84,13 +112,13 @@
       "id": "gru",
       "type": "backend",
       "label": "GruTrainer",
-      "sublabel": "multi-subject GRU",
+      "sublabel": "model=gru · multi-subject GRU",
       "pos": [
         790,
-        60
+        40
       ],
       "size": [
-        215,
+        260,
         52
       ]
     },
@@ -98,13 +126,13 @@
       "id": "disrnn",
       "type": "backend",
       "label": "DisrnnTrainer",
-      "sublabel": "disentangled RNN bottleneck",
+      "sublabel": "model=disrnn · bottleneck RNN",
       "pos": [
         790,
-        150
+        130
       ],
       "size": [
-        215,
+        260,
         52
       ]
     },
@@ -112,13 +140,13 @@
       "id": "baseline_rl",
       "type": "backend",
       "label": "BaselineRLTrainer",
-      "sublabel": "per-session MLE foragers",
+      "sublabel": "model=baseline_rl · MLE fits",
       "pos": [
         790,
-        240
+        220
       ],
       "size": [
-        215,
+        260,
         52
       ]
     },
@@ -126,41 +154,13 @@
       "id": "hb",
       "type": "backend",
       "label": "HBTrainer",
-      "sublabel": "partial pooling + population",
+      "sublabel": "model=hb_hattori · pooled fit",
       "pos": [
         790,
-        330
+        310
       ],
       "size": [
-        215,
-        52
-      ]
-    },
-    {
-      "id": "drnn_lib",
-      "type": "external",
-      "label": "disentangled_rnns",
-      "sublabel": "DeepMind · JAX + optax",
-      "pos": [
-        1112,
-        105
-      ],
-      "size": [
-        230,
-        52
-      ]
-    },
-    {
-      "id": "adfm",
-      "type": "external",
-      "label": "aind-dynamic-foraging-models",
-      "sublabel": "MLE + hierarchical Bayes",
-      "pos": [
-        1112,
-        285
-      ],
-      "size": [
-        230,
+        260,
         52
       ]
     },
@@ -168,13 +168,13 @@
       "id": "wandb",
       "type": "external",
       "label": "Weights & Biases",
-      "sublabel": "one held-out axis per study",
+      "sublabel": "entity AIND-disRNN",
       "pos": [
-        401,
-        440
+        430,
+        430
       ],
       "size": [
-        215,
+        240,
         52
       ]
     }
@@ -185,7 +185,9 @@
       "label": "aind-dynamic-foraging-bfm-dispatcher · control plane",
       "wraps": [
         "hydra",
-        "launchers"
+        "co",
+        "beaker",
+        "hpc"
       ],
       "pad": 20
     },
@@ -212,12 +214,20 @@
     {
       "from": "hydra",
       "to": "runner",
-      "label": "composed config"
+      "label": "composed config",
+      "variant": "emphasis"
     },
     {
-      "from": "launchers",
-      "to": "runner",
-      "label": "sbatch / Beaker task"
+      "from": "co",
+      "to": "runner"
+    },
+    {
+      "from": "beaker",
+      "to": "runner"
+    },
+    {
+      "from": "hpc",
+      "to": "runner"
     },
     {
       "from": "loader",
@@ -225,69 +235,29 @@
       "label": "DatasetBundle",
       "variant": "emphasis",
       "labelAt": [
-        509,
-        153
+        550,
+        143
       ]
     },
     {
       "from": "runner",
       "to": "gru",
-      "label": "gru",
-      "variant": "emphasis",
-      "labelAt": [
-        645,
-        80
-      ]
+      "variant": "emphasis"
     },
     {
       "from": "runner",
       "to": "disrnn",
-      "label": "disrnn",
-      "variant": "emphasis",
-      "labelAt": [
-        650,
-        170
-      ]
+      "variant": "emphasis"
     },
     {
       "from": "runner",
       "to": "baseline_rl",
-      "label": "baseline_rl",
-      "variant": "emphasis",
-      "labelAt": [
-        658,
-        262
-      ]
+      "variant": "emphasis"
     },
     {
       "from": "runner",
       "to": "hb",
-      "label": "hb_hattori",
-      "variant": "emphasis",
-      "labelAt": [
-        656,
-        352
-      ]
-    },
-    {
-      "from": "gru",
-      "to": "drnn_lib",
-      "label": "rnn_utils"
-    },
-    {
-      "from": "disrnn",
-      "to": "drnn_lib",
-      "label": "disrnn + multisubject"
-    },
-    {
-      "from": "baseline_rl",
-      "to": "adfm",
-      "label": "generative_model"
-    },
-    {
-      "from": "hb",
-      "to": "adfm",
-      "label": "hierarchical_bayes"
+      "variant": "emphasis"
     },
     {
       "from": "runner",
@@ -295,28 +265,28 @@
       "label": "heldout/eval_likelihood",
       "variant": "emphasis",
       "labelAt": [
-        509,
-        343
+        550,
+        338
       ]
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "One interface, four variants",
+      "title": "Three routes, one config",
       "items": [
-        "Every model implements ModelTrainer.fit(bundle, loggers) and nothing else",
-        "Hydra's _target_ names the class, so instantiate(cfg.model) needs no branch",
-        "Adding a variant adds a config file, not a code path"
+        "Code Ocean, Beaker (AI Hub) and Allen SLURM all consume the same code/config/ groups",
+        "The launcher differs; the composed Hydra config and the runtime code do not",
+        "Beaker and SLURM route through a W&B sweep; Code Ocean fans out job directories"
       ]
     },
     {
       "dot": "violet",
-      "title": "What each variant actually fits",
+      "title": "One interface, four variants",
       "items": [
-        "GRU and disRNN train in JAX/optax through DeepMind's disentangled_rnns",
-        "baseline_rl fits each session independently by maximum likelihood",
-        "HB partial-pools sessions within a subject and subjects within a population"
+        "Every model implements ModelTrainer.fit(bundle, loggers) and nothing else",
+        "Hydra's _target_ names the class, so instantiate(cfg.model) needs no branch",
+        "GRU and disRNN train in JAX via disentangled_rnns; baseline_rl and HB call aind-dynamic-foraging-models"
       ]
     },
     {
