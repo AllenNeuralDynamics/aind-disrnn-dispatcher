@@ -407,7 +407,7 @@ study 01 is the deepest regeneration test, but run all five:
 
 ```bash
 source /allen/aind/scratch/han.hou/miniforge3/etc/profile.d/conda.sh
-conda activate disrnn-cpu
+conda activate dynamic-foraging-bfm-cpu
 for s in studies/0*/; do (cd "$s" && make all); done
 ```
 

@@ -17,7 +17,10 @@
 #SBATCH --mem=256M
 
 source "${CONDA_SH:?CONDA_SH not set; source code/hpc/slurm/user.env before sbatch}"
-conda activate disrnn-cpu
+# Prefer the post-rename env (ADR-0007); fall back to the legacy name so a
+# machine that has not created the new env yet still runs. Old envs stay in
+# place until nothing references them.
+conda activate dynamic-foraging-bfm-cpu 2>/dev/null || conda activate disrnn-cpu
 
 SWEEP_ID="$1"
 if [ -z "$SWEEP_ID" ]; then

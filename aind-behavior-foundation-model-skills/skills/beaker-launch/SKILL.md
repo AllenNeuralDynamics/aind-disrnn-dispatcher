@@ -21,8 +21,8 @@ corrected skill. Follow whichever side is more restrictive, and fix both in the 
    job sent there silently never schedules rather than failing.
 2. **Never run the launch's compute on the login node** — the launcher itself is fine
    (it only submits), the training is not.
-3. Use the `disrnn-cpu` conda env for `wandb`/`beaker`/YAML tooling:
-   `conda activate disrnn-cpu` (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`).
+3. Use the `dynamic-foraging-bfm-cpu` conda env for `wandb`/`beaker`/YAML tooling:
+   `conda activate dynamic-foraging-bfm-cpu` (`/allen/aind/scratch/han.hou/miniforge3/envs/dynamic-foraging-bfm-cpu`).
    **It needs `beaker-py<2`** — the launchers and `check_gpu_availability.py` do
    `from beaker import Beaker, Config`, and beaker-py 2.x dropped the `Config`
    export (`ImportError: cannot import name 'Config'`). If beaker-py is missing
@@ -136,7 +136,7 @@ a `method: grid` sweep into one self-contained, checkpoint-resumable Beaker task
 grid point (no sweep controller; grid-only):
 
 ```bash
-conda activate disrnn-cpu
+conda activate dynamic-foraging-bfm-cpu
 WS=ai1/aind-dynamic-foraging-foundation-model
 python code/launch_beaker_resumable.py \
   --sweep studies/<study>/variants/<variant>/sweep.yaml \

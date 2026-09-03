@@ -19,9 +19,9 @@ README wins.**
    probes capacity and returns, never importing wrapper loader/model/training code or
    starting a `multiprocessing` Pool. (An unguarded spawn-Pool on the login node once
    recursively forked into a 260 MB / 65k-error process cascade.)
-2. Invoke the launcher from the `disrnn-cpu` conda env
-   (`/allen/aind/scratch/han.hou/miniforge3/envs/disrnn-cpu`). The SLURM script
-   activates `disrnn-cpu` or `disrnn-gpu` on the compute node per `--mode`.
+2. Invoke the launcher from the `dynamic-foraging-bfm-cpu` conda env
+   (`/allen/aind/scratch/han.hou/miniforge3/envs/dynamic-foraging-bfm-cpu`). The SLURM script
+   activates `dynamic-foraging-bfm-cpu` or `dynamic-foraging-bfm-gpu` on the compute node per `--mode`.
 3. Two-repo layout: the wrapper repo is expected as a sibling
    (`../aind-disrnn-wrapper`); override with `--wrapper-root`.
 4. One-time setup per user: `cp code/hpc/slurm/user.env.example code/hpc/slurm/user.env`
@@ -59,7 +59,7 @@ GPUs while every Beaker hub cluster is saturated or cordoned.
 From the dispatcher repo root:
 
 ```bash
-conda activate disrnn-cpu
+conda activate dynamic-foraging-bfm-cpu
 python code/launch_hpc.py \
   --sweep-yaml code/hpc/sweeps/<sweep>.yaml \
   --mode gpu \

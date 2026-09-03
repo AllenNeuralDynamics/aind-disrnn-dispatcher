@@ -84,7 +84,7 @@ here is the first thing every agent reads — so the rules stay with their owner
 | To do / know | Load |
 |---|---|
 | Submit to Beaker: cluster allowlist, capacity, sizing, priority, resumable launches | **beaker-launch** |
-| Launch on Allen on-prem SLURM; the login-node prohibition; `disrnn-cpu` | **hpc-launch** |
+| Launch on Allen on-prem SLURM; the login-node prohibition; `dynamic-foraging-bfm-cpu` | **hpc-launch** |
 | Interpret logs/metrics, held-out numbers, checkpoints/resume; training + analysis code | **wrapper-runtime** |
 | Create a study/variant, name W&B groups, record an intervention | **study-conventions** |
 | Write or regenerate reports, figures, curated JSON | **posthoc-reporting** |

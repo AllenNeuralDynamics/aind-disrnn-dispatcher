@@ -19,17 +19,17 @@ Create the runtime environments from the wrapper repo:
 ```bash
 cd /path/to/parent/aind-dynamic-foraging-bfm-wrapper
 
-conda create -n disrnn-cpu python=3.12 -y
-conda activate disrnn-cpu
+conda create -n dynamic-foraging-bfm-cpu python=3.12 -y
+conda activate dynamic-foraging-bfm-cpu
 pip install -e .
 
-conda create -n disrnn-gpu python=3.12 -y
-conda activate disrnn-gpu
+conda create -n dynamic-foraging-bfm-gpu python=3.12 -y
+conda activate dynamic-foraging-bfm-gpu
 pip install -e ".[gpu]"
 ```
 
 The launcher is always invoked from the CPU environment. The SLURM script then
-activates `disrnn-cpu` or `disrnn-gpu` on the compute node based on
+activates `dynamic-foraging-bfm-cpu` or `dynamic-foraging-bfm-gpu` on the compute node based on
 `--mode cpu|gpu`.
 
 Create the per-user SLURM env file in the dispatcher repo:
@@ -55,7 +55,7 @@ scripts to activate the runtime environment.
 Run from the dispatcher repo root:
 
 ```bash
-conda activate disrnn-cpu
+conda activate dynamic-foraging-bfm-cpu
 
 python code/launch_hpc.py \
   --sweep-yaml code/hpc/sweeps/synthetic_num_sessions_disrnn.yaml \
