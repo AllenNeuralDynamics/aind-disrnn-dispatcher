@@ -56,4 +56,21 @@ few_shot_k: [0, 1, 2, 4, 8]
 # later question -- a new rung, a calibration check, a figure -- means refitting.
 artifact_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}/hb_artifacts
 
+# Keep the session level in the persisted fit, not just the population and subject levels
+# (save_fit's include_session_sites, which defaults to off). On the one_stage route this
+# adds `session_log_lik`, draws x subjects x sessions -- what WAIC, PSIS-LOO and any
+# per-session comparison need. It is the bulk of the artifact and nothing in the run reads
+# it back, which is why it is tempting to omit; but a site exists only while the sampler
+# does, so a fit that ships without it can be recovered only by re-fitting, and this fit
+# costs hours. On for every production rung; turn it off for a throwaway.
+#
+# Not sufficient on its own for a per-session latent decision variable, verified against a
+# sampler run rather than the site names: hattori2019_three_level registers exactly one
+# session-level site, `session_log_lik`. The five per-session parameters that
+# artifacts.SESSION_SITES names are sites only in the two-level model, and `theta_raw`
+# (draws x subjects x sessions x 5), the offsets those parameters are computed from, is in
+# no keep list. A latent-trajectory replay therefore needs save_fit's keep list widened as
+# well -- tracked on dispatcher #115.
+save_session_sites: true
+
 run_name_component: hb_${.estimator}
