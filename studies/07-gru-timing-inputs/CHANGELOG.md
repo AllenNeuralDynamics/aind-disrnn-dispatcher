@@ -12,7 +12,8 @@ Dates in America/Los_Angeles.
   reward-GATED (more licking after no-reward → abandon; after reward → mild stay).
 - Cohort = the **held-out mice** (pinned in `provenance/heldout_subjects.txt`:
   eligible cohort minus the union of every GRU training cohort; 157 listed, 125
-  with usable RT/lick data enter the regressions). Chosen because the GRU's
+  enter the regressions — the other 32 are early old-schema sessions lacking the
+  `reaction_time` field build_sequence needs to form previous-trial RT). Chosen because the GRU's
   likelihood gain is scored on held-out mice, so the mechanism is shown on the
   population it explains — and the coupling is population-general (the same trend
   holds on the train mice), which is why the model generalizes. Effects are firmer

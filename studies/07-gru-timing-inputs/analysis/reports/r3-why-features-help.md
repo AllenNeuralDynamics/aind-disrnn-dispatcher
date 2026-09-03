@@ -23,9 +23,12 @@ be told apart from a reward-**gated** one:
 
 **Cohort: the held-out mice** — animals the study-07 GRU was *evaluated* on but
 never trained on (the eligible cohort minus the union of every training cohort;
-157 pinned in `analysis/provenance/heldout_subjects.txt`, of which **125 have
-usable RT/lick trial data** and enter the regressions — the other 32 are early
-2019–2020 sessions logged without RT/lick events). This is deliberate: the GRU's
+157 pinned in `analysis/provenance/heldout_subjects.txt`, of which **125 enter
+the regressions** — the other 32 are early 2019–2020 *old-schema* sessions that
+lack the `reaction_time` field and the in-session go-cue/choice-time columns
+`build_sequence` needs to form previous-trial RT, so their RT is undefined and
+they drop from the RT-dependent fit (their lick-time columns are present; it is
+the RT that cannot be computed)). This is deliberate: the GRU's
 likelihood gain is scored on held-out mice, so the behavioural coupling that
 explains it is shown on the same population. All-stage sessions, snapshot 20260603,
 n = 1,568,597 trials. (This approximates the GRU's 149-mouse eval set; the exact

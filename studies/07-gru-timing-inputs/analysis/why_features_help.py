@@ -15,7 +15,8 @@ Two regressions on responded trials (per-session previous-trial shift), stay =
 
 The reward interaction is the point: it separates a reward-INDEPENDENT signal
 (engagement) from a reward-GATED one (post-outcome abandonment). Verdict
-(HELD-OUT mice with RT/lick data, 125 of 157, n~1.57M; slope/+1SD, per-mouse
+(HELD-OUT mice with computable RT, 125 of 157 -- the other 32 are early old-schema
+sessions lacking the reaction_time field; n~1.57M; slope/+1SD, per-mouse
 cluster-bootstrap 95% CI):
   RT    unrewarded -0.29 [-0.34,-0.25] (z~-13), rewarded -0.23 [-0.29,-0.16]
         (z~-6.9) -> slower responding precedes switching REGARDLESS of outcome
@@ -267,7 +268,7 @@ def main():
     pd.DataFrame(rows).to_csv(STUDY / "why_features_help.csv", index=False)
     figure(seq, m_rt, m_lk)
     print(f"why_features_help: n={len(seq)} trials, {seq['subject_id'].nunique()} mice with "
-          f"RT/lick data (of {len(subjects)} held-out pinned); wrote fig + csv")
+          f"computable RT (of {len(subjects)} held-out pinned); wrote fig + csv")
 
 
 if __name__ == "__main__":
