@@ -54,6 +54,13 @@ max_tree_depth: 10
 # decision-variable trajectories (#115) and PSIS-LOO/WAIC both need them, and a multi-hour
 # fit that ships without them cannot be replayed at all -- it has to be re-fit. The first
 # D30 was launched without them, which is why it has no DV trajectories.
+#
+# What this persists on the one_stage route: `session_log_lik` and `theta_raw`.
+# `hattori2019_three_level` registers only those two at the session level -- the five
+# named per-session parameters in artifacts.SESSION_SITES are sites only in the two-level
+# model -- so `theta_raw` is what a per-session parameter or DV replay is reconstructed
+# from, together with `mu_p`, `log_sigma` and the `beta_max` recorded in the fit meta.
+# Widening that keep list was models#70; before it, this knob persisted nothing replayable.
 save_session_sites: true
 
 beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
@@ -86,21 +93,5 @@ few_shot_k: [0, 1, 2, 4, 8]
 # later question -- a new rung, a calibration check, a figure -- means refitting.
 artifact_dir: ${oc.env:BFM_OUTPUT_DIR,${oc.env:DISRNN_OUTPUT_DIR,/results}}/hb_artifacts
 
-# Keep the session level in the persisted fit, not just the population and subject levels
-# (save_fit's include_session_sites, which defaults to off). On the one_stage route this
-# adds `session_log_lik`, draws x subjects x sessions -- what WAIC, PSIS-LOO and any
-# per-session comparison need. It is the bulk of the artifact and nothing in the run reads
-# it back, which is why it is tempting to omit; but a site exists only while the sampler
-# does, so a fit that ships without it can be recovered only by re-fitting, and this fit
-# costs hours. On for every production rung; turn it off for a throwaway.
-#
-# Not sufficient on its own for a per-session latent decision variable, verified against a
-# sampler run rather than the site names: hattori2019_three_level registers exactly one
-# session-level site, `session_log_lik`. The five per-session parameters that
-# artifacts.SESSION_SITES names are sites only in the two-level model, and `theta_raw`
-# (draws x subjects x sessions x 5), the offsets those parameters are computed from, is in
-# no keep list. A latent-trajectory replay therefore needs save_fit's keep list widened as
-# well -- tracked on dispatcher #115.
-save_session_sites: true
 
 run_name_component: hb_${.estimator}
