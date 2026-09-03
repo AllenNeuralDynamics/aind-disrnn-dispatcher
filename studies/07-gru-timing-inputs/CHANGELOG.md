@@ -3,6 +3,22 @@
 Per-study log; newest first. One entry per merged PR or significant milestone.
 Dates in America/Los_Angeles.
 
+## 2026-09-03 — Probe/GRU maturity reconciliation + broken report figure paths
+
+- The logistic probe is mature-only + curricula; the GRU runs use
+  `data.mature_only: false` (all-stage, via `mice_snapshot_scaling.yaml`). Added
+  `analysis/probe_maturity_reconciliation.py` (re-runs the probe's exact fit on
+  the same seeded 60-subject cohort, varying only the session filter) with
+  `fig_probe_maturity_reconciliation.png` + `probe_maturity_reconciliation.csv`
+  and a subsection in r1. Verdict: dropping the maturity filter leaves the Δ
+  unchanged (+0.00764 → +0.00834) and drops the baseline (0.7433 → 0.7294) onto
+  the GRU OFF baseline (0.7285). Variant A reproduces the committed
+  `timing_calibration.csv` to full precision, so the effect is robust to the
+  maturity scope. Conclusion unaffected.
+- Fixed broken figure paths in the r1/r2 report blocks: study-root figures were
+  linked `../fig_*.png` (resolves to `analysis/`) instead of `../../fig_*.png`.
+  Corrected in `update_reports.py` so regenerated blocks render.
+
 ## 2026-08-26 — Study wrap-up + analysis normalization
 
 - Normalized the study folder to `study-conventions`: added `analysis/`
