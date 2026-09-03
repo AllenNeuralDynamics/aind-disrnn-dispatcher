@@ -141,8 +141,32 @@ board fields are not.
 
 **Every PR gets a Copilot review, and every Copilot comment gets resolved before merge.**
 An unresolved Copilot thread is an unanswered reviewer. Automatic review is currently
-enabled on these repos, so a new PR is reviewed without asking; if one is not, request it
-from the Reviewers menu.
+enabled on these repos, so a new PR is reviewed without asking — the API below is for a
+deliberate **re**-review after a fix push, which does not happen automatically.
+
+Requesting a review is GraphQL-only. **REST fails**: `POST
+/repos/{owner}/{repo}/pulls/{n}/requested_reviewers` with the Copilot bot returns
+`422 Reviews may only be requested from collaborators`.
+
+```python
+# bot id in AllenNeuralDynamics: BOT_kgDOCnlnWA
+gql("""mutation($pr:ID!,$b:[ID!]!){ requestReviews(input:{
+  pullRequestId:$pr, botIds:$b, union:true}){
+  pullRequest{ reviewRequests(first:5){ nodes{ requestedReviewer{
+    __typename ... on Bot { login } } } } } } }""", pr=pr_node_id, b=["BOT_kgDOCnlnWA"])
+```
+
+`union: true` adds to the existing reviewers instead of replacing them.
+`RequestReviewsInput` takes `pullRequestId`, `userIds`, `botIds`, `teamIds`, `union`. If the
+bot id ever changes, read it off any PR that Copilot has touched — the `Bot` node in
+`reviewRequests` or `latestReviews`:
+
+```python
+gql("""query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){
+  pullRequest(number:$n){ id
+    latestReviews(first:10){ nodes{ author{ __typename login
+      ... on Bot { id } } } } } } }""", o=..., r=..., n=...)
+```
 
 Resolve with a reason — `resolveReviewThread` takes
 `resolutionReason: ADDRESSED | WONT_FIX | INVALID` (`INVALID` is the UI's "Incorrect"):
