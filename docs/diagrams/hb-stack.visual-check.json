@@ -5,7 +5,7 @@
   "status": "pass",
   "visualReview": "pending",
   "artifact": {
-    "path": "/Users/han.hou/Scripts/aind-dynamic-foraging-bfm-dispatcher/.claude/worktrees/docs+readmes-and-diagrams-111/docs/diagrams/hb-stack.html",
+    "path": "docs/diagrams/hb-stack.html",
     "sha256": "3571a90d4d7972122730620c37856f4f81a41ca00bd2ee0966d808175985d38e",
     "bytes": 719825
   },
