@@ -1,0 +1,11 @@
+# Minimal dependencies to run the dispatcher's test suite and checks in CI.
+#
+# Deliberately NOT a pyproject.toml. Packaging code/ as a distribution is a real
+# decision that the repo split should inform -- docs/repo-split-plan.md defers it
+# ("packaging is NOT a prerequisite"), and the studies repo is what will reveal
+# which dispatcher surface is actually a public API. A requirements file gives CI
+# what it needs without pre-empting that. See #97.
+#
+# The launcher helpers under test need only PyYAML; nothing here touches SLURM,
+# Beaker, W&B or the network.
+PyYAML>=6,<7
