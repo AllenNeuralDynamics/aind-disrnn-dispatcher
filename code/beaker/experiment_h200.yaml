@@ -12,10 +12,10 @@ description: disRNN T4-match benchmark on one H200
 tasks:
   - name: disrnn-h200
     image:
-      beaker: han-hou/disrnn-wrapper-main-20260712
+      beaker: han-hou/dynamic-foraging-bfm-wrapper-main-20260902
     command:
       - bash
-      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/entrypoint.sh
       - wandb
       - agent
       - --count

@@ -13,13 +13,13 @@ description: disRNN GPU packing — M wandb agents time-sliced on one GPU
 tasks:
   - name: disrnn-pack
     image:
-      beaker: han-hou/disrnn-wrapper-main-20260712
+      beaker: han-hou/dynamic-foraging-bfm-wrapper-main-20260902
     # entrypoint pulls code, then pack_gpu.sh launches <PACK_M> agents here.
     command:
       - bash
-      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/entrypoint.sh
       - bash
-      - /workspace/aind-disrnn-wrapper/beaker/pack_gpu.sh
+      - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/pack_gpu.sh
       - "<SWEEP_ID>"
       - "<PACK_M>"
     context:

@@ -18,12 +18,12 @@ description: disRNN MVP — synthetic-RL -> disRNN, one W&B sweep agent
 tasks:
   - name: disrnn-mvp
     image:
-      beaker: han-hou/disrnn-wrapper-main-20260712
+      beaker: han-hou/dynamic-foraging-bfm-wrapper-main-20260902
     # entrypoint.sh pulls the latest code at container startup, then runs
     # `wandb agent`. Control source versions via the three REF variables below.
     command:
       - bash
-      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/entrypoint.sh
       - wandb
       - agent
       - --count

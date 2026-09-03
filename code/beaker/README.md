@@ -90,7 +90,7 @@ spread variants across these three.
 |---|---|---|---|---|
 | `ai1/octo-hub-aws-l40s` | L40s (48 GB) | ~373 GiB (1 node, 4 slots) | ✅ AWS | default; fine for H128. 48 GB GPU OOMs a *wide* (hidden_size=256) full-cohort eval unless chunked |
 | `ai1/octo-hub-aws-h200` | H200 (141 GB) | large | ✅ AWS | large training; often full (32/32) |
-| `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem (S3 verified 2026-08-22) | large training; usually the emptiest pool — best for wide H256. Needs a CURRENT image: the 2026-06-18 `disrnn-wrapper-pck-integration` fails to pull here (`No such image`), `disrnn-wrapper-main-20260712` works |
+| `ai1/octo-hub-onprem-h200` | H200 (141 GB) | ~3.25 TiB | ✅ on-prem (S3 verified 2026-08-22) | large training; usually the emptiest pool — best for wide H256. Needs a CURRENT image: the 2026-06-18 `disrnn-wrapper-pck-integration` fails to pull here (`No such image`), `dynamic-foraging-bfm-wrapper-main-20260902` works |
 | `ai1/octo-hub-gcp-h100` | H100 (80 GB) | ~1.83 TiB | ❌ **cannot reach AWS S3 DB** | lots of free CPU/RAM, but DB reads fail (DNS / SSL-cert errors) — only for compute that doesn't touch the DB |
 | `ai1/octo.hub-gcp-h200` | H200 (141 GB) | large | ❌ GCP (S3 unreliable) | |
 | `ai1/octo-hub-aws-l40s-dev` | L40s (48 GB) | — | ✅ AWS | dev |
@@ -172,7 +172,8 @@ than older images ship — an older image fails at data-load with
 
 | image | built | notes |
 |---|---|---|
-| `han-hou/disrnn-wrapper-main-20260712` | 2026-07-12 | **current — use this.** Defaults all runtime refs to `main`, refreshes foraging-models source at startup, and records its resolved commit. |
+| `han-hou/dynamic-foraging-bfm-wrapper-main-20260902` | 2026-09-02 | **current — use this.** First image under the `dynamic-foraging-bfm` identity: it clones to `/workspace/aind-dynamic-foraging-bfm-{wrapper,dispatcher}`, so a spec using it **must** use those paths. Only image with the models `[bayes]` extra, so hierarchical Bayes needs it. Smoke: [`01M1JJ1E…`](https://beaker.org/ex/01M1JJ1EEHB8X3WCK4C11WJ9VE). |
+| `han-hou/disrnn-wrapper-main-20260712` | 2026-07-12 | Previous `main` image. Still works, but bakes the OLD `/workspace/aind-disrnn-*` paths — pair it only with a spec using those — and has no `[bayes]` extra, so it cannot run hierarchical Bayes. |
 | `han-hou/disrnn-wrapper-pck-integration-20260630` | 2026-07-01 | Previous dependency image; supports `select_sessions(snapshot=...)` but does not refresh foraging-models source. |
 | `han-hou/disrnn-wrapper-pck-integration` | 2026-06-18 | older; DB package predates `snapshot=` — fails on the snapshot data loader used by `data-scaling-law` / `ignore-trials` / `beta-scan`. Pin `WRAPPER_REF` to a commit whose `load_mice_database.py` calls `select_sessions` *without* `snapshot` (e.g. `4f296807`) if you must use it. |
 
@@ -306,7 +307,7 @@ GPUs that are free *and* not on a cordoned node, by type.
 **Image names go stale — verify before launching.** Old example specs referenced
 `beaker: han-hou/disrnn-wrapper`, which **no longer exists** (→ `ImageNotFound`/404).
 The current image for the `main` line is
-`han-hou/disrnn-wrapper-main-20260712` (see "Available images" above). List live
+`han-hou/dynamic-foraging-bfm-wrapper-main-20260902` (see "Available images" above). List live
 images and point the spec's `image.beaker` at one that exists:
 `beaker workspace images ai1/aind-dynamic-foraging-foundation-model` (CLI) or, in
 Python, `[im.full_name for im in b.workspace.images(workspace="ai1/aind-dynamic-foraging-foundation-model")]`.
