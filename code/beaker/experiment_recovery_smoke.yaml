@@ -15,10 +15,10 @@ description: embedding-recovery smoke (hierarchical synthetic + multisubject GRU
 tasks:
   - name: recovery-smoke-gru
     image:
-      beaker: han-hou/disrnn-wrapper-main-20260712
+      beaker: han-hou/dynamic-foraging-bfm-wrapper-main-20260902
     command:
       - bash
-      - /workspace/aind-disrnn-wrapper/beaker/entrypoint.sh
+      - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/entrypoint.sh
       - wandb
       - agent
       - --count
