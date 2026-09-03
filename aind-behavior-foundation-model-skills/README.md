@@ -66,7 +66,12 @@ So every skill edit lands here, by PR:
 
 1. Branch off `origin/main`, edit under `skills/<name>/`, open a PR
    (never squash-merge — `gh pr merge <n> --merge`, per AGENTS.md §9).
-2. Bump `version` in `.claude-plugin/plugin.json`.
+2. Bump `version` in `.claude-plugin/plugin.json`. **This is not bookkeeping — skipping it
+   fails silently.** `claude plugin update` compares versions, not content, so an edit
+   shipped without a bump makes it report *"already at the latest version"* and copy
+   nothing. The repo is correct, the installed copy agents actually read is stale, and
+   nothing warns you. Verify with `diff -rq` between the repo pack and
+   `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/skills`.
 3. Re-import the plugin in Claude Code (`/plugin` — updates are pull-based, not automatic).
 4. If the skill's `description` changed, note it in the PR: descriptions are the triggering
    mechanism, so a description change alters *when* the skill loads, not just its content.
