@@ -175,7 +175,7 @@ gql("""mutation($id:ID!){ resolveReviewThread(input:{
   threadId:$id, resolutionReason:ADDRESSED}){ thread{ isResolved } } }""", id=thread_id)
 ```
 
-Thread ids come from `repository.pullRequest.reviewThreads`.
+Thread ids come from `repository.pullRequest(number: <n>).reviewThreads`.
 
 | Reason | When |
 |---|---|
