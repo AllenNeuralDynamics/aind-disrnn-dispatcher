@@ -137,6 +137,47 @@ Labels available on the dispatcher: `bug`, `documentation`, `enhancement`, `eval
 label duplicates the board field on purpose — the label is visible in issue lists where
 board fields are not.
 
+## Copilot review — request it, and resolve every thread
+
+**Every PR gets a Copilot review, and every Copilot comment gets resolved before merge.**
+An unresolved Copilot thread is an unanswered reviewer. Automatic review is currently
+enabled on these repos, so a new PR is reviewed without asking; if one is not, request it
+from the Reviewers menu.
+
+Resolve with a reason — `resolveReviewThread` takes
+`resolutionReason: ADDRESSED | WONT_FIX | INVALID` (`INVALID` is the UI's "Incorrect"):
+
+```python
+gql("""mutation($id:ID!){ resolveReviewThread(input:{
+  threadId:$id, resolutionReason:ADDRESSED}){ thread{ isResolved } } }""", id=thread_id)
+```
+
+Thread ids come from `repository.pullRequest.reviewThreads`.
+
+| Reason | When |
+|---|---|
+| `ADDRESSED` | you changed the code — including when you fixed it *differently* than suggested |
+| `WONT_FIX` | the finding is valid but you are deliberately not acting on it |
+| `INVALID` | the finding is wrong |
+
+For `WONT_FIX` and `INVALID`, reply in-thread with why before resolving
+(`POST /repos/{owner}/{repo}/pulls/{n}/comments` with `in_reply_to: <comment_id>`). A
+resolve with no explanation reads as dismissal.
+
+Three things that cost time when learned the hard way:
+
+- The REST `user.login` on a Copilot comment is **`Copilot`** — not
+  `copilot-pull-request-reviewer`, which is the GraphQL `Bot` login. Filtering on the wrong
+  one returns zero comments and looks like "no review".
+- `PullRequestReviewThread` exposes **no readable `resolutionReason`**, so the reason cannot
+  be read back; the mutation accepting the enum is the only confirmation.
+- **Do not bulk-resolve.** Copilot re-reviews after a push and may add comments while you
+  work; a blanket resolve marks those `ADDRESSED` when they are not. Resolve per finding
+  you actually handled, and re-check for new comments after each push.
+
+Copilot does not read replies — per GitHub's docs, comments on its review are visible to
+humans but not to Copilot. The reply is for the human reviewer and for the record.
+
 ## Sandbox / auth notes
 
 - **No `gh` CLI** in the Claude Science sandbox. Use REST + GraphQL directly with
