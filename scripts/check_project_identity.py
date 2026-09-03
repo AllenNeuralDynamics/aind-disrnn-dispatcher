@@ -39,8 +39,17 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ALLOWLIST = Path(__file__).resolve().parent / "project_identity_allowlist.toml"
 
-# Paths whose content records what actually ran, or defines the rule itself.
-SKIP_PREFIXES = ("studies/", "docs/adr/")
+# Paths whose content records what actually ran, or *defines* the rule itself.
+# The checker and its allowlist necessarily quote the tokens they reject -- in
+# the reject patterns, the self-test fixtures, and the written reasons -- so
+# scanning them would make the rule fail on its own definition. Same reasoning
+# as docs/adr/, which states the boundary in prose.
+SKIP_PREFIXES = (
+    "studies/",
+    "docs/adr/",
+    "scripts/check_project_identity.py",
+    "scripts/project_identity_allowlist.toml",
+)
 
 # Project-identity tokens. Deliberately NOT including AIND-disRNN (see above).
 REJECT = {
@@ -114,6 +123,11 @@ def self_test(rules: list[dict]) -> int:
         ("code/config/config.yaml", "${oc.env:BFM_X,${oc.env:DISRNN_X,/results}}", None, False),
         ("code/hpc/slurm/a.slurm", "conda activate dynamic-foraging-bfm-cpu 2>/dev/null || conda activate disrnn-cpu", None, False),
         ("studies/01/notes.md", "conda activate disrnn-cpu", None, False),  # skipped path
+        # The rule's own definition quotes what it forbids. Scanning it made the
+        # checker fail on itself the first time this ran in CI, because locally
+        # the files were still untracked and `git ls-files` never saw them.
+        ("scripts/check_project_identity.py", 'r"aind-disrnn-(?:dispatcher|wrapper)"', None, False),
+        ("scripts/project_identity_allowlist.toml", "pattern = 'aind_disrnn_utils'", None, False),
     ]
     failures = 0
     for path, line, _kind, should_flag in cases:
