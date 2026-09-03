@@ -1,6 +1,6 @@
 ---
 name: codebase-map
-description: Orient in the aind-dynamic-foraging-bfm-dispatcher codebase — the two-repo architecture (dispatcher = control plane, wrapper = training payload), Hydra config layout, where launchers/configs/docs/studies live, and which skill or doc to read next. Use when starting work in this repo, answering "where does X live", or deciding how to run/launch anything.
+description: Orient in the aind-dynamic-foraging-bfm-dispatcher (formerly aind-disrnn-dispatcher) codebase — the two-repo architecture (dispatcher = control plane, wrapper = training payload), Hydra config layout, where launchers/configs/docs/studies live, and which skill or doc to read next. Use when starting work in this repo, answering "where does X live", or deciding how to run/launch anything.
 ---
 
 # Codebase map — aind-dynamic-foraging-bfm-dispatcher
