@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          # cache: pip looks for requirements.txt / pyproject.toml by default and
+          # errors out when neither exists, so point it at ours explicitly.
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install
         run: pip install -r requirements-dev.txt
