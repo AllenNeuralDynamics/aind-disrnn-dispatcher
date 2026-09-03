@@ -28,6 +28,12 @@ num_samples: 500
 num_chains: 4                 # vectorized across chains; they share one device
 beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
 
+# Both NUTS keys -- the population fit and the held-out adaptation/scoring draws -- derive
+# from this. Without it HBTrainer gets seed=None and ModelTrainer falls back to
+# int(time.time()), so the rung cannot be reproduced from its own config. Every other model
+# config in this group wires it the same way.
+seed: ${seed}
+
 # ── Held-out scoring ─────────────────────────────────────────────────────
 # Two different things are reported, and they are not on the same scale of evidence.
 #
