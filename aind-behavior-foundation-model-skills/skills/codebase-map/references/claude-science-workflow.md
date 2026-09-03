@@ -9,13 +9,13 @@ this file is now the canonical home. One-line rule: `AGENTS.md` §13.)
 - **Mac (Claude Science)** — the orchestration brain. Holds persistent project
   memory, artifacts, and planning; drives everything else. Runs continuously, so
   it is the durable state, not any remote shell session.
-- **GitHub** (`AllenNeuralDynamics/aind-disrnn-dispatcher`) — the single source of
+- **GitHub** (`AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher`) — the single source of
   truth for code. Both checkouts below track it.
 - **HPC login node** (`hpc-code.corp.alleninstitute.org`) — a **pull-only runtime
-  checkout** at `/home/han.hou/code/aind-disrnn-dispatcher`. Synced with
+  checkout** at `/home/han.hou/code/aind-dynamic-foraging-bfm-dispatcher`. Synced with
   `git pull`, never edited in place. Reached over SSH (VPN when remote).
-- **Mac clone** (`~/Scripts/aind-disrnn-dispatcher`) — the **authoring checkout**,
-  sibling to `aind-disrnn-wrapper`. Where the agent edits source and shows diffs.
+- **Mac clone** (`~/Scripts/aind-dynamic-foraging-bfm-dispatcher`) — the **authoring checkout**,
+  sibling to `aind-dynamic-foraging-bfm-wrapper`. Where the agent edits source and shows diffs.
 
 ## Where each task runs
 
@@ -23,7 +23,7 @@ this file is now the canonical home. One-line rule: `AGENTS.md` §13.)
 | --- | --- | --- |
 | GPU training → Beaker | Mac (beaker CLI/API + token) | No |
 | CPU training → HPC SLURM | HPC login node over SSH (`git pull` to sync first) | Yes, only here |
-| Rebuild the `disrnn-wrapper` image | Mac (Docker; HPC has none) | No |
+| Rebuild the `dynamic-foraging-bfm-wrapper` image | Mac (Docker; HPC has none) | No |
 | W&B post-hoc analysis | Mac sandbox (GraphQL) or HPC (SDK) | No |
 | Edit / review repo code | Mac clone, native diffs | No |
 

@@ -6,7 +6,7 @@
 # Usage:
 #   source isolate_session.sh
 #   iso_open <repo-name> <base-branch> <new-branch>
-#     e.g. iso_open aind-disrnn-wrapper ai_hub_pck_integration feat/session-A
+#     e.g. iso_open aind-dynamic-foraging-bfm-wrapper ai_hub_pck_integration feat/session-A
 #   ... edit files under $ISO_TREE, then:
 #   iso_commit "message"
 #   iso_push                       # pushes $ISO_BRANCH to GitHub origin

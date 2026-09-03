@@ -53,18 +53,25 @@ PYTHONPATH="$(pwd):$PYTHONPATH" python launch_beaker.py \
 
 ## Verify the image name before submitting (#1 stale-fact trap)
 
-Old example specs (`experiment_h100.yaml`, `experiment_h200.yaml`,
-`experiment_pack.yaml`) reference `beaker: han-hou/disrnn-wrapper`, which **no
-longer exists** -> `ImageNotFound`/404. Current image:
-`han-hou/disrnn-wrapper-main-20260712` — it defaults the wrapper, dispatcher,
-and foraging-models refs to `main`, refreshes all three at job startup, and
-records their resolved commits. It also ships `aind-dynamic-foraging-database`
-with
-`select_sessions(snapshot=...)` support; the older `...-pck-integration`
-(2026-06-18) fails on the `mice_snapshot_scaling` data path
-(`TypeError: ... unexpected keyword argument 'snapshot'`). The authoritative list
-is the "Available images" table in `code/beaker/README.md`; cross-check live
-images and set the spec's `image.beaker` to one that exists:
+Current image: **`han-hou/dynamic-foraging-bfm-wrapper-main-20260902`** — every
+spec in `code/beaker/` points at it. It defaults the wrapper, dispatcher, and
+foraging-models refs to `main`, refreshes all three at job startup, and records
+their resolved commits; it is also the only image carrying the models `[bayes]`
+extra, so hierarchical Bayes needs it.
+
+**The image and the spec's container paths are a matched pair.** This image clones
+to `/workspace/aind-dynamic-foraging-bfm-{wrapper,dispatcher}`, so a spec using it
+must use those paths. The previous `han-hou/disrnn-wrapper-main-20260712` still
+exists but bakes the OLD `/workspace/aind-disrnn-*` paths and has no `[bayes]`
+extra — pairing either image with the other's spec fails at startup, not at
+submit. (Older still: `...-pck-integration` (2026-06-18) predates
+`select_sessions(snapshot=...)` and fails on the `mice_snapshot_scaling` data path
+with `TypeError: ... unexpected keyword argument 'snapshot'`.)
+
+Image tags keep the `disrnn` name for images built before the rename — those are
+frozen provenance, not stale text (ADR 0007). The authoritative list is the
+"Available images" table in `code/beaker/README.md`; cross-check live images and
+set the spec's `image.beaker` to one that exists:
 
 ```python
 # repl cell, via beaker-py
