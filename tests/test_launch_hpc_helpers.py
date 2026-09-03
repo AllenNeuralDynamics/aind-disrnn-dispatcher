@@ -145,13 +145,32 @@ class TestGitInfo(unittest.TestCase):
 
 
 class TestRuntimeRefRepositories(unittest.TestCase):
-    """The map the Beaker launcher resolves runtime SHAs against (#77)."""
+    """The map the Beaker launcher resolves runtime SHAs against (#77).
+
+    Read from source with `ast` rather than imported: beaker_client pulls in
+    requests and beaker-py at module scope, and neither is worth installing in
+    CI to assert one dict literal. Parsing also checks the declaration itself
+    rather than whatever a runtime patch might have left behind.
+    """
 
     def test_names_the_post_rename_repos(self):
-        import beaker_client
+        import ast
 
+        source = (
+            Path(__file__).resolve().parents[1] / "code" / "beaker_client.py"
+        ).read_text()
+        found = None
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "RUNTIME_REF_REPOSITORIES"
+                for t in node.targets
+            ):
+                found = ast.literal_eval(node.value)
+                break
+
+        self.assertIsNotNone(found, "RUNTIME_REF_REPOSITORIES not found in beaker_client.py")
         self.assertEqual(
-            beaker_client.RUNTIME_REF_REPOSITORIES,
+            found,
             {
                 "WRAPPER_REF": "aind-dynamic-foraging-bfm-wrapper",
                 "DISPATCHER_REF": "aind-dynamic-foraging-bfm-dispatcher",
