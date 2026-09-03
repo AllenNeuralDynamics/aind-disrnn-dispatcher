@@ -5,11 +5,30 @@ held-out cohort with matched conditioning.
 
 | | |
 |---|---|
-| **W&B group** | `hb-one_stage@20260829-181251` |
 | **W&B project** | `mice_data_scaling` — **study 01's project, not a new one** (see deviation below) |
-| **Runs** | `hb-one_stage-D{10,30,101}-s0` |
-| **SLURM** | superseded — see the launch record; no rung has run on the current code |
-| **Status** | not yet run. The entrypoint moved to `run_hpc` after those jobs, so they do not reflect this variant |
+| **Launch surface** | Beaker (`sweep_beaker.yaml` + `experiment_beaker.yaml`); `production.sbatch` still carries pre-rename paths |
+| **Status** | D10 complete on the current code. D30 in flight. D101 and above not yet attempted on the current code |
+
+### Rung state, 2026-09-03
+
+| rung | ratio | state |
+|---|---|---|
+| D≈10 | 0.016 | complete — path smoke plus three fixed-seed replicates, all exit 0 |
+| D≈30 | 0.049 | in flight — Beaker experiment `01M1K112YCMY31GNDKHESW9G6Z`, production sampler 500/500/4 |
+| D≈101 | 0.163 | not attempted on the current code |
+
+**The D30 and D101 rungs have never completed.** Both crashed on 2026-08-29 in group
+`hb-one_stage@20260829-181251` (SLURM 25489921/22/23), seconds after the trainer started.
+That group is the *relaunch* recorded in `launch_record/hpc_ladder_relaunch.json`, whose
+record documents only the earlier `ModuleNotFoundError: wandb` failure and the resubmission
+— not that the resubmission also died. W&B's retained log lines stop at the JAX
+backend-init message and the SLURM `.err` files are on HPC, so the cause was not
+recoverable when this was written. Do not read the earlier `hb-one_stage-D{30,101}-s0` runs
+as results; they carry no likelihood, no sampler config and no commit stamps.
+
+The three `hb-one_stage-D10-s0` runs that *did* complete on 2026-08-29 predate the
+`run_hpc` refactor and the seed fix (dispatcher #108), and their sampler settings were never
+recorded in W&B, so they are not comparable with anything run since.
 
 ## What differs
 
@@ -46,8 +65,12 @@ Comparators already on record:
 - **`launch_id` is UTC, not Seattle.** The launcher used `TZ=UTC`; conventions and
   AGENTS.md §7 both call for Seattle. Fixed in the launcher for subsequent launches; this
   group's id is left as-is because the runs are already stamped with it.
-- **No `sweep.yaml`.** These are direct `sbatch` submissions rather than a W&B sweep, so
-  there is no sweep config to record; `production.sbatch` is the launch surface.
+- **Resolved, no longer a deviation — sweep configs.** This entry previously read "no
+  `sweep.yaml`: these are direct `sbatch` submissions", which stopped being true when the
+  Beaker surface landed. `sweep_beaker.yaml` and `sweep_beaker_smoke.yaml` are the sweep
+  configs and `launch_beaker_resumable.py` consumes them. Kept as a resolved entry rather
+  than deleted, so a reader of the 2026-08-29 records can still see why they have no sweep
+  file.
 
 ## Known limits
 
