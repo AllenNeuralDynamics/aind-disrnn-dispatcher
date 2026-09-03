@@ -169,8 +169,7 @@ gql("""query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){
 ```
 
 Resolve with a reason — `resolveReviewThread` takes
-`resolutionReason: ADDRESSED | WONT_FIX | INVALID` (`INVALID` is the UI's "Incorrect"):
-
+`resolutionReason: ADDRESSED | WONT_FIX | INVALID | OUTDATED` (`INVALID` is the UI's "Incorrect"; `OUTDATED` is "Outdated"):
 ```python
 gql("""mutation($id:ID!){ resolveReviewThread(input:{
   threadId:$id, resolutionReason:ADDRESSED}){ thread{ isResolved } } }""", id=thread_id)
