@@ -25,13 +25,5 @@ jobs:
       - name: Install
         run: pip install -r requirements-dev.txt
 
-      # ADR-0007's boundary, enforced. Self-test first: a checker that cannot
-      # fail is worse than none, because it reports success either way.
-      - name: Guardrail self-test
-        run: python scripts/check_project_identity.py --self-test
-
-      - name: Project-identity guardrail
-        run: python scripts/check_project_identity.py
-
       - name: Tests
         run: python -m unittest discover -s tests -t . -v

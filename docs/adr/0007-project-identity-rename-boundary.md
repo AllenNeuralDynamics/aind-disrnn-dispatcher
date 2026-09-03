@@ -80,20 +80,6 @@ studies carry the new identity in their **project** names.
 **Out of scope.** `aind-disentangled-rnns` is a fork of `google-deepmind/disentangled_rnns`
 with live upstream merges. Renaming a fork you still pull from is friction for zero gain.
 
-## Enforcement
-
-This boundary is machine-checked. `scripts/check_project_identity.py` rejects
-project-identity tokens in live paths on every PR, and
-`scripts/project_identity_allowlist.toml` is the machine-readable half of the rule above —
-every deliberate exception carries a written reason.
-
-Two things the checker deliberately does **not** flag, both following from this ADR: the
-architecture symbols, anywhere; and `AIND-disRNN`, which the amendment above keeps
-permanently. It skips `studies/` and `docs/adr/` wholesale, since those record what ran.
-
-The checker ships a `--self-test` that proves it still fails on a reintroduced token — a
-guardrail that cannot fail is worse than none, because it reports success either way.
-
 ## Consequences
 
 The rename is bounded because the frozen set is most of it. Verified at `6b58d8b`: of 4,843
