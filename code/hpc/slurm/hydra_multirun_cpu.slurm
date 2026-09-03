@@ -17,7 +17,10 @@
 # Per-user settings (mail-user, output/error paths, CONDA_SH) come from
 # code/hpc/slurm/user.env; source it before sbatch. See code/hpc/README.md "Per-user setup".
 source "${CONDA_SH:?CONDA_SH not set; source code/hpc/slurm/user.env before sbatch}"
-conda activate disrnn-cpu
+# Prefer the post-rename env (ADR-0007); fall back to the legacy name so a
+# machine that has not created the new env yet still runs. Old envs stay in
+# place until nothing references them.
+conda activate dynamic-foraging-bfm-cpu 2>/dev/null || conda activate disrnn-cpu
 
 WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT not set; launch via code/launch_hpc.py or pass --export=ALL,WRAPPER_ROOT=/path/to/aind-dynamic-foraging-bfm-wrapper}"
 cd "$WRAPPER_ROOT/code"
