@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import pandas as pd
 
@@ -17,7 +19,11 @@ from external_bandit_datasets.schema import (  # noqa: E402
     validate_canonical_table,
     write_dataset,
 )
-from external_bandit_datasets.sources import SOURCES  # noqa: E402
+from external_bandit_datasets.sources import (  # noqa: E402
+    SOURCES,
+    Source,
+    download_source,
+)
 from external_bandit_datasets.adapters import _finish  # noqa: E402
 from external_bandit_datasets.cli import _names, run  # noqa: E402
 
@@ -60,6 +66,42 @@ class TestExternalBanditDatasets(unittest.TestCase):
         self.assertEqual(SOURCES["chen"].digest_algorithm, "sha256")
         self.assertEqual(SOURCES["zid"].digest_algorithm, "sha256")
         self.assertTrue(SOURCES["zid"].filename.endswith(".mat"))
+
+    def test_bad_forced_download_preserves_valid_cached_source(self) -> None:
+        valid_payload = b"known-good-source"
+        source = Source(
+            dataset_id="test",
+            species="mouse",
+            title="test",
+            repository="test",
+            doi="test",
+            version="1",
+            license="CC0-1.0",
+            url="https://example.invalid/source.bin",
+            filename="source.bin",
+            digest_algorithm="sha256",
+            digest=hashlib.sha256(valid_payload).hexdigest(),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "test" / source.filename
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(valid_payload)
+
+            def write_bad_payload(_url: str, path: Path) -> None:
+                path.write_bytes(b"truncated")
+
+            with (
+                mock.patch.dict(SOURCES, {"test": source}),
+                mock.patch(
+                    "external_bandit_datasets.sources._download",
+                    side_effect=write_bad_payload,
+                ),
+                self.assertRaisesRegex(ValueError, "Checksum mismatch"),
+            ):
+                download_source("test", directory, force=True)
+
+            self.assertEqual(destination.read_bytes(), valid_payload)
+            self.assertFalse((destination.parent / ".source.bin.download").exists())
 
     def test_interleaved_split_then_first_k_semantics(self) -> None:
         manifest = interleaved_session_manifest(

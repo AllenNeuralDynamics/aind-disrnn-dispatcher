@@ -109,18 +109,27 @@ def download_source(name: str, raw_root: str | Path, *, force: bool = False) -> 
         return destination
 
     temporary = source_dir / f".{source.filename}.download"
+    extracted = source_dir / f".{source.filename}.candidate"
     if temporary.exists():
         temporary.unlink()
-    _download(source.url, temporary)
-    if source.archive_member is not None:
-        with zipfile.ZipFile(temporary) as archive:
-            member = archive.getinfo(source.archive_member)
-            if Path(member.filename).name != member.filename:
-                raise ValueError(f"Unsafe archive member name: {member.filename!r}.")
-            with archive.open(member) as input_stream, destination.open("wb") as output:
-                shutil.copyfileobj(input_stream, output)
-        temporary.unlink()
-    else:
-        temporary.replace(destination)
-    verify_source_file(destination, source)
+    if extracted.exists():
+        extracted.unlink()
+    candidate = temporary
+    try:
+        _download(source.url, temporary)
+        if source.archive_member is not None:
+            candidate = extracted
+            with zipfile.ZipFile(temporary) as archive:
+                member = archive.getinfo(source.archive_member)
+                if Path(member.filename).name != member.filename:
+                    raise ValueError(f"Unsafe archive member name: {member.filename!r}.")
+                with archive.open(member) as input_stream, extracted.open("wb") as output:
+                    shutil.copyfileobj(input_stream, output)
+        verify_source_file(candidate, source)
+        candidate.replace(destination)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+        if extracted.exists():
+            extracted.unlink()
     return destination
