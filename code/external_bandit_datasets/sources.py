@@ -61,12 +61,12 @@ SOURCES: dict[str, Source] = {
         title="Foraging models explain human exploration in uncertain tasks",
         repository="Figshare",
         doi="10.6084/m9.figshare.32193990.v5",
-        version="5 (Figshare file 64311972)",
+        version="5 (Figshare file 64312005)",
         license="MIT",
-        url="https://ndownloader.figshare.com/files/64311972",
-        filename="all_sub_2ab.pickle",
-        digest_algorithm="md5",
-        digest="bfdfcc37d1e1a0aa66f31ba99ca89140",
+        url="https://ndownloader.figshare.com/files/64312005",
+        filename="singleiti_202203011023_lightweight.mat",
+        digest_algorithm="sha256",
+        digest="57ca9c8b7389d28f097c18b683b8ee65eaf34ae128e6825105e20956f5b51a73",
     ),
 }
 

@@ -234,24 +234,37 @@ def adapt_chen(path: str | Path) -> AdapterResult:
 
 
 def adapt_zid(path: str | Path) -> AdapterResult:
-    """Adapt Experiment 1, removing its fixed 25-trial practice block."""
+    """Adapt Experiment 1 from MATLAB, removing its 25-trial practice block."""
     source = SOURCES["zid"]
     path = Path(path)
     verify_source_file(path, source)
-    source_subjects = pd.read_pickle(path)
-    if not isinstance(source_subjects, dict):
-        raise ValueError("Expected Zid all_sub_2ab.pickle to contain a subject dictionary.")
+    try:
+        from scipy.io import loadmat
+    except ImportError as exc:
+        raise ImportError("The Zid adapter requires scipy.") from exc
+
+    source_subjects = loadmat(path, simplify_cells=True).get("trials")
+    if not isinstance(source_subjects, list):
+        raise ValueError("Expected the Zid MATLAB file to contain a trials list.")
 
     rows: list[dict[str, object]] = []
     practice_trials = 25
-    for subject in sorted(source_subjects):
-        source_df = source_subjects[subject]
-        if len(source_df) != 325:
-            raise ValueError(f"Expected 325 Zid trials for subject {subject}; got {len(source_df)}.")
-        main_df = source_df.iloc[practice_trials:].reset_index(drop=False)
-        for trial, record in main_df.iterrows():
+    for subject, source_record in enumerate(source_subjects):
+        source_trials = source_record.get("trials", [])
+        if len(source_trials) != 325:
+            raise ValueError(
+                f"Expected 325 Zid trials for subject {subject}; got {len(source_trials)}."
+            )
+        main_trials = [record for record in source_trials if int(record["practice"]) == 0]
+        if len(main_trials) != 300:
+            raise ValueError(
+                f"Expected 300 non-practice Zid trials for subject {subject}; "
+                f"got {len(main_trials)}."
+            )
+        for trial, record in enumerate(main_trials):
             choice = int(record["choice"])
             reward = int(record["reward"])
+            reward_seed = record["reward_seed"]
             rows.append(
                 {
                     "subject_id": f"human-{int(subject):03d}",
@@ -263,9 +276,9 @@ def adapt_zid(path: str | Path) -> AdapterResult:
                     "dataset_id": source.dataset_id,
                     "species": source.species,
                     "source_subject": int(subject),
-                    "source_trial": int(record["index"]),
-                    "reward_probability_arm_0": float(record["arm1"]),
-                    "reward_probability_arm_1": float(record["arm2"]),
+                    "source_trial": int(record["trial_index"]),
+                    "reward_probability_arm_0": float(reward_seed[0]),
+                    "reward_probability_arm_1": float(reward_seed[1]),
                 }
             )
     return _finish(

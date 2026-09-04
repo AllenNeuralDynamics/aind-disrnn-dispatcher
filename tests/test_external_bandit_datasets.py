@@ -58,7 +58,8 @@ class TestExternalBanditDatasets(unittest.TestCase):
         self.assertEqual(list(SOURCES), ["grossman", "chen", "zid"])
         self.assertEqual(SOURCES["grossman"].digest_algorithm, "sha256")
         self.assertEqual(SOURCES["chen"].digest_algorithm, "sha256")
-        self.assertEqual(SOURCES["zid"].digest_algorithm, "md5")
+        self.assertEqual(SOURCES["zid"].digest_algorithm, "sha256")
+        self.assertTrue(SOURCES["zid"].filename.endswith(".mat"))
 
     def test_interleaved_split_then_first_k_semantics(self) -> None:
         manifest = interleaved_session_manifest(

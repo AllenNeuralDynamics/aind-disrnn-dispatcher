@@ -47,8 +47,10 @@ left/right decision are excluded. Left is encoded 0 and right 1.
 Chen retains all 256 source files. Source choices 1/2 become canonical choices
 0/1. All eight sessions remain separate, including short sessions.
 
-Zid uses Experiment 1 from all_sub_2ab.pickle. The first 25 fixed-schedule
-practice trials are excluded, leaving the 300 main trials for each participant.
+Zid uses the official Experiment 1 MATLAB file rather than the equivalent
+Python pickle, avoiding executable deserialization of downloaded data. The
+first 25 fixed-schedule practice trials are excluded, leaving the 300 main
+trials for each participant.
 
 ## Frozen split contract
 
