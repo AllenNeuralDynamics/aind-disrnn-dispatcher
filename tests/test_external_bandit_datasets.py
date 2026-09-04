@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
+import unittest
 from pathlib import Path
 
 import pandas as pd
-import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "code"))
 
@@ -36,50 +37,51 @@ def _table(*, sessions: int = 4, trials: int = 4) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def test_sources_are_the_correct_priority_three() -> None:
-    assert list(SOURCES) == ["grossman", "chen", "zid"]
-    assert SOURCES["grossman"].digest_algorithm == "sha256"
-    assert SOURCES["chen"].digest_algorithm == "sha256"
-    assert SOURCES["zid"].digest_algorithm == "md5"
+class TestExternalBanditDatasets(unittest.TestCase):
+    def test_sources_are_the_correct_priority_three(self) -> None:
+        self.assertEqual(list(SOURCES), ["grossman", "chen", "zid"])
+        self.assertEqual(SOURCES["grossman"].digest_algorithm, "sha256")
+        self.assertEqual(SOURCES["chen"].digest_algorithm, "sha256")
+        self.assertEqual(SOURCES["zid"].digest_algorithm, "md5")
 
+    def test_interleaved_split_then_first_k_semantics(self) -> None:
+        manifest = interleaved_session_manifest(
+            _table(), dataset_id="test", species="mouse"
+        )
+        row = manifest["subjects"][0]
+        self.assertEqual(row["adapt_session_ids"], ["s1", "s3"])
+        self.assertEqual(row["test_session_ids"], ["s2", "s4"])
+        self.assertEqual(row["adapt_session_ids"][:1], ["s1"])
 
-def test_interleaved_split_then_first_k_semantics() -> None:
-    manifest = interleaved_session_manifest(
-        _table(), dataset_id="test", species="mouse"
-    )
-    row = manifest["subjects"][0]
-    assert row["adapt_session_ids"] == ["s1", "s3"]
-    assert row["test_session_ids"] == ["s2", "s4"]
-    assert row["adapt_session_ids"][:1] == ["s1"]
+    def test_prefix_manifest_preserves_one_session(self) -> None:
+        manifest = prefix_trial_manifest(
+            _table(sessions=1), dataset_id="test", species="human"
+        )
+        self.assertEqual(manifest["schema_version"], 2)
+        self.assertEqual(
+            manifest["subjects"][0],
+            {
+                "subject_id": "a",
+                "session_id": "s1",
+                "adapt_prefix_trials": 2,
+                "total_trials": 4,
+            },
+        )
 
+    def test_canonical_validation_rejects_noncontiguous_trials(self) -> None:
+        table = _table(sessions=1)
+        table.loc[1, "trial"] = 7
+        with self.assertRaisesRegex(ValueError, "contiguous zero-based"):
+            validate_canonical_table(table)
 
-def test_prefix_manifest_preserves_one_session() -> None:
-    manifest = prefix_trial_manifest(
-        _table(sessions=1), dataset_id="test", species="human"
-    )
-    assert manifest["schema_version"] == 2
-    assert manifest["subjects"][0] == {
-        "subject_id": "a",
-        "session_id": "s1",
-        "adapt_prefix_trials": 2,
-        "total_trials": 4,
-    }
-
-
-def test_canonical_validation_rejects_noncontiguous_trials() -> None:
-    table = _table(sessions=1)
-    table.loc[1, "trial"] = 7
-    with pytest.raises(ValueError, match="contiguous zero-based"):
-        validate_canonical_table(table)
-
-
-def test_write_dataset_round_trip(tmp_path: Path) -> None:
-    table = _table()
-    manifest = interleaved_session_manifest(
-        table, dataset_id="test", species="mouse"
-    )
-    table_path, manifest_path = write_dataset(
-        table, manifest, output_root=tmp_path, stem="test"
-    )
-    pd.testing.assert_frame_equal(pd.read_pickle(table_path), table)
-    assert json.loads(manifest_path.read_text()) == manifest
+    def test_write_dataset_round_trip(self) -> None:
+        table = _table()
+        manifest = interleaved_session_manifest(
+            table, dataset_id="test", species="mouse"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            table_path, manifest_path = write_dataset(
+                table, manifest, output_root=Path(directory), stem="test"
+            )
+            pd.testing.assert_frame_equal(pd.read_pickle(table_path), table)
+            self.assertEqual(json.loads(manifest_path.read_text()), manifest)
