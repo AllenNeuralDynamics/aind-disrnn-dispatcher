@@ -467,7 +467,7 @@ urgent study work waits or targets the extracted repository.
 Use a fresh temporary directory and a pinned, isolated `git-filter-repo`
 installation. Select and record the reviewed tool version at execution time:
 
-```bash
+set -euo pipefail
 MIGRATION_ROOT=$(mktemp -d)
 FILTER_REPO_VERSION=<reviewed-version>
 python3 -m venv "$MIGRATION_ROOT/venv"
