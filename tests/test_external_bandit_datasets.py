@@ -110,6 +110,10 @@ class TestExternalBanditDatasets(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "contiguous zero-based"):
             validate_canonical_table(table)
 
+    def test_canonical_validation_accepts_shuffled_rows(self) -> None:
+        table = _table().sample(frac=1.0, random_state=42).reset_index(drop=True)
+        validate_canonical_table(table)
+
     def test_write_dataset_round_trip(self) -> None:
         table = _table()
         manifest = interleaved_session_manifest(

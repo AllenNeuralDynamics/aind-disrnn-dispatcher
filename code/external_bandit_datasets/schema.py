@@ -44,7 +44,7 @@ def validate_canonical_table(df: pd.DataFrame) -> None:
     if df.duplicated(["subject_id", "ses_idx", "trial"]).any():
         raise ValueError("Rows must be unique by (subject_id, ses_idx, trial).")
     for (_, _), trials in df.groupby(["subject_id", "ses_idx"], sort=False)["trial"]:
-        if not np.array_equal(trials.to_numpy(), np.arange(len(trials))):
+        if not np.array_equal(np.sort(trials.to_numpy()), np.arange(len(trials))):
             raise ValueError("Each canonical session must have contiguous zero-based trials.")
 
 
