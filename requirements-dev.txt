@@ -11,3 +11,4 @@
 # Beaker, W&B or the network.
 PyYAML>=6,<7
 pandas>=2.2,<3
+pyarrow>=17,<22

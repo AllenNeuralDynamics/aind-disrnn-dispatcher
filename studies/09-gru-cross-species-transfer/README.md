@@ -1,4 +1,4 @@
-# Study 09: GRU cross-dataset transfer
+# Study 09: GRU cross-species and cross-dataset transfer
 
 Issues: dispatcher [#32](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/32),
 [#126](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/126),
@@ -28,7 +28,7 @@ checksum-verified local source files.
 
 Generated files are:
 
-- canonical/{grossman,chen,zid}.pkl: one row per valid decision trial;
+- canonical/{grossman,chen,zid}.parquet: one row per valid decision trial;
 - canonical/{grossman,chen,zid}.split.json: the immutable adaptation/test split;
 - canonical/{grossman,chen,zid}.audit.json: provenance, checksums, and counts.
 

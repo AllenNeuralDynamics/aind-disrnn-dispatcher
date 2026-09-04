@@ -16,7 +16,9 @@ def _names(value: str) -> list[str]:
     if value == "all":
         return list(SOURCES)
     if value not in SOURCES:
-        raise ValueError(f"Unknown dataset {value!r}; choose from {list(SOURCES)} or 'all'.")
+        raise argparse.ArgumentTypeError(
+            f"Unknown dataset {value!r}; choose from {list(SOURCES)} or 'all'."
+        )
     return [value]
 
 
@@ -27,6 +29,10 @@ def run(name: str, *, cache_root: Path, download: bool) -> dict[str, object]:
     if download:
         source_path = download_source(name, raw_root)
     else:
+        if not source_path.is_file():
+            raise FileNotFoundError(
+                f"No cached source file at {source_path}. Run without --no-download first."
+            )
         verify_source_file(source_path, source)
     df, manifest, audit = build_dataset(name, source_path)
     table_path, manifest_path = write_dataset(
@@ -50,7 +56,11 @@ def run(name: str, *, cache_root: Path, download: bool) -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("dataset", help="grossman, chen, zid, or all")
+    parser.add_argument(
+        "dataset",
+        type=_names,
+        help="grossman, chen, zid, or all",
+    )
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument(
         "--no-download",
@@ -60,7 +70,7 @@ def main() -> None:
     args = parser.parse_args()
     audits = [
         run(name, cache_root=args.cache_root, download=not args.no_download)
-        for name in _names(args.dataset)
+        for name in args.dataset
     ]
     print(json.dumps(audits, indent=2))
 

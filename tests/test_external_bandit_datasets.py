@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import tempfile
@@ -17,6 +18,8 @@ from external_bandit_datasets.schema import (  # noqa: E402
     write_dataset,
 )
 from external_bandit_datasets.sources import SOURCES  # noqa: E402
+from external_bandit_datasets.adapters import _finish  # noqa: E402
+from external_bandit_datasets.cli import _names, run  # noqa: E402
 
 
 def _table(*, sessions: int = 4, trials: int = 4) -> pd.DataFrame:
@@ -38,6 +41,19 @@ def _table(*, sessions: int = 4, trials: int = 4) -> pd.DataFrame:
 
 
 class TestExternalBanditDatasets(unittest.TestCase):
+    def test_empty_adapter_output_has_a_schema_error(self) -> None:
+        with self.assertRaisesRegex(ValueError, "missing columns"):
+            _finish([], name="grossman", excluded_trials=0, split="sessions")
+
+    def test_cli_rejects_unknown_dataset_cleanly(self) -> None:
+        with self.assertRaises(argparse.ArgumentTypeError):
+            _names("not-a-dataset")
+
+    def test_no_download_reports_missing_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(FileNotFoundError, "without --no-download"):
+                run("grossman", cache_root=Path(directory), download=False)
+
     def test_sources_are_the_correct_priority_three(self) -> None:
         self.assertEqual(list(SOURCES), ["grossman", "chen", "zid"])
         self.assertEqual(SOURCES["grossman"].digest_algorithm, "sha256")
@@ -83,5 +99,5 @@ class TestExternalBanditDatasets(unittest.TestCase):
             table_path, manifest_path = write_dataset(
                 table, manifest, output_root=Path(directory), stem="test"
             )
-            pd.testing.assert_frame_equal(pd.read_pickle(table_path), table)
+            pd.testing.assert_frame_equal(pd.read_parquet(table_path), table)
             self.assertEqual(json.loads(manifest_path.read_text()), manifest)

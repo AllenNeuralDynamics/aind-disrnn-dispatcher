@@ -25,6 +25,7 @@ RUN --mount=type=secret,id=git-access-token \
     jax==0.6.1 \
     omegaconf==2.3.0 \
     pandas==2.2.3 \
+    pyarrow==21.0.0 \
     requests==2.34.2 \
     scipy==1.14.1 \
     wandb==0.23.0 \

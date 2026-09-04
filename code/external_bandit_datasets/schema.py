@@ -122,8 +122,8 @@ def write_dataset(
     validate_canonical_table(df)
     output_dir = Path(output_root)
     output_dir.mkdir(parents=True, exist_ok=True)
-    table_path = output_dir / f"{stem}.pkl"
+    table_path = output_dir / f"{stem}.parquet"
     manifest_path = output_dir / f"{stem}.split.json"
-    df.to_pickle(table_path)
+    df.to_parquet(table_path, index=False)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return table_path, manifest_path

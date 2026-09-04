@@ -92,7 +92,9 @@ def _download(url: str, destination: Path) -> None:
         url,
         headers={"Accept": "application/zip, application/octet-stream"},
     )
-    with urllib.request.urlopen(request) as response, destination.open("wb") as output:
+    with urllib.request.urlopen(request, timeout=120) as response, destination.open(
+        "wb"
+    ) as output:
         shutil.copyfileobj(response, output)
 
 

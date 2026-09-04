@@ -51,6 +51,7 @@ def _finish(
 ) -> AdapterResult:
     source = SOURCES[name]
     df = pd.DataFrame.from_records(rows)
+    validate_canonical_table(df)
     df = df[
         [
             "subject_id",
@@ -74,7 +75,6 @@ def _finish(
             ],
         ]
     ]
-    validate_canonical_table(df)
     if split == "sessions":
         manifest = interleaved_session_manifest(
             df,
