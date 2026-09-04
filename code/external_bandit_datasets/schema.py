@@ -19,6 +19,14 @@ CANONICAL_REQUIRED_COLUMNS = (
 )
 
 
+def _deterministically_ordered_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Return canonical rows in stable identifier/trial order."""
+    return df.sort_values(
+        ["subject_id", "ses_idx", "trial"],
+        kind="mergesort",
+    )
+
+
 def validate_canonical_table(df: pd.DataFrame) -> None:
     missing = [column for column in CANONICAL_REQUIRED_COLUMNS if column not in df]
     if missing:
@@ -52,8 +60,11 @@ def interleaved_session_manifest(
     second, fourth, and later even-positioned sessions, and a K-shot run takes
     the first K sessions from the remaining adaptation sequence.
     """
+    # Derive ordering from canonical identifiers rather than incoming row order,
+    # so a semantically identical table always produces the same frozen split.
+    ordered_df = _deterministically_ordered_rows(df)
     subjects: list[dict[str, object]] = []
-    for subject_id, subject_df in df.groupby("subject_id", sort=False):
+    for subject_id, subject_df in ordered_df.groupby("subject_id", sort=False):
         sessions = list(dict.fromkeys(subject_df["ses_idx"].tolist()))
         if len(sessions) < 2:
             raise ValueError(f"Subject {subject_id!r} has fewer than two sessions.")
@@ -83,8 +94,9 @@ def prefix_trial_manifest(
     """Create a within-session prefix/suffix split without resetting model state."""
     if not 0.0 < adapt_fraction < 1.0:
         raise ValueError("adapt_fraction must be strictly between zero and one.")
+    ordered_df = _deterministically_ordered_rows(df)
     subjects: list[dict[str, object]] = []
-    for subject_id, subject_df in df.groupby("subject_id", sort=False):
+    for subject_id, subject_df in ordered_df.groupby("subject_id", sort=False):
         sessions = list(dict.fromkeys(subject_df["ses_idx"].tolist()))
         if len(sessions) != 1:
             raise ValueError(

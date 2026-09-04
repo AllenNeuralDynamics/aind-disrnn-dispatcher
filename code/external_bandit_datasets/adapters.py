@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 from .schema import (
+    CANONICAL_REQUIRED_COLUMNS,
     interleaved_session_manifest,
     prefix_trial_manifest,
     validate_canonical_table,
@@ -52,27 +53,13 @@ def _finish(
     source = SOURCES[name]
     df = pd.DataFrame.from_records(rows)
     validate_canonical_table(df)
+    extra_columns = [
+        column for column in df.columns if column not in CANONICAL_REQUIRED_COLUMNS
+    ]
     df = df[
         [
-            "subject_id",
-            "ses_idx",
-            "trial",
-            "animal_response",
-            "rewarded",
-            "earned_reward",
-            *[
-                column
-                for column in df.columns
-                if column
-                not in {
-                    "subject_id",
-                    "ses_idx",
-                    "trial",
-                    "animal_response",
-                    "rewarded",
-                    "earned_reward",
-                }
-            ],
+            *CANONICAL_REQUIRED_COLUMNS,
+            *extra_columns,
         ]
     ]
     if split == "sessions":

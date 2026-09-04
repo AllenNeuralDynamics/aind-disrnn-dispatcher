@@ -70,9 +70,23 @@ class TestExternalBanditDatasets(unittest.TestCase):
         self.assertEqual(row["test_session_ids"], ["s2", "s4"])
         self.assertEqual(row["adapt_session_ids"][:1], ["s1"])
 
+    def test_interleaved_split_is_independent_of_input_row_order(self) -> None:
+        table = _table()
+        expected = interleaved_session_manifest(
+            table, dataset_id="test", species="mouse"
+        )
+        shuffled = table.sample(frac=1.0, random_state=42).reset_index(drop=True)
+
+        actual = interleaved_session_manifest(
+            shuffled, dataset_id="test", species="mouse"
+        )
+
+        self.assertEqual(actual, expected)
+
     def test_prefix_manifest_preserves_one_session(self) -> None:
+        table = _table(sessions=1)
         manifest = prefix_trial_manifest(
-            _table(sessions=1), dataset_id="test", species="human"
+            table, dataset_id="test", species="human"
         )
         self.assertEqual(manifest["schema_version"], 2)
         self.assertEqual(
@@ -83,6 +97,11 @@ class TestExternalBanditDatasets(unittest.TestCase):
                 "adapt_prefix_trials": 2,
                 "total_trials": 4,
             },
+        )
+        shuffled = table.sample(frac=1.0, random_state=42).reset_index(drop=True)
+        self.assertEqual(
+            prefix_trial_manifest(shuffled, dataset_id="test", species="human"),
+            manifest,
         )
 
     def test_canonical_validation_rejects_noncontiguous_trials(self) -> None:
