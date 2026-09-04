@@ -28,9 +28,11 @@ checksum-verified local source files.
 
 Generated files are:
 
-- canonical/{grossman,chen,zid}.parquet: one row per valid decision trial;
-- canonical/{grossman,chen,zid}.split.json: the immutable adaptation/test split;
-- canonical/{grossman,chen,zid}.audit.json: provenance, checksums, and counts.
+- $CACHE_ROOT/canonical/{grossman,chen,zid}.parquet: one row per valid decision trial;
+- $CACHE_ROOT/canonical/{grossman,chen,zid}.split.json: the immutable adaptation/test split;
+- $CACHE_ROOT/canonical/{grossman,chen,zid}.audit.json: provenance, checksums, and counts.
+
+With the Makefile default, `$CACHE_ROOT` is `data-cache` relative to this study directory.
 
 The six required columns are subject_id, ses_idx, trial, animal_response,
 rewarded, and earned_reward. Choices and rewards are binary. The adapters retain
