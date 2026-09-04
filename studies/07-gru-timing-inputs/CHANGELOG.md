@@ -10,10 +10,10 @@ Dates in America/Los_Angeles.
   with per-mouse cluster-bootstrap 95% CIs. Finding: prev-trial RT predicts
   switching reward-INDEPENDENTLY (a global engagement signal), lick count is
   reward-GATED (more licking after no-reward → abandon; after reward → mild stay).
-- Cohort = the **held-out mice** (pinned in `provenance/heldout_subjects.txt`:
+- Cohort = the **held-out mice** (pinned in `analysis/provenance/heldout_subjects.txt`:
   eligible cohort minus the union of every GRU training cohort; 157 listed, 125
   enter the regressions — the other 32 are early old-schema sessions lacking the
-  `reaction_time` field build_sequence needs to form previous-trial RT). Chosen because the GRU's
+  `reaction_time` field that `build_sequence` needs to form previous-trial RT). Chosen because the GRU's
   likelihood gain is scored on held-out mice, so the mechanism is shown on the
   population it explains — and the coupling is population-general (the same trend
   holds on the train mice), which is why the model generalizes. Effects are firmer

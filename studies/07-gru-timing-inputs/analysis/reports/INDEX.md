@@ -20,7 +20,8 @@ Regenerate with `make -C studies/07-gru-timing-inputs` (needs `WANDB_API_KEY`).
 **r3** is a behavioural-mechanism report produced separately by
 `analysis/why_features_help.py` — it reads the foraging DB directly (not W&B),
 writes `fig_why_features_help.png` + `why_features_help.csv`, and is fully
-hand-authored prose (no BEGIN/END blocks). Needs DB access + `statsmodels`.
+hand-authored prose (no BEGIN/END blocks). Needs DB access + `statsmodels`,
+`scikit-learn`, and `matplotlib`.
 
 **Metric.** Unlike study-02, this study leaves the output unchanged (2-way choice,
 `n_classes=2`), so held-out MOUSE likelihood (`heldout/final/eval_likelihood`) is

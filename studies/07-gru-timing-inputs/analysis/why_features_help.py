@@ -29,7 +29,7 @@ cluster-bootstrap 95% CI):
         anti-conservative by ~an order of magnitude here; mouse-clustering is
         essential.
 
-    python analysis/why_features_help.py     # needs DB access + statsmodels
+    python analysis/why_features_help.py     # needs DB access + statsmodels + scikit-learn + matplotlib
 
 Outputs fig_why_features_help.png + why_features_help.csv at the study root.
 Cohort = the HELD-OUT mice (157), pinned in provenance/heldout_subjects.txt -- the
@@ -50,12 +50,8 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 STUDY = HERE.parent
 
-CURRICULA = ["Coupled Baiting", "Uncoupled Baiting", "Uncoupled Without Baiting"]
-MATURE_STAGES = ("STAGE_FINAL", "GRADUATED")
 SNAPSHOT = "20260603"
-N_SUBJECTS = 60
 LICK_WINDOW_S = 2.0
-SEED = 0
 BLUE, ORANGE = "#2166ac", "#d6604d"
 
 
@@ -71,24 +67,6 @@ def _duckdb():
         duckdb.execute("LOAD httpfs;")
     duckdb.execute("SET s3_region='us-west-2'; SET s3_endpoint='s3.us-west-2.amazonaws.com';")
     return duckdb
-
-
-def select_cohort_subjects(session_df, *, min_sessions=10, heldout_every_n=5):
-    df = session_df.copy()
-    df["subject_id"] = df["subject_id"].astype(str)
-    n_per = df.groupby("subject_id").size()
-    kept = n_per[n_per >= min_sessions].index
-    df_kept = df[df["subject_id"].isin(kept)]
-    df_task = df_kept[df_kept["task"].notna()]
-    tc = (df_task.groupby(["subject_id", "task"]).size().rename("n").reset_index()
-          .sort_values(["subject_id", "n", "task"], ascending=[True, False, True]))
-    subj_cur = tc.groupby("subject_id", sort=False).first()["task"].to_dict()
-    train = []
-    for cur in CURRICULA:
-        subs = [s for s, c in subj_cur.items() if c == cur]
-        ranked = sorted(subs, key=lambda s: (-int(n_per[s]), s))
-        train += [s for i, s in enumerate(ranked, 1) if i % heldout_every_n != 0]
-    return sorted(set(train))
 
 
 def build_sequence(db, duckdb, subjects, allowed_sessions):
