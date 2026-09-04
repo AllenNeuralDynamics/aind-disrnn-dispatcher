@@ -137,6 +137,70 @@ Labels available on the dispatcher: `bug`, `documentation`, `enhancement`, `eval
 label duplicates the board field on purpose — the label is visible in issue lists where
 board fields are not.
 
+## Copilot review — request it, and resolve every thread
+
+**Every PR gets a Copilot review, and every Copilot comment gets resolved before merge.**
+An unresolved Copilot thread is an unanswered reviewer. Automatic review is currently
+enabled on these repos, so a new PR is reviewed without asking — the API below is for a
+deliberate **re**-review after a fix push, which does not happen automatically.
+
+Requesting a review is GraphQL-only. **REST fails**: `POST
+/repos/{owner}/{repo}/pulls/{n}/requested_reviewers` with the Copilot bot returns
+`422 Reviews may only be requested from collaborators`.
+
+```python
+# bot id in AllenNeuralDynamics: BOT_kgDOCnlnWA
+gql("""mutation($pr:ID!,$b:[ID!]!){ requestReviews(input:{
+  pullRequestId:$pr, botIds:$b, union:true}){
+  pullRequest{ reviewRequests(first:5){ nodes{ requestedReviewer{
+    __typename ... on Bot { login } } } } } } }""", pr=pr_node_id, b=["BOT_kgDOCnlnWA"])
+```
+
+`union: true` adds to the existing reviewers instead of replacing them.
+`RequestReviewsInput` takes `pullRequestId`, `userIds`, `botIds`, `teamIds`, `union`. If the
+bot id ever changes, read it off any PR that Copilot has touched — the `Bot` node in
+`reviewRequests` or `latestReviews`:
+
+```python
+gql("""query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){
+  pullRequest(number:$n){ id
+    latestReviews(first:10){ nodes{ author{ __typename login
+      ... on Bot { id } } } } } } }""", o=..., r=..., n=...)
+```
+
+Resolve with a reason — `resolveReviewThread` takes
+`resolutionReason: ADDRESSED | WONT_FIX | INVALID | OUTDATED` (`INVALID` is the UI's "Incorrect"; `OUTDATED` is "Outdated"):
+```python
+gql("""mutation($id:ID!){ resolveReviewThread(input:{
+  threadId:$id, resolutionReason:ADDRESSED}){ thread{ isResolved } } }""", id=thread_id)
+```
+
+Thread ids come from `repository.pullRequest(number: <n>).reviewThreads`.
+
+| Reason | When |
+|---|---|
+| `ADDRESSED` | you changed the code — including when you fixed it *differently* than suggested |
+| `WONT_FIX` | the finding is valid but you are deliberately not acting on it |
+| `INVALID` | the finding is wrong |
+
+For `WONT_FIX` and `INVALID`, reply in-thread with why before resolving
+(`POST /repos/{owner}/{repo}/pulls/{n}/comments` with `in_reply_to: <comment_id>`). A
+resolve with no explanation reads as dismissal.
+
+Three things that cost time when learned the hard way:
+
+- The REST `user.login` on a Copilot comment is **`Copilot`** — not
+  `copilot-pull-request-reviewer`, which is the GraphQL `Bot` login. Filtering on the wrong
+  one returns zero comments and looks like "no review".
+- `PullRequestReviewThread` exposes **no readable `resolutionReason`**, so the reason cannot
+  be read back; the mutation accepting the enum is the only confirmation.
+- **Do not bulk-resolve.** Copilot re-reviews after a push and may add comments while you
+  work; a blanket resolve marks those `ADDRESSED` when they are not. Resolve per finding
+  you actually handled, and re-check for new comments after each push.
+
+Copilot does not read replies — per GitHub's docs, comments on its review are visible to
+humans but not to Copilot. The reply is for the human reviewer and for the record.
+
 ## Sandbox / auth notes
 
 - **No `gh` CLI** in the Claude Science sandbox. Use REST + GraphQL directly with
