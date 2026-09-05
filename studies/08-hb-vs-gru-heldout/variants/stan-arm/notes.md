@@ -41,10 +41,13 @@ measurement to stand on.
   threshold where `RESULTS.md` expects JAX to start winning — i.e. the rung that could
   actually falsify the inferred claim — but NumPyro has no finished D≈99 fit at any setting,
   so that number stands alone until one lands.
-- **Serial `reduce_sum`.** httpstan does not define `STAN_THREADS`, so the model's
-  `reduce_sum` degrades to a plain sum and parallelism is one core per chain. Stan wall times
-  here are therefore a *floor* on what Stan could do with a threaded CmdStan build; more CPUs
-  than chains buy nothing on this path.
+- **Threading was off in the first launch, and that was my error, not a pystan limit.**
+  httpstan *does* compile with `STAN_THREADS` defined (`httpstan/models.py`), so `reduce_sum`
+  threads across subjects within a chain — but Stan reads `STAN_NUM_THREADS` at runtime and
+  uses one thread when it is unset. Launch `20260905-020928` therefore ran single-threaded on
+  an 8-CPU allocation. `HBStanTrainer` now derives the count from
+  `SLURM_CPUS_PER_TASK // num_chains`. Any timing from that first launch is a **floor**, not
+  Stan's speed.
 - **`aind-dynamic-foraging-models` is pinned to a branch on the HPC CPU env.** The `.stan`
   program ships in that package (next to the NumPyro model it ports) and is not in the
   released 0.14.0 the env carried, so the branch is installed `--no-deps` into

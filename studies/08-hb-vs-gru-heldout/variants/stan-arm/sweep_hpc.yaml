@@ -19,9 +19,11 @@
 # inferred claim. NumPyro has no finished D≈99 fit at any setting yet, so that rung's Stan
 # number stands alone until one lands; do not report it as a head-to-head.
 #
-# CORES: pystan cannot use more than one core per chain (httpstan does not define
-# STAN_THREADS, so the model's reduce_sum runs serially). Requesting many more cores than
-# num_chains would idle them and only slow scheduling.
+# CORES: httpstan compiles with STAN_THREADS defined, so reduce_sum threads across subjects
+# within each chain once STAN_NUM_THREADS is set -- HBStanTrainer derives it from
+# SLURM_CPUS_PER_TASK // num_chains. Ask for num_chains * threads (32 = 4 x 8). The first
+# launch ran at one thread per chain because the variable was unset; D~99 managed ~53
+# iterations/hour that way, which does not finish inside any sensible wall clock.
 
 entity: AIND-disRNN
 project: mice_data_scaling      # study 01's project, same as the NumPyro rungs

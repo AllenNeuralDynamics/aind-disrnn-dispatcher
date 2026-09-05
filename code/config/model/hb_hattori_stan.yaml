@@ -46,9 +46,11 @@ num_chains: 4
 # defaults the ladder runs at, so the two arms already agree on integrator geometry. Exposing
 # knobs nothing sets would invite them to drift apart.
 #
-# Threading: pystan builds via httpstan, which does not define STAN_THREADS, so the model's
-# reduce_sum runs SERIALLY and parallelism is one core per chain. Requesting more CPUs than
-# chains buys nothing on this path -- size the job at num_chains plus a little headroom.
+# Threading: httpstan DOES compile with STAN_THREADS defined, so the model's reduce_sum can
+# thread across subjects within a chain. Stan reads STAN_NUM_THREADS at runtime and falls back
+# to one thread when it is unset, which is how the first D~29/D~99 pair ran -- HBStanTrainer
+# now derives it from SLURM_CPUS_PER_TASK // num_chains, so the CPU request is load-bearing.
+# Size the job as num_chains * threads: 32 CPUs gives 4 chains x 8 threads.
 
 beta_max: 10.0                # upper bound of softmax_inverse_temperature, per the paper
 
