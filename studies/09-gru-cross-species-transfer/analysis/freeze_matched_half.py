@@ -42,10 +42,13 @@ RUNS_QUERY = """query Runs($entity:String!,$project:String!,$filters:JSONString)
     runs(filters:$filters,first:100){edges{node{
       name displayName state group config summaryMetrics
       outputArtifacts(first:30){edges{node{
-        state digest fileCount size artifactSequence{name}
+        id state digest fileCount size artifactSequence{name}
       }}}
     }}}
   }
+}"""
+ARTIFACT_FILES_QUERY = """query ArtifactFiles($id:ID!){
+  artifact(id:$id){files(first:1000){edges{node{name directUrl}}}}
 }"""
 
 
@@ -58,25 +61,30 @@ def _wandb_key() -> str:
     return credentials[2]
 
 
-def _wandb_runs(group: str) -> dict[str, dict]:
+def _wandb_graphql(query: str, variables: dict) -> dict:
     response = requests.post(
         "https://api.wandb.ai/graphql",
         auth=("api", _wandb_key()),
-        json={
-            "query": RUNS_QUERY,
-            "variables": {
-                "entity": ENTITY,
-                "project": PROJECT,
-                "filters": json.dumps({"group": group}),
-            },
-        },
+        json={"query": query, "variables": variables},
         timeout=60,
     )
     response.raise_for_status()
     payload = response.json()
     if payload.get("errors"):
         raise RuntimeError(json.dumps(payload["errors"], indent=2))
-    nodes = [edge["node"] for edge in payload["data"]["project"]["runs"]["edges"]]
+    return payload["data"]
+
+
+def _wandb_runs(group: str) -> dict[str, dict]:
+    data = _wandb_graphql(
+        RUNS_QUERY,
+        {
+            "entity": ENTITY,
+            "project": PROJECT,
+            "filters": json.dumps({"group": group}),
+        },
+    )
+    nodes = [edge["node"] for edge in data["project"]["runs"]["edges"]]
     return {node["name"]: node for node in nodes}
 
 
@@ -95,11 +103,33 @@ def _artifact(node: dict, prefix: str) -> dict:
         raise AssertionError(f"Expected one committed {prefix!r} artifact for {node['name']}")
     artifact = matches[0]
     return {
+        "id": artifact["id"],
         "name": artifact["artifactSequence"]["name"],
         "digest": artifact["digest"],
         "file_count": artifact["fileCount"],
         "size_bytes": artifact["size"],
     }
+
+
+def _cached_wandb_report_files(artifact: dict, destination: Path) -> dict[str, bytes]:
+    data = _wandb_graphql(ARTIFACT_FILES_QUERY, {"id": artifact["id"]})
+    files = [edge["node"] for edge in data["artifact"]["files"]["edges"]]
+    selected = {
+        suffix: [item for item in files if item["name"].endswith(suffix)]
+        for suffix in ("test_metrics.json", "test_trial_predictions.csv")
+    }
+    if any(len(matches) != 1 for matches in selected.values()):
+        raise AssertionError(f"W&B artifact {artifact['name']} has ambiguous report files")
+    output = {}
+    for suffix, matches in selected.items():
+        path = destination / suffix
+        if not path.exists():
+            response = requests.get(matches[0]["directUrl"], timeout=300)
+            response.raise_for_status()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(response.content)
+        output[suffix] = path.read_bytes()
+    return output
 
 
 def _trial_key_digest(data: bytes) -> tuple[str, int]:
@@ -233,9 +263,11 @@ def _freeze_q() -> dict[str, dict]:
         dataset_name = _unwrapped(config, "target")["dataset"]
         if dataset_name in records:
             raise AssertionError(f"Q group contains duplicate runs for {dataset_name}")
+        artifact = _artifact(node, "baseline-rl-output-")
         root = CACHE / "q" / dataset_name
-        metrics_bytes = (root / "test_metrics.json").read_bytes()
-        predictions_bytes = (root / "test_trial_predictions.csv").read_bytes()
+        files = _cached_wandb_report_files(artifact, root)
+        metrics_bytes = files["test_metrics.json"]
+        predictions_bytes = files["test_trial_predictions.csv"]
         trial_digest, n_prediction_rows = _trial_key_digest(predictions_bytes)
         metrics = json.loads(metrics_bytes)
         summary = json.loads(node["summaryMetrics"] or "{}")
@@ -247,7 +279,7 @@ def _freeze_q() -> dict[str, dict]:
         records[dataset_name] = {
             "wandb_run_id": run_id,
             "wandb_url": f"https://wandb.ai/{ENTITY}/{PROJECT}/runs/{run_id}",
-            "training_artifact": _artifact(node, "baseline-rl-output-"),
+            "training_artifact": artifact,
             "slurm_array_job_id": Q_SLURM_ARRAY_JOB_ID,
             "metrics_sha256": hashlib.sha256(metrics_bytes).hexdigest(),
             "predictions_sha256": hashlib.sha256(predictions_bytes).hexdigest(),
