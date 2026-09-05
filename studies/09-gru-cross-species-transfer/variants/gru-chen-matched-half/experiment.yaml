@@ -14,7 +14,7 @@ tasks:
       preemptible: false
     constraints:
       cluster:
-        - ai1/octo-hub-aws-l40s
+        - ai1/octo-hub-aws-h200
     resources:
       gpuCount: 1
       cpuCount: 12
