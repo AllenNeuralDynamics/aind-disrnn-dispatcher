@@ -6,11 +6,22 @@
 #       --sbatch-extra='--array=0-1 --cpus-per-task=32 --mem=128G --time=72:00:00'
 #
 # WHY A SECOND SWEEP RATHER THAN AN EDIT: launch 20260905-020928 ran single-threaded because
-# STAN_NUM_THREADS was unset, and its D≈29 rung is still running and will produce a usable
-# posterior. Keeping that grid intact and adding this one means the two are separable in W&B:
-# the pair at D≈29 measures the threading speedup directly, on identical data and seed.
+# STAN_NUM_THREADS was unset. Its D≈29 rung is still running and will produce a usable
+# posterior, so keeping that grid intact leaves it identifiable in W&B.
 #
-# CPUs: 32 = 4 chains x 8 reduce_sum threads. HBStanTrainer derives the split from
+# D≈29 IS NOT IN THIS GRID. It was, briefly: a threaded D≈29 would have measured the speedup
+# directly on identical data. It was dropped after the first attempt put both threaded tasks
+# on the same node as another running job — 8 chain processes, 32 TBB threads each, load 149
+# on an 88-core box. Re-running a rung that is already 64% done, to contend for cores with
+# the run that will actually deliver the D≈29 number, buys a nice-to-have at the cost of the
+# deliverable. The threading speedup can be read later from D≈99, or from a D≈29 rerun once
+# nothing else is in flight.
+#
+# --exclusive is not optional here for the same reason: Stan's TBB threads busy-wait, so a
+# threaded job that shares a node inflates load well past its core count and slows every
+# neighbour, including itself.
+#
+# CPUs: 64 = 4 chains x 16 reduce_sum threads, on an exclusive 88-core node. HBStanTrainer derives the split from
 # SLURM_CPUS_PER_TASK // num_chains, so changing --cpus-per-task changes the threading and
 # nothing else needs editing.
 #
@@ -37,4 +48,4 @@ command:
 
 parameters:
   data.subject_ratio:
-    values: [0.049, 0.163]
+    values: [0.163]        # D≈99 only — see the D≈29 note above
