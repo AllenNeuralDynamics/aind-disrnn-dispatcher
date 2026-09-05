@@ -134,7 +134,8 @@ def _plot(author_data: dict, matched: dict) -> None:
         axis.set_xlabel("Source subjects D")
         axis.set_ylabel("Held-out normalized likelihood")
         axis.grid(axis="y", alpha=0.2)
-        axis.legend(frameon=False, fontsize=8.5, loc="best")
+        legend_location = "upper left" if dataset_name == "zid" else "best"
+        axis.legend(frameon=False, fontsize=8.5, loc=legend_location)
     fig.savefig(FIGURE, bbox_inches="tight")
     plt.close(fig)
 

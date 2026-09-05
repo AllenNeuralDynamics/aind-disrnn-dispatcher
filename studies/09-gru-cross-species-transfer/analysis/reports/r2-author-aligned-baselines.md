@@ -34,7 +34,7 @@ All models use the same subject-level adaptation/test split and score the exact 
 | Grossman mouse | meta-learning RL | yes | 7 | 0.73177 | **0.72976** | 0.74535 ± 0.00017 |
 | Chen mouse | 4-parameter RLCK | yes | 4 | 0.58747 | **0.59138** | 0.59275 ± 0.00140 |
 | Zid human | traditional RLCK | no — paper comparator | 4 | 0.70427 | **0.69322** | 0.71363 ± 0.00192 |
-| Zid human | HK2 foraging RL | yes | 5 | 0.70427 | **0.69427** | 0.71363 ± 0.00192 |
+| Zid human | HK2 foraging RL | yes | 5 | 0.70427 | **0.68306** | 0.71363 ± 0.00192 |
 
 ### Subject-balanced paired differences
 
@@ -45,13 +45,26 @@ Values are mean log-likelihood differences in nats/trial with 95% confidence int
 | Grossman mouse | meta-learning RL | -0.00245 [-0.00442, -0.00048] | 19% (48) | +0.02158 [+0.01821, +0.02495] | 98% (48) |
 | Chen mouse | 4-parameter RLCK | +0.00681 [+0.00163, +0.01198] | 69% (32) | +0.00228 [-0.00458, +0.00914] | 50% (32) |
 | Zid human | traditional RLCK | -0.01582 [-0.03957, +0.00793] | 47% (258) | +0.02902 [-0.00599, +0.06404] | 39% (258) |
-| Zid human | HK2 foraging RL | -0.01429 [-0.04819, +0.01961] | 48% (258) | +0.02750 [-0.00453, +0.05953] | 43% (258) |
+| Zid human | HK2 foraging RL | -0.03057 [-0.07337, +0.01222] | 43% (258) | +0.04378 [-0.00034, +0.08790] | 46% (258) |
 
 ### Bottom line
 
 - **Grossman mouse:** meta-learning RL is -0.00201 versus common Q; D=614 GRU is +0.01559 versus that published baseline.
 - **Chen mouse:** 4-parameter RLCK is +0.00392 versus common Q; D=614 GRU is +0.00136 versus that published baseline.
-- **Zid human:** HK2 foraging RL is -0.01000 versus common Q; D=614 GRU is +0.01936 versus that published baseline.
+- **Zid human:** HK2 foraging RL is -0.02121 versus common Q; D=614 GRU is +0.03057 versus that published baseline.
+
+### Reproduction confidence
+
+These ratings concern whether our implementation reproduces the authors' model dynamics, not uncertainty in the measured likelihood. They do not claim reproduction of the papers' reported fit values because our adaptation/test split is intentionally different.
+
+| baseline | confidence | evidence | remaining difference from the paper |
+|---|:---:|---|---|
+| [Grossman meta-learning RL](https://pmc.ncbi.nlm.nih.gov/articles/PMC8825708/) | **Moderate** | Published value, expected/unexpected-uncertainty, asymmetric learning-rate, forgetting, bias, and softmax equations are implemented and covered by a hand-calculated trajectory test. | The paper did not release model code and used hierarchical session-level Stan fits with mouse-level hyperparameters and the constraint `negative-rate integration > expected-uncertainty rate`. We instead fit one parameter vector per subject by differential evolution on the adaptation sessions, without that ordering constraint. This is an equation-faithful model-family benchmark, not a reproduction of the paper's Bayesian fitting pipeline. |
+| [Chen 4-parameter RLCK](https://elifesciences.org/articles/69748) | **High** | The published `alpha`, value inverse temperature, choice-kernel learning rate, and independent kernel inverse temperature map directly to our implementation; zero initialization, chosen-value update, full choice-kernel update, and policy are covered by a hand-calculated trajectory test. | We changed the fitting data and optimizer to the common matched-half protocol and have not reproduced the paper's fitted parameters or model-agreement figure from author outputs. |
+| [Zid traditional RLCK](https://www.nature.com/articles/s41467-026-75773-4) (Eq. 19) | **Very high** | Initialization, value and choice-kernel updates, two inverse temperatures, policy, and bounds were checked directly against the authors' released [`model_RLchoice.m`](https://github.com/Mariemzd/HumansForageFoRwd_paper/blob/v1.0.0/modelling_matlab/model_RLchoice.m), in addition to the equation-level test. | The authors fit all 300 main trials with 20 random-start `fminsearch` fits; we fit trials 0-149 with differential evolution and score trials 150-299. |
+| [Zid HK2 foraging RL](https://www.nature.com/articles/s41467-026-75773-4) (Eq. 22) | **Very high** | Exploitation value initialization at 1, reset-to-threshold only after a switch, state-history kernel, and stay policy were checked directly against the authors' released [`model_ForagingFlex.m`](https://github.com/Mariemzd/HumansForageFoRwd_paper/blob/v1.0.0/modelling_matlab/model_ForagingFlex.m) and covered by a hand-calculated trajectory test. | The same intentional matched-half and optimizer differences apply. |
+
+Overall, confidence is high for the Chen and Zid model equations and state transitions. Confidence is only moderate for Grossman because the published Bayesian hierarchy and parameter-ordering constraint are not part of this matched subject-level baseline. Accordingly, the Grossman result should be described as a reimplementation of the selected model family, not an exact reproduction of the authors' full analysis.
 
 ### Verification
 
