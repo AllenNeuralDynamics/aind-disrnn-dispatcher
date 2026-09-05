@@ -14,18 +14,20 @@ conda activate dynamic-foraging-bfm-cpu 2>/dev/null || conda activate disrnn-cpu
 
 DISPATCHER_ROOT="${DISPATCHER_ROOT:?DISPATCHER_ROOT is required}"
 WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT is required}"
+MODELS_ROOT="${MODELS_ROOT:?MODELS_ROOT is required}"
 RUN_ROOT="${BFM_OUTPUT_DIR:?BFM_OUTPUT_DIR is required}/study09-q-${SLURM_ARRAY_JOB_ID}"
 DATA_ROOT="${SLURM_TMPDIR:-${TMPDIR:-/tmp}}/study09-external"
 DATASETS=(grossman chen zid)
 DATASET="${DATASETS[$SLURM_ARRAY_TASK_ID]}"
 
-export PYTHONPATH="${DISPATCHER_ROOT}/code:${WRAPPER_ROOT}/code:${PYTHONPATH:-}"
+export PYTHONPATH="${MODELS_ROOT}/src:${DISPATCHER_ROOT}/code:${WRAPPER_ROOT}/code:${PYTHONPATH:-}"
 export BFM_WRAPPER_CODE="${WRAPPER_ROOT}/code"
 export DISPATCHER_COMMIT
 export WRAPPER_COMMIT
+export FORAGING_MODELS_COMMIT
 DISPATCHER_COMMIT="$(git -C "${DISPATCHER_ROOT}" rev-parse HEAD)"
 WRAPPER_COMMIT="$(git -C "${WRAPPER_ROOT}" rev-parse HEAD)"
-export FORAGING_MODELS_COMMIT="${FORAGING_MODELS_COMMIT:?FORAGING_MODELS_COMMIT is required}"
+FORAGING_MODELS_COMMIT="$(git -C "${MODELS_ROOT}" rev-parse HEAD)"
 
 python -m external_bandit_datasets.cli "${DATASET}" --cache-root "${DATA_ROOT}"
 python "${DISPATCHER_ROOT}/studies/09-gru-cross-species-transfer/run_q_baseline.py" \
