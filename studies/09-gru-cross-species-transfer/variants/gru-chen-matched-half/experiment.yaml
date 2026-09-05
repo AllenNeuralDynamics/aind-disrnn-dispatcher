@@ -7,8 +7,9 @@ tasks:
     command:
       - bash
       - /workspace/aind-dynamic-foraging-bfm-wrapper/beaker/entrypoint.sh
-      - python
-      - unused
+      - bash
+      - -c
+      - 'echo "Launcher-only template: use code/launch_beaker_resumable.py" >&2; exit 2'
     context:
       priority: normal
       preemptible: false
