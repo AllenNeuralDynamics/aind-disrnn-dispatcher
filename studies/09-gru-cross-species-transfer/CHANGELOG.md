@@ -2,6 +2,9 @@
 
 ## 2026-09-05
 
+- Refit the Grossman, Chen, and Zid author-aligned models subject by subject on
+  the matched adaptation halves and added a frozen comparison against common Q
+  and D=614 transferred GRU.
 - Added author-aligned Grossman meta-learning, Chen RLCK, and Zid traditional
   RLCK/history-kernel-2 foraging-RL model definitions and HPC variants.
 - Pinned the 15 H=128 Study 01 source GRUs and their committed W&B artifacts.
