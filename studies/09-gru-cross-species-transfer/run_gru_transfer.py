@@ -32,7 +32,10 @@ def _ensure_pyarrow(deps_root: Path = Path("/deps")) -> None:
         pass
     wheels = list(deps_root.glob("pyarrow-21.0.0-*.whl"))
     if len(wheels) != 1:
-        raise RuntimeError(f"Expected one pinned pyarrow wheel in {deps_root}.")
+        raise RuntimeError(
+            f"Expected one pinned pyarrow wheel in {deps_root}; "
+            f"found {len(wheels)}: {[wheel.name for wheel in wheels]}"
+        )
     wheel = wheels[0]
     with wheel.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
