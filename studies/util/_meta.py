@@ -54,7 +54,10 @@ def _wrapper_sha(study_root: Path) -> str | None:
     """
     lock = Path(study_root) / "environment.lock"
     try:
-        m = re.search(r"aind-disrnn-wrapper\.git@([0-9a-f]{7,40})", lock.read_text())
+        m = re.search(
+            r"aind-(?:disrnn|dynamic-foraging-bfm)-wrapper\.git@([0-9a-f]{7,40})",
+            lock.read_text(),
+        )
         return m.group(1) if m else None
     except Exception:
         return None
