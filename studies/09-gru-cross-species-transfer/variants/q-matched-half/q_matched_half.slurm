@@ -15,7 +15,7 @@ conda activate dynamic-foraging-bfm-cpu 2>/dev/null || conda activate disrnn-cpu
 DISPATCHER_ROOT="${DISPATCHER_ROOT:?DISPATCHER_ROOT is required}"
 WRAPPER_ROOT="${WRAPPER_ROOT:?WRAPPER_ROOT is required}"
 RUN_ROOT="${BFM_OUTPUT_DIR:?BFM_OUTPUT_DIR is required}/study09-q-${SLURM_ARRAY_JOB_ID}"
-DATA_ROOT="${SLURM_TMPDIR}/study09-external"
+DATA_ROOT="${SLURM_TMPDIR:-${TMPDIR:-/tmp}}/study09-external"
 DATASETS=(grossman chen zid)
 DATASET="${DATASETS[$SLURM_ARRAY_TASK_ID]}"
 
