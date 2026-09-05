@@ -1,1 +1,4 @@
 data-cache/
+analysis/_cache_matched_half/
+analysis/_cache_author_baselines/
+analysis/__pycache__/

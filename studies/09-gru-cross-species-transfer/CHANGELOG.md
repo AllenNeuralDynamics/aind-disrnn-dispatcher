@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-05
+
+- Refit the Grossman, Chen, and Zid author-aligned models subject by subject on
+  the matched adaptation halves and added a frozen comparison against common Q
+  and D=614 transferred GRU.
+- Added author-aligned Grossman meta-learning, Chen RLCK, and Zid traditional
+  RLCK/history-kernel-2 foraging-RL model definitions and HPC variants.
+- Pinned the 15 H=128 Study 01 source GRUs and their committed W&B artifacts.
+- Added matched-half GPU grids for Grossman, Chen, and Zid.
+- Added the matched subject-level Q-learning CPU runner and HPC SLURM array.
+- Kept Zid as one within-session prefix/suffix condition with no session-count K.
+- Added a checksum-pinned pyarrow wheel mount for the current GPU image.
+- Completed all 45 GRU cells and three matched Q baselines with no failed jobs.
+- Added the frozen matched-half result, exact trial-alignment audit, D-scaling
+  figure, and GRU-versus-Q report.
+
 ## 2026-09-04
 
 - Created the top-three open-data starter suite for Grossman, Chen, and Zid.
