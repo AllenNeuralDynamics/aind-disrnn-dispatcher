@@ -108,3 +108,8 @@ The current GPU image predates the wrapper's declared `pyarrow` dependency.
 GPU tasks therefore mount committed Beaker dataset
 `01M1RDVWF18JF5QMEB618WJPSF`, verify the pinned wheel's SHA-256, and install
 `pyarrow==21.0.0` inside the task before reading the canonical Parquet table.
+
+The completed result is [Result 1](analysis/reports/r1-matched-half-gru-vs-q.md).
+At D=614, trial-pooled GRU normalized likelihood exceeds Q-learning by 0.01358
+on Grossman, 0.00528 on Chen, and 0.00936 on Zid. The frozen input also proves
+exact ordered trial-key equality between every GRU cell and its Q baseline.

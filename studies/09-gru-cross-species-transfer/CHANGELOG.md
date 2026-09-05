@@ -7,6 +7,9 @@
 - Added the matched subject-level Q-learning CPU runner and HPC SLURM array.
 - Kept Zid as one within-session prefix/suffix condition with no session-count K.
 - Added a checksum-pinned pyarrow wheel mount for the current GPU image.
+- Completed all 45 GRU cells and three matched Q baselines with no failed jobs.
+- Added the frozen matched-half result, exact trial-alignment audit, D-scaling
+  figure, and GRU-versus-Q report.
 
 ## 2026-09-04
 
