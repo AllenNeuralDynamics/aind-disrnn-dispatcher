@@ -34,7 +34,8 @@ def _ensure_pyarrow(deps_root: Path = Path("/deps")) -> None:
     if len(wheels) != 1:
         raise RuntimeError(f"Expected one pinned pyarrow wheel in {deps_root}.")
     wheel = wheels[0]
-    digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
+    with wheel.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
     if digest != PYARROW_WHEEL_SHA256:
         raise RuntimeError(
             f"Pinned pyarrow wheel digest mismatch: expected={PYARROW_WHEEL_SHA256} "

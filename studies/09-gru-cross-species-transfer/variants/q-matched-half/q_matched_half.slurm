@@ -20,6 +20,7 @@ DATA_ROOT="${SLURM_TMPDIR:-${TMPDIR:-/tmp}}/study09-external"
 DATASETS=(grossman chen zid)
 DATASET="${DATASETS[$SLURM_ARRAY_TASK_ID]}"
 
+export WANDB_RUN_GROUP="${WANDB_RUN_GROUP:-q-matched-half@slurm-${SLURM_ARRAY_JOB_ID}}"
 export PYTHONPATH="${MODELS_ROOT}/src:${DISPATCHER_ROOT}/code:${WRAPPER_ROOT}/code:${PYTHONPATH:-}"
 export BFM_WRAPPER_CODE="${WRAPPER_ROOT}/code"
 export DISPATCHER_COMMIT
