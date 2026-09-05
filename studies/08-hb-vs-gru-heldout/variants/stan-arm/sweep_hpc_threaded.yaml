@@ -1,0 +1,40 @@
+# HB Stan arm, threaded — the relaunch of sweep_hpc.yaml with reduce_sum actually using cores.
+#
+#     python code/launch_hpc.py \
+#       --sweep-yaml studies/08-hb-vs-gru-heldout/variants/stan-arm/sweep_hpc_threaded.yaml \
+#       --mode cpu --agent-count 1 \
+#       --sbatch-extra='--array=0-1 --cpus-per-task=32 --mem=128G --time=72:00:00'
+#
+# WHY A SECOND SWEEP RATHER THAN AN EDIT: launch 20260905-020928 ran single-threaded because
+# STAN_NUM_THREADS was unset, and its D≈29 rung is still running and will produce a usable
+# posterior. Keeping that grid intact and adding this one means the two are separable in W&B:
+# the pair at D≈29 measures the threading speedup directly, on identical data and seed.
+#
+# CPUs: 32 = 4 chains x 8 reduce_sum threads. HBStanTrainer derives the split from
+# SLURM_CPUS_PER_TASK // num_chains, so changing --cpus-per-task changes the threading and
+# nothing else needs editing.
+#
+# The single-threaded rates this replaces, for reference: D≈29 ~1300 iter/h, D≈99 ~53 iter/h
+# (the latter projects past 300 h against a 72 h wall clock, which is why it was cancelled).
+
+entity: AIND-disRNN
+project: mice_data_scaling
+
+method: grid
+metric:
+  name: hb/min_ess_per_second
+  goal: maximize
+
+command:
+  - python
+  - -m
+  - run_hpc
+  - data=mice_snapshot_scaling
+  - model=hb_hattori_stan
+  - seed=0
+  - "wandb.tags=[hb,stan,issue-129,threaded]"
+  - ${args_no_hyphens}
+
+parameters:
+  data.subject_ratio:
+    values: [0.049, 0.163]
