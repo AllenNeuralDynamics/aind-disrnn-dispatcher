@@ -1,8 +1,8 @@
 {
   "_meta": {
     "produced_by": "studies/09-gru-cross-species-transfer/analysis/freeze_matched_half.py",
-    "produced_at_pt": "2026-09-05T03:29:01-07:00",
-    "dispatcher_git_sha": "d681cd6a34c4c786bb30944cc179b221128f8135",
+    "produced_at_pt": "2026-09-05T03:42:32-07:00",
+    "dispatcher_git_sha": "03d8b883f94c79a6fe22425313adb624f3c3e4b7",
     "wrapper_git_sha": "9595dd371ab87de49c281d8ca4bb6ae8af7c32e4",
     "wandb_groups": [
       "gru-grossman-matched-half@20260905-022602",
@@ -34,6 +34,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-b23b4f29",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-b23b4f29",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDY4Njg5Mg==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-b23b4f29",
             "digest": "7b012ce56cc2e1d43419491d6ae7a8b5",
             "file_count": 33,
@@ -109,6 +110,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-310d658a",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-310d658a",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDY4NjMwNg==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-310d658a",
             "digest": "3c7515204257a623dce6eed8abd3caac",
             "file_count": 33,
@@ -184,6 +186,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-1ad27665",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-1ad27665",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDY4NzA3Mg==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-1ad27665",
             "digest": "1f8d919382a53e20b1d5c06a8c9ae129",
             "file_count": 33,
@@ -259,6 +262,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-9a98f5a5",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-9a98f5a5",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDY4NzA5Nw==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-9a98f5a5",
             "digest": "0f1ce7d4116c75763821188bc37613ec",
             "file_count": 33,
@@ -334,6 +338,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-ec2af863",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-ec2af863",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDcxOTg4Mw==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-ec2af863",
             "digest": "c3818a2490c505f88c46e7bb69f44934",
             "file_count": 33,
@@ -409,6 +414,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-c8246e8d",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-c8246e8d",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDcxODQzOQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-c8246e8d",
             "digest": "e08f6d7e3a8ad6e504104007747ea257",
             "file_count": 33,
@@ -484,6 +490,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-5ad0a523",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-5ad0a523",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDcxOTg4NQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-5ad0a523",
             "digest": "4f726f29be15bffb72c8626673ea92c2",
             "file_count": 33,
@@ -559,6 +566,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-63a72156",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-63a72156",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDcxOTQyOQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-63a72156",
             "digest": "bd3041a33bf25b3c22dd469221e36e5b",
             "file_count": 33,
@@ -634,6 +642,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-16ac5525",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-16ac5525",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc1MDIzMQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-16ac5525",
             "digest": "6bd096f280ac41f45a5c862dd6cffc95",
             "file_count": 33,
@@ -709,6 +718,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-7aa0a616",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-7aa0a616",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc1MDIzOQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-7aa0a616",
             "digest": "31b372291805ed0adb742d0f5bb232b9",
             "file_count": 33,
@@ -784,6 +794,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-e01997dc",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-e01997dc",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc1MTgyOQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-e01997dc",
             "digest": "1fb4887e503faa51d76a4ffd6ceec74e",
             "file_count": 33,
@@ -859,6 +870,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-52356803",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-52356803",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc1MTM0Nw==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-52356803",
             "digest": "b5db0ef21c62941181a415c703c45cea",
             "file_count": 33,
@@ -934,6 +946,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-b2549a1d",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-b2549a1d",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc4MzE3MA==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-b2549a1d",
             "digest": "b54d6203b28019482291062de3c90946",
             "file_count": 33,
@@ -1009,6 +1022,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-e8427c97",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-e8427c97",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc4NDA5Nw==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-e8427c97",
             "digest": "8220dd5a4d5cb6897bca47839ea7dc67",
             "file_count": 33,
@@ -1084,6 +1098,7 @@
           "wandb_run_id": "gru-grossman-matched-half-20260905-022602-dd860bb0",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-grossman-matched-half-20260905-022602-dd860bb0",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDc4NDY1MQ==",
             "name": "external-gru-output-gru-grossman-matched-half-20260905-022602-dd860bb0",
             "digest": "343fb34fe456d935ec9b94560940817d",
             "file_count": 33,
@@ -1156,6 +1171,7 @@
         "wandb_run_id": "0strufys",
         "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/0strufys",
         "training_artifact": {
+          "id": "QXJ0aWZhY3Q6MzUyNTExMTY4NA==",
           "name": "baseline-rl-output-0strufys",
           "digest": "8e797eea615f9bdaa7cac7b95b07d79a",
           "file_count": 59,
@@ -1240,6 +1256,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-a433efd0",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-a433efd0",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkxNTc1NQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-a433efd0",
             "digest": "38b6eaf262da68c746113a3bf0518ba7",
             "file_count": 33,
@@ -1299,6 +1316,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-d5849f6d",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-d5849f6d",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkxNDM2OQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-d5849f6d",
             "digest": "c8965ed7516d15456307f6810ae00203",
             "file_count": 33,
@@ -1358,6 +1376,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-08525d2d",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-08525d2d",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkxNDc1NA==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-08525d2d",
             "digest": "17e47e2330f36498da0a9bbc50f4e348",
             "file_count": 33,
@@ -1417,6 +1436,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-1fa21c86",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-1fa21c86",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkxNjE0OA==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-1fa21c86",
             "digest": "1a32c1c5b227f24d990b9f41b5cfd484",
             "file_count": 33,
@@ -1476,6 +1496,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-51990f4c",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-51990f4c",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkzNDQxNw==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-51990f4c",
             "digest": "70469932605a634f057d0e35f5219bf6",
             "file_count": 33,
@@ -1535,6 +1556,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-5b71da9e",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-5b71da9e",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkzNDEyMQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-5b71da9e",
             "digest": "6baaba77800cf0834559cc50716fd4fe",
             "file_count": 33,
@@ -1594,6 +1616,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-6a99e0fd",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-6a99e0fd",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkzNjgzNQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-6a99e0fd",
             "digest": "70790f0dc6802042bd56ed28c10d18f6",
             "file_count": 33,
@@ -1653,6 +1676,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-394d9597",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-394d9597",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDkzNjY4Mw==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-394d9597",
             "digest": "b641a0bf7977414a4e9d00f22794f865",
             "file_count": 33,
@@ -1712,6 +1736,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-209b44b4",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-209b44b4",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk1OTQxOA==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-209b44b4",
             "digest": "a12d67512e59fd6a84ee12718d4400b2",
             "file_count": 33,
@@ -1771,6 +1796,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-af0ddf46",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-af0ddf46",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk1ODkzOA==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-af0ddf46",
             "digest": "a370b48788811bd75782f82f5df28d17",
             "file_count": 33,
@@ -1830,6 +1856,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-fdb34fa5",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-fdb34fa5",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk1ODI0Mw==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-fdb34fa5",
             "digest": "5e06b79324e68ad769590c24e4f8a04c",
             "file_count": 33,
@@ -1889,6 +1916,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-c11c5b81",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-c11c5b81",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk1OTE5OA==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-c11c5b81",
             "digest": "e9101dcc85f9676ac44ded9d24a47a6d",
             "file_count": 33,
@@ -1948,6 +1976,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-5ae04883",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-5ae04883",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk4MDIyNQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-5ae04883",
             "digest": "e28ec502a5eff48ca378189071f9a6a2",
             "file_count": 33,
@@ -2007,6 +2036,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-1cb7ef49",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-1cb7ef49",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk3ODc1Mw==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-1cb7ef49",
             "digest": "eeaf5f83392dc371f95e1813bf73d24f",
             "file_count": 33,
@@ -2066,6 +2096,7 @@
           "wandb_run_id": "gru-chen-matched-half-20260905-024731-94c97219",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-chen-matched-half-20260905-024731-94c97219",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNDk3ODYwMQ==",
             "name": "external-gru-output-gru-chen-matched-half-20260905-024731-94c97219",
             "digest": "e704179f5a68d4e655f5a0ab451dcd00",
             "file_count": 33,
@@ -2122,6 +2153,7 @@
         "wandb_run_id": "0labmnnx",
         "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/0labmnnx",
         "training_artifact": {
+          "id": "QXJ0aWZhY3Q6MzUyNDk2MDY4OQ==",
           "name": "baseline-rl-output-0labmnnx",
           "digest": "3dbd7e6198db0f9794880cd3d48cf1c7",
           "file_count": 43,
@@ -2190,6 +2222,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-c0f17ec7",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-c0f17ec7",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTAyOTE5NA==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-c0f17ec7",
             "digest": "9cb506d8258940e1cdcd2c1f705cd95e",
             "file_count": 33,
@@ -2475,6 +2508,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-fd3d6072",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-fd3d6072",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTAyOTE4OQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-fd3d6072",
             "digest": "d52b6c04775ae14ef1d537ab440b9d62",
             "file_count": 33,
@@ -2760,6 +2794,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-986d11a5",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-986d11a5",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA4NDQ4MQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-986d11a5",
             "digest": "b9ea8bf521655fd8a98bf72c6b05be99",
             "file_count": 33,
@@ -3045,6 +3080,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-903ed94a",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-903ed94a",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTAyOTI0NQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-903ed94a",
             "digest": "48df6afab4439e22e0b3d6831acff3cc",
             "file_count": 33,
@@ -3330,6 +3366,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-a96bf62b",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-a96bf62b",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA1MjAxOA==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-a96bf62b",
             "digest": "d6cb68231da13acb57abacde4b919354",
             "file_count": 33,
@@ -3615,6 +3652,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-07f1c5af",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-07f1c5af",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA1MjA5OQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-07f1c5af",
             "digest": "8cc59be9cbea6388efba6345fc86bf49",
             "file_count": 33,
@@ -3900,6 +3938,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-5492007c",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-5492007c",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA1MjYyMg==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-5492007c",
             "digest": "40c7cce1931ce079933561f67d0beccb",
             "file_count": 33,
@@ -4185,6 +4224,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-fea96652",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-fea96652",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA3NTUzOQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-fea96652",
             "digest": "00ae171991def96c5394ed4dc1b02f09",
             "file_count": 33,
@@ -4470,6 +4510,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-750dbe94",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-750dbe94",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA3NzE1OA==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-750dbe94",
             "digest": "e784802ad5ef2d0a412bfeaaeae75b3d",
             "file_count": 33,
@@ -4755,6 +4796,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-4402d802",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-4402d802",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA3NTgyMg==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-4402d802",
             "digest": "564b11ba3e80eb05e342ab4b3966882b",
             "file_count": 33,
@@ -5040,6 +5082,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-d13786c6",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-d13786c6",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA5Nzg5Ng==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-d13786c6",
             "digest": "57f00a8b7f068ad86de80230677fbd88",
             "file_count": 33,
@@ -5325,6 +5368,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-2ef8b7f9",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-2ef8b7f9",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTA5ODI2Nw==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-2ef8b7f9",
             "digest": "551ab21ade6ce686a8b2f4fb1d212c86",
             "file_count": 33,
@@ -5610,6 +5654,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-39eea37f",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-39eea37f",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTEwMDA4Nw==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-39eea37f",
             "digest": "66409894b5f57307686d90098429f1e8",
             "file_count": 33,
@@ -5895,6 +5940,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-5f3c4f65",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-5f3c4f65",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTEwNDk2NQ==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-5f3c4f65",
             "digest": "a8ed8496a3cb33b366ce85809d34f530",
             "file_count": 33,
@@ -6180,6 +6226,7 @@
           "wandb_run_id": "gru-zid-matched-half-20260905-025752-d6cedfeb",
           "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/gru-zid-matched-half-20260905-025752-d6cedfeb",
           "evaluation_artifact": {
+            "id": "QXJ0aWZhY3Q6MzUyNTEyMTcxNw==",
             "name": "external-gru-output-gru-zid-matched-half-20260905-025752-d6cedfeb",
             "digest": "6057d5ab3d41a3fc8f4b04040cd45a69",
             "file_count": 33,
@@ -6462,6 +6509,7 @@
         "wandb_run_id": "0kxiw1tk",
         "wandb_url": "https://wandb.ai/AIND-disRNN/gru_cross_species_transfer/runs/0kxiw1tk",
         "training_artifact": {
+          "id": "QXJ0aWZhY3Q6MzUyNTAyMjczNA==",
           "name": "baseline-rl-output-0kxiw1tk",
           "digest": "95a463c5b7cfde00cdedd7eec58e85a0",
           "file_count": 269,
