@@ -1,0 +1,49 @@
+{
+  "launch_id": "20260905-020928",
+  "study": "08-hb-vs-gru-heldout",
+  "variant": "stan-arm",
+  "label": "hb-stan-d29-d100",
+  "note": "Stan arm of the HB baseline (issue 129): joint three-level model in pystan at 2000/2000/4 on the same D~29 and D~100 cohorts as the NumPyro rungs",
+  "surface": "hpc",
+  "launcher_cmd": "code/launch_hpc.py --sweep-yaml studies/08-hb-vs-gru-heldout/variants/stan-arm/sweep_hpc.yaml --mode cpu --agent-count 1 --sbatch-extra='--array=0-1 --cpus-per-task=8 --mem=128G --time=72:00:00'",
+  "sweep_yaml": "studies/08-hb-vs-gru-heldout/variants/stan-arm/sweep_hpc.yaml",
+  "wandb": {
+    "entity": "AIND-disRNN",
+    "project": "mice_data_scaling",
+    "sweep_id": "4i17yn5r",
+    "sweep_url": "https://wandb.ai/AIND-disRNN/mice_data_scaling/sweeps/4i17yn5r",
+    "group": "stan-arm@20260905-020928"
+  },
+  "slurm": {
+    "array_job_id": "25579912",
+    "autostop_job_id": "25579913",
+    "array": "0-1",
+    "cpus_per_task": 8,
+    "mem": "128G",
+    "time": "72:00:00",
+    "partition": "aind (wandb_sweep_cpu.slurm default)",
+    "nodes": {"25579912_0": "n238"}
+  },
+  "grid": {"data.subject_ratio": [0.049, 0.163]},
+  "sampler": {"num_warmup": 2000, "num_samples": 2000, "num_chains": 4, "seed": 0},
+  "config_hash": "176a0901",
+  "revisions": {
+    "dispatcher_commit": "f2845843b817622ddd98ccd91b7cc639d9dc36ba",
+    "wrapper_commit": "6d35281ec465ca834f33c99d10d960efeaa7a957",
+    "foraging_models_commit": "57f1842f998a3bdd7adeff56a071325517805798",
+    "foraging_models_version": "0.15.2",
+    "foraging_models_source": "git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models.git@feat/stan-three-level"
+  },
+  "environment": {
+    "conda_env": "dynamic-foraging-bfm-cpu",
+    "pystan": "3.10.1",
+    "httpstan": "4.13.0",
+    "compiler": "gcc/14-rocky9 module, loaded by wandb_sweep_cpu.slurm"
+  },
+  "record_note": "The models package is pinned to a BRANCH in the HPC CPU env, not a release: hb_three_level.stan ships in that package (next to the NumPyro model it ports) and is absent from the 0.14.0 the env previously carried. Installed --no-deps --force-reinstall; reverts by reinstalling the release. An earlier launch of this same sweep (sweep d5fij9gq, job 25579870) died in ~1 min during Hydra composition because launch_hpc.py injected model.training.auto_heldout_finetune.output_root unconditionally and HB configs have no training block; that launcher guard is fixed in dispatcher f284584 and this record is the first launch after it.",
+  "deviations": [
+    "No held-out scoring: HBStanTrainer fits the population only, so this run logs no heldout/* metrics and is NOT an HB rung on the scaling curve.",
+    "reduce_sum runs serially because httpstan does not define STAN_THREADS, so parallelism is one core per chain. The 8 CPUs requested leave headroom but only 4 are used for sampling; Stan wall time here is a floor on what a threaded CmdStan build could do.",
+    "D~100 has no finished NumPyro comparator at any setting, so its number stands alone until one lands."
+  ]
+}
