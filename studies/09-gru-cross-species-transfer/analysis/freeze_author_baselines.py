@@ -27,6 +27,7 @@ from freeze_matched_half import (  # noqa: E402
 
 MODELS_COMMIT = "a75ae23e0d5bce7985d3c4f5f7f30c7a971e0070"
 ORIGINAL_MODELS_COMMIT = "25f5f1ce64705edbf266feb8d57ff83a018b12c5"
+ZID_PARITY_MODELS_COMMIT = "553d1a9eae919bcec5121dc747d09d5559c31bb6"
 GROUPS = {
     "grossman-meta-learning": {
         "group": "grossman-meta-learning@20260905-124420",
@@ -53,12 +54,12 @@ GROUPS = {
         "foraging_models_commit": ORIGINAL_MODELS_COMMIT,
     },
     "zid-history-kernel-foraging": {
-        "group": "zid-history-kernel@20260905-123624",
+        "group": "zid-history-kernel@20260905-151851",
         "dataset": "zid",
         "agent_class": "ForagerZidHistoryKernel",
         "author_selected": True,
-        "slurm_job_id": "25580838_1",
-        "foraging_models_commit": ORIGINAL_MODELS_COMMIT,
+        "slurm_job_id": "25580951_1",
+        "foraging_models_commit": ZID_PARITY_MODELS_COMMIT,
     },
 }
 CACHE = STUDY / "analysis" / "_cache_author_baselines"

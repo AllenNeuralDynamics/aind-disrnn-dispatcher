@@ -7,6 +7,7 @@ wandb_groups:
   - grossman-meta-learning@20260905-124420
   - chen-rlck@20260905-123624
   - zid-history-kernel@20260905-123624
+  - zid-history-kernel@20260905-151851
 inputs:
   script: analysis/report_author_baselines.py
   data:

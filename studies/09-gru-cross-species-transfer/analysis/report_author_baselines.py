@@ -202,6 +202,25 @@ def _result_block(author_data: dict, matched: dict) -> str:
         )
     lines += [
         "",
+        "### Reproduction confidence",
+        "",
+        "These ratings concern whether our implementation reproduces the authors' model dynamics, "
+        "not uncertainty in the measured likelihood. They do not claim reproduction of the papers' "
+        "reported fit values because our adaptation/test split is intentionally different.",
+        "",
+        "| baseline | confidence | evidence | remaining difference from the paper |",
+        "|---|:---:|---|---|",
+        "| [Grossman meta-learning RL](https://pmc.ncbi.nlm.nih.gov/articles/PMC8825708/) | **Moderate** | Published value, expected/unexpected-uncertainty, asymmetric learning-rate, forgetting, bias, and softmax equations are implemented and covered by a hand-calculated trajectory test. | The paper did not release model code and used hierarchical session-level Stan fits with mouse-level hyperparameters and the constraint `negative-rate integration > expected-uncertainty rate`. We instead fit one parameter vector per subject by differential evolution on the adaptation sessions, without that ordering constraint. This is an equation-faithful model-family benchmark, not a reproduction of the paper's Bayesian fitting pipeline. |",
+        "| [Chen 4-parameter RLCK](https://elifesciences.org/articles/69748) | **High** | The published `alpha`, value inverse temperature, choice-kernel learning rate, and independent kernel inverse temperature map directly to our implementation; zero initialization, chosen-value update, full choice-kernel update, and policy are covered by a hand-calculated trajectory test. | We changed the fitting data and optimizer to the common matched-half protocol and have not reproduced the paper's fitted parameters or model-agreement figure from author outputs. |",
+        "| [Zid traditional RLCK](https://www.nature.com/articles/s41467-026-75773-4) (Eq. 19) | **Very high** | Initialization, value and choice-kernel updates, two inverse temperatures, policy, and bounds were checked directly against the authors' released [`model_RLchoice.m`](https://github.com/Mariemzd/HumansForageFoRwd_paper/blob/v1.0.0/modelling_matlab/model_RLchoice.m), in addition to the equation-level test. | The authors fit all 300 main trials with 20 random-start `fminsearch` fits; we fit trials 0-149 with differential evolution and score trials 150-299. |",
+        "| [Zid HK2 foraging RL](https://www.nature.com/articles/s41467-026-75773-4) (Eq. 22) | **Very high** | Exploitation value initialization at 1, reset-to-threshold only after a switch, state-history kernel, and stay policy were checked directly against the authors' released [`model_ForagingFlex.m`](https://github.com/Mariemzd/HumansForageFoRwd_paper/blob/v1.0.0/modelling_matlab/model_ForagingFlex.m) and covered by a hand-calculated trajectory test. | The same intentional matched-half and optimizer differences apply. |",
+        "",
+        "Overall, confidence is high for the Chen and Zid model equations and state transitions. "
+        "Confidence is only moderate for Grossman because the published Bayesian hierarchy and "
+        "parameter-ordering constraint are not part of this matched subject-level baseline. "
+        "Accordingly, the Grossman result should be described as a reimplementation of the selected "
+        "model family, not an exact reproduction of the authors' full analysis.",
+        "",
         "### Verification",
         "",
         "- Each published baseline was fitted independently per subject on the adaptation half; no paper-reported likelihood was copied.",
