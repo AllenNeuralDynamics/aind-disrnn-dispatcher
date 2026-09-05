@@ -131,3 +131,8 @@ generic family instead of the model selected by each dataset's authors:
 They use the same subject-level adaptation observations and identical held-out
 trial keys as Result 1. These fits are CPU-only SLURM jobs on Allen HPC; they
 must not be sent to Beaker.
+
+The completed comparison is [Result 2](analysis/reports/r2-author-aligned-baselines.md).
+The author-selected model beats common Q only for Chen (+0.00392 normalized
+likelihood). The D=614 transferred GRU remains above the author-selected model
+by +0.01559 on Grossman, +0.00136 on Chen, and +0.01936 on Zid.
