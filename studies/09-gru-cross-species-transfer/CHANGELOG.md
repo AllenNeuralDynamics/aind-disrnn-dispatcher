@@ -6,6 +6,7 @@
 - Added matched-half GPU grids for Grossman, Chen, and Zid.
 - Added the matched subject-level Q-learning CPU runner and HPC SLURM array.
 - Kept Zid as one within-session prefix/suffix condition with no session-count K.
+- Added a checksum-pinned pyarrow wheel mount for the current GPU image.
 
 ## 2026-09-04
 

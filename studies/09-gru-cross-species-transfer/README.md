@@ -103,3 +103,8 @@ The three `gru-*-matched-half` variants run as GPU-only Beaker grids. The
 families consume the same generated Parquet table and split manifest, and both
 emit the wrapper's canonical `test_trial_predictions.csv` and
 `test_metrics.json` outputs for an exact trial-key parity check.
+
+The current GPU image predates the wrapper's declared `pyarrow` dependency.
+GPU tasks therefore mount committed Beaker dataset
+`01M1RDVWF18JF5QMEB618WJPSF`, verify the pinned wheel's SHA-256, and install
+`pyarrow==21.0.0` inside the task before reading the canonical Parquet table.

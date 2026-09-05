@@ -23,6 +23,9 @@ tasks:
       - mountPath: /external
         source:
           beaker: 01M1RC0MMA9SX0FF87S1V3YPTQ
+      - mountPath: /deps
+        source:
+          beaker: 01M1RDVWF18JF5QMEB618WJPSF
     envVars:
       - name: WANDB_API_KEY
         secret: han-wandb-api-key

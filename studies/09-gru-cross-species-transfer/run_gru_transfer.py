@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -16,6 +18,32 @@ DATASET_IDS = {
     "chen": "chen-et-al-2021",
     "zid": "zid-et-al-2026-experiment-1",
 }
+PYARROW_WHEEL_SHA256 = (
+    "b7ae0bbdc8c6674259b25bef5d2a1d6af5d39d7200c819cf99e07f7dfef1c51e"
+)
+
+
+def _ensure_pyarrow(deps_root: Path = Path("/deps")) -> None:
+    try:
+        import pyarrow  # noqa: F401
+
+        return
+    except ModuleNotFoundError:
+        pass
+    wheels = list(deps_root.glob("pyarrow-21.0.0-*.whl"))
+    if len(wheels) != 1:
+        raise RuntimeError(f"Expected one pinned pyarrow wheel in {deps_root}.")
+    wheel = wheels[0]
+    digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
+    if digest != PYARROW_WHEEL_SHA256:
+        raise RuntimeError(
+            f"Pinned pyarrow wheel digest mismatch: expected={PYARROW_WHEEL_SHA256} "
+            f"actual={digest}"
+        )
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--no-index", str(wheel)],
+        check=True,
+    )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -36,6 +64,7 @@ def main() -> None:
         )
     )
     sys.path.insert(0, str(wrapper_code))
+    _ensure_pyarrow()
 
     import wandb
     from post_training_analysis.heldout_finetuning import (
