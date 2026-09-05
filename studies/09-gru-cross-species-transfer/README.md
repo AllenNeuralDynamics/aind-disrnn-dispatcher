@@ -135,4 +135,4 @@ must not be sent to Beaker.
 The completed comparison is [Result 2](analysis/reports/r2-author-aligned-baselines.md).
 The author-selected model beats common Q only for Chen (+0.00392 normalized
 likelihood). The D=614 transferred GRU remains above the author-selected model
-by +0.01559 on Grossman, +0.00136 on Chen, and +0.01936 on Zid.
+by +0.01559 on Grossman, +0.00136 on Chen, and +0.03057 on Zid.
