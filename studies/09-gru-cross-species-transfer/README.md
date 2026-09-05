@@ -3,6 +3,9 @@
 Issues: dispatcher [#32](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/32),
 [#126](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/126),
 and [#127](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/127);
+author-aligned baselines [#131](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/131),
+[#132](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/132),
+and [#133](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-dispatcher/issues/133);
 wrapper [#91](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-wrapper/issues/91)
 and [#92](https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-bfm-wrapper/issues/92).
 
@@ -113,3 +116,18 @@ The completed result is [Result 1](analysis/reports/r1-matched-half-gru-vs-q.md)
 At D=614, trial-pooled GRU normalized likelihood exceeds Q-learning by 0.01358
 on Grossman, 0.00528 on Chen, and 0.00936 on Zid. The frozen input also proves
 exact ordered trial-key equality between every GRU cell and its Q baseline.
+
+## Author-aligned baselines
+
+The common Q-learning model remains the controlled baseline across datasets.
+Three additional variants test whether that conclusion depends on using a
+generic family instead of the model selected by each dataset's authors:
+
+- `grossman-meta-learning`: uncertainty-dependent asymmetric meta-learning;
+- `chen-rlck`: the selected four-parameter RL plus choice-kernel model;
+- `zid-history-kernel`: both the best traditional RLCK model and the best
+  overall history-kernel-2 foraging-RL model.
+
+They use the same subject-level adaptation observations and identical held-out
+trial keys as Result 1. These fits are CPU-only SLURM jobs on Allen HPC; they
+must not be sent to Beaker.

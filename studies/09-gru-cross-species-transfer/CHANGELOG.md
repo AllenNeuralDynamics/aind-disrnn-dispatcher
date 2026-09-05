@@ -2,6 +2,8 @@
 
 ## 2026-09-05
 
+- Added author-aligned Grossman meta-learning, Chen RLCK, and Zid traditional
+  RLCK/history-kernel-2 foraging-RL model definitions and HPC variants.
 - Pinned the 15 H=128 Study 01 source GRUs and their committed W&B artifacts.
 - Added matched-half GPU grids for Grossman, Chen, and Zid.
 - Added the matched subject-level Q-learning CPU runner and HPC SLURM array.
