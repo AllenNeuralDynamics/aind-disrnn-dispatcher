@@ -88,3 +88,18 @@ paired by subject. Report normalized likelihood, Brier score, accuracy, and
 calibration as descriptive secondary metrics. Fit preprocessing, hyperparameters,
 random seeds, split manifests, source checksums, and model checkpoints are part
 of the run provenance.
+
+## Current matched-half report
+
+Issue #126 first evaluates the fully matched half-data condition. The GRU panel
+uses the fixed H=128 Study 01 source models at
+`D={10,30,100,300,614}` with seeds 0--2. For every cell, only the new-subject
+embedding is optimized for 500 steps at learning rate 0.001; the GRU core stays
+frozen and the target test partition never selects a checkpoint. Source run IDs
+and immutable W&B artifact digests are recorded in `source_runs.json`.
+
+The three `gru-*-matched-half` variants run as GPU-only Beaker grids. The
+`q-matched-half` variant runs as a CPU-only SLURM array on Allen HPC. Both model
+families consume the same generated Parquet table and split manifest, and both
+emit the wrapper's canonical `test_trial_predictions.csv` and
+`test_metrics.json` outputs for an exact trial-key parity check.

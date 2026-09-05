@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-05
+
+- Pinned the 15 H=128 Study 01 source GRUs and their committed W&B artifacts.
+- Added matched-half GPU grids for Grossman, Chen, and Zid.
+- Added the matched subject-level Q-learning CPU runner and HPC SLURM array.
+- Kept Zid as one within-session prefix/suffix condition with no session-count K.
+
 ## 2026-09-04
 
 - Created the top-three open-data starter suite for Grossman, Chen, and Zid.
