@@ -26,7 +26,7 @@ model selected in each source paper, rather than only our common sticky Q-learni
 
 ![Author-aligned baselines versus common Q and transferred GRU](../fig_author_baseline_likelihood.png)
 
-All models use the same subject-level adaptation/test split and score the exact same held-out trials. GRU is the mean ± SD across the three D=614 source-training seeds.
+All models use the same subject-level adaptation/test split and score the exact same held-out trials. The GRU curve is mean ± SD across three source-training seeds at every D; the table reports D=614.
 
 | target | published baseline | selected by authors? | parameters | common Q | published baseline | GRU D=614 |
 |---|---|:---:|---:|---:|---:|---:|

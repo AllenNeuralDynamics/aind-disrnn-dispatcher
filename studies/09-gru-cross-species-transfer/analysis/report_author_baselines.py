@@ -22,6 +22,7 @@ FIGURE = STUDY / "analysis" / "fig_author_baseline_likelihood.png"
 REPORT = STUDY / "analysis" / "reports" / "r2-author-aligned-baselines.md"
 START = "<!-- BEGIN result-2 -->"
 END = "<!-- END result-2 -->"
+DS = (10, 30, 100, 300, 614)
 LABELS = {
     "grossman": "Grossman mouse",
     "chen": "Chen mouse",
@@ -83,7 +84,7 @@ def _paired_comparisons(record: dict, dataset: dict) -> tuple[dict, dict]:
 
 def _plot(author_data: dict, matched: dict) -> None:
     apply_presentation_style()
-    fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.2), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.5), constrained_layout=True)
     records = author_data["records"]
     for axis, dataset_name in zip(axes, ("grossman", "chen", "zid")):
         dataset = matched["datasets"][dataset_name]
@@ -92,26 +93,48 @@ def _plot(author_data: dict, matched: dict) -> None:
             for key, record in records.items()
             if record["dataset"] == dataset_name
         ]
-        labels = ["common Q"] + [BASELINE_LABELS[key] for key, _ in baselines] + ["GRU D=614"]
-        x = list(range(len(labels)))
-        axis.scatter([x[0]], [_metric(dataset["q"])], s=75, color="#4C4C4C", zorder=3)
-        for position, (_, record) in enumerate(baselines, start=1):
-            axis.scatter([position], [_metric(record)], s=85, color="#C44E52", zorder=3)
-        gru_values = [_metric(row) for row in _gru_d614(dataset)]
-        axis.scatter([x[-1]] * len(gru_values), gru_values, s=45, color="#4C72B0", alpha=0.55)
+        means, sds = [], []
+        for d in DS:
+            values = [
+                _metric(row) for row in dataset["gru"] if int(row["nominal_D"]) == d
+            ]
+            if len(values) != 3:
+                raise AssertionError(f"Expected three GRU seeds for D={d}")
+            means.append(statistics.mean(values))
+            sds.append(statistics.stdev(values))
+            axis.scatter([d] * len(values), values, s=28, color="#4C72B0", alpha=0.4)
         axis.errorbar(
-            [x[-1]],
-            [statistics.mean(gru_values)],
-            yerr=[statistics.stdev(gru_values)],
+            DS,
+            means,
+            yerr=sds,
             marker="o",
             color="#4C72B0",
             capsize=3,
+            label="GRU mean ± SD",
             zorder=4,
         )
-        axis.set_xticks(x, labels, rotation=24, ha="right")
+        axis.axhline(
+            _metric(dataset["q"]),
+            color="#333333",
+            linestyle="--",
+            label="common Q",
+        )
+        for baseline, record in baselines:
+            selected = bool(record["author_selected"])
+            suffix = "author-selected" if selected else "paper comparator"
+            axis.axhline(
+                _metric(record),
+                color="#C44E52" if selected else "#DD8452",
+                linestyle="-." if selected else ":",
+                label=f"{BASELINE_LABELS[baseline]} ({suffix})",
+            )
+        axis.set_xscale("log")
+        axis.set_xticks(DS, [str(d) for d in DS])
         axis.set_title(LABELS[dataset_name])
+        axis.set_xlabel("Source subjects D")
         axis.set_ylabel("Held-out normalized likelihood")
         axis.grid(axis="y", alpha=0.2)
+        axis.legend(frameon=False, fontsize=8.5, loc="best")
     fig.savefig(FIGURE, bbox_inches="tight")
     plt.close(fig)
 
@@ -127,7 +150,7 @@ def _result_block(author_data: dict, matched: dict) -> str:
         "![Author-aligned baselines versus common Q and transferred GRU](../fig_author_baseline_likelihood.png)",
         "",
         "All models use the same subject-level adaptation/test split and score the exact same held-out trials. "
-        "GRU is the mean ± SD across the three D=614 source-training seeds.",
+        "The GRU curve is mean ± SD across three source-training seeds at every D; the table reports D=614.",
         "",
         "| target | published baseline | selected by authors? | parameters | common Q | published baseline | GRU D=614 |",
         "|---|---|:---:|---:|---:|---:|---:|",
